@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "PROZEN: Toolkit for Yandex.Zen",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Advanced statistics for Yandex.Zen editor",
+    "description": "Extension description"
+  }
+}
