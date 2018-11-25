@@ -1,7 +1,7 @@
 /*
 
 Change Log
-v1.0.0.
+v1.0.0
 + Кнопка метрики вынесена на главный экран
 + В меню карточки публикации добавлена кнопка «Прямая ссылка» (без ?from=editor)
 + Обработка карточек происходит по мере их загрузки (в автоматическим режиме)
@@ -9,11 +9,6 @@ v1.0.0.
 + Сумма полного заработка (выведенные средства + остаток) выводятся в виде подсказки к полной сумме
 + Выводить статистику под каждой записью
 + Отображать дату под карточкой (статистикой)
-
-TODO
-- Выводить всплывающие сообщения при наведении на элемент статистики
-- Выводить 1-2 записи с ПРОДЗЕНа во всплыващем сообщении
-- Фильтр контента: Всё | Черновики | Статьи | Нарртивы | Посты
  */
 
 const URL_ZEN = "https://zen.yandex.ru";
@@ -83,7 +78,6 @@ function processCards() {
         const articles = [];
         for (let i in data.items) {
             const stat = data.items[i];
-            console.log(stat);
             const id = stat.publicationId;
             const card = publications.get(id);
             card.comments = stat.comments;
@@ -103,6 +97,7 @@ function processCards() {
                 const card = publications.get(id);
                 card.addTime = article.publications[0].addTime;
                 card.modTime = article.publications[0].content.modTime;
+                card.tags = article.publications[0].privateData.tags;
             }
         }).then(function () {
             for (let i = 0; i< ids.length; i++) {
@@ -198,6 +193,11 @@ function addStats(leftSide, rightSide, pubData) {
     const comments = createRightItem(pubData.comments, "icon_comments");
     comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии");
     rightSide.appendChild (comments);
+
+    const tags = createRightItem("", "icon_tags");
+    console.log(pubData.tags);
+    tags.setAttribute("title", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
+    rightSide.appendChild (tags);
 }
 
 function createRightItem(count, text) {
@@ -211,6 +211,7 @@ function createRightItem(count, text) {
         case "icon_like":
         case "icon_clock":
         case "icon_comments":
+        case "icon_tags":
             itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
             itemIcon.innerText = "";
             item.appendChild(itemIcon);
@@ -388,4 +389,20 @@ function secToText(seconds) {
 
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
     return (hours > 0 ? hours +" час. " : "") + min +" мин. "+sec+ " сек.";
+}
+
+function joinByThree(list) {
+    console.log("list: "+list);
+    let text = "";
+    for (i = 0; i<list.length; i++) {
+        if (i === 0) {
+            text = list[i];
+        } else if ( (i/3) === Math.floor(i/3)) {
+            text = text + ",\n" + list[i];
+        } else {
+            text = text + ", " + list[i];
+        }
+    }
+    console.log("text: "+text);
+    return text;
 }

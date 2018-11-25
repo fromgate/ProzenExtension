@@ -40,3 +40,10 @@
     top: -0px;
     width: 14px
 }
+
+.icon_tags {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3ETag%3C/title%3E%3Cdesc%3ECreated with Sketch.%3C/desc%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-300.000000, -2959.000000)' fill='%235c6f7e'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M247.812,2804.813 L249.812,2804.813 L249.812,2802.813 L247.812,2802.813 L247.812,2804.813 Z M255.515,2816.172 L246,2806.657 L246,2801 L251.657,2801 L261.172,2810.515 L255.515,2816.172 Z M263.381,2809.896 L263.381,2809.896 L252.485,2799 L244,2799 L244,2807.485 C248.088,2811.573 253.358,2816.844 255.515,2819 C258.706,2815.809 260.929,2813.586 264,2810.515 L263.381,2809.896 Z' id='tag'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    height: 14px;
+    top: -0px;
+    width: 14px
+}
