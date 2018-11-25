@@ -128,22 +128,6 @@ function processCards() {
         });
     });
 }
-
-function createItemLeft(count, text) {
-    const item = document.createElement("div");
-    item.setAttribute("class", "publication-card-item-statistic__main-item");
-    const itemCount = document.createElement("span");
-    itemCount.setAttribute("class", "publication-card-item-statistic__main-count");
-    itemCount.innerText = isNaN (count) ? count : count.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    //.toLocaleString(undefined, { maximumFractionDigits: 2 })
-    const itemText = document.createElement("span");
-    itemText.setAttribute("class", "publication-card-item-statistic__main-text");
-    itemText.innerText = text;
-    item.appendChild(itemCount);
-    item.appendChild(itemText);
-    return item;
-}
-
 function createLeftItem(count, text, postText) {
 
     const item = document.createElement("div");
@@ -184,30 +168,36 @@ function createLeftItem(count, text, postText) {
 
 function addStats(leftSide, rightSide, pubData) {
     const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
+    shows.setAttribute("title", "Показы");
     leftSide.appendChild(shows);
     const ctr = ((pubData.views / pubData.feedShows)*100).toFixed(2);
     const views = createLeftItem(pubData.views, "icon_views", "("+ctr +"%)");
+    views.setAttribute("title", "Просмотры (CTR)");
     leftSide.appendChild(views);
 
     const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
     const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", isNaN (readsPercent) ? "" :"("+readsPercent+"%)");
+    viewsTillEnd.setAttribute("title", "Дочитывания");
     leftSide.appendChild (viewsTillEnd);
 
     const dayCreate = dateFormat(pubData.addTime);
     const dayMod = dateFormat(pubData.modTime);
     const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : "("+dayMod+")");
+    date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
     leftSide.appendChild(date);
 
     const likes = createRightItem(pubData.likes, "icon_like");
+    likes.setAttribute("title", "Лайки");
     rightSide.appendChild (likes);
 
+
     const readTime = createRightItem(secToHHMMSS (pubData.readTime), "icon_clock");
+    readTime.setAttribute("title", "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : ""));
     rightSide.appendChild (readTime);
 
     const comments = createRightItem(pubData.comments, "icon_comments");
+    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии");
     rightSide.appendChild (comments);
-
-
 }
 
 function createRightItem(count, text) {
@@ -265,7 +255,6 @@ function getPostIdFromUrl(url) {
 }
 
 function getPublisherId() {
-    //https://forms.yandex.ru/surveys/6674/?znchnlid=<ID>
     return document.getElementsByClassName("help-button__link")[0].getAttribute("href").split("=")[1];
 }
 
