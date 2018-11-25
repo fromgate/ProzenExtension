@@ -13,7 +13,7 @@
   "background": {
     "scripts": ["/js/background.js"]
   },
-  "web_accessible_resources" : ["/js/content.js"],
+  "web_accessible_resources" : ["/js/content.js", "/css/icons.css"],
   "content_scripts": [{
     "js": ["/js/start.js"],
     "matches": ["https://zen.yandex.ru/profile/editor/*"],

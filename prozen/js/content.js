@@ -7,15 +7,19 @@ v1.0.0.
 + Обработка карточек происходит по мере их загрузки (в автоматическим режиме)
 + В поле сумма выводится форматированное значение с копейками
 + Сумма полного заработка (выведенные средства + остаток) выводятся в виде подсказки к полной сумме
-+ Выводить всплывающее сообщение (по кнопке)
++ Выводить статистику под каждой записью
++ Отображать дату под карточкой (статистикой)
 
 TODO
-- Выводить статистику под каждой записью (как у Алексея)
-- Отображать дату под карточкой (статистикой)
+- Выводить всплывающие сообщения при наведении на элемент статистики
 - Выводить 1-2 записи с ПРОДЗЕНа во всплыващем сообщении
 - Фильтр контента: Всё | Черновики | Статьи | Нарртивы | Посты
  */
 
+const URL_ZEN = "https://zen.yandex.ru";
+const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
+const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
+const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
 const token = window._csrfToken;
 const publisherId = getPublisherId();
 const publications = new Map();
@@ -79,6 +83,7 @@ function processCards() {
         const articles = [];
         for (let i in data.items) {
             const stat = data.items[i];
+            console.log(stat);
             const id = stat.publicationId;
             const card = publications.get(id);
             card.comments = stat.comments;
@@ -86,7 +91,9 @@ function processCards() {
             card.likes = stat.likes;
             card.shows = stat.shows;
             card.views = stat.views;
+            card.sumViewTimeSec = stat.sumViewTimeSec;
             card.viewsTillEnd = stat.viewsTillEnd;
+            card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
             articles.push(loadArticle(id));
         }
         Promise.all(articles).then(function (articles) {
@@ -98,32 +105,19 @@ function processCards() {
                 card.modTime = article.publications[0].content.modTime;
             }
         }).then(function () {
-            // TODO вот тут уже работа по отображению статистки записи
-
-
-
-
             for (let i = 0; i< ids.length; i++) {
-
                 const publicationId = ids[i];
                 const value = publications.get(publicationId);
-
                 if (value.processed) {
                     continue;
                 }
-
                 if (value.card.hasChildNodes()) {
-                    //publication-card-item__footer
-                    //publication-card-item-statistic
-                    //publication-card-item-statistic__main
-                    const cardStat = value.card.getElementsByClassName("publication-card-item-statistic__main")[0];
-                    removeChilds (cardStat);
-
-                    const likes = value.card.getElementsByClassName("publication-card-item-statistic__likes")[0];
-                    // removeChilds (likes);
-                    addStats (cardStat, likes, value);
-
-
+                    const cartLeft = value.card.getElementsByClassName("publication-card-item-statistic__main")[0];
+                    removeChilds (cartLeft);
+                    const cardRight= value.card.getElementsByClassName("publication-card-item-statistic__likes")[0];
+                    removeChilds (cardRight);
+                    removeByClass  ("article-stat-tip");
+                    addStats (cartLeft, cardRight, value);
                     let actions = value.card.getElementsByClassName("publication-card-item__actions");
                     if (actions.length >0) {
                         addDirectLinkButton(actions[0]);
@@ -131,57 +125,9 @@ function processCards() {
                 }
                 value.processed = true;
             }
-
-
         });
     });
 }
-
-/*
-<div class="publication-card-item__footer">
-    <div class="publication-card-item-statistic publication-card-item-statistic_loaded">
-        <div class="publication-card-item-statistic__main">
-            <div class="publication-card-item-statistic__main-item"><span
-                    class="publication-card-item-statistic__main-count">55,9 тыс.</span><span
-                    class="publication-card-item-statistic__main-text">показов в ленте</span>
-            </div>
-            <div class="publication-card-item-statistic__main-item"><span
-                    class="publication-card-item-statistic__main-count">1,89 тыс.</span><span
-                    class="publication-card-item-statistic__main-text">просмотров</span>
-            </div>
-            <div class="publication-card-item-statistic__main-item"><span
-                    class="publication-card-item-statistic__main-count">1,45 тыс.</span><span
-                    class="publication-card-item-statistic__main-text">дочитываний</span>
-            </div>
-        </div>
-        <div class="publication-card-item-statistic__likes">
-            <div class="publication-card-item-statistic__wrapper-item"><span
-                    class="publication-card-item-statistic__icon publication-card-item-statistic__icon_type_like"></span><span
-                    class="publication-card-item-statistic__count">35</span></div>
-            <div class="publication-card-item-statistic__wrapper-item"><span
-                    class="publication-card-item-statistic__icon publication-card-item-statistic__icon_type_time"></span>
-                    <span
-                    class="publication-card-item-statistic__count">1 мин 30 секунд</span></div>
-        </div>
-        <div class="article-stat-tip ">
-            <div class="article-stat-tip__item"><span class="article-stat-tip__value">1,89 тыс. просмотров. </span>Уникальные
-                посетители страницы.
-            </div>
-            <div class="article-stat-tip__item"><span
-                    class="article-stat-tip__value">1,45 тыс. дочитываний, 77%. </span>Пользователи, дочитавшие до
-                конца.
-            </div>
-            <div class="article-stat-tip__item"><span class="article-stat-tip__value">1 мин 30 секунд</span>. Среднее
-                время дочитывания публикации.
-            </div>
-        </div>
-    </div>
-</div>
-
- */
-
-
-
 
 function createItemLeft(count, text) {
     const item = document.createElement("div");
@@ -198,67 +144,97 @@ function createItemLeft(count, text) {
     return item;
 }
 
+function createLeftItem(count, text, postText) {
 
-/*
-
-+ addTime: 1538289724097
-# card: div.publication-card-item.publication-card-item_type_image
-comments: 11
-+ feedShows: 61152
-likes: 132
-+ modTime: 1542466595690
-# processed: true
-+ shows: 2447
-views: 2700
-+ viewsTillEnd: 2207
-
-*/
-function addStats(leftSide, rightSide, pubData) {
-    const dayCreate = dateFormat(pubData.addTime);
-    const dayMod = dateFormat(pubData.modTime);
-    const date = createItemLeft (dayCreate, dayCreate === dayMod ? "" : "("+dayMod+")");
-    leftSide.appendChild(date);
-    const shows = createItemLeft(pubData.feedShows, "показов");
-    leftSide.appendChild(shows);
-    const views = createItemLeft(pubData.views, "просмотров");
-    leftSide.appendChild(views);
-    const viewsTillEnd = createItemLeft(pubData.viewsTillEnd, "дочитываний");
-    leftSide.appendChild (viewsTillEnd);
-/*
-    const likes = createItemRight(pubData.likes, "likes");
-    rightSide.appendChild (likes); */
-}
-
-
-function createItemRight(count, text) {
     const item = document.createElement("div");
-    item.setAttribute("class","publication-card-item-statistic__wrapper-item");
-    const itemIcon = document.createElement("span");
-
-    if (text === "likes") {
-        itemIcon.setAttribute("class", "publication-card-item-statistic__icon publication-card-item-statistic__icon_type_like");
-        itemIcon.innerText = "";
-    } else if (text === "readTime") {
-        itemIcon.setAttribute("class", "publication-card-item-statistic__icon publication-card-item-statistic__icon_type_time");
-        itemIcon.innerText = "";
-    } else {
-        itemIcon.setAttribute("class", "publication-card-item-statistic__icon");
-        itemIcon.innerText = text;
-    }
+    item.setAttribute("class", "publication-card-item-statistic__main-item");
 
     const itemCount = document.createElement("span");
-    itemCount.setAttribute("class", "publication-card-item-statistic__count");
-    itemCount.innerText = count;
+    itemCount.setAttribute("class", "publication-card-item-statistic__main-count");
+    itemCount.innerText = isNaN(count) ? count : count.toLocaleString(undefined, {maximumFractionDigits: 0});
 
-    item.appendChild(itemIcon);
-    item.appendChild(itemCount);
+    const itemText = document.createElement("span");
+
+    switch (text) {
+        case "icon_calendar":
+        case "icon_shows_in_feed":
+        case "icon_views":
+        case "icon_views_till_end":
+            itemText.setAttribute("class", "publication-card-item-statistic__icon " + text);
+            item.appendChild(itemText);
+            item.appendChild(itemCount);
+            if (postText !== undefined && postText !== "") {
+                const itemPost = document.createElement("span");
+                itemPost.setAttribute("class", "publication-card-item-statistic__main-text");
+                itemPost.innerText = postText;
+                item.appendChild(itemPost);
+            }
+            break;
+        default:
+            itemText.setAttribute("class", "publication-card-item-statistic__main-text");
+            itemText.innerText = text;
+            item.appendChild(itemCount);
+            item.appendChild(itemText);
+            break;
+    }
+
     return item;
 }
 
 
+function addStats(leftSide, rightSide, pubData) {
+    const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
+    leftSide.appendChild(shows);
+    const ctr = ((pubData.views / pubData.feedShows)*100).toFixed(2);
+    const views = createLeftItem(pubData.views, "icon_views", "("+ctr +"%)");
+    leftSide.appendChild(views);
+
+    const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
+    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", isNaN (readsPercent) ? "" :"("+readsPercent+"%)");
+    leftSide.appendChild (viewsTillEnd);
+
+    const dayCreate = dateFormat(pubData.addTime);
+    const dayMod = dateFormat(pubData.modTime);
+    const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : "("+dayMod+")");
+    leftSide.appendChild(date);
+
+    const likes = createRightItem(pubData.likes, "icon_like");
+    rightSide.appendChild (likes);
+
+    const readTime = createRightItem(secToHHMMSS (pubData.readTime), "icon_clock");
+    rightSide.appendChild (readTime);
+
+    const comments = createRightItem(pubData.comments, "icon_comments");
+    rightSide.appendChild (comments);
 
 
+}
 
+function createRightItem(count, text) {
+    const item = document.createElement("div");
+    item.setAttribute("class","publication-card-item-statistic__wrapper-item");
+    const itemCount = document.createElement("span");
+    itemCount.setAttribute("class", "publication-card-item-statistic__count");
+    itemCount.innerText = count;
+    const itemIcon = document.createElement("span");
+    switch (text) {
+        case "icon_like":
+        case "icon_clock":
+        case "icon_comments":
+            itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
+            itemIcon.innerText = "";
+            item.appendChild(itemIcon);
+            item.appendChild(itemCount);
+            break;
+        default:
+            itemIcon.setAttribute("class", "publication-card-item-statistic__icon");
+            itemIcon.innerText = text;
+            item.appendChild(itemCount);
+            item.appendChild(itemIcon);
+            break;
+    }
+    return item;
+}
 
 function removeChilds(el) {
     while (el.firstChild) {
@@ -266,17 +242,16 @@ function removeChilds(el) {
     }
 }
 
-/*
-function addPostDate(snippet) {
-    let dateSnippet = document.createElement("div");
-    dateSnippet.setAttribute("class","card__snippet clamped-text-1");
-    dateSnippet.innerHTML = "<small>01.01.2019 (01.01.2019)</small>"; ///////////////////////////////TODO
-    snippet.insertAdjacentElement("afterend", dateSnippet);
-}*/
+function removeByClass (className) {
+    const elements = document.getElementsByClassName(className);
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+}
 
 function addDirectLinkButton(element) {
     const link = element.children[0];
-    const linkUrl = "https://zen.yandex.ru" + link.getAttribute("href").replace("?from=editor", "");
+    const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
     const directLink = document.createElement("a");
     directLink.setAttribute("href",linkUrl);
     directLink.setAttribute("class", "publication-card-item__action-button");
@@ -295,7 +270,7 @@ function getPublisherId() {
 }
 
 function showBalanceAndMetrics() {
-    const url = "https://zen.yandex.ru/media-api/id/" + publisherId + "/money";
+    const url = URL_API_MEDIA + publisherId + "/money";
     const data = fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
     data.then(response => {
         if (response.money.isMonetezationAvaliable) {
@@ -335,12 +310,12 @@ function addMetricsButton(metricsId) {
 
 
 function loadPublicationsStat(publicationIds) {
-    const url="https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=" + encodeURIComponent(publicationIds.join(","));
+    const url=URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","));
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 function loadArticle(publicationId) {
-    const url="https://zen.yandex.ru/media-api/get-publication?publicationId=" + publicationId;
+    const url=URL_API_GET_PUBLICATION + publicationId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
@@ -398,5 +373,30 @@ function dateFormat(unixTime) {
     const minutes = "0" + date.getMinutes();
     return day.substr(-2) + "." + month.substr(-2) + "."
         +year.substr(-2) + " "+hours.substr(-2)+":"+minutes.substr(-2) ;
+}
 
+function secToHHMMSS(seconds) {
+    let time = seconds;
+
+    const hours = Math.floor(time /  3600);
+
+    time = time % 3600;
+    const min = ("0" + Math.floor(time/  60)).substr(-2);
+    const sec = ("0" + (time % 60)).substr(-2);
+
+    if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "0";
+    return (hours > 0 ? hours +":" : "") + min +":"+sec;
+}
+
+function secToText(seconds) {
+    let time = seconds;
+
+    const hours = Math.floor(time /  3600);
+
+    time = time % 3600;
+    const min = ("0" + Math.floor(time/  60)).substr(-2);
+    const sec = ("0" + (time % 60)).substr(-2);
+
+    if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
+    return (hours > 0 ? hours +" час. " : "") + min +" мин. "+sec+ " сек.";
 }
