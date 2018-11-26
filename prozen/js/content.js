@@ -295,7 +295,21 @@ function addMetricsButton(metricsId) {
     metricsButton.setAttribute("data-multiline","true");
     metricsButton.setAttribute("data-tip","Яндекс.Метрика");
     metricsButton.setAttribute("currentitem","false");
-    metricsButton.innerHTML = "<a aria-pressed=\"false\" tabindex=\"0\" aria-disabled=\"false\" target=\"_blank\" href=\""+metricsUrl+"\" class=\"control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link\"><span class=\"button2__text\"><svg width=\"18\" height=\"16\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><g class=\"layer\"><title>Layer 1</title><g fill=\"none\" fill-rule=\"evenodd\" id=\"svg_1\"><g fill=\"#0077FF\" id=\"stats\" stroke=\"#0077FF\" transform=\"translate(1.000000, 1.000000)\"><polygon fill=\"#ff0000\" stroke=\"#ff0000\" id=\"svg_2\" points=\"0 7 4 7 4 14 0 14\"/><polygon fill=\"#4277ca\" stroke=\"#4277ca\" id=\"svg_3\" points=\"6 4 10 4 10 14 6 14\"/><polygon fill=\"#ffcc00\" stroke=\"#ffcc00\" id=\"svg_4\" points=\"12 0 16 0 16 14 12 14\"/></g></g></g></svg></span></a>";
+    const metricsA = document.createElement("a");
+    metricsA.setAttribute("aria-pressed","false");
+    metricsA.setAttribute("tabindex","0");
+    metricsA.setAttribute("aria-disabled","false");
+    metricsA.setAttribute("target","_blank");
+    metricsA.setAttribute("class","control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
+    metricsA.setAttribute("href",metricsUrl);
+    const aSpan = document.createElement("span");
+    aSpan.setAttribute("class","button2__text");
+    metricsA.appendChild(aSpan);
+    const img = document.createElement("img");
+    img.setAttribute("src","data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZyBjbGFzcz0ibGF5ZXIiPgogICAgICAgIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICAgICAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGlkPSJzdmdfMSI+CiAgICAgICAgICAgIDxnIGZpbGw9IiMwMDc3RkYiIGlkPSJzdGF0cyIgc3Ryb2tlPSIjMDA3N0ZGIgogICAgICAgICAgICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjAwMDAwMCwgMS4wMDAwMDApIj4KICAgICAgICAgICAgICAgIDxwb2x5Z29uIGZpbGw9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBzdHJva2U9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBpZD0ic3ZnXzIiCiAgICAgICAgICAgICAgICAgICAgICAgICBwb2ludHM9IjAgNyA0IDcgNCAxNCAwIDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbgogICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjNDI3N2NhIiBzdHJva2U9IiM0Mjc3Y2EiIGlkPSJzdmdfMyIgcG9pbnRzPSI2IDQgMTAgNCAxMCAxNCA2IDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbiBmaWxsPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgc3Ryb2tlPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgaWQ9InN2Z180IgogICAgICAgICA\n" +
+        "gICAgICAgICAgICAgICAgcG9pbnRzPSIxMiAwIDE2IDAgMTYgMTQgMTIgMTQiLz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+");
+    aSpan.appendChild(img);
+    metricsButton.appendChild(metricsA);
     const navblocks = document.getElementsByClassName("header__nav-block");
     const last = navblocks.item(navblocks.length - 1);
     last.insertAdjacentElement("afterend", metricsButton);
