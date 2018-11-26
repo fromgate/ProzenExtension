@@ -1,20 +1,3 @@
-/*
-
-Change Log
-v1.0.2
-- Обновлены иконки
-v1.0.1
-- Убрал вывод ненужных сообщений из лога
-v1.0.0
-+ Кнопка метрики вынесена на главный экран
-+ В меню карточки публикации добавлена кнопка «Прямая ссылка» (без ?from=editor)
-+ Обработка карточек происходит по мере их загрузки (в автоматическим режиме)
-+ В поле сумма выводится форматированное значение с копейками
-+ Сумма полного заработка (выведенные средства + остаток) выводятся в виде подсказки к полной сумме
-+ Выводить статистику под каждой записью
-+ Отображать дату под карточкой (статистикой)
- */
-
 const URL_ZEN = "https://zen.yandex.ru";
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
@@ -195,7 +178,8 @@ function addStats(leftSide, rightSide, pubData) {
     rightSide.appendChild (readTime);
 
     const comments = createRightItem(pubData.comments, "icon_comments");
-    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии");
+    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + ((pubData.comments / pubData.viewsTillEnd)*100).toFixed(2) + "%)";
+    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (ER - вовлечённость)");
     rightSide.appendChild (comments);
 
     const tags = createRightItem("", "icon_tags");
