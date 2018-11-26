@@ -147,7 +147,6 @@ function createLeftItem(count, text, postText) {
     return item;
 }
 
-
 function addStats(leftSide, rightSide, pubData) {
     const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
     shows.setAttribute("title", "Показы");
@@ -177,9 +176,9 @@ function addStats(leftSide, rightSide, pubData) {
     readTime.setAttribute("title", "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : ""));
     rightSide.appendChild (readTime);
 
-    const comments = createRightItem(pubData.comments, "icon_comments");
     const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + ((pubData.comments / pubData.viewsTillEnd)*100).toFixed(2) + "%)";
-    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (ER - вовлечённость)");
+    const comments = createRightItem(commentsValue, "icon_comments");
+    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (вовлечённость, ER)");
     rightSide.appendChild (comments);
 
     const tags = createRightItem("", "icon_tags");
