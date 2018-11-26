@@ -2,16 +2,13 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "browser_action": {
     "default_icon": "tab-icon.png",
     "default_title": "__MSG_extName__",
     "default_popup": "popup.html"
-  },
-  "background": {
-    "scripts": ["/js/background.js"]
   },
   "web_accessible_resources" : ["/js/content.js", "/css/icons.css"],
   "content_scripts": [{

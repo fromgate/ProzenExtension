@@ -1,6 +1,8 @@
 /*
 
 Change Log
+v1.0.1
+- Убрал вывод ненужных сообщений из лога
 v1.0.0
 + Кнопка метрики вынесена на главный экран
 + В меню карточки публикации добавлена кнопка «Прямая ссылка» (без ?from=editor)
@@ -195,7 +197,6 @@ function addStats(leftSide, rightSide, pubData) {
     rightSide.appendChild (comments);
 
     const tags = createRightItem("", "icon_tags");
-    console.log(pubData.tags);
     tags.setAttribute("title", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
     rightSide.appendChild (tags);
 }
@@ -392,7 +393,6 @@ function secToText(seconds) {
 }
 
 function joinByThree(list) {
-    console.log("list: "+list);
     let text = "";
     for (i = 0; i<list.length; i++) {
         if (i === 0) {
@@ -403,6 +403,5 @@ function joinByThree(list) {
             text = text + ", " + list[i];
         }
     }
-    console.log("text: "+text);
     return text;
 }
