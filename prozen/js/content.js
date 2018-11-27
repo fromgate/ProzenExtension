@@ -370,7 +370,7 @@ function secToHHMMSS(seconds) {
     const hours = Math.floor(time / 3600);
     time = time % 3600;
     const min = ("0" + Math.floor(time / 60)).substr(-2);
-    const sec = ("0" + (time % 60)).substr(-2);
+    const sec = ("0" + Math.floor(time % 60)).substr(-2);
 
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "0";
     return (hours > 0 ? hours +":" : "") + min +":"+sec;
@@ -381,7 +381,7 @@ function secToText(seconds) {
     const hours = Math.floor(time / 3600);
     time = time % 3600;
     const min = Math.floor(time / 60);
-    const sec = time % 60;
+    const sec = Math.floor(time % 60);
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
     return (hours > 0 ? hours +" час. " : "") + min +" мин. "+sec+ " сек.";
 }
