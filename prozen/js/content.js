@@ -110,42 +110,7 @@ function processCards() {
         });
     });
 }
-function createLeftItem(count, text, postText) {
 
-    const item = document.createElement("div");
-    item.setAttribute("class", "publication-card-item-statistic__main-item");
-
-    const itemCount = document.createElement("span");
-    itemCount.setAttribute("class", "publication-card-item-statistic__main-count");
-    itemCount.innerText = isNaN(count) ? count : count.toLocaleString(undefined, {maximumFractionDigits: 0});
-
-    const itemText = document.createElement("span");
-
-    switch (text) {
-        case "icon_calendar":
-        case "icon_shows_in_feed":
-        case "icon_views":
-        case "icon_views_till_end":
-            itemText.setAttribute("class", "publication-card-item-statistic__icon " + text);
-            item.appendChild(itemText);
-            item.appendChild(itemCount);
-            if (postText !== undefined && postText !== "") {
-                const itemPost = document.createElement("span");
-                itemPost.setAttribute("class", "publication-card-item-statistic__main-text");
-                itemPost.innerText = postText;
-                item.appendChild(itemPost);
-            }
-            break;
-        default:
-            itemText.setAttribute("class", "publication-card-item-statistic__main-text");
-            itemText.innerText = text;
-            item.appendChild(itemCount);
-            item.appendChild(itemText);
-            break;
-    }
-
-    return item;
-}
 
 function addStats(leftSide, rightSide, pubData) {
     const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
@@ -186,6 +151,42 @@ function addStats(leftSide, rightSide, pubData) {
     rightSide.appendChild (tags);
 }
 
+function createLeftItem(count, text, postText) {
+    const item = document.createElement("div");
+    item.setAttribute("class", "publication-card-item-statistic__main-item");
+
+    const itemCount = document.createElement("span");
+    itemCount.setAttribute("class", "publication-card-item-statistic__main-count");
+    itemCount.innerText = isNaN(count) ? count : count.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+    const itemText = document.createElement("span");
+
+    switch (text) {
+        case "icon_calendar":
+        case "icon_shows_in_feed":
+        case "icon_views":
+        case "icon_views_till_end":
+            itemText.setAttribute("class", "publication-card-item-statistic__icon " + text);
+            item.appendChild(itemText);
+            item.appendChild(itemCount);
+            if (postText !== undefined && postText !== "") {
+                const itemPost = document.createElement("span");
+                itemPost.setAttribute("class", "publication-card-item-statistic__main-text");
+                itemPost.innerText = postText;
+                item.appendChild(itemPost);
+            }
+            break;
+        default:
+            itemText.setAttribute("class", "publication-card-item-statistic__main-text");
+            itemText.innerText = text;
+            item.appendChild(itemCount);
+            item.appendChild(itemText);
+            break;
+    }
+
+    return item;
+}
+
 function createRightItem(count, text) {
     const item = document.createElement("div");
     item.setAttribute("class","publication-card-item-statistic__wrapper-item");
@@ -213,9 +214,9 @@ function createRightItem(count, text) {
     return item;
 }
 
-function removeChilds(el) {
-    while (el.firstChild) {
-        el.removeChild(el.firstChild);
+function removeChilds(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
     }
 }
 
@@ -237,7 +238,7 @@ function addDirectLinkButton(element) {
 }
 
 function getPostIdFromUrl(url) {
-    ln = url.replace ("?from=editor","").split("-");
+    const ln = url.replace("?from=editor", "").split("-");
     return ln[ln.length-1];
 }
 
@@ -352,7 +353,6 @@ function creatNotification(num, message) {
     notification.appendChild(link);
     return notification;
 }
-
 
 function dateFormat(unixTime) {
     const date = new Date(unixTime);
