@@ -5,10 +5,15 @@ const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication
 const token = window._csrfToken;
 const publisherId = getPublisherId();
 const publications = new Map();
-showBalanceAndMetrics();
-loadCards();
-processCards();
-registerObserver();
+
+const path = window.location.pathname;
+if (!path.endsWith("/money/simple") && !path.endsWith("/edit") &&
+    !path.endsWith("/karma") && !path.endsWith("/publications-stat")) {
+    showBalanceAndMetrics();
+    loadCards();
+    processCards();
+    registerObserver();
+}
 
 /*****************************************
  * Functions
@@ -116,7 +121,7 @@ function addStats(leftSide, rightSide, pubData) {
     const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
     shows.setAttribute("title", "Показы");
     leftSide.appendChild(shows);
-    const ctr = ((pubData.views / pubData.feedShows)*100).toFixed(2);
+    const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
     const views = createLeftItem(pubData.views, "icon_views", " ("+ctr +"%)");
     views.setAttribute("title", "Просмотры (CTR)");
     leftSide.appendChild(views);
@@ -126,8 +131,8 @@ function addStats(leftSide, rightSide, pubData) {
     viewsTillEnd.setAttribute("title", "Дочитывания");
     leftSide.appendChild (viewsTillEnd);
 
-    const dayCreate = dateFormat(pubData.addTime);
     const dayMod = dateFormat(pubData.modTime);
+    const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
     const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : " ("+dayMod+")");
     date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
     leftSide.appendChild(date);
@@ -243,7 +248,11 @@ function getPostIdFromUrl(url) {
 }
 
 function getPublisherId() {
-    return document.getElementsByClassName("help-button__link")[0].getAttribute("href").split("=")[1];
+    const helpButtonLinks = document.getElementsByClassName("help-button__link");
+    if (helpButtonLinks === undefined || helpButtonLinks.length === 0) {
+        return "";
+    }
+    return helpButtonLinks[0].getAttribute("href").split("=")[1];
 }
 
 function showBalanceAndMetrics() {
