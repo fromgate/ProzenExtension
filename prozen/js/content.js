@@ -117,18 +117,18 @@ function addStats(leftSide, rightSide, pubData) {
     shows.setAttribute("title", "Показы");
     leftSide.appendChild(shows);
     const ctr = ((pubData.views / pubData.feedShows)*100).toFixed(2);
-    const views = createLeftItem(pubData.views, "icon_views", "("+ctr +"%)");
+    const views = createLeftItem(pubData.views, "icon_views", " ("+ctr +"%)");
     views.setAttribute("title", "Просмотры (CTR)");
     leftSide.appendChild(views);
 
     const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
-    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", isNaN (readsPercent) ? "" :"("+readsPercent+"%)");
+    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", " (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)");
     viewsTillEnd.setAttribute("title", "Дочитывания");
     leftSide.appendChild (viewsTillEnd);
 
     const dayCreate = dateFormat(pubData.addTime);
     const dayMod = dateFormat(pubData.modTime);
-    const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : "("+dayMod+")");
+    const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : " ("+dayMod+")");
     date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
     leftSide.appendChild(date);
 
@@ -140,8 +140,8 @@ function addStats(leftSide, rightSide, pubData) {
     const readTime = createRightItem(secToHHMMSS (pubData.readTime), "icon_clock");
     readTime.setAttribute("title", "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : ""));
     rightSide.appendChild (readTime);
-
-    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + ((pubData.comments / pubData.viewsTillEnd)*100).toFixed(2) + "%)";
+    const commentsEr = infiniteAndNan((pubData.comments / firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows))*100);
+    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
     const comments = createRightItem(commentsValue, "icon_comments");
     comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (вовлечённость, ER)");
     rightSide.appendChild (comments);
@@ -397,4 +397,18 @@ function joinByThree(list) {
         }
     }
     return text;
+}
+
+function infiniteAndNan(number) {
+    return isNaN (number) ? 0 : (isFinite(number) ? number : 0);
+}
+
+function firstNotZ(a, b, c) {
+    if (a !== 0) {
+        return a;
+    }
+    if (b !== 0) {
+        return b;
+    }
+    return c;
 }
