@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.0.8",
+  "version": "1.0.8.1",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "browser_action": {
@@ -19,13 +19,13 @@
     "128": "icons/tab-icon-128.png"
   },
   "web_accessible_resources": [
-    "js/content.js",
+    "js/page.js",
     "css/icons.css"
   ],
   "content_scripts": [
     {
       "js": [
-        "js/start.js"
+        "js/content.js"
       ],
       "matches": [
         "https://zen.yandex.ru/profile/editor/*"
@@ -34,6 +34,7 @@
     }
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "https://zen.yandex.ru/profile/editor/*"
   ]
 }

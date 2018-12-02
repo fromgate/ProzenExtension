@@ -1,27 +1,68 @@
+start();
+
 const URL_ZEN = "https://zen.yandex.ru";
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
 const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
-const token = window._csrfToken;
-const publisherId = getPublisherId();
-const publications = new Map();
 
-const path = window.location.pathname;
-if (!path.endsWith("/money/simple") && !path.endsWith("/edit") &&
-    !path.endsWith("/karma") && !path.endsWith("/publications-stat")) {
-    showBalanceAndMetrics();
-    loadCards();
-    processCards();
-    registerObserver();
+const publications = new Map();
+var token;
+var publisherId;
+
+function main() {
+    publisherId = getPublisherId();
+    if (token === undefined || publisherId === undefined) {
+        return;
+    }
+
+    const pageType = getPageType();
+
+    if (pageType === "unknown") {
+        return;
+    }
+
+    if (pageType !== "edit") {
+        showBalanceAndMetrics ();
+    }
+
+    if (pageType === "main") {
+        loadCards();
+        processCards();
+        registerObserver();
+    }
 }
 
-/*****************************************
- * Functions
- *****************************************/
+///////////////////////////////////
+// Functions
+///////////////////////////////////
 
-function getUnproccedPublications() {
-    return Array.from(publications.keys()).filter(function (key) {
-        return !publications.get(key).processed;
+
+
+function start() {
+    window.browser = (function () {
+        return window.msBrowser ||
+            window.browser ||
+            window.chrome;
+    })();
+
+    const css = document.createElement("link");
+    css.setAttribute("rel", "stylesheet");
+    css.setAttribute("type", "text/css");
+    css.setAttribute("href", browser.extension.getURL("css/icons.css"));
+    document.head.appendChild(css);
+
+    const script = document.createElement("script");
+    script.setAttribute("type","text/javascript");
+    script.setAttribute("src", browser.extension.getURL("js/page.js"));
+    document.body.appendChild(script);
+
+    window.addEventListener("message", function(event) {
+        if (event.source !== window)
+            return;
+        if (event.data.type && (event.data.type === "prozen-data")) {
+            token = event.data.text;
+            main ();
+        }
     });
 }
 
@@ -43,6 +84,102 @@ function registerObserver() {
     observer.observe(target, config);
 }
 
+
+function getPostIdFromUrl(url) {
+    const ln = url.replace("?from=editor", "").split("-");
+    return ln[ln.length-1];
+}
+
+function getPublisherId() {
+    const path = window.location.pathname;
+    switch (getPageType()) {
+        case "main":
+            const helpButtonLinks = document.getElementsByClassName("help-button__link");
+            return helpButtonLinks[0].getAttribute("href").split("=")[1];
+        case "money":
+        case "edit":
+        case "karma":
+        case "stats":
+            return path.split("/")[4];
+    }
+    return "";
+}
+
+function getPageType() {
+    const path = window.location.pathname;
+    if (path.endsWith("/money/simple")) {
+        return "money";
+    }
+    if (path.endsWith("/edit")) {
+        return "edit";
+    }
+    if (path.endsWith("/karma")) {
+        return "karma";
+    }
+    if (path.endsWith("/publications-stat")) {
+        return "stats";
+    }
+    const helpButtonLinks = document.getElementsByClassName("help-button__link");
+    if (helpButtonLinks !== undefined && helpButtonLinks.length > 0) {
+        return "main";
+    }
+    return "unknown";
+}
+
+function showBalanceAndMetrics() {
+    const url = URL_API_MEDIA + publisherId + "/money";
+    const data = fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+    data.then(response => {
+        if (response.money.isMonetezationAvaliable) {
+            let money = parseFloat (response.money.simple.personalData.balance.toFixed(2));
+
+            let total = money;
+            for (var i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
+                total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
+            }
+            setBalance (money, total);
+        }
+        addMetricsButton(response.publisher.privateData.metrikaCounterId);
+    });
+}
+
+function setBalance(money, total) {
+    const moneyA = document.getElementsByClassName("header-menu__link")[1];
+    if (money !== total) {
+        moneyA.setAttribute("data-tip", "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
+
+    }
+    moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
+}
+
+function addMetricsButton(metricsId) {
+    const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
+    const metricsButton = document.createElement("div");
+    metricsButton.setAttribute("class","header__nav-block");
+    metricsButton.setAttribute("data-multiline","true");
+    metricsButton.setAttribute("data-tip","Яндекс.Метрика");
+    metricsButton.setAttribute("currentitem","false");
+    const metricsA = document.createElement("a");
+    metricsA.setAttribute("aria-pressed","false");
+    metricsA.setAttribute("tabindex","0");
+    metricsA.setAttribute("aria-disabled","false");
+    metricsA.setAttribute("target","_blank");
+    metricsA.setAttribute("class","control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
+    metricsA.setAttribute("href",metricsUrl);
+    const aSpan = document.createElement("span");
+    aSpan.setAttribute("class","button2__text");
+    metricsA.appendChild(aSpan);
+    const img = document.createElement("img");
+    img.setAttribute("src","data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZyBjbGFzcz0ibGF5ZXIiPgogICAgICAgIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICAgICAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGlkPSJzdmdfMSI+CiAgICAgICAgICAgIDxnIGZpbGw9IiMwMDc3RkYiIGlkPSJzdGF0cyIgc3Ryb2tlPSIjMDA3N0ZGIgogICAgICAgICAgICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjAwMDAwMCwgMS4wMDAwMDApIj4KICAgICAgICAgICAgICAgIDxwb2x5Z29uIGZpbGw9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBzdHJva2U9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBpZD0ic3ZnXzIiCiAgICAgICAgICAgICAgICAgICAgICAgICBwb2ludHM9IjAgNyA0IDcgNCAxNCAwIDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbgogICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjNDI3N2NhIiBzdHJva2U9IiM0Mjc3Y2EiIGlkPSJzdmdfMyIgcG9pbnRzPSI2IDQgMTAgNCAxMCAxNCA2IDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbiBmaWxsPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgc3Ryb2tlPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgaWQ9InN2Z180IgogICAgICAgICA\n" +
+        "gICAgICAgICAgICAgICAgcG9pbnRzPSIxMiAwIDE2IDAgMTYgMTQgMTIgMTQiLz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+");
+    aSpan.appendChild(img);
+    metricsButton.appendChild(metricsA);
+    const navblocks = document.getElementsByClassName("header__nav-block");
+    const last = navblocks.item(navblocks.length - 1);
+    last.insertAdjacentElement("afterend", metricsButton);
+}
+
+
 function loadCards() {
     const cards = document.getElementsByClassName("publication-card-item");
     for (i = 0; i < cards.length; i++) {
@@ -59,6 +196,22 @@ function loadCards() {
         publications.get(publicationId).card = card;
         publications.get(publicationId).processed = false;
     }
+}
+
+function getUnproccedPublications() {
+    return Array.from(publications.keys()).filter(function (key) {
+        return !publications.get(key).processed;
+    });
+}
+
+function loadPublicationsStat(publicationIds) {
+    const url=URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","));
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+function loadArticle(publicationId) {
+    const url=URL_API_GET_PUBLICATION + publicationId;
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 function processCards() {
@@ -114,6 +267,31 @@ function processCards() {
             }
         });
     });
+}
+
+
+function removeChilds(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function removeByClass (className) {
+    const elements = document.getElementsByClassName(className);
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+}
+
+
+function addDirectLinkButton(element) {
+    const link = element.children[0];
+    const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
+    const directLink = document.createElement("a");
+    directLink.setAttribute("href",linkUrl);
+    directLink.setAttribute("class", "publication-card-item__action-button");
+    directLink.innerText = "Прямая ссылка";
+    link.insertAdjacentElement("afterend", directLink);
 }
 
 
@@ -218,106 +396,6 @@ function createRightItem(count, text) {
     }
     return item;
 }
-
-function removeChilds(element) {
-    while (element.firstChild) {
-        element.removeChild(element.firstChild);
-    }
-}
-
-function removeByClass (className) {
-    const elements = document.getElementsByClassName(className);
-    while(elements.length > 0){
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-}
-
-function addDirectLinkButton(element) {
-    const link = element.children[0];
-    const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
-    const directLink = document.createElement("a");
-    directLink.setAttribute("href",linkUrl);
-    directLink.setAttribute("class", "publication-card-item__action-button");
-    directLink.innerText = "Прямая ссылка";
-    link.insertAdjacentElement("afterend", directLink);
-}
-
-function getPostIdFromUrl(url) {
-    const ln = url.replace("?from=editor", "").split("-");
-    return ln[ln.length-1];
-}
-
-function getPublisherId() {
-    const helpButtonLinks = document.getElementsByClassName("help-button__link");
-    if (helpButtonLinks === undefined || helpButtonLinks.length === 0) {
-        return "";
-    }
-    return helpButtonLinks[0].getAttribute("href").split("=")[1];
-}
-
-function showBalanceAndMetrics() {
-    const url = URL_API_MEDIA + publisherId + "/money";
-    const data = fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-    data.then(response => {
-        if (response.money.isMonetezationAvaliable) {
-            let money = parseFloat (response.money.simple.personalData.balance.toFixed(2));
-
-            let total = money;
-            for (var i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
-                total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
-            }
-            setBalance (money, total);
-        }
-        addMetricsButton(response.publisher.privateData.metrikaCounterId);
-    });
-}
-
-function setBalance(money, total) {
-    const moneyA = document.getElementsByClassName("header-menu__link")[1];
-    if (money !== total) {
-        moneyA.setAttribute("data-tip", "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
-    }
-    moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
-}
-
-function addMetricsButton(metricsId) {
-    const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-    const metricsButton = document.createElement("div");
-    metricsButton.setAttribute("class","header__nav-block");
-    metricsButton.setAttribute("data-multiline","true");
-    metricsButton.setAttribute("data-tip","Яндекс.Метрика");
-    metricsButton.setAttribute("currentitem","false");
-    const metricsA = document.createElement("a");
-    metricsA.setAttribute("aria-pressed","false");
-    metricsA.setAttribute("tabindex","0");
-    metricsA.setAttribute("aria-disabled","false");
-    metricsA.setAttribute("target","_blank");
-    metricsA.setAttribute("class","control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
-    metricsA.setAttribute("href",metricsUrl);
-    const aSpan = document.createElement("span");
-    aSpan.setAttribute("class","button2__text");
-    metricsA.appendChild(aSpan);
-    const img = document.createElement("img");
-    img.setAttribute("src","data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZyBjbGFzcz0ibGF5ZXIiPgogICAgICAgIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICAgICAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGlkPSJzdmdfMSI+CiAgICAgICAgICAgIDxnIGZpbGw9IiMwMDc3RkYiIGlkPSJzdGF0cyIgc3Ryb2tlPSIjMDA3N0ZGIgogICAgICAgICAgICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjAwMDAwMCwgMS4wMDAwMDApIj4KICAgICAgICAgICAgICAgIDxwb2x5Z29uIGZpbGw9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBzdHJva2U9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBpZD0ic3ZnXzIiCiAgICAgICAgICAgICAgICAgICAgICAgICBwb2ludHM9IjAgNyA0IDcgNCAxNCAwIDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbgogICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjNDI3N2NhIiBzdHJva2U9IiM0Mjc3Y2EiIGlkPSJzdmdfMyIgcG9pbnRzPSI2IDQgMTAgNCAxMCAxNCA2IDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbiBmaWxsPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgc3Ryb2tlPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgaWQ9InN2Z180IgogICAgICAgICA\n" +
-        "gICAgICAgICAgICAgICAgcG9pbnRzPSIxMiAwIDE2IDAgMTYgMTQgMTIgMTQiLz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+");
-    aSpan.appendChild(img);
-    metricsButton.appendChild(metricsA);
-    const navblocks = document.getElementsByClassName("header__nav-block");
-    const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", metricsButton);
-}
-
-
-function loadPublicationsStat(publicationIds) {
-    const url=URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","));
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-function loadArticle(publicationId) {
-    const url=URL_API_GET_PUBLICATION + publicationId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
 
 //const message = JSON.parse('{ "title":"заголовок", "text":"Текст сообщения", link":"Текст ссылки", "ссыллка"}');
 function showAnnouncement(message) {
