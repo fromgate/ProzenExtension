@@ -147,7 +147,6 @@ function setBalance(money, total) {
     const moneyA = document.getElementsByClassName("header-menu__link")[1];
     if (money !== total) {
         moneyA.setAttribute("data-tip", "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
-
     }
     moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
 }
