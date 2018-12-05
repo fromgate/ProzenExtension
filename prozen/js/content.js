@@ -313,8 +313,10 @@ function addStats(leftSide, rightSide, pubData) {
     date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
     leftSide.appendChild(date);
 
-    const likes = createRightItem(pubData.likes, "icon_like");
-    likes.setAttribute("title", "Лайки");
+    const likesEr = infiniteAndNan((pubData.likes / firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows))*100);
+    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
+    const likes = createRightItem(likesValue, "icon_like");
+    likes.setAttribute("title", "Лайки (% от дочитываний, LR)");
     rightSide.appendChild (likes);
 
 
