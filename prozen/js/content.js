@@ -146,7 +146,7 @@ function showBalanceAndMetrics() {
 function setBalance(money, total) {
     const moneyA = document.getElementsByClassName("header-menu__link")[1];
     if (money !== total) {
-        moneyA.setAttribute("data-tip", "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
+        moneyA.setAttribute("data-tip", moneyA.getAttribute("data-tip") + " / Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
     }
     moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
 }
@@ -257,7 +257,7 @@ function processCards() {
                     removeChilds (cardRight);
                     removeByClass  ("article-stat-tip");
                     addStats (cartLeft, cardRight, value);
-                    let actions = value.card.getElementsByClassName("publication-card-item__actions");
+                    let actions = value.card.getElementsByClassName("action-menu__action-button");
                     if (actions.length >0) {
                         addDirectLinkButton(actions[0]);
                     }
@@ -283,12 +283,11 @@ function removeByClass (className) {
 }
 
 
-function addDirectLinkButton(element) {
-    const link = element.children[0];
+function addDirectLinkButton(link) {
     const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
     const directLink = document.createElement("a");
     directLink.setAttribute("href",linkUrl);
-    directLink.setAttribute("class", "publication-card-item__action-button");
+    directLink.setAttribute("class", "action-menu__action-button");
     directLink.innerText = "Прямая ссылка";
     link.insertAdjacentElement("afterend", directLink);
 }
