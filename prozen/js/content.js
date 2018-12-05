@@ -385,17 +385,11 @@ function createRightItemElement(count, text) {
         case "icon_clock":
         case "icon_comments":
         case "icon_er":
+        case "icon_tags":
             itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
             itemIcon.innerText = "";
             items[0] = itemIcon;
             items[1] = itemCount;
-            break;
-        case "icon_tags":
-            itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
-            itemIcon.innerText = "";
-            itemCount.innerText = "\u00A0 \u00A0";
-            items[0] = itemCount;
-            items[1] = itemIcon;
             break;
         default:
             itemIcon.setAttribute("class", "publication-card-item-statistic__icon");
