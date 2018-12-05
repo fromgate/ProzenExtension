@@ -291,27 +291,20 @@ function addDirectLinkButton(link) {
 }
 
 function addStats(leftSide, rightSide, pubData) {
-    const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
-    shows.setAttribute("title", "Показы");
+    const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed", "Показы");
     leftSide.appendChild(shows);
     const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
-    const views = createLeftItem(pubData.views, "icon_views", " ("+ctr +"%)");
-    views.setAttribute("title", "Просмотры (CTR)");
+    const views = createLeftItem(pubData.views, "icon_views", "Просмотры (CTR)", " ("+ctr +"%)");
     leftSide.appendChild(views);
-
     const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
-    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", " (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)");
-    viewsTillEnd.setAttribute("title", "Дочитывания");
+    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", "Дочитывания", " (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)");
     leftSide.appendChild (viewsTillEnd);
-
     const dayMod = dateFormat(pubData.modTime);
     const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
-    const date = createLeftItem (dayCreate, "icon_calendar", dayCreate === dayMod ? "" : " ("+dayMod+")");
-    date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
+    const date = createLeftItem (dayCreate, "icon_calendar","Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"), dayCreate === dayMod ? "" : " ("+dayMod+")");
     leftSide.appendChild(date);
 
     const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
-
     const likesEr = infiniteAndNan((pubData.likes / erViews)*100);
     const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
     const likes = createRightItem(likesValue, "icon_like", "Лайки (в процентах)");
@@ -339,7 +332,7 @@ function addStats(leftSide, rightSide, pubData) {
     rightSide.appendChild (timeAndTag);
 }
 
-function createLeftItem(count, text, postText) {
+function createLeftItem(count, text, title, postText) {
     const item = document.createElement("div");
     item.setAttribute("class", "publication-card-item-statistic__main-item");
 
@@ -370,6 +363,9 @@ function createLeftItem(count, text, postText) {
             item.appendChild(itemCount);
             item.appendChild(itemText);
             break;
+    }
+    if (title !== undefined && title !== "") {
+        item.setAttribute("title", title);
     }
     return item;
 }
