@@ -268,7 +268,6 @@ function processCards() {
     });
 }
 
-
 function removeChilds(element) {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -282,7 +281,6 @@ function removeByClass (className) {
     }
 }
 
-
 function addDirectLinkButton(link) {
     const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
     const directLink = document.createElement("a");
@@ -291,7 +289,6 @@ function addDirectLinkButton(link) {
     directLink.innerText = "Прямая ссылка";
     link.insertAdjacentElement("afterend", directLink);
 }
-
 
 function addStats(leftSide, rightSide, pubData) {
     const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed");
@@ -313,25 +310,33 @@ function addStats(leftSide, rightSide, pubData) {
     date.setAttribute("title", "Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"));
     leftSide.appendChild(date);
 
-    const likesEr = infiniteAndNan((pubData.likes / firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows))*100);
+    const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
+
+    const likesEr = infiniteAndNan((pubData.likes / erViews)*100);
     const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
-    const likes = createRightItem(likesValue, "icon_like");
-    likes.setAttribute("title", "Лайки (% от дочитываний, LR)");
+    const likes = createRightItem(likesValue, "icon_like", "Лайки (в процентах)");
     rightSide.appendChild (likes);
 
-
-    const readTime = createRightItem(secToHHMMSS (pubData.readTime), "icon_clock");
-    readTime.setAttribute("title", "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : ""));
-    rightSide.appendChild (readTime);
-    const commentsEr = infiniteAndNan((pubData.comments / firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows))*100);
+    const commentsEr = infiniteAndNan((pubData.comments / erViews)*100);
     const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
-    const comments = createRightItem(commentsValue, "icon_comments");
-    comments.setAttribute("title", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (вовлечённость, ER)");
+    const comments = createRightItem(commentsValue, "icon_comments", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (в процентах)");
     rightSide.appendChild (comments);
 
-    const tags = createRightItem("", "icon_tags");
-    tags.setAttribute("title", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
-    rightSide.appendChild (tags);
+    const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews))*100).toFixed(2) + "%";
+    const er = createRightItem(erValue, "icon_er", "Коэффициент вовлеченности, ER");
+    rightSide.appendChild (er);
+
+    const readTime = {};
+    readTime.count = secToHHMMSS (pubData.readTime);
+    readTime.text = "icon_clock";
+    readTime.title = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "") + "&nbsp;";
+
+    const tag = {};
+    tag.count = "";
+    tag.text = "icon_tags";
+    tag.title = pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags);
+    const timeAndTag = createRightItems ([readTime, tag]);
+    rightSide.appendChild (timeAndTag);
 }
 
 function createLeftItem(count, text, postText) {
@@ -366,33 +371,67 @@ function createLeftItem(count, text, postText) {
             item.appendChild(itemText);
             break;
     }
-
     return item;
 }
 
-function createRightItem(count, text) {
-    const item = document.createElement("div");
-    item.setAttribute("class","publication-card-item-statistic__wrapper-item");
+function createRightItemElement(count, text) {
     const itemCount = document.createElement("span");
     itemCount.setAttribute("class", "publication-card-item-statistic__count");
     itemCount.innerText = count;
     const itemIcon = document.createElement("span");
+    let items = [];
     switch (text) {
         case "icon_like":
         case "icon_clock":
         case "icon_comments":
+        case "icon_er":
+            itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
+            itemIcon.innerText = "";
+            items[0] = itemIcon;
+            items[1] = itemCount;
+            break;
         case "icon_tags":
             itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
             itemIcon.innerText = "";
-            item.appendChild(itemIcon);
-            item.appendChild(itemCount);
+            itemCount.innerText = "\u00A0 \u00A0";
+            items[0] = itemCount;
+            items[1] = itemIcon;
             break;
         default:
             itemIcon.setAttribute("class", "publication-card-item-statistic__icon");
             itemIcon.innerText = text;
-            item.appendChild(itemCount);
-            item.appendChild(itemIcon);
+            items[0] = itemCount;
+            items[1] = itemIcon;
             break;
+    }
+    return items;
+}
+
+function createRightItems(items) {
+    const item = document.createElement("div");
+    item.setAttribute("class","publication-card-item-statistic__wrapper-item");
+    for (let i = 0; i<items.length;i ++) {
+        const title = items[i].title;
+        const elements = createRightItemElement(items[i].count, items[i].text);
+        for (let j = 0; j<elements.length;j ++) {
+            item.appendChild(elements[j]);
+            if (title !== undefined && title !== "") {
+                elements[j].setAttribute("title", title);
+            }
+        }
+    }
+    return item;
+}
+
+function createRightItem(count, text, title) {
+    const item = document.createElement("div");
+    item.setAttribute("class","publication-card-item-statistic__wrapper-item");
+    const items = createRightItemElement (count, text);
+    for (let i = 0; i<items.length;i ++) {
+        item.appendChild(items[i]);
+    }
+    if (title !== undefined && title !== "") {
+        item.setAttribute("title", title);
     }
     return item;
 }
