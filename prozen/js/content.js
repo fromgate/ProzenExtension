@@ -472,7 +472,7 @@ function creatNotification(num, message) {
 function dateFormat(unixTime) {
     const date = new Date(unixTime);
     const day = "0" + date.getDate();
-    const month = "0" + date.getMonth();
+    const month = "0" + (date.getMonth() + 1);
     const year = "" +date.getFullYear();
     const hours = "0" + date.getHours();
     const minutes = "0" + date.getMinutes();

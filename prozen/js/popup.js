@@ -4,5 +4,5 @@ window.browser = (function () {
         window.chrome;
 })();
 const nameVersion = document.getElementById("extver");
-nameVersion.innerText = nameVersion.innerText.replace("1.0.0", chrome.runtime.getManifest().version);
+nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
 
