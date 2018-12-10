@@ -322,7 +322,7 @@ function addStats(leftSide, rightSide, pubData) {
     const readTime = {};
     readTime.count = secToHHMMSS (pubData.readTime);
     readTime.text = "icon_clock";
-    readTime.title = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "") + "&nbsp;";
+    readTime.title = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
 
     const tag = {};
     tag.count = "";
