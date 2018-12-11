@@ -146,7 +146,13 @@ function showBalanceAndMetrics() {
 function setBalance(money, total) {
     const moneyA = document.getElementsByClassName("header-menu__link")[1];
     if (money !== total) {
-        moneyA.setAttribute("data-tip", moneyA.getAttribute("data-tip") + " / Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽");
+        const totalStr = "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
+        const moneyDate = moneyA.getAttribute("data-tip");
+        if (moneyDate !== undefined && moneyDate !== null) {
+            moneyA.setAttribute("data-tip",  moneyDate +  " / " + totalStr);
+        } else {
+            moneyA.setAttribute("data-tip",  totalStr);
+        }
     }
     moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
 }
