@@ -189,7 +189,11 @@ function loadCards() {
     const cards = document.getElementsByClassName("publication-card-item");
     for (i = 0; i < cards.length; i++) {
         const card = cards[i];
-        const postLink = card.getElementsByClassName("card__card-link")[0].getAttribute("href");
+        const cardLinks = card.getElementsByClassName("card__card-link");
+        if (cardLinks === undefined || cardLinks.length === 0) {
+            continue;
+        }
+        const postLink = cardLinks[0].getAttribute("href");
         if (postLink.startsWith("/profile/editor/id/")) {
             continue;
         }
