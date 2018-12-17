@@ -146,7 +146,7 @@ function showBalanceAndMetrics() {
 function setBalance(money, total) {
     const moneyA = document.getElementsByClassName("header-menu__link")[1];
     if (money !== total) {
-        const totalStr = "Всего: " + total.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
+        const totalStr = "Всего: " + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
         const moneyDate = moneyA.getAttribute("data-tip");
         if (moneyDate !== undefined && moneyDate !== null) {
             moneyA.setAttribute("data-tip",  moneyDate +  " / " + totalStr);
@@ -154,7 +154,7 @@ function setBalance(money, total) {
             moneyA.setAttribute("data-tip",  totalStr);
         }
     }
-    moneyA.innerText = money.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " ₽";
+    moneyA.innerText = money.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
 }
 
 function addMetricsButton(metricsId) {
