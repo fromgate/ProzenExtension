@@ -1,6 +1,5 @@
 start();
 
-const URL_ZEN = "https://zen.yandex.ru";
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
 const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
@@ -292,7 +291,7 @@ function removeByClass (className) {
 }
 
 function addDirectLinkButton(link) {
-    const linkUrl = URL_ZEN + link.getAttribute("href").replace("?from=editor", "");
+    const linkUrl = link.getAttribute("href").replace("?from=editor", "");
     const directLink = document.createElement("a");
     directLink.setAttribute("href",linkUrl);
     directLink.setAttribute("class", "action-menu__action-button");
