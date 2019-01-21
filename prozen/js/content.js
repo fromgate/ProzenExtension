@@ -3,23 +3,26 @@ start();
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
 const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
+const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
 
 const publications = new Map();
-var token;
-var publisherId;
+let token;
+let data;
+let publisherId;
 
 function main() {
+    const pageType = getPageType();
+    if (pageType === "unknown") {
+        return;
+    }
+    if (pageType === "article") {
+        articleShowStats();
+        return;
+    }
     publisherId = getPublisherId();
     if (token === undefined || publisherId === undefined) {
         return;
     }
-
-    const pageType = getPageType();
-
-    if (pageType === "unknown") {
-        return;
-    }
-
     if (pageType !== "edit") {
         showBalanceAndMetrics ();
     }
@@ -60,6 +63,7 @@ function start() {
             return;
         if (event.data.type && (event.data.type === "prozen-data")) {
             token = event.data.text;
+            data = event.data.jsonData;
             main ();
         }
     });
@@ -81,6 +85,27 @@ function registerObserver() {
         characterData: false
     };
     observer.observe(target, config);
+}
+
+function articleShowStats() {
+    if (data == null) {
+        return;
+    }
+    const postId = getPostIdFromUrl (window.location.pathname);
+    const dayMod = dateFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate+" ("+dayMod+ ")" : dayCreate;
+    loadPublicationStat(postId).then (function (articleData) {
+        const sumViewTimeSec = articleData.sumViewTimeSec;
+        const views = articleData.views;
+        const viewsTillEnd = articleData.viewsTillEnd;
+        const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
+        elArticleDate.innerText = showTime;
+        const counts = document.getElementsByClassName("article-stat__count");
+        counts[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
+        counts[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " ("+infiniteAndNan(viewsTillEnd/views*100).toFixed(2)+"%)";
+        counts[2].innerText = secToText(sumViewTimeSec / viewsTillEnd);
+    });
 }
 
 
@@ -106,21 +131,27 @@ function getPublisherId() {
 
 function getPageType() {
     const path = window.location.pathname;
-    if (path.endsWith("/money/simple")) {
-        return "money";
-    }
-    if (path.endsWith("/edit")) {
-        return "edit";
-    }
-    if (path.endsWith("/karma")) {
-        return "karma";
-    }
-    if (path.endsWith("/publications-stat")) {
-        return "stats";
-    }
-    const helpButtonLinks = document.getElementsByClassName("help-button__link");
-    if (helpButtonLinks !== undefined && helpButtonLinks.length > 0) {
-        return "main";
+    if (path.startsWith("/media/")) {
+        if (data != null && data.isArticle ===  true) {
+            return "article";
+        }
+    } else if (path.startsWith("/profile/editor/")) {
+        if (path.endsWith("/money/simple")) {
+            return "money";
+        }
+        if (path.endsWith("/edit")) {
+            return "edit";
+        }
+        if (path.endsWith("/karma")) {
+            return "karma";
+        }
+        if (path.endsWith("/publications-stat")) {
+            return "stats";
+        }
+        const helpButtonLinks = document.getElementsByClassName("help-button__link");
+        if (helpButtonLinks !== undefined && helpButtonLinks.length > 0) {
+            return "main";
+        }
     }
     return "unknown";
 }
@@ -215,6 +246,11 @@ function getUnproccedPublications() {
 function loadPublicationsStat(publicationIds) {
     const url=URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","));
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+function loadPublicationStat(publicationId) {
+    const url=URL_API_PUBLICATION_VIEW_STAT + encodeURIComponent(publicationId);
+    return fetch(url, {credentials: 'same-origin'}).then(response => response.json());
 }
 
 function loadArticle(publicationId) {
@@ -507,7 +543,7 @@ function secToText(seconds) {
     const min = Math.floor(time / 60);
     const sec = Math.floor(time % 60);
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
-    return (hours > 0 ? hours +" час. " : "") + min +" мин. "+sec+ " сек.";
+    return (hours > 0 ? hours +" час. " : "") + (min > 0 ? min  +" мин. " : "") + sec+ " сек.";
 }
 
 function joinByThree(list) {

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.0.17",
+  "version": "1.1.0",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "browser_action": {
@@ -28,13 +28,15 @@
         "js/content.js"
       ],
       "matches": [
-        "https://zen.yandex.ru/profile/editor/*"
+        "https://zen.yandex.ru/profile/editor/*",
+        "https://zen.yandex.ru/media/*"
       ],
       "run_at": "document_end"
     }
   ],
   "permissions": [
     "https://zen.yandex.ru/profile/editor/*",
-    "https://zen.yandex.ru/media-api/*"
+    "https://zen.yandex.ru/media-api/*",
+    "https://zen.yandex.ru/media/*"
   ]
 }
