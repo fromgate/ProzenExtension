@@ -99,12 +99,43 @@ function articleShowStats() {
         const sumViewTimeSec = articleData.sumViewTimeSec;
         const views = articleData.views;
         const viewsTillEnd = articleData.viewsTillEnd;
+
+        console.log(views + " | " + viewsTillEnd + " | " + sumViewTimeSec);
+
         const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
         elArticleDate.innerText = showTime;
-        const counts = document.getElementsByClassName("article-stat__count");
-        counts[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
-        counts[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " ("+infiniteAndNan(viewsTillEnd/views*100).toFixed(2)+"%)";
-        counts[2].innerText = secToText(sumViewTimeSec / viewsTillEnd);
+        let counters = document.getElementsByClassName("article-stat__count");
+        counters[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+        if (counters.length === 1) {
+            ////article-stat__counts-wrapper
+            const wrapper1 = document.getElementsByClassName("article-stat__counts-wrapper")[0];
+
+            const wrapper2 = document.createElement("div");
+            wrapper2.setAttribute("class", "article-stat__counts-wrapper");
+
+            const spanIcon2 = document.createElement("span");
+            spanIcon2.setAttribute("class","article-stat__icon article-stat__icon_type_perusal-black");
+            const spanCount2 = document.createElement("span");
+            spanCount2.setAttribute("class","article-stat__count");
+            wrapper2.appendChild(spanIcon2);
+            wrapper2.appendChild(spanCount2);
+            wrapper1.insertAdjacentElement("afterend", wrapper2);
+
+            const wrapper3 = document.createElement("div");
+            wrapper3.setAttribute("class", "article-stat__counts-wrapper");
+            const spanIcon3 = document.createElement("span");
+            spanIcon3.setAttribute("class","article-stat__icon article-stat__icon_type_time-black");
+            const spanCount3 = document.createElement("span");
+            spanCount3.setAttribute("class","article-stat__count");
+            wrapper3.appendChild(spanIcon3);
+            wrapper3.appendChild(spanCount3);
+            wrapper2.insertAdjacentElement("afterend", wrapper3);
+            counters = document.getElementsByClassName("article-stat__count");
+            removeByClass("article-stat-tip")
+        }
+        counters[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " ("+infiniteAndNan(viewsTillEnd/views*100).toFixed(2)+"%)";
+        counters[2].innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
     });
 }
 
