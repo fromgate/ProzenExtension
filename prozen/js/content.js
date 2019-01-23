@@ -100,8 +100,6 @@ function articleShowStats() {
         const views = articleData.views;
         const viewsTillEnd = articleData.viewsTillEnd;
 
-        console.log(views + " | " + viewsTillEnd + " | " + sumViewTimeSec);
-
         const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
         elArticleDate.innerText = showTime;
         let counters = document.getElementsByClassName("article-stat__count");
@@ -136,6 +134,16 @@ function articleShowStats() {
         }
         counters[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " ("+infiniteAndNan(viewsTillEnd/views*100).toFixed(2)+"%)";
         counters[2].innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+
+        if (checkNoIndex()) {
+            const wrapper4 = document.createElement("div");
+            wrapper4.setAttribute("class", "article-stat__counts-wrapper");
+            const spanIcon4 = document.createElement("span");
+            spanIcon4.setAttribute("class","article-stat__icon icon_sad_robot");
+            wrapper4.appendChild(spanIcon4);
+            const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
+            wrapper3.insertAdjacentElement("afterend", wrapper4);
+        }
     });
 }
 
@@ -603,4 +611,14 @@ function firstNotZ(a, b, c) {
         return b;
     }
     return c;
+}
+
+function checkNoIndex(){
+    const metas = document.getElementsByTagName('meta');
+    for (let i = 0; i < metas.length; i++) {
+        if (metas[i].getAttribute('name') === "robots") {
+            return metas[i].getAttribute('content') === "noindex";
+        }
+    }
+    return false;
 }
