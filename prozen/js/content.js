@@ -635,7 +635,6 @@ function addRobotIconIfNoNoIndex(id) {
         const metas = xhr.responseXML.head.getElementsByTagName('meta');
         for (let i = 0; i < metas.length; i++) {
             if (metas[i].getAttribute('property') === "robots") {
-                console.log(metas[i].getAttribute('property') + " : " + metas[i].getAttribute('content'));
                 if (metas[i].getAttribute('content') === "none") {
                     addRobotIcon();
                 }
