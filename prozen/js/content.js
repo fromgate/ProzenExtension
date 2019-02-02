@@ -39,8 +39,6 @@ function main() {
 // Functions
 ///////////////////////////////////
 
-
-
 function start() {
     window.browser = (function () {
         return window.msBrowser ||
@@ -203,6 +201,7 @@ function showBalanceAndMetrics() {
             setBalance (money, total);
         }
         addMetricsButton(response.publisher.privateData.metrikaCounterId);
+        addSearchButton();
         addRobotIconIfNoNoIndex (publisherId);
     });
 }
@@ -245,6 +244,38 @@ function addMetricsButton(metricsId) {
     last.insertAdjacentElement("afterend", metricsButton);
 }
 
+function addSearchButton() {
+    const searchButton = createElement("div", "header__nav-block");
+    searchButton.setAttribute("data-multiline","true");
+    searchButton.setAttribute("data-tip","Поиск");
+    searchButton.setAttribute("currentitem","false");
+    const searchA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
+    searchA.setAttribute("aria-pressed","false");
+    searchA.setAttribute("tabindex","0");
+    searchA.setAttribute("aria-disabled","false");
+    const aSpan = createElement("span", "button2__text");
+    searchA.appendChild(aSpan);
+    const img = createElement("img");
+    img.setAttribute("src","data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='16px' height='16px' viewBox='0 0 21 20' version='1.1' id='svg823' sodipodi:docname='search_right %5B%231505%5D.svg' inkscape:version='0.92.3 (2405546, 2018-03-11)'%3E%3Cmetadata id='metadata827'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Csodipodi:namedview pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1' objecttolerance='10' gridtolerance='10' guidetolerance='10' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:window-width='1920' inkscape:window-height='1017' id='namedview825' showgrid='false' inkscape:zoom='42.5' inkscape:cx='10.5' inkscape:cy='10' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='icons' /%3E%3Ctitle id='title815'%3Esearch%3C/title%3E%3Cdefs id='defs817' /%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg style='fill:%230077ff' transform='translate(-203,-120)' id='icons'%3E%3Cpath inkscape:connector-curvature='0' id='search' d='m 215.6,120 c -4.6389,0 -8.4,3.582 -8.4,8 0,4.418 3.7611,8 8.4,8 4.63995,0 8.4,-3.582 8.4,-8 0,-4.418 -3.76005,-8 -8.4,-8 z' sodipodi:nodetypes='sssss' style='opacity:1;fill:%230077ff;fill-opacity:1' /%3E%3Crect style='opacity:1;fill:%230077ff;fill-opacity:1;stroke:%230077ff;stroke-width:1.21700835;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' id='rect833' width='4.1235108' height='6.7866111' x='240.28654' y='-52.299572' transform='matrix(0.71035493,0.70384364,-0.71035493,0.70384364,0,0)' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A");
+    aSpan.appendChild(img);
+    searchButton.appendChild(searchA);
+    const navblocks = document.getElementsByClassName("header__nav-block");
+    const last = navblocks.item(navblocks.length - 1);
+    last.insertAdjacentElement("afterend", searchButton);
+    searchButton.addEventListener('click', clickSearchButton);
+}
+
+function clickSearchButton() {
+    let id;
+    if (data.publisher.nickname === undefined) {
+        id = "channel_id=" + publisherId;
+    } else {
+        id = "channel_name=" + data.publisher.nickname.raw;
+    }
+    chrome.storage.local.set ( {prozenId : id}, function () {
+        window.open(browser.extension.getURL("search.html"));
+    });
+}
 
 function loadCards() {
     const cards = document.getElementsByClassName("publication-card-item");

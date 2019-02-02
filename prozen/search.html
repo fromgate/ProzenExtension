@@ -1,0 +1,50 @@
+<html><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="css/mini.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ПРОДЗЕН | Поиск</title>
+</head>
+<body style="max-width: 1000px; min-width: 600px; margin: auto;">
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="section double-padded">
+            <div class="card fluid">
+                <div class="section dark">
+                    <h4>ПРОДЗЕН<small>Расширенный редактор для Яндекс.Дзен</small></h4>
+                </div>
+                <form>
+                    <fieldset>
+                        <legend id="search_legend">Поиск</legend>
+                        <label for="search">Строка поиска</label>
+                        <input type="text" id="search" placeholder="кора осины"/>
+                        <button id="search_button">Найти</button>
+                    </fieldset>
+                </form>
+                <div class="section" id="search_msg">
+                    <p>Введите слово, несколько слов или часть слова в строке поиска и нажмите кнопку «Найти».
+                        Поиск осуществляется по заголовкам и описаниям.</p>
+                </div>
+                <div class="section" id="search_msg_empty">
+                    <p><mark class="secondary">Не указан текст для поиска!</mark><br>Введите слово, несколько слов или часть слова в строке поиска и нажмите кнопку «Найти».
+                        Поиск осуществляется по заголовкам и описаниям.</p>
+                </div>
+                <div class="section" id="search_not_found">
+                    <p><mark class="secondary">Искомый текст не найден!</mark><br>Задайте другую строку поиска и повторите попытку.</p>
+                </div>
+                <div class="section" id="spinner">
+                    <div class="section" style="text-align: center;"><span class="spinner"></span></div>
+                </div>
+
+                <div class="section" id="search_result">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer><a href = "https://prozen.ru/prozen-extension-policy/" target="_blank">Политика безопасности / Privacy policy</a> | <a href="https://zen.yandex.ru/id/5a3def60e86a9e50b401ab4a/" target="_blank">Канал ПРОДЗЕН в Яндекс.Дзен</a> | <a href="http://yasobe.ru/na/prozen/" target="_blank">Поддержать разработчика</a><br>
+</footer>
+<script type="text/javascript" src="js/search.js"></script>
+</body>
+</html>
