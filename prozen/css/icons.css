@@ -60,3 +60,29 @@
     top: -0px;
     width: 14px
 }
+
+.icon_video {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='10px' viewBox='0 0 20 14' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3Eyoutube%3C/title%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-300.000000, -7442.000000)' fill='%235c6f7e'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M251.988432,7291.58588 L251.988432,7285.97425 C253.980638,7286.91168 255.523602,7287.8172 257.348463,7288.79353 C255.843351,7289.62824 253.980638,7290.56468 251.988432,7291.58588 M263.090998,7283.18289 C262.747343,7282.73013 262.161634,7282.37809 261.538073,7282.26141 C259.705243,7281.91336 248.270974,7281.91237 246.439141,7282.26141 C245.939097,7282.35515 245.493839,7282.58153 245.111335,7282.93357 C243.49964,7284.42947 244.004664,7292.45151 244.393145,7293.75096 C244.556505,7294.31342 244.767679,7294.71931 245.033639,7294.98558 C245.376298,7295.33761 245.845463,7295.57995 246.384355,7295.68865 C247.893451,7296.0008 255.668037,7296.17532 261.506198,7295.73552 C262.044094,7295.64178 262.520231,7295.39147 262.895762,7295.02447 C264.385932,7293.53455 264.28433,7285.06174 263.090998,7283.18289' id='youtube'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    height: 10px;
+    top: +2px;
+    width: 14px
+}
+
+.icon_post {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3Escript%3C/title%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-60.000000, -1919.000000)' fill='%235c6f7e'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M11,1769 L17,1769 L17,1767 L11,1767 L11,1769 Z M11,1765 L17,1765 L17,1763 L11,1763 L11,1765 Z M20,1763 L20,1761 C21.103,1761 22,1761.898 22,1763 L20,1763 Z M18,1775 C18,1776.103 17.103,1777 16,1777 L16,1773 L10,1773 L10,1763 C10,1761.898 10.897,1761 12,1761 L18,1761 L18,1775 Z M14,1777 L8,1777 C6.897,1777 6,1776.103 6,1775 L14,1775 L14,1777 Z M20,1759 L12,1759 C9.791,1759 8,1760.791 8,1763 L8,1773 L4,1773 L4,1775 C4,1777.21 5.791,1779 8,1779 L16,1779 C18.209,1779 20,1777.21 20,1775 L20,1765 L24,1765 L24,1763 C24,1760.791 22.209,1759 20,1759 L20,1759 Z' id='script'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    height: 14px;
+    top: -0px;
+    width: 14px
+}
+
+.icon_narrative {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3Eimages%3C/title%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-180.000000, -3919.000000)' fill='%235c6f7e'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M135.083,3769.667 C136.188,3769.667 137.083,3768.772 137.083,3767.667 C137.083,3766.562 136.188,3765.667 135.083,3765.667 C133.979,3765.667 133.083,3766.562 133.083,3767.667 C133.083,3768.772 133.979,3769.667 135.083,3769.667 L135.083,3769.667 Z M126,3777 L127.956,3777 L130.824,3773.882 L127.594,3770.402 L126,3771.996 L126,3777 Z M126,3769.167 L127.578,3767.589 L127.594,3767.605 L127.61,3767.589 L132.238,3772.218 L133.669,3770.787 L133.685,3770.803 L133.701,3770.787 L138,3775.086 L138,3765 L126,3765 L126,3769.167 Z M136.586,3777 L133.685,3774.099 L130.784,3777 L136.586,3777 Z M124,3779 L140,3779 L140,3763 L124,3763 L124,3779 Z M144,3759 L144,3775 L142,3775 L142,3761 L128,3761 L128,3759 L144,3759 Z' id='images-%5B%23967%5D'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    height: 14px;
+    top: -0px;
+    width: 14px
+}
+
+.span_icon {
+    display: inline-block;
+    margin: 0 6px;
+}
