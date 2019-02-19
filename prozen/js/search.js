@@ -44,6 +44,24 @@ function getChannelId() {
     });
 }
 
+function updateSerchStats() {
+    if (publications.length !== 0) {
+        const count = {};
+        count['card'] = 0;
+        count['story'] = 0;
+        count['post'] = 0;
+        count['gif'] = 0;
+
+        for (let i = 0; i < publications.length; i++) {
+            count [publications[i].type]++;
+        }
+        document.getElementById('show_articles').innerText = "Статьи: "+count.card;
+        document.getElementById('show_narratives').innerText = "Нарративы: "+count.story;
+        document.getElementById('show_posts').innerText = "Посты: "+count.post;
+        document.getElementById('show_videos').innerText = "Видео: "+count.gif;
+    }
+}
+
 function showByType(pubType) {
     clearSearchResults();
     showElement("spinner");
@@ -133,6 +151,7 @@ function loadPublicationsAndShowByType(pubType) {
     let url = API_URL + id;
     loadPageData(url).then(cards => {
         publications = cards;
+        updateSerchStats();
         executeShowByType(pubType);
     });}
 
@@ -140,6 +159,7 @@ function loadPublicationsAndSearch () {
     let url = API_URL + id;
     loadPageData(url).then(cards => {
         publications = cards;
+        updateSerchStats();
         executSearch();
     });
 }
