@@ -18,14 +18,24 @@
                 <form>
                     <fieldset>
                         <legend id="search_legend">Поиск</legend>
-                        <label for="search">Строка поиска</label>
-                        <input type="text" id="search" placeholder="кора осины"/>
-                        <button id="search_button">Найти</button>
+                        <div>
+                            <label for="search">Строка поиска</label>
+                            <input type="text" id="search" placeholder="кора осины"/>
+                            <button id="search_button">Найти</button>
+                        </div>
+                        <div>
+                            <label>Показать</label>
+                            <button id="show_articles">Статьи</button>
+                            <button id="show_narratives">Нарративы</button>
+                            <button id="show_posts">Посты</button>
+                            <button id="show_videos">Видео</button>
+                        </div>
                     </fieldset>
                 </form>
                 <div class="section" id="search_msg">
                     <p>Введите слово, несколько слов или часть слова в строке поиска и нажмите кнопку «Найти».
                         Поиск осуществляется по заголовкам и описаниям.</p>
+                    <p>Либо укажите тип публикаци (статьи, нарративы и т.д.) для того чтобы отобразить список публикаций этого вида.</p>
                 </div>
                 <div class="section" id="search_msg_empty">
                     <p><mark class="secondary">Не указан текст для поиска!</mark><br>Введите слово, несколько слов или часть слова в строке поиска и нажмите кнопку «Найти».

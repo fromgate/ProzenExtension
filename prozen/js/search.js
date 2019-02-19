@@ -3,19 +3,78 @@ const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid
 const VISIABLE = ["search_msg","spinner","search_result","search_msg_empty","search_not_found"];
 const SEARCH_PLACEHOLDER = ["кора осины", "продзен", "варенье из огурцов", "смысл жизни", "показы"];
 
-let id;
+var id;
 let publications = [];
-
+getChannelId();
 showElement ("search_msg");
 
-chrome.storage.local.get("prozenId", function (result) {
-    id = result.prozenId;
-});
 
-document.getElementById('search_button').onclick= searchClick;
+document.getElementById('search_button').onclick = searchClick;
+document.getElementById('show_articles').onclick = showArticles;
+document.getElementById('show_narratives').onclick = showNarratives;
+document.getElementById('show_posts').onclick = showPosts;
+document.getElementById('show_videos').onclick = showVideos;
 randomizeSearchPlaceholer();
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+function showArticles() {
+    showByType("card");
+    return false;
+}
+
+function showNarratives() {
+    showByType("story");
+    return false;
+}
+
+function showPosts() {
+    showByType("post");
+    return false;
+}
+
+function showVideos() {
+    showByType("gif");
+    return false;
+}
+
+function getChannelId() {
+    chrome.storage.local.get("prozenId", function (result) {
+        id = result.prozenId;
+    });
+}
+
+function showByType(pubType) {
+    clearSearchResults();
+    showElement("spinner");
+    if (publications.length === 0) {
+        loadPublicationsAndShowByType(pubType)
+    } else {
+        executeShowByType(pubType);
+    }
+}
+
+function executeShowByType(pubType) {
+    const foundCards = [];
+    for (let i = 0; i < publications.length; i++) {
+        const card = publications [i];
+        if (card.type === pubType) {
+            foundCards.push(card);
+        }
+    }
+    if (foundCards.length>0) {
+        showElement("search_result");
+        for (let i = 0; i < foundCards.length; i++) {
+            const card = foundCards[i];
+            addSearchResult(card);
+        }
+    } else {
+        showElement("search_not_found");
+    }
+}
+
+
+
 function searchClick() {
     const searchString = document.getElementById("search").value;
     clearSearchResults();
@@ -69,6 +128,13 @@ function executSearch() {
         showElement("search_not_found");
     }
 }
+
+function loadPublicationsAndShowByType(pubType) {
+    let url = API_URL + id;
+    loadPageData(url).then(cards => {
+        publications = cards;
+        executeShowByType(pubType);
+    });}
 
 function loadPublicationsAndSearch () {
     let url = API_URL + id;
