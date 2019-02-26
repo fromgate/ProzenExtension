@@ -7,6 +7,7 @@ const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication
 const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
 
 const publications = new Map();
+const observers = [];
 let token;
 let data;
 let publisherId;
@@ -29,9 +30,7 @@ function main() {
     }
 
     if (pageType === "main") {
-        loadCards();
-        processCards();
-        registerObserver();
+        registerTargetObserver();
     }
 }
 
@@ -49,7 +48,7 @@ function start() {
     const css = createElement("link");
     css.setAttribute("rel", "stylesheet");
     css.setAttribute("type", "text/css");
-    css.setAttribute("href", browser.extension.getURL("css/icons.css"));
+    css.setAttribute("href", browser.extension.getURL("css/prozen.css"));
     document.head.appendChild(css);
 
     const script = createElement("script");
@@ -68,22 +67,80 @@ function start() {
     });
 }
 
-function registerObserver() {
-    const target = document.getElementsByClassName('publications-cards-view')[0];
+function registerTargetObserver() {
+    const target = document.getElementsByClassName("publications-groups-view")[0];
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList') {
-                loadCards();
+                setUnprocessedPublications();
+
+                loadCardsAll();
                 processCards();
+                registerCardObservers();
             }
         });
     });
-    const config = {
-        attributes: false,
-        childList: true,
-        characterData: false
-    };
-    observer.observe(target, config);
+    observer.observe(target, {childList: true});
+}
+
+function registerCardObservers() {
+    for (let i = 0; i < observers.length; i++) {
+        const oldObserver = observers.pop();
+        oldObserver.disconnect();
+    }
+    const targets = document.getElementsByClassName('publications-groups-view__pubs-container');
+    for (let i = 0; i < targets.length; i++) {
+        const target = targets[i];
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    if (mutation.addedNodes !== undefined && mutation.addedNodes.length > 0) {
+                        mutation.addedNodes.forEach(function (node) {
+                            const ids = loadCards (node);
+                            processCards(ids);
+                        });
+                    }
+                }
+            });
+        });
+        const config = {
+            attributes: false,
+            childList: true,
+            characterData: false
+        };
+        observer.observe(target, config);
+        observers.push(observer);
+    }
+}
+
+function loadCardsAll() {
+    return loadCards(document);
+}
+
+function loadCards(soureElement) {
+    const ids = [];
+    const cards = soureElement.getElementsByClassName("card-cover-publication");
+    for (i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const cardLinks = card.getElementsByTagName("a");
+        if (cardLinks === undefined || cardLinks.length === 0) {
+            continue;
+        }
+        const postLink = cardLinks[0].getAttribute("href");
+        if (postLink.startsWith("/profile/editor/id/")) {
+            continue;
+        }
+        const publicationId = getPostIdFromUrl(postLink);
+        if (publications.has(publicationId)) {
+            publications.get(publicationId).card = card;
+        } else {
+            publications.set(publicationId, {});
+            publications.get(publicationId).card = card;
+            publications.get(publicationId).processed = false;
+        }
+        ids.push(publicationId);
+    }
+    return ids;
 }
 
 function articleShowStats() {
@@ -277,31 +334,15 @@ function clickSearchButton() {
     });
 }
 
-function loadCards() {
-    const cards = document.getElementsByClassName("publication-card-item");
-    for (i = 0; i < cards.length; i++) {
-        const card = cards[i];
-        const cardLinks = card.getElementsByClassName("card__card-link");
-        if (cardLinks === undefined || cardLinks.length === 0) {
-            continue;
-        }
-        const postLink = cardLinks[0].getAttribute("href");
-        if (postLink.startsWith("/profile/editor/id/")) {
-            continue;
-        }
-        const publicationId = getPostIdFromUrl(postLink);
-        if (publications.has(publicationId)) {
-            continue;
-        }
-        publications.set(publicationId, {});
-        publications.get(publicationId).card = card;
-        publications.get(publicationId).processed = false;
-    }
-}
-
 function getUnproccedPublications() {
     return Array.from(publications.keys()).filter(function (key) {
         return !publications.get(key).processed;
+    });
+}
+
+function setUnprocessedPublications() {
+    Array.from(publications.keys()).forEach(function (key) {
+        publications.get(key).processed = false;
     });
 }
 
@@ -320,59 +361,136 @@ function loadArticle(publicationId) {
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
-function processCards() {
-    const ids = getUnproccedPublications();
+function processCards(loadedIds) {
+    const ids = loadedIds === undefined ? getUnproccedPublications() : loadedIds;
     if (ids.length === 0) {
         return;
     }
-    loadPublicationsStat(ids).then (function (data) {
-        const articles = [];
-        for (let i in data.items) {
-            const stat = data.items[i];
-            const id = stat.publicationId;
-            const card = publications.get(id);
-            card.comments = stat.comments;
-            card.feedShows = stat.feedShows;
-            card.likes = stat.likes;
-            card.shows = stat.shows;
-            card.views = stat.views;
-            card.sumViewTimeSec = stat.sumViewTimeSec;
-            card.viewsTillEnd = stat.viewsTillEnd;
-            card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
-            articles.push(loadArticle(id));
+    const idsToLoad = [];
+    ids.forEach (function (id) {
+        if (!publications.get(id).processed) {
+            idsToLoad.push(id);
         }
-        Promise.all(articles).then(function (articles) {
-            for (let i in articles) {
-                const article = articles[i];
-                const id = article.publications[0].id;
-                const card = publications.get(id);
-                card.addTime = article.publications[0].addTime;
-                card.modTime = article.publications[0].content.modTime;
-                card.tags = article.publications[0].privateData.tags;
-            }
-        }).then(function () {
-            for (let i = 0; i< ids.length; i++) {
-                const publicationId = ids[i];
-                const value = publications.get(publicationId);
-                if (value.processed) {
-                    continue;
-                }
-                if (value.card.hasChildNodes()) {
-                    const cartLeft = value.card.getElementsByClassName("publication-card-item-statistic__main")[0];
-                    removeChilds (cartLeft);
-                    const cardRight= value.card.getElementsByClassName("publication-card-item-statistic__likes")[0];
-                    removeChilds (cardRight);
-                    removeByClass  ("article-stat-tip");
-                    addStats (cartLeft, cardRight, value);
-                    let actions = value.card.getElementsByClassName("action-menu__action-button");
-                    if (actions.length >0) {
-                        addDirectLinkButton(actions[0]);
-                    }
-                }
-                value.processed = true;
-            }
-        });
     });
+    if (idsToLoad.length > 0) {
+        loadPublicationsStat(idsToLoad).then (function (data) {
+            const articles = [];
+            for (let i in data.items) {
+                const stat = data.items[i];
+                const id = stat.publicationId;
+                const card = publications.get(id);
+                card.comments = stat.comments;
+                card.feedShows = stat.feedShows;
+                card.likes = stat.likes;
+                card.shows = stat.shows;
+                card.views = stat.views;
+                card.sumViewTimeSec = stat.sumViewTimeSec;
+                card.viewsTillEnd = stat.viewsTillEnd;
+                card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
+                articles.push(loadArticle(id));
+            }
+            Promise.all(articles).then(function (articles) {
+                for (let i in articles) {
+                    const article = articles[i];
+                    const id = article.publications[0].id;
+                    const card = publications.get(id);
+                    card.addTime = article.publications[0].addTime;
+                    card.modTime = article.publications[0].content.modTime;
+                    card.tags = article.publications[0].privateData.tags;
+                    card.processed = true;
+                }
+            }).then(function () {
+                processCardsViews(ids);
+            });
+        });
+    } else {
+        processCardsViews(ids);
+    }
+}
+
+
+function processCardsViews (ids) {
+    console.log ("processCardsViews");
+    for (let i = 0; i< ids.length; i++) {
+        const publicationId = ids[i];
+        const value = publications.get(publicationId);
+        if (value.card.hasChildNodes()) {
+            setPublicationTime (value);
+            modifyCardFooter (value);
+        }
+        value.processed = true;
+    }
+}
+
+function setPublicationTime (pubData) {
+    const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
+    if (dateDiv.innerText.match("\\d{1,2}\\s([а-я]+)(\\s201\\d)?")) {
+        const dayMod = dateFormat(pubData.modTime);
+        const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
+        dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " ("+dayMod+")");
+    }
+}
+
+function createFooterLine(style, element1, element2, element3) {
+    const div = document.createElement("div");
+    div.setAttribute("class", "card-cover-footer-stats");
+    div.setAttribute("style", style);
+    div.appendChild(element1);
+    if (element2 !== undefined) {
+        div.appendChild(element2);
+    }
+    if (element3 !== undefined) {
+        div.appendChild(element3);
+    }
+    return div;
+}
+
+
+function modifyCardFooter (pubData) {
+    const cardFooter = pubData.card.getElementsByClassName("card-cover-publication__stats-container")[0];
+    const cardFooterStyle = pubData.card.getElementsByClassName("card-cover-footer-stats")[0].getAttribute("style");
+    removeChilds (cardFooter);
+
+    const elementShows = createIcon (infiniteAndNan (pubData.feedShows), "icon_shows_in_feed", "Показы");
+
+    const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
+    const likesEr = infiniteAndNan((pubData.likes / erViews)*100);
+    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
+    const elementLikes = createIcon(likesValue, "icon_like", "Лайки");
+
+    const line1 = createFooterLine (cardFooterStyle, elementShows, elementLikes);
+    cardFooter.appendChild(line1);
+
+    const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
+    const elementViews = createIcon(pubData.views + " ("+ctr+"%)", "icon_views", "Просмотры (CTR)");
+    const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
+
+    const commentsEr = infiniteAndNan((pubData.comments / erViews)*100);
+    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
+    const elementComments = createIcon(commentsValue, "icon_comments", "Комментарии");
+
+    const line2 = createFooterLine (cardFooterStyle, elementViews, elementComments);
+    cardFooter.appendChild(line2);
+
+    const elementViewsTillEnd = createIcon (infiniteAndNan(pubData.viewsTillEnd)+" (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)",
+        "icon_views_till_end", "Дочитывания");
+
+
+    const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews))*100).toFixed(2) + "%";
+    const elementEr = createIcon(erValue, "icon_er", "Коэффициент вовлеченности, ER");
+
+    const line3 = createFooterLine (cardFooterStyle, elementViewsTillEnd, elementEr);
+    cardFooter.appendChild(line3);
+
+
+    const readTimeCount = secToHHMMSS (pubData.readTime);
+    const readTimeTitle = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
+    const elementReadTime = createIcon(readTimeCount, "icon_clock", readTimeTitle);
+
+    const elementTags = createIcon(null, "icon_tags", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
+
+    const line4 = createFooterLine (cardFooterStyle, elementReadTime, elementTags);
+    cardFooter.appendChild(line4);
 }
 
 function removeChilds(element) {
@@ -396,134 +514,28 @@ function addDirectLinkButton(link) {
     link.insertAdjacentElement("afterend", directLink);
 }
 
-function addStats(leftSide, rightSide, pubData) {
-    const shows = createLeftItem(pubData.feedShows, "icon_shows_in_feed", "Показы");
-    leftSide.appendChild(shows);
-    const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
-    const views = createLeftItem(pubData.views, "icon_views", "Просмотры (CTR)", " ("+ctr +"%)");
-    leftSide.appendChild(views);
-    const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
-    const viewsTillEnd = createLeftItem(pubData.viewsTillEnd, "icon_views_till_end", "Дочитывания", " (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)");
-    leftSide.appendChild (viewsTillEnd);
-    const dayMod = dateFormat(pubData.modTime);
-    const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
-    const date = createLeftItem (dayCreate, "icon_calendar","Дата создания"+ (dayCreate === dayMod ? "" : " (и редактрования)"), dayCreate === dayMod ? "" : " ("+dayMod+")");
-    leftSide.appendChild(date);
 
-    const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
-    const likesEr = infiniteAndNan((pubData.likes / erViews)*100);
-    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
-    const likes = createRightItem(likesValue, "icon_like", "Лайки (в процентах)");
-    rightSide.appendChild (likes);
-
-    const commentsEr = infiniteAndNan((pubData.comments / erViews)*100);
-    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
-    const comments = createRightItem(commentsValue, "icon_comments", pubData.comments === 0 ? "Комментарии. Полковнику никто не пишет?" : "Комментарии (в процентах)");
-    rightSide.appendChild (comments);
-
-    const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews))*100).toFixed(2) + "%";
-    const er = createRightItem(erValue, "icon_er", "Коэффициент вовлеченности, ER");
-    rightSide.appendChild (er);
-
-    const readTime = {};
-    readTime.count = secToHHMMSS (pubData.readTime);
-    readTime.text = "icon_clock";
-    readTime.title = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
-
-    const tag = {};
-    tag.count = "";
-    tag.text = "icon_tags";
-    tag.title = pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags);
-    const timeAndTag = createRightItems ([readTime, tag]);
-    rightSide.appendChild (timeAndTag);
-}
-
-function createLeftItem(count, text, title, postText) {
-    const item = createElement("div", "publication-card-item-statistic__main-item");
-
-    const itemCount = createElement("span","publication-card-item-statistic__main-count");
-    itemCount.innerText = isNaN(count) ? count : count.toLocaleString(undefined, {maximumFractionDigits: 0});
-
-    const itemText = createElement("span");
-
-    switch (text) {
-        case "icon_calendar":
-        case "icon_shows_in_feed":
-        case "icon_views":
-        case "icon_views_till_end":
-            itemText.setAttribute("class", "publication-card-item-statistic__icon " + text);
-            item.appendChild(itemText);
-            item.appendChild(itemCount);
-            if (postText !== undefined && postText !== "") {
-                const itemPost = createElement("span", "publication-card-item-statistic__main-text");
-                itemPost.innerText = postText;
-                item.appendChild(itemPost);
-            }
-            break;
-        default:
-            itemText.setAttribute("class", "publication-card-item-statistic__main-text");
-            itemText.innerText = text;
-            item.appendChild(itemCount);
-            item.appendChild(itemText);
-            break;
+function createIcon(value, icon, tip) {
+    const a = document.createElement("a");
+    a.setAttribute("class", "card-cover-footer-stats__item");
+    if (tip.indexOf ("\n") !== -1) {
+        a.setAttribute("title", tip);
+    } else {
+        a.setAttribute("data-tip", tip);
     }
-    if (title !== undefined && title !== "") {
-        item.setAttribute("title", title);
-    }
-    return item;
-}
+    a.setAttribute("currentitem", "false");
 
-function createRightItemElement(count, text) {
-    const itemCount = createElement("span", "publication-card-item-statistic__count");
-    itemCount.innerText = count;
-    const itemIcon = createElement("span");
-    let items = [];
-    switch (text) {
-        case "icon_like":
-        case "icon_clock":
-        case "icon_comments":
-        case "icon_er":
-        case "icon_tags":
-            itemIcon.setAttribute("class", "publication-card-item-statistic__icon " + text);
-            itemIcon.innerText = "";
-            items[0] = itemIcon;
-            items[1] = itemCount;
-            break;
-        default:
-            itemIcon.setAttribute("class", "publication-card-item-statistic__icon");
-            itemIcon.innerText = text;
-            items[0] = itemCount;
-            items[1] = itemIcon;
-            break;
-    }
-    return items;
-}
+    const iconSpan = document.createElement("span")
+    iconSpan.setAttribute("class", "card-cover-footer-stats__icon "+ icon);
+    a.appendChild(iconSpan);
 
-function createRightItems(items) {
-    const item = createElement("div","publication-card-item-statistic__wrapper-item");
-    for (let i = 0; i<items.length;i ++) {
-        const title = items[i].title;
-        const elements = createRightItemElement(items[i].count, items[i].text);
-        for (let j = 0; j<elements.length;j ++) {
-            item.appendChild(elements[j]);
-            if (title !== undefined && title !== "") {
-                elements[j].setAttribute("title", title);
-            }
-        }
+    if (value !== null) {
+        const valueDiv = document.createElement("div");
+        valueDiv.setAttribute("class", "card-cover-footer-stats__value");
+        valueDiv.innerText = value;
+        a.appendChild(valueDiv);
     }
-    return item;
-}
-
-function createRightItem(count, text, title) {
-    const item = createElement("div", "publication-card-item-statistic__wrapper-item");
-    const items = createRightItemElement (count, text);
-    for (let i = 0; i<items.length;i ++) {
-        item.appendChild(items[i]);
-    }
-    if (title !== undefined && title !== "") {
-        item.setAttribute("title", title);
-    }
-    return item;
+    return a;
 }
 
 //const message = JSON.parse('{ "title":"заголовок", "text":"Текст сообщения", link":"Текст ссылки", "ссыллка"}');
