@@ -434,7 +434,9 @@ function setPublicationTime (pubData) {
 function createFooterLine(style, element1, element2, element3) {
     const div = document.createElement("div");
     div.setAttribute("class", "card-cover-footer-stats");
-    div.setAttribute("style", style);
+    if (style !== null) {
+        div.setAttribute("style", style);
+    }
     div.appendChild(element1);
     if (element2 !== undefined) {
         div.appendChild(element2);
@@ -447,8 +449,18 @@ function createFooterLine(style, element1, element2, element3) {
 
 
 function modifyCardFooter (pubData) {
-    const cardFooter = pubData.card.getElementsByClassName("card-cover-publication__stats-container")[0];
-    const cardFooterStyle = pubData.card.getElementsByClassName("card-cover-footer-stats")[0].getAttribute("style");
+    const cardFooters = pubData.card.getElementsByClassName("card-cover-publication__stats-container");
+    if (cardFooters === undefined || cardFooters.length === 0) {
+        return;
+    }
+    const cardFooter = cardFooters[0];
+    const cardFooterStyles = pubData.card.getElementsByClassName("card-cover-footer-stats");
+    if (cardFooterStyles === undefined || cardFooterStyles.length ===0) {
+        return;
+    }
+    const cardFooterStyleEl = cardFooterStyles[0];
+    const cardFooterStyle = cardFooterStyleEl.hasAttribute("style") ? cardFooterStyleEl.getAttribute("style") : null;
+
     removeChilds (cardFooter);
 
     const elementShows = createIcon (infiniteAndNan (pubData.feedShows), "icon_shows_in_feed", "Показы");
