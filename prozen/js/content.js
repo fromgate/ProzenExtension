@@ -259,6 +259,7 @@ function showBalanceAndMetrics() {
         }
         addMetricsButton(response.publisher.privateData.metrikaCounterId);
         addSearchButton();
+        addTotalStatsButton();
         addRobotIconIfNoNoIndex (publisherId);
     });
 }
@@ -331,6 +332,34 @@ function clickSearchButton() {
     }
     chrome.storage.local.set ( {prozenId : id}, function () {
         window.open(browser.extension.getURL("search.html"));
+    });
+}
+
+function addTotalStatsButton() {
+    const totalStatsButton = createElement("div", "header__nav-block");
+    totalStatsButton.setAttribute("data-multiline","true");
+    totalStatsButton.setAttribute("data-tip","Поиск");
+    totalStatsButton.setAttribute("currentitem","false");
+    const searchA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
+    searchA.setAttribute("aria-pressed","false");
+    searchA.setAttribute("tabindex","0");
+    searchA.setAttribute("aria-disabled","false");
+    const aSpan = createElement("span", "button2__text");
+    aSpan.setAttribute("style", "margin-top: 5px");
+    searchA.appendChild(aSpan);
+    const img = createElement("img");
+    img.setAttribute("src","data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABfAAAAXwBsrqMZwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE8SURBVEiJ7ZSxLkRBFIa/IxvJbrYQVEqVKPESCpViK0LhBUhcW5CrEHZXQaHbUHkAj7BRSLSiEI1tFEKiICHLHsU2946Z646djr/8ZnK+MyczA//5IWKlGxqjLHhVUo6py46JC47tI8C4l0AYtuEBryK/iOsEV1YqtFA6jrVbO7ZGhYgzYM7YvcKeNB1NWeMYkSjvLAJ3aS+HVHUigAA4kGeUCqRGUqLLKbEO9i8AqMslyrZBp3hjK4wAoEQN4TzFlIiqToYR3CMoRYM+0eExjGCIXWAmQT7pUmFfHvIIXO+gl0hngVWDNmhIK09xyDrBmo4CTZJvRbmgyGbe4tmCAkfAWIK8AsvE8uEjcP2mSygnBn0BbjJqtanJ/Pc+bVHWLbQMTGcIyjboGlGwX9Z1i67pjcQn7T57+av5AoyVRffOpHGeAAAAAElFTkSuQmCC");
+    aSpan.appendChild(img);
+    totalStatsButton.appendChild(searchA);
+    const navblocks = document.getElementsByClassName("header__nav-block");
+    const last = navblocks.item(navblocks.length - 1);
+    last.insertAdjacentElement("afterend", totalStatsButton);
+    totalStatsButton.addEventListener('click', clickTotalStatsButton);
+}
+
+function clickTotalStatsButton() {
+    chrome.storage.local.set ( {prozenToken : token}, function () {
+        window.open(browser.extension.getURL("totalstats.html"));
     });
 }
 
