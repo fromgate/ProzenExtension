@@ -460,12 +460,11 @@ function setPublicationTime (pubData) {
     }
 }
 
-function createFooterLine(style, element1, element2, element3) {
+function createFooterLine(element1, element2, element3) {
     const div = document.createElement("div");
     div.setAttribute("class", "card-cover-footer-stats");
-    if (style !== null) {
-        div.setAttribute("style", style);
-    }
+    div.setAttribute("style", "color: rgb(255, 255, 255);");
+
     div.appendChild(element1);
     if (element2 !== undefined) {
         div.appendChild(element2);
@@ -483,15 +482,7 @@ function modifyCardFooter (pubData) {
         return;
     }
     const cardFooter = cardFooters[0];
-    const cardFooterStyles = pubData.card.getElementsByClassName("card-cover-footer-stats");
-    if (cardFooterStyles === undefined || cardFooterStyles.length ===0) {
-        return;
-    }
-    const cardFooterStyleEl = cardFooterStyles[0];
-    const cardFooterStyle = cardFooterStyleEl.hasAttribute("style") ? cardFooterStyleEl.getAttribute("style") : null;
-
     removeChilds (cardFooter);
-
     const elementShows = createIcon (infiniteAndNan (pubData.feedShows), "icon_shows_in_feed", "Показы");
 
     const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
@@ -499,7 +490,7 @@ function modifyCardFooter (pubData) {
     const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
     const elementLikes = createIcon(likesValue, "icon_like", "Лайки");
 
-    const line1 = createFooterLine (cardFooterStyle, elementShows, elementLikes);
+    const line1 = createFooterLine (elementShows, elementLikes);
     cardFooter.appendChild(line1);
 
     const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
@@ -509,20 +500,15 @@ function modifyCardFooter (pubData) {
     const commentsEr = infiniteAndNan((pubData.comments / erViews)*100);
     const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
     const elementComments = createIcon(commentsValue, "icon_comments", "Комментарии");
-
-    const line2 = createFooterLine (cardFooterStyle, elementViews, elementComments);
+    const line2 = createFooterLine (elementViews, elementComments);
     cardFooter.appendChild(line2);
 
     const elementViewsTillEnd = createIcon (infiniteAndNan(pubData.viewsTillEnd)+" (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)",
         "icon_views_till_end", "Дочитывания");
-
-
     const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews))*100).toFixed(2) + "%";
     const elementEr = createIcon(erValue, "icon_er", "Коэффициент вовлеченности, ER");
-
-    const line3 = createFooterLine (cardFooterStyle, elementViewsTillEnd, elementEr);
+    const line3 = createFooterLine (elementViewsTillEnd, elementEr);
     cardFooter.appendChild(line3);
-
 
     const readTimeCount = secToHHMMSS (pubData.readTime);
     const readTimeTitle = "Время дочитывания" +(pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
@@ -530,7 +516,7 @@ function modifyCardFooter (pubData) {
 
     const elementTags = createIcon(null, "icon_tags", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
 
-    const line4 = createFooterLine (cardFooterStyle, elementReadTime, elementTags);
+    const line4 = createFooterLine (elementReadTime, elementTags);
     cardFooter.appendChild(line4);
 }
 

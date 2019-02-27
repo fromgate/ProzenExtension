@@ -106,5 +106,13 @@
 }
 
 .card-cover-publication__content_has-stats {
-    margin-bottom: 75px;
+    margin-bottom: 80px;
+}
+
+.card-cover-publication__stats-container {
+    border-radius: 3px;
+    padding: 5px 7px;
+    background-color: rgba(0, 0, 0, .6);
+    max-width: 98%;
+    margin-left: 1%;
 }
