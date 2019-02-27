@@ -338,7 +338,7 @@ function clickSearchButton() {
 function addTotalStatsButton() {
     const totalStatsButton = createElement("div", "header__nav-block");
     totalStatsButton.setAttribute("data-multiline","true");
-    totalStatsButton.setAttribute("data-tip","Поиск");
+    totalStatsButton.setAttribute("data-tip","Итоговая статистика");
     totalStatsButton.setAttribute("currentitem","false");
     const searchA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
     searchA.setAttribute("aria-pressed","false");
