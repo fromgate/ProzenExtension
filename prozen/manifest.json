@@ -20,7 +20,9 @@
   },
   "web_accessible_resources": [
     "search.html",
+    "totalstats.html",
     "js/search.js",
+    "js/totalstats.js",
     "js/page.js",
     "css/prozen.css"
   ],
