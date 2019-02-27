@@ -453,9 +453,11 @@ function processCardsViews (ids) {
 
 function setPublicationTime (pubData) {
     const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
-    const dayMod = dateFormat(pubData.modTime);
-    const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
-    dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " ("+dayMod+")");
+    if (dateDiv.innerText.match("(^Вчера)|(^Сегодня)|(^Три дня назад)|(^\\d{1,2}\\s([а-я]+)(\\s201\\d)?)")Л) {
+        const dayMod = dateFormat(pubData.modTime);
+        const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
+        dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " ("+dayMod+")");
+    }
 }
 
 function createFooterLine(style, element1, element2, element3) {
