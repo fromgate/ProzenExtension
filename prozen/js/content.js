@@ -439,7 +439,6 @@ function processCards(loadedIds) {
 
 
 function processCardsViews (ids) {
-    console.log ("processCardsViews");
     for (let i = 0; i< ids.length; i++) {
         const publicationId = ids[i];
         const value = publications.get(publicationId);
