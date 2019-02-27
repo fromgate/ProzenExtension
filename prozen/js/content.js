@@ -453,11 +453,9 @@ function processCardsViews (ids) {
 
 function setPublicationTime (pubData) {
     const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
-    if (dateDiv.innerText.match("\\d{1,2}\\s([а-я]+)(\\s201\\d)?")) {
-        const dayMod = dateFormat(pubData.modTime);
-        const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
-        dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " ("+dayMod+")");
-    }
+    const dayMod = dateFormat(pubData.modTime);
+    const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
+    dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " ("+dayMod+")");
 }
 
 function createFooterLine(style, element1, element2, element3) {
