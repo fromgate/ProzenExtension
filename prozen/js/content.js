@@ -606,7 +606,7 @@ function dateFormat(unixTime) {
     const hours = "0" + date.getHours();
     const minutes = "0" + date.getMinutes();
     return day.substr(-2) + "." + month.substr(-2) + "."
-        +year.substr(-2) + " "+hours.substr(-2)+":"+minutes.substr(-2) ;
+        +year.substr(-2) + "\u00A0"+hours.substr(-2)+":"+minutes.substr(-2) ;
 }
 
 function secToHHMMSS(seconds) {
