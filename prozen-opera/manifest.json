@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.0.17",
+  "version": "1.4.2",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "browser_action": {
@@ -19,8 +19,12 @@
     "128": "icons/tab-icon-128.png"
   },
   "web_accessible_resources": [
+    "search.html",
+    "totalstats.html",
+    "js/search.js",
+    "js/totalstats.js",
     "js/page.js",
-    "css/icons.css"
+    "css/prozen.css"
   ],
   "content_scripts": [
     {
@@ -28,15 +32,21 @@
         "js/content.js"
       ],
       "matches": [
-        "https://zen.yandex.ru/profile/editor/*"
+        "https://zen.yandex.ru/profile/editor/*",
+        "https://zen.yandex.ru/media/*"
       ],
       "run_at": "document_end"
     }
   ],
   "permissions": [
+    "storage",
     "https://zen.yandex.ru/profile/editor/*",
     "https://zen.yandex.ru/media-api/*",
-    "https://zen.yandex.ru/media-api/id/*",
-    "https://metrika.yandex.ru/*"
+    "https://zen.yandex.ru/media/*",
+    "https://zen.yandex.ru/id/*",
+    "https://zen.yandex.ru/api/*",
+    "https://metrika.yandex.ru/dashboard?id=",
+    "https://metrika.yandex.ru/list",
+    "https://zen.yandex.ru"
   ]
 }
