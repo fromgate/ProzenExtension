@@ -482,27 +482,27 @@ function modifyCardFooter (pubData) {
     }
     const cardFooter = cardFooters[0];
     removeChilds (cardFooter);
-    const elementShows = createIcon (infiniteAndNan (pubData.feedShows), "icon_shows_in_feed", "Показы");
+    const elementShows = createIcon (infiniteAndNanToStr (pubData.feedShows), "icon_shows_in_feed", "Показы");
 
     const erViews = firstNotZ (pubData.viewsTillEnd, pubData.views, pubData.feedShows);
     const likesEr = infiniteAndNan((pubData.likes / erViews)*100);
-    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : pubData.likes + " (" + parseFloat (likesEr).toFixed(2) + "%)";
+    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : infiniteAndNanToStr(pubData.likes) + " (" + parseFloat (likesEr).toFixed(2) + "%)";
     const elementLikes = createIcon(likesValue, "icon_like", "Лайки");
 
     const line1 = createFooterLine (elementShows, elementLikes);
     cardFooter.appendChild(line1);
 
     const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows)*100)).toFixed(2);
-    const elementViews = createIcon(pubData.views + " ("+ctr+"%)", "icon_views", "Просмотры (CTR)");
+    const elementViews = createIcon(infiniteAndNanToStr (pubData.views) + " ("+ctr+"%)", "icon_views", "Просмотры (CTR)");
     const readsPercent = ((pubData.viewsTillEnd / pubData.views)*100).toFixed(2);
 
     const commentsEr = infiniteAndNan((pubData.comments / erViews)*100);
-    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : pubData.comments + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
+    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : infiniteAndNanToStr (pubData.comments) + " (" + parseFloat (commentsEr).toFixed(2) + "%)";
     const elementComments = createIcon(commentsValue, "icon_comments", "Комментарии");
     const line2 = createFooterLine (elementViews, elementComments);
     cardFooter.appendChild(line2);
 
-    const elementViewsTillEnd = createIcon (infiniteAndNan(pubData.viewsTillEnd)+" (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)",
+    const elementViewsTillEnd = createIcon (infiniteAndNanToStr(pubData.viewsTillEnd)+" (" +parseFloat(infiniteAndNan (readsPercent)).toFixed(2) +"%)",
         "icon_views_till_end", "Дочитывания");
     const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews))*100).toFixed(2) + "%";
     const elementEr = createIcon(erValue, "icon_er", "Коэффициент вовлеченности, ER");
@@ -710,4 +710,8 @@ function createElement(elementType, elementClass, childElement) {
         newElement.appendChild(childElement);
     }
     return newElement;
+}
+
+function infiniteAndNanToStr(num, digits) {
+    return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
 }
