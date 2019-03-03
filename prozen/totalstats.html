@@ -18,43 +18,52 @@
                 <div class="section">
                     <fieldset>
                         <legend id="totalstats_legend">Итоговая статистика</legend>
-                        <button id="totalstats_button">Посчитать</button>
-                        <fieldset>
-                            <legend>Статьи</legend>
-                            <div>
-                                <label>Опубликовано: </label><span id="article-count"></span><br/>
-                                <label>Показов: </label><span id="article-shows"></span><br/>
-                                <label>Просмотров: </label><span id="article-views"></span><br/>
-                                <label>Дочитываний: </label><span id="article-viewstillend"></span>
-                            </div>
-                        </fieldset>
-                        <fieldset>
+                        <!-- button id="totalstats_button">Посчитать</button -->
+                        <div class="section" id="spinner">
+                            <div class="section" style="text-align: center;"><span class="spinner"></span></div>
+                        </div>
+                        <div id="stats">
+                            <fieldset>
+                                <legend>Статьи</legend>
+                                <div>
+                                    <label>Опубликовано: </label><span id="article-count"></span><br/>
+                                    <label>Показов: </label><span id="article-shows"></span><br/>
+                                    <label>Просмотров: </label><span id="article-views"></span><br/>
+                                    <label>Дочитываний: </label><span id="article-viewstillend"></span><br/>
+                                    <label>Первая публикация: </label><span id="article-firstpost"></span>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>Нарративы</legend>
                                 <div>
-                                        <label>Опубликовано: </label><span id="narrative-count"></span><br/>
-                                        <label>Показов: </label><span id="narrative-shows"></span><br/>
-                                        <label>Просмотров: </label><span id="narrative-views"></span><br/>
-                                        <label>Дочитываний: </label><span id="narrative-viewstillend"></span>
-                                    </div>
-                        </fieldset>
-                        <fieldset>
+                                    <label>Опубликовано: </label><span id="narrative-count"></span><br/>
+                                    <label>Показов: </label><span id="narrative-shows"></span><br/>
+                                    <label>Просмотров: </label><span id="narrative-views"></span><br/>
+                                    <label>Дочитываний: </label><span id="narrative-viewstillend"></span><br/>
+                                    <label>Первая публикация: </label><span id="narrative-firstpost"></span>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>Посты</legend>
                                 <div>
-                                        <label>Опубликовано: </label><span id="post-count"></span><br/>
-                                        <label>Показов: </label><span id="post-shows"></span><br/>
-                                        <label>Просмотров: </label><span id="post-views"></span><br/>
-                                        <label>Дочитываний: </label><span id="post-viewstillend"></span>
-                                        </div>
-                        </fieldset>
-                        <fieldset>
+                                    <label>Опубликовано: </label><span id="post-count"></span><br/>
+                                    <label>Показов: </label><span id="post-shows"></span><br/>
+                                    <label>Просмотров: </label><span id="post-views"></span><br/>
+                                    <label>Дочитываний: </label><span id="post-viewstillend"></span><br/>
+                                    <label>Первая публикация: </label><span id="post-firstpost"></span>
+                                </div>
+                            </fieldset>
+                            <fieldset>
                                 <legend>Видео</legend>
                                 <div>
-                                        <label>Опубликовано: </label><span id="gif-count"></span><br/>
-                                        <label>Показов: </label><span id="gif-shows"></span><br/>
-                                        <label>Просмотров: </label><span id="gif-views"></span><br/>
-                                        <label>Дочитываний: </label><span id="gif-viewstillend"></span>
+                                    <label>Опубликовано: </label><span id="gif-count"></span><br/>
+                                    <label>Показов: </label><span id="gif-shows"></span><br/>
+                                    <label>Просмотров: </label><span id="gif-views"></span><br/>
+                                    <label>Дочитываний: </label><span id="gif-viewstillend"></span><br/>
+                                    <label>Первая публикация: </label><span id="gif-firstpost"></span>
                                 </div>
-                        </fieldset>
+                            </fieldset>
+                        </div>
                     </fieldset>
                 </div>
             </div>

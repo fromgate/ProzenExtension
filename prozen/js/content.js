@@ -18,7 +18,7 @@ function main() {
         return;
     }
     if (pageType === "article") {
-        articleShowStats();
+        setTimeout (articleShowStats, 300);
         return;
     }
     publisherId = getPublisherId();
@@ -73,7 +73,6 @@ function registerTargetObserver() {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList') {
                 setUnprocessedPublications();
-
                 loadCardsAll();
                 processCards();
                 registerCardObservers();
