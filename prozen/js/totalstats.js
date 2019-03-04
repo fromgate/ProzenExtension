@@ -19,35 +19,41 @@ async function main() {
     showSpinner();
     token = await getToken();
     const types = ["article", "narrative", "post","gif"];
+    const stats = new Map();
+
     for (let i = 0; i < types.length; i++) {
         const publicationType = types[i];
         const stat = await getStats(publicationType);
+        const total = stats.has("total") ? stats.get("total") : {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0};
+        total.count += stat.count;
+        total.shows += stat.shows;
+        total.views += stat.views;
+        total.viewsTillEnd += stat.viewsTillEnd;
+        total.minAddTime =  stat.minAddTime  < total.minAddTime || total.minAddTime=== 0 ? stat.minAddTime : total.minAddTime;
+        stats.set("total", total);
+        stats.set(publicationType, stat);
+    }
+
+    stats.forEach((stat, publicationType) => {
         const viewsPercent = stat.shows === 0 ? 0 : stat.views / stat.shows * 100;
         const viewsPercentStr = viewsPercent === 0 ?  "" : " ("+numFormat (viewsPercent, 2)+"%)";
-
         const viewsTillEndPercent = stat.viewsTillEnd === 0 ? 0 : stat.viewsTillEnd / stat.views * 100;
         const viewsTillEndPercentStr  = viewsTillEndPercent === 0 ?  "" : " ("+numFormat (viewsTillEndPercent, 2)+"%)";
-
-
         let minAddTimeStr = "-";
         const days = daysSinceDate(stat.minAddTime);
         if (stat.minAddTime > 0) {
             minAddTimeStr = dateFormat(stat.minAddTime);
             if (days > 0) {
-                minAddTimeStr += "; Прошло "+ days +" дней (" + daysReadable(days) + ")";
+                minAddTimeStr += "; Прошло: "+ paucalDay(days) +" (" + daysReadable(days) + ")";
             }
         }
-
         const publicationsPerDayStr = stat.count === 0 && days !== 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
-
         document.getElementById(publicationType + "-count").textContent = numFormat (stat.count)+ publicationsPerDayStr;
         document.getElementById(publicationType + "-shows").textContent = numFormat (stat.shows);
         document.getElementById(publicationType + "-views").textContent = numFormat (stat.views) +viewsPercentStr;
         document.getElementById(publicationType + "-viewstillend").textContent = numFormat (stat.viewsTillEnd) + viewsTillEndPercentStr;
-
-
         document.getElementById(publicationType + "-firstpost").textContent = minAddTimeStr;
-    }
+    });
     hideSpinner();
 }
 
@@ -55,7 +61,6 @@ async function getStats(publicationType) {
     const response = await loadPublicationsCount(publicationType).then(response => {
         return response;
     });
-
     const count = response.count;
     const result = await loadPublications(publicationType, count).then(response => {
         let shows = 0;
@@ -67,7 +72,7 @@ async function getStats(publicationType) {
             shows += publication.privateData.statistics.feedShows;
             views += publication.privateData.statistics.views;
             viewsTillEnd += publication.privateData.statistics.viewsTillEnd;
-            minAddTime =  publication.addTime < minAddTime || minAddTime === 0 ? publication.addTime : minAddTime;
+            minAddTime =  (publication.addTime !== undefined) && (publication.addTime < minAddTime || minAddTime === 0) ? publication.addTime : minAddTime;
         }
         return {shows : shows, views : views, viewsTillEnd : viewsTillEnd, minAddTime : minAddTime};
     });
@@ -94,7 +99,6 @@ function showSpinner() {
     document.getElementById("spinner").style.display = "block";
     document.getElementById("stats").style.display = "none";
 }
-
 
 function numFormat(num, digits) {
     return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
@@ -125,9 +129,8 @@ function daysReadable (daysInterval) {
     days = days % 365;
     const months = Math.floor(days / 30);
     days = days % 30;
-    return years  +" лет, " + months + " месяцев, " + days + " дней";
+    return paucalYear(years)  +", " + paucalMonth(months) + ", " + paucalDay(days);
 }
-
 
 function secToText(seconds) {
     let time = seconds;
@@ -137,4 +140,30 @@ function secToText(seconds) {
     const sec = Math.floor(time % 60);
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
     return (hours > 0 ? hours +" час. " : "") + (min > 0 ? min  +" мин. " : "") + sec+ " сек.";
+}
+
+function paucalYear(num) {
+    return paucal(num, "год", "года", "лет");
+}
+
+function paucalMonth(num) {
+    return paucal(num, "месяц", "месяца", "месяцев");
+}
+
+function paucalDay(num) {
+    return paucal(num, "день", "дня", "дней");
+}
+
+function paucal(num, p1, p234, p) {
+    const x = num % 100;
+    if (x >= 10 && x <20) {
+        return num + " " + p;
+    }
+    switch (num % 10) {
+        case 1: return num +" " + p1;
+        case 2:
+        case 3:
+        case 4: return num + " " + p234;
+        default: return num + " " + p;
+    }
 }
