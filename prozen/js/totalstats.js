@@ -29,7 +29,7 @@ async function main() {
         total.shows += stat.shows;
         total.views += stat.views;
         total.viewsTillEnd += stat.viewsTillEnd;
-        total.minAddTime =  stat.minAddTime  < total.minAddTime || total.minAddTime=== 0 ? stat.minAddTime : total.minAddTime;
+        total.minAddTime =  (stat.minAddTime  < total.minAddTime || total.minAddTime=== 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
         stats.set("total", total);
         stats.set(publicationType, stat);
     }
