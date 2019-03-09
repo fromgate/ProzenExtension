@@ -5,9 +5,9 @@ const SEARCH_PLACEHOLDER = ["кора осины", "продзен", "варен
 
 var id;
 let publications = [];
-getChannelId();
-showElement ("search_msg");
 
+showElement ("search_msg");
+getChannelId();
 
 document.getElementById('search_button').onclick = searchClick;
 document.getElementById('show_articles').onclick = showArticles;
@@ -39,8 +39,13 @@ function showVideos() {
 }
 
 function getChannelId() {
-    chrome.storage.local.get("prozenId", function (result) {
+    chrome.storage.local.get(["prozenId", "prozenSearch"], function (result) {
         id = result.prozenId;
+        const searchString = result.prozenSearch;
+        if (searchString.length > 0) {
+            document.getElementById("search").value = searchString;
+            searchClick();
+        }
     });
 }
 

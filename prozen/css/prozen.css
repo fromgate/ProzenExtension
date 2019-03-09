@@ -116,3 +116,16 @@
     max-width: 98%;
     margin-left: 1%;
 }
+
+.prozen_button {
+    display: inline-block;
+    background: #e2e2e2;
+    color: #212121;
+    border: .0625rem;
+    border-radius: 3px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    height: 30px;
+    margin-bottom: 1px;
+}

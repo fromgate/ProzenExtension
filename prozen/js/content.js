@@ -30,6 +30,7 @@ function main() {
     }
 
     if (pageType === "main") {
+        addSearchInput();
         registerTargetObserver();
     }
 }
@@ -322,14 +323,15 @@ function addSearchButton() {
     searchButton.addEventListener('click', clickSearchButton);
 }
 
-function clickSearchButton() {
+function clickSearchButton(searchString) {
     let id;
+    const textToFind = searchString === undefined ? "" : searchString;
     if (data.publisher.nickname === undefined) {
         id = "channel_id=" + publisherId;
     } else {
         id = "channel_name=" + data.publisher.nickname.raw;
     }
-    chrome.storage.local.set ( {prozenId : id}, function () {
+    chrome.storage.local.set ( {prozenId : id, prozenSearch : textToFind}, function () {
         window.open(browser.extension.getURL("search.html"));
     });
 }
@@ -713,4 +715,31 @@ function createElement(elementType, elementClass, childElement) {
 
 function infiniteAndNanToStr(num, digits) {
     return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
+}
+
+function addSearchInput() {
+    const input = createElement("input", "zen-ui-input__control");
+    input.setAttribute("type", "text");
+    input.setAttribute("id", "search");
+    const divInputContainer = createElement("div","zen-ui-input__control-container", input);
+    const divUiBox = createElement("div","zen-ui-input__box");
+    divInputContainer.appendChild(divUiBox);
+    const divUiInputControl = createElement("div","zen-ui-input _size_m", divInputContainer);
+    const divUiSelect = createElement("div", "zen-ui-select _size_m _type_input publications-groups-view__content-type-filter-control", divUiInputControl);
+    const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
+    const span = createElement("span");
+    span.innerText = "|";
+    span.setAttribute("style", "margin-left: 5px; margin-right: 5px; color:silver;");
+    const button = createElement("button" );
+    button.innerText = "🔎";
+    button.setAttribute("class","prozen_button");
+    boxDiv.insertAdjacentElement("afterend", span);
+    span.insertAdjacentElement("afterend", divUiSelect);
+    divUiSelect.insertAdjacentElement("afterend", button);
+    button.setAttribute("data-tip",  "Поиск (откроется новое окно)");
+    button.addEventListener('click', clickFind);
+}
+
+function clickFind() {
+    clickSearchButton (document.getElementById("search").value);
 }
