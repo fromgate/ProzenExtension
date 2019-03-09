@@ -721,6 +721,7 @@ function addSearchInput() {
     const input = createElement("input", "zen-ui-input__control");
     input.setAttribute("type", "text");
     input.setAttribute("id", "search");
+    input.setAttribute("placeholder", "строка поиска");
     const divInputContainer = createElement("div","zen-ui-input__control-container", input);
     const divUiBox = createElement("div","zen-ui-input__box");
     divInputContainer.appendChild(divUiBox);
