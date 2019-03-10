@@ -739,8 +739,16 @@ function addSearchInput() {
     divUiSelect.insertAdjacentElement("afterend", button);
     button.setAttribute("data-tip",  "Поиск (откроется новое окно)");
     button.addEventListener('click', clickFind);
+
+    input.addEventListener("keyup", event => {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                button.click();
+            }
+        });
 }
 
 function clickFind() {
     clickSearchButton (document.getElementById("search").value);
+    return false;
 }
