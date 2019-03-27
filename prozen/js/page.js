@@ -1,4 +1,5 @@
-const data = { type: "prozen-data",
+const data = {
+    type: "prozen-data",
     text: window._csrfToken,
     jsonData: window._data
 };

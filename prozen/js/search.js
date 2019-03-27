@@ -1,12 +1,12 @@
 const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
 
-const VISIABLE = ["search_msg","spinner","search_result","search_msg_empty","search_not_found"];
+const VISIABLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "search_not_found"];
 const SEARCH_PLACEHOLDER = ["кора осины", "продзен", "варенье из огурцов", "смысл жизни", "показы"];
 
 var id;
 let publications = [];
 
-showElement ("search_msg");
+showElement("search_msg");
 getChannelId();
 
 document.getElementById('search_button').onclick = searchClick;
@@ -60,10 +60,10 @@ function updateSerchStats() {
         for (let i = 0; i < publications.length; i++) {
             count [publications[i].type]++;
         }
-        document.getElementById('show_articles').innerText = "Статьи: "+count.card;
-        document.getElementById('show_narratives').innerText = "Нарративы: "+count.story;
-        document.getElementById('show_posts').innerText = "Посты: "+count.post;
-        document.getElementById('show_videos').innerText = "Видео: "+count.gif;
+        document.getElementById('show_articles').innerText = "Статьи: " + count.card;
+        document.getElementById('show_narratives').innerText = "Нарративы: " + count.story;
+        document.getElementById('show_posts').innerText = "Посты: " + count.post;
+        document.getElementById('show_videos').innerText = "Видео: " + count.gif;
     }
 }
 
@@ -85,7 +85,7 @@ function executeShowByType(pubType) {
             foundCards.push(card);
         }
     }
-    if (foundCards.length>0) {
+    if (foundCards.length > 0) {
         showElement("search_result");
         for (let i = 0; i < foundCards.length; i++) {
             const card = foundCards[i];
@@ -97,14 +97,13 @@ function executeShowByType(pubType) {
 }
 
 
-
 function searchClick() {
     const searchString = document.getElementById("search").value;
     clearSearchResults();
     if (searchString && searchString.length !== 0) {
         showElement("spinner");
         if (publications.length === 0) {
-            loadPublicationsAndSearch ();
+            loadPublicationsAndSearch();
         } else {
             executSearch();
         }
@@ -141,7 +140,7 @@ function executSearch() {
             foundCards.push(card);
         }
     }
-    if (foundCards.length>0) {
+    if (foundCards.length > 0) {
         showElement("search_result");
         for (let i = 0; i < foundCards.length; i++) {
             const card = foundCards[i];
@@ -158,9 +157,10 @@ function loadPublicationsAndShowByType(pubType) {
         publications = cards;
         updateSerchStats();
         executeShowByType(pubType);
-    });}
+    });
+}
 
-function loadPublicationsAndSearch () {
+function loadPublicationsAndSearch() {
     let url = API_URL + id;
     loadPageData(url).then(cards => {
         publications = cards;
@@ -178,7 +178,7 @@ async function loadPageData(initUrl) {
     let url = initUrl;
     const cards = [];
     while (true) {
-        const request = await fetch(url, {headers : header, method : "GET"});
+        const request = await fetch(url, {headers: header, method: "GET"});
         let json;
         try {
             json = await request.json();
@@ -207,7 +207,7 @@ function cardFromItem(item) {
     const card = {};
     card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
     card.url = item.link.split("?")[0];
-    card.title  = card.type === "post" ? postJsonToText(item.rich_text.json) : item.title;
+    card.title = card.type === "post" ? postJsonToText(item.rich_text.json) : item.title;
     card.description = card.type === "post" ? "" : item.text;
     publications.push(card);
     return card;
@@ -224,7 +224,7 @@ function postJsonToText(json) {
             if (str === undefined) {
                 str = obj.data
             } else {
-                str = str + " " +obj.data;
+                str = str + " " + obj.data;
             }
         }
     }
@@ -233,8 +233,8 @@ function postJsonToText(json) {
 
 function addSearchResult(card) {
     const a = document.createElement("a");
-    a.setAttribute("href",card.url);
-    a.setAttribute("target","_blank");
+    a.setAttribute("href", card.url);
+    a.setAttribute("target", "_blank");
     const div = cardToDiv(card);
     a.appendChild(div);
     const searchResult = document.getElementById("search_result");
@@ -248,19 +248,19 @@ function cardToDiv(card) {
     const icon = document.createElement("span");
     switch (card.type) {
         case "card":
-            icon.setAttribute("class","icon_views span_icon");
+            icon.setAttribute("class", "icon_views span_icon");
             icon.setAttribute("title", "Статья");
             break;
         case "story":
-            icon.setAttribute("class","icon_narrative span_icon");
+            icon.setAttribute("class", "icon_narrative span_icon");
             icon.setAttribute("title", "Нарратив");
             break;
         case "gif":
-            icon.setAttribute("class","icon_video span_icon");
+            icon.setAttribute("class", "icon_video span_icon");
             icon.setAttribute("title", "Видео / GIF");
             break;
         case "post":
-            icon.setAttribute("class","icon_post span_icon");
+            icon.setAttribute("class", "icon_post span_icon");
             icon.setAttribute("title", "Пост");
             break;
     }

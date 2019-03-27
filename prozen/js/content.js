@@ -190,7 +190,7 @@ async function articleShowStats() {
     removeByClass("article-stat-tip");
     if (checkNoIndex()) {
         const spanIcon4 = createElement("span", "article-stat__icon icon_sad_robot");
-        spanIcon4.setAttribute("style","background-color: #FFFFFF80;");
+        spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
         const wrapper4 = createElement("div", "article-stat__counts-wrapper", spanIcon4);
         wrapper4.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +

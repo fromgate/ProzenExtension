@@ -1,6 +1,6 @@
 const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type="
 const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize="
-const TYPES = ["article", "narrative", "post","gif"];
+const TYPES = ["article", "narrative", "post", "gif"];
 
 var token;
 
@@ -11,7 +11,7 @@ main();
 function getToken() {
     return new Promise((resolve) => {
         chrome.storage.local.get("prozenToken", function (result) {
-            resolve (result.prozenToken);
+            resolve(result.prozenToken);
         });
     });
 }
@@ -28,32 +28,32 @@ async function main() {
 function showStats(stats) {
     stats.forEach((stat, publicationType) => {
         const viewsPercent = stat.shows === 0 ? 0 : stat.views / stat.shows * 100;
-        const viewsPercentStr = viewsPercent === 0 ?  "" : " ("+numFormat (viewsPercent, 2)+"%)";
+        const viewsPercentStr = viewsPercent === 0 ? "" : " (" + numFormat(viewsPercent, 2) + "%)";
         const viewsTillEndPercent = stat.viewsTillEnd === 0 ? 0 : stat.viewsTillEnd / stat.views * 100;
-        const viewsTillEndPercentStr  = viewsTillEndPercent === 0 ?  "" : " ("+numFormat (viewsTillEndPercent, 2)+"%)";
+        const viewsTillEndPercentStr = viewsTillEndPercent === 0 ? "" : " (" + numFormat(viewsTillEndPercent, 2) + "%)";
         let minAddTimeStr = "-";
         const days = daysSinceDate(stat.minAddTime);
         if (stat.minAddTime > 0) {
             minAddTimeStr = dateFormat(stat.minAddTime);
             if (days > 0) {
-                minAddTimeStr += "; Прошло: "+ paucalDay(days) +" (" + daysReadable(days) + ")";
+                minAddTimeStr += "; Прошло: " + paucalDay(days) + " (" + daysReadable(days) + ")";
             }
         }
         const publicationsPerDayStr = stat.count === 0 && days !== 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
-        document.getElementById(publicationType + "-count").textContent = numFormat (stat.count)+ publicationsPerDayStr;
-        document.getElementById(publicationType + "-shows").textContent = numFormat (stat.shows);
-        document.getElementById(publicationType + "-views").textContent = numFormat (stat.views) +viewsPercentStr;
-        document.getElementById(publicationType + "-viewstillend").textContent = numFormat (stat.viewsTillEnd) + viewsTillEndPercentStr;
+        document.getElementById(publicationType + "-count").textContent = numFormat(stat.count) + publicationsPerDayStr;
+        document.getElementById(publicationType + "-shows").textContent = numFormat(stat.shows);
+        document.getElementById(publicationType + "-views").textContent = numFormat(stat.views) + viewsPercentStr;
+        document.getElementById(publicationType + "-viewstillend").textContent = numFormat(stat.viewsTillEnd) + viewsTillEndPercentStr;
         document.getElementById(publicationType + "-firstpost").textContent = minAddTimeStr;
     });
 }
 
 
-function countStats (publications) {
+function countStats(publications) {
     const stats = new Map();
 
-    for (let i = 0; i<TYPES.length; i++) {
-        stats.set(TYPES[i], {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0});
+    for (let i = 0; i < TYPES.length; i++) {
+        stats.set(TYPES[i], {count: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0});
     }
 
     for (let i = 0; i < publications.length; i++) {
@@ -64,17 +64,17 @@ function countStats (publications) {
         stat.shows += publication.shows;
         stat.views += publication.views;
         stat.viewsTillEnd += publication.viewsTillEnd;
-        stat.minAddTime =  (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
+        stat.minAddTime = (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
         stats.set(type, stat);
     }
     // Count totals stats
-    const total = {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0};
+    const total = {count: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0};
     stats.forEach((stat, type) => {
         total.count += stat.count;
         total.shows += stat.shows;
         total.views += stat.views;
         total.viewsTillEnd += stat.viewsTillEnd;
-        total.minAddTime =  (stat.minAddTime  < total.minAddTime || total.minAddTime=== 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
+        total.minAddTime = (stat.minAddTime < total.minAddTime || total.minAddTime === 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
     });
     stats.set("total", total);
     return stats;
@@ -91,33 +91,33 @@ async function getStats(publicationType) {
         let views = 0;
         let viewsTillEnd = 0;
         let minAddTime = 0;
-        for(let i = 0, len = response.publications.length; i < len; i++ ) {
+        for (let i = 0, len = response.publications.length; i < len; i++) {
             const publication = response.publications[i];
             shows += publication.privateData.statistics.feedShows;
             views += publication.privateData.statistics.views;
             viewsTillEnd += publication.privateData.statistics.viewsTillEnd;
-            minAddTime =  (publication.addTime !== undefined) && (publication.addTime < minAddTime || minAddTime === 0) ? publication.addTime : minAddTime;
+            minAddTime = (publication.addTime !== undefined) && (publication.addTime < minAddTime || minAddTime === 0) ? publication.addTime : minAddTime;
         }
-        return {shows : shows, views : views, viewsTillEnd : viewsTillEnd, minAddTime : minAddTime};
+        return {shows: shows, views: views, viewsTillEnd: viewsTillEnd, minAddTime: minAddTime};
     });
     result.count = count;
     return result;
 }
 
 function loadPublicationsCount(publicationType) {
-    const url=COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType);
+    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType);
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 function loadPublications(publicationType, count) {
-    const url=GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType);
+    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType);
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 async function loadAllPublications() {
     const publications = [];
     for (let i = 0; i < TYPES.length; i++) {
-        const publicationType  = TYPES[i];
+        const publicationType = TYPES[i];
 
         const response = await loadPublicationsCount(publicationType).then(response => {
             return response;
@@ -126,7 +126,7 @@ async function loadAllPublications() {
 
         const result = await loadPublications(publicationType, count).then(response => {
             const cards = [];
-            for(let i = 0, len = response.publications.length; i < len; i++ ) {
+            for (let i = 0, len = response.publications.length; i < len; i++) {
                 const pubData = {};
                 const publication = response.publications[i];
                 pubData.id = publication.id;
@@ -136,7 +136,7 @@ async function loadAllPublications() {
                 pubData.comments = publication.privateData.statistics.comments;
                 pubData.likes = publication.privateData.statistics.likes;
                 pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
-                pubData.addTime =  publication.addTime !== undefined ? publication.addTime : 0;
+                pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
                 pubData.type = publication.content.type;
                 cards.push(pubData);
             }
@@ -165,28 +165,28 @@ function dateFormat(unixTime) {
     const date = new Date(unixTime);
     const day = "0" + date.getDate();
     const month = "0" + (date.getMonth() + 1);
-    const year = "" +date.getFullYear();
+    const year = "" + date.getFullYear();
     const hours = "0" + date.getHours();
     const minutes = "0" + date.getMinutes();
     return day.substr(-2) + "." + month.substr(-2) + "."
-        +year.substr(-2) + "\u00A0"+hours.substr(-2)+":"+minutes.substr(-2) ;
+        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
 }
 
 function daysSinceDate(unixTime) {
-    const date1 = new Date (unixTime).getTime();
+    const date1 = new Date(unixTime).getTime();
     const date2 = new Date().getTime();
-    const oneDay=1000*60*60*24;
+    const oneDay = 1000 * 60 * 60 * 24;
     const difference = date2 - date1;
-    return Math.round(difference/oneDay);
+    return Math.round(difference / oneDay);
 }
 
-function daysReadable (daysInterval) {
+function daysReadable(daysInterval) {
     let days = daysInterval;
     const years = Math.floor(days / 365);
     days = days % 365;
     const months = Math.floor(days / 30);
     days = days % 30;
-    return paucalYear(years)  +", " + paucalMonth(months) + ", " + paucalDay(days);
+    return paucalYear(years) + ", " + paucalMonth(months) + ", " + paucalDay(days);
 }
 
 function secToText(seconds) {
@@ -196,7 +196,7 @@ function secToText(seconds) {
     const min = Math.floor(time / 60);
     const sec = Math.floor(time % 60);
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
-    return (hours > 0 ? hours +" час. " : "") + (min > 0 ? min  +" мин. " : "") + sec+ " сек.";
+    return (hours > 0 ? hours + " час. " : "") + (min > 0 ? min + " мин. " : "") + sec + " сек.";
 }
 
 function paucalYear(num) {
@@ -213,14 +213,17 @@ function paucalDay(num) {
 
 function paucal(num, p1, p234, p) {
     const x = num % 100;
-    if (x >= 10 && x <20) {
+    if (x >= 10 && x < 20) {
         return num + " " + p;
     }
     switch (num % 10) {
-        case 1: return num +" " + p1;
+        case 1:
+            return num + " " + p1;
         case 2:
         case 3:
-        case 4: return num + " " + p234;
-        default: return num + " " + p;
+        case 4:
+            return num + " " + p234;
+        default:
+            return num + " " + p;
     }
 }
