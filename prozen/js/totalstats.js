@@ -1,5 +1,6 @@
 const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type="
 const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize="
+const TYPES = ["article", "narrative", "post","gif"];
 
 var token;
 
@@ -18,22 +19,13 @@ function getToken() {
 async function main() {
     showSpinner();
     token = await getToken();
-    const types = ["article", "narrative", "post","gif"];
-    const stats = new Map();
+    const publications = await loadAllPublications();
+    const stats = countStats(publications);
+    showStats(stats);
+    hideSpinner();
+}
 
-    for (let i = 0; i < types.length; i++) {
-        const publicationType = types[i];
-        const stat = await getStats(publicationType);
-        const total = stats.has("total") ? stats.get("total") : {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0};
-        total.count += stat.count;
-        total.shows += stat.shows;
-        total.views += stat.views;
-        total.viewsTillEnd += stat.viewsTillEnd;
-        total.minAddTime =  (stat.minAddTime  < total.minAddTime || total.minAddTime=== 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
-        stats.set("total", total);
-        stats.set(publicationType, stat);
-    }
-
+function showStats(stats) {
     stats.forEach((stat, publicationType) => {
         const viewsPercent = stat.shows === 0 ? 0 : stat.views / stat.shows * 100;
         const viewsPercentStr = viewsPercent === 0 ?  "" : " ("+numFormat (viewsPercent, 2)+"%)";
@@ -54,9 +46,41 @@ async function main() {
         document.getElementById(publicationType + "-viewstillend").textContent = numFormat (stat.viewsTillEnd) + viewsTillEndPercentStr;
         document.getElementById(publicationType + "-firstpost").textContent = minAddTimeStr;
     });
-    hideSpinner();
 }
 
+
+function countStats (publications) {
+    const stats = new Map();
+
+    for (let i = 0; i<TYPES.length; i++) {
+        stats.set(TYPES[i], {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0});
+    }
+
+    for (let i = 0; i < publications.length; i++) {
+        const publication = publications[i];
+        const type = publication.type;
+        const stat = stats.get(type);
+        stat.count++;
+        stat.shows += publication.shows;
+        stat.views += publication.views;
+        stat.viewsTillEnd += publication.viewsTillEnd;
+        stat.minAddTime =  (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
+        stats.set(type, stat);
+    }
+    // Count totals stats
+    const total = {count: 0, shows : 0, views : 0, viewsTillEnd : 0, minAddTime : 0};
+    stats.forEach((stat, type) => {
+        total.count += stat.count;
+        total.shows += stat.shows;
+        total.views += stat.views;
+        total.viewsTillEnd += stat.viewsTillEnd;
+        total.minAddTime =  (stat.minAddTime  < total.minAddTime || total.minAddTime=== 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
+    });
+    stats.set("total", total);
+    return stats;
+}
+
+/* Deprecated */
 async function getStats(publicationType) {
     const response = await loadPublicationsCount(publicationType).then(response => {
         return response;
@@ -88,6 +112,39 @@ function loadPublicationsCount(publicationType) {
 function loadPublications(publicationType, count) {
     const url=GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType);
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+async function loadAllPublications() {
+    const publications = [];
+    for (let i = 0; i < TYPES.length; i++) {
+        const publicationType  = TYPES[i];
+
+        const response = await loadPublicationsCount(publicationType).then(response => {
+            return response;
+        });
+        const count = response.count;
+
+        const result = await loadPublications(publicationType, count).then(response => {
+            const cards = [];
+            for(let i = 0, len = response.publications.length; i < len; i++ ) {
+                const pubData = {};
+                const publication = response.publications[i];
+                pubData.id = publication.id;
+                pubData.shows = publication.privateData.statistics.feedShows;
+                pubData.views = publication.privateData.statistics.views;
+                pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
+                pubData.comments = publication.privateData.statistics.comments;
+                pubData.likes = publication.privateData.statistics.likes;
+                pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
+                pubData.addTime =  publication.addTime !== undefined ? publication.addTime : 0;
+                pubData.type = publication.content.type;
+                cards.push(pubData);
+            }
+            return cards;
+        });
+        publications.push(...result);
+    }
+    return publications;
 }
 
 function hideSpinner() {
