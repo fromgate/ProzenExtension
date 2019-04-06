@@ -129,3 +129,17 @@
     height: 30px;
     margin-bottom: 1px;
 }
+
+.prozen-image-wrap {
+    position: relative;
+}
+
+.prozen-image-wrap h5 {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    color: white;
+    padding: 5px;
+    background-color: #00000080;
+    border-radius: 5px 10px;
+}

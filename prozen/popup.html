@@ -1,13 +1,17 @@
-<html><head>
+<html>
+<head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" href="css/mini.css">
+    <link rel="stylesheet" href="css/prozen.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body style="min-width: 400px; width: 400px;">
-<div class="row">
-    <div class="card fluid">
+<body style="min-width: 385px; width: 385px;">
+<div class="row" >
+    <div class="card fluid" style="width: 385px;">
         <div class="section dark">
-            <h4>ПРОДЗЕН<small id="extver">Расширенный редактор для Яндекс.Дзен v1.0.0</small></h4>
+            <h4>ПРОДЗЕН
+                <small id="extver">Расширенный редактор для Яндекс.Дзен v1.0.0</small>
+            </h4>
         </div>
         <div class="section" id="prozen">
             <p>Возможности:</p>
@@ -16,14 +20,30 @@
                 <li>Дополнительные элементы управления</li>
             </ul>
         </div>
-        <div class="section">
-            <p>Поддержите развитие расширения и подпишитесь на наш канал в Яндекс.Дзен</p>
-            <a href="https://zen.yandex.ru/id/5a3def60e86a9e50b401ab4a/" target="_blank" class="button"><small>Подписаться на канал</small></a>
-            <a href="http://yasobe.ru/na/prozen/" target="_blank" class="button"><small>Поддержать разработчика</small></a>
-            <p><small><a href = "https://prozen.ru/prozen-extension-policy/" target="_blank">Политика безопасности / Privacy policy</a></small></p>
+
+        <div id="prozen-image">
+            <a id="prozen-post-url" target="_blank"
+               href="https://zen.yandex.ru/media/id/5a3def60e86a9e50b401ab4a/lichnaia-razrabotka-addon-dlia-brauzera-rasshirennyi-redaktor-dlia-iandeksdzen-5bfab21cdfc89b00aa85d9ac?utm_source=extension_popup">
+                <div class="prozen-image-wrap">
+                    <img id="prozen-post-image" src="img/link-image.png" width="100%">
+                    <h5 id="prozen-post-title">Расширенный редактор для Яндекс.Дзен</h5>
+                </div>
+            </a>
         </div>
+
+        <div class="section">
+            <a href="https://prozen.ru/prozen-extension-policy/" target="_blank">
+                <small>Политика безопасности / Privacy Policy</small>
+            </a><br>
+            <a href=href="http://yasobe.ru/na/prozen/" target="_blank">
+                <small>Поддержать разработчика</small>
+            </a>
+        </div>
+
     </div>
 </div>
+
+<script type="text/javascript" src="js/channel.js"></script>
 <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>
