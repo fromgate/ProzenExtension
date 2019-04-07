@@ -736,15 +736,15 @@ function infiniteAndNanToStr(num, digits) {
 }
 
 function addSearchInput() {
-    const input = createElement("input", "zen-ui-input__control");
+    const input = createElement("input", "ui-lib-input__control"); //zen-ui-input__control
     input.setAttribute("type", "text");
     input.setAttribute("id", "search");
     input.setAttribute("placeholder", "строка поиска");
-    const divInputContainer = createElement("div", "zen-ui-input__control-container", input);
-    const divUiBox = createElement("div", "zen-ui-input__box");
+    const divInputContainer = createElement("div", "ui-lib-input__control-container", input);
+    const divUiBox = createElement("div", "ui-lib-input__box");
     divInputContainer.appendChild(divUiBox);
-    const divUiInputControl = createElement("div", "zen-ui-input _size_m", divInputContainer);
-    const divUiSelect = createElement("div", "zen-ui-select _size_m _type_input publications-groups-view__content-type-filter-control", divUiInputControl);
+    const divUiInputControl = createElement("div", "ui-lib-input _size_m", divInputContainer);
+    const divUiSelect = createElement("div", "ui-lib-select _size_m _type_input publications-groups-view__content-type-filter-control", divUiInputControl);
     const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
     const span = createElement("span");
     span.innerText = "|";
