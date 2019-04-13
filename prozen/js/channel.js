@@ -8,7 +8,7 @@ class Channel {
 
     async load() {
         const url = this.getApiUrl();
-        this.json = await fetch(url, {credentials: 'same-origin', headers: {'Access-Control-Allow-Origin' : '*'}},).then(response => response.json());
+        this.json = await fetch(url, {credentials: 'same-origin'}).then(response => response.json()).catch(() => undefined);
     }
 
     getApiUrl() {
@@ -22,7 +22,9 @@ class Channel {
     async getLastPostCard(imgSize) {
         if (this.json === undefined) {
             await this.load();
-            return this.getLastPostCard(imgSize );
+        }
+        if (this.json === undefined) {
+            return undefined;
         }
         const lastPost = {};
         lastPost.title = this.json.items[0].title;
