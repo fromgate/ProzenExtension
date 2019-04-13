@@ -12,33 +12,6 @@ let token;
 let data;
 let publisherId;
 
-function main() {
-    const pageType = getPageType();
-    if (pageType === "unknown") {
-        return;
-    }
-    if (pageType === "article") {
-        setTimeout(articleShowStats, 300);
-        return;
-    }
-
-    if (pageType === "narrative") {
-        setTimeout(articleShowStats, 300);
-        return;
-    }
-    publisherId = getPublisherId();
-    if (token === undefined || publisherId === undefined) {
-        return;
-    }
-    if (pageType !== "edit") {
-        showBalanceAndMetrics();
-    }
-
-    if (pageType === "main") {
-        addSearchInput();
-        registerTargetObserver();
-    }
-}
 
 ///////////////////////////////////
 // Functions
@@ -71,6 +44,34 @@ function start() {
             main();
         }
     });
+}
+
+function main() {
+    const pageType = getPageType();
+    if (pageType === "unknown") {
+        return;
+    }
+    if (pageType === "article") {
+        setTimeout(articleShowStats, 300);
+        return;
+    }
+
+    if (pageType === "narrative") {
+        setTimeout(articleShowStats, 300);
+        return;
+    }
+    publisherId = getPublisherId();
+    if (token === undefined || publisherId === undefined) {
+        return;
+    }
+    if (pageType !== "edit") {
+        showBalanceAndMetrics();
+    }
+
+    if (pageType === "main") {
+        addSearchInput();
+        registerTargetObserver();
+    }
 }
 
 function registerTargetObserver() {
@@ -317,7 +318,7 @@ function addMetricsButton(metricsId) {
     metricsButton.appendChild(metricsA);
     const navblocks = document.getElementsByClassName("header__nav-block");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", metricsButton);
+    last.insertAdjacentElement("beforebegin", metricsButton);
 }
 
 function addSearchButton() {
@@ -337,7 +338,7 @@ function addSearchButton() {
     searchButton.appendChild(searchA);
     const navblocks = document.getElementsByClassName("header__nav-block");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", searchButton);
+    last.insertAdjacentElement("beforebegin", searchButton);
     searchButton.addEventListener('click', clickSearchButton);
 }
 
@@ -372,7 +373,7 @@ function addTotalStatsButton() {
     totalStatsButton.appendChild(searchA);
     const navblocks = document.getElementsByClassName("header__nav-block");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", totalStatsButton);
+    last.insertAdjacentElement("beforebegin", totalStatsButton);
     totalStatsButton.addEventListener('click', clickTotalStatsButton);
 }
 
