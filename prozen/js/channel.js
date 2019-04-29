@@ -16,7 +16,7 @@ class Channel {
     }
 
     getUrl() {
-        return "https://zen.yandex.ru/"+( useShortName ? id : "id/"+id);
+        return "https://zen.yandex.ru/"+( useShortname ? id : "id/"+id);
     }
 
     async getLastPostCard(imgSize) {
