@@ -188,18 +188,35 @@ async function articleShowStats() {
     }
     counters[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
     counters[2].innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+
+    const url = window.location.href.split("\?")[0];
+    const shortUrl = url.substr(0,url.lastIndexOf("/")) +"/" + url.substr(url.lastIndexOf("-")+1,url.length-1);
+
+    const spanIcon4 = createElement("span", "article-stat__icon icon_url");
+    // spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
+
+    const shortUrlA = createElement("a", undefined, spanIcon4);
+    shortUrlA.setAttribute ("href", shortUrl);
+    const wrapper4 = createElement("div", "article-stat__counts-wrapper", shortUrlA);
+    wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nСкопируйте её в буфер обмена.");
+
+    const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
+    wrapper3.insertAdjacentElement("afterend", wrapper4);
+
+
+
     removeByClass("article-stat-tip");
     if (checkNoIndex()) {
-        const spanIcon4 = createElement("span", "article-stat__icon icon_sad_robot");
-        spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
-        const wrapper4 = createElement("div", "article-stat__counts-wrapper", spanIcon4);
-        wrapper4.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+        const spanIcon5 = createElement("span", "article-stat__icon icon_sad_robot");
+        spanIcon5.setAttribute("style", "background-color: #FFFFFF80;");
+        const wrapper5 = createElement("div", "article-stat__counts-wrapper", spanIcon5);
+        wrapper5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
-        wrapper3.insertAdjacentElement("afterend", wrapper4);
+        const wrapper4 = document.getElementsByClassName("article-stat__counts-wrapper")[3];
+        wrapper4.insertAdjacentElement("afterend", wrapper5);
     }
 
 }
