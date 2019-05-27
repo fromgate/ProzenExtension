@@ -70,6 +70,7 @@ function main() {
 
     if (pageType === "main") {
         addSearchInput();
+        addNotificationCloseButton();
         registerTargetObserver();
     }
 }
@@ -190,19 +191,18 @@ async function articleShowStats() {
     counters[2].innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
 
     const url = window.location.href.split("\?")[0];
-    const shortUrl = url.substr(0,url.lastIndexOf("/")) +"/" + url.substr(url.lastIndexOf("-")+1,url.length-1);
+    const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
 
     const spanIcon4 = createElement("span", "article-stat__icon icon_url");
     // spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
 
     const shortUrlA = createElement("a", undefined, spanIcon4);
-    shortUrlA.setAttribute ("href", shortUrl);
+    shortUrlA.setAttribute("href", shortUrl);
     const wrapper4 = createElement("div", "article-stat__counts-wrapper", shortUrlA);
     wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nСкопируйте её в буфер обмена.");
 
     const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
     wrapper3.insertAdjacentElement("afterend", wrapper4);
-
 
 
     removeByClass("article-stat-tip");
@@ -588,7 +588,7 @@ function createIcon(value, icon, tip) {
     }
     a.setAttribute("currentitem", "false");
 
-    const iconSpan = document.createElement("span")
+    const iconSpan = document.createElement("span");
     iconSpan.setAttribute("class", "card-cover-footer-stats__icon " + icon);
     a.appendChild(iconSpan);
 
@@ -601,15 +601,6 @@ function createIcon(value, icon, tip) {
     return a;
 }
 
-//const message = JSON.parse('{ "title":"заголовок", "text":"Текст сообщения", link":"Текст ссылки", "ссыллка"}');
-function showAnnouncement(message) {
-    const notifications = document.getElementsByClassName("notifications");
-    if (notifications.length > 0) {
-        const last = notifications.item(notifications.length - 1);
-        const notification = creatNotification(notifications.length, message);
-        last.insertAdjacentElement("afterend", notification);
-    }
-}
 
 function creatNotification(num, message) {
     const notification = createElement("div", "notifications notifications_num_" + num);
@@ -787,4 +778,73 @@ function addSearchInput() {
 function clickFind() {
     clickSearchButton(document.getElementById("search").value);
     return false;
+}
+
+function showAnnouncement(message) {
+    const notifications = document.getElementsByClassName("notifications");
+    if (notifications.length > 0) {
+        const last = notifications.item(notifications.length - 1);
+        const notification = creatNotification(notifications.length, message);
+        last.insertAdjacentElement("afterend", notification);
+    }
+}
+
+function closeNotification(event) {
+    const cross = event.target;
+    const container = cross.parentElement;
+    const notificationId = getNotificationId(container);
+    container.parentElement.removeChild(container);
+    setNotifictionHidden(notificationId);
+    return false;
+}
+
+function getNotificationId(notification) {
+    const titles = notification.querySelector(".notification-item__title");
+    const title = titles !== undefined && titles !== null ? titles.innerText : "";
+    const texts = notification.querySelector(".notification-item__text");
+    const text = texts !== undefined && texts !== null > 0 ? texts.innerText : "";
+    if (title.length === 0 && text.length === 0) {
+        return "";
+    }
+    return title + "_" + text;
+}
+
+async function addNotificationCloseButton() {
+    const notifications = document.getElementsByClassName("notifications");
+    if (notifications && notifications.length > 0) {
+        for (let i = 0; i < notifications.length; i++) {
+            const notification = notifications[i];
+            const notificationId = getNotificationId(notification);
+
+            if (notificationId.length === 0) {
+                continue;
+            }
+            const hidden = await isNotificationHidden(notificationId);
+            if (hidden) {
+                notification.parentElement.removeChild(notification);
+            } else {
+                const cross = createElement("span");
+                cross.setAttribute("class", "notification-item__cross");
+                cross.innerText = "❌";
+                cross.style.cursor = "pointer";
+                cross.setAttribute("title", "Закрыть уведомление\nОно будет скрыто, пока не появится новое");
+                cross.setAttribute("closeClass", notification.getAttribute("class"));
+                cross.addEventListener('click', closeNotification);
+                notifications[i].appendChild(cross);
+            }
+        }
+    }
+}
+
+function isNotificationHidden(notificationId) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get("prozenHideNotification", function (result) {
+            resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
+        });
+    });
+
+}
+
+function setNotifictionHidden(notificationId) {
+    chrome.storage.local.set({prozenHideNotification: notificationId});
 }

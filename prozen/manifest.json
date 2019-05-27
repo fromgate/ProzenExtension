@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.4.15",
+  "version": "1.4.16",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "update_url": "https://clients2.google.com/service/update2/crx",
@@ -41,10 +41,6 @@
   ],
   "permissions": [
     "storage",
-    "https://zen.yandex.ru/profile/editor/*",
-    "https://zen.yandex.ru/media-api/*",
-    "https://zen.yandex.ru/media/*",
-    "https://zen.yandex.ru/id/*",
-    "https://zen.yandex.ru/api/*"
+    "https://zen.yandex.ru/"
   ]
 }
