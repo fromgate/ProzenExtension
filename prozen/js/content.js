@@ -230,6 +230,9 @@ function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
+            const a = document.getElementsByClassName("header-menu__link")[0];
+            const href= a.getAttribute("href");
+            return href.split("/")[4];
         case "money":
         case "edit":
         case "karma":
@@ -842,4 +845,14 @@ function isNotificationHidden(notificationId) {
 
 function setNotifictionHidden(notificationId) {
     chrome.storage.local.set({prozenHideNotification: notificationId});
+}
+
+function debug(message, message2) {
+    if (DEBUG) {
+        let str = "[ПРОДЗЕН]: " + message;
+        if (message2 !== undefined) {
+            str += " " + message2;
+        }
+        console.log(str);
+    }
 }
