@@ -66,11 +66,11 @@ function main() {
     }
     if (pageType !== "edit") {
         showBalanceAndMetrics();
+        addNotificationCloseButton();
     }
 
     if (pageType === "main") {
         addSearchInput();
-        addNotificationCloseButton();
         registerTargetObserver();
     }
 }
@@ -230,8 +230,6 @@ function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
-            const helpButtonLinks = document.getElementsByClassName("help-button__link");
-            return helpButtonLinks[0].getAttribute("href").split("=")[1];
         case "money":
         case "edit":
         case "karma":
@@ -266,10 +264,7 @@ function getPageType() {
         if (path.endsWith("/publications-stat")) {
             return "stats";
         }
-        const helpButtonLinks = document.getElementsByClassName("help-button__link");
-        if (helpButtonLinks !== undefined && helpButtonLinks.length > 0) {
-            return "main";
-        }
+        return "main";
     }
     return "unknown";
 }

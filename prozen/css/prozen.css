@@ -93,6 +93,10 @@
     margin: 0 6px;
 }
 
+.publication-card-item {
+    width: 280px;
+}
+
 .card-cover-publication {
     width: 280px;
     height: 350px;
