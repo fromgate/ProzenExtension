@@ -161,6 +161,7 @@ async function articleShowStats() {
     const articleData = await loadPublicationStat(postId);
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
+    const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
@@ -448,6 +449,7 @@ function processCards(loadedIds) {
                 card.likes = stat.likes;
                 card.shows = stat.shows;
                 card.views = stat.views;
+                card.shows = stat.shows;
                 card.sumViewTimeSec = stat.sumViewTimeSec;
                 card.viewsTillEnd = stat.viewsTillEnd;
                 card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
@@ -527,7 +529,9 @@ function modifyCardFooter(pubData) {
     const line1 = createFooterLine(elementShows, elementLikes);
     cardFooter.appendChild(line1);
 
-    const ctr = (parseFloat(infiniteAndNan(pubData.views / pubData.feedShows) * 100)).toFixed(2);
+    const ctr = (parseFloat(infiniteAndNan(pubData.shows/ pubData.feedShows) * 100)).toFixed(2);
+    // const ctrOld = (parseFloat(infiniteAndNan(pubData.views/ pubData.feedShows) * 100)).toFixed(2);
+
     const elementViews = createIcon(infiniteAndNanToStr(pubData.views) + " (" + ctr + "%)", "icon_views", "Просмотры (CTR)");
     const readsPercent = ((pubData.viewsTillEnd / pubData.views) * 100).toFixed(2);
 
