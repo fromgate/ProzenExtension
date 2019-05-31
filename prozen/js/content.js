@@ -161,7 +161,7 @@ async function articleShowStats() {
     const articleData = await loadPublicationStat(postId);
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
-    const shows = articleData.feedShows;
+    const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
@@ -447,9 +447,8 @@ function processCards(loadedIds) {
                 card.comments = stat.comments;
                 card.feedShows = stat.feedShows;
                 card.likes = stat.likes;
-                card.shows = stat.feedShows;
                 card.views = stat.views;
-                card.shows = stat.feedShows;
+                card.shows = stat.shows;
                 card.sumViewTimeSec = stat.sumViewTimeSec;
                 card.viewsTillEnd = stat.viewsTillEnd;
                 card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
@@ -804,7 +803,7 @@ function getNotificationId(notification) {
     const titles = notification.querySelector(".notification-item__title");
     const title = titles !== undefined && titles !== null ? titles.innerText : "";
     const texts = notification.querySelector(".notification-item__text");
-    const text = texts !== undefined && texts !== null > 0 ? texts.innerText : "";
+    const text = texts !== undefined && texts !== null && texts.innerText !== undefined > 0 ? texts.innerText : "";
     if (title.length === 0 && text.length === 0) {
         return "";
     }
