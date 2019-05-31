@@ -27,7 +27,7 @@ async function main() {
 
 function showStats(stats) {
     stats.forEach((stat, publicationType) => {
-        const viewsPercent = stat.shows === 0 ? 0 : stat.views / stat.shows * 100;
+        const viewsPercent = stat.feedShows === 0 || publicationType === "post" ? 0 : stat.shows / stat.feedShows * 100;
         const viewsPercentStr = viewsPercent === 0 ? "" : " (" + numFormat(viewsPercent, 2) + "%)";
         const viewsTillEndPercent = stat.viewsTillEnd === 0 ? 0 : stat.viewsTillEnd / stat.views * 100;
         const viewsTillEndPercentStr = viewsTillEndPercent === 0 ? "" : " (" + numFormat(viewsTillEndPercent, 2) + "%)";
@@ -41,7 +41,7 @@ function showStats(stats) {
         }
         const publicationsPerDayStr = stat.count === 0 && days !== 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
         document.getElementById(publicationType + "-count").textContent = numFormat(stat.count) + publicationsPerDayStr;
-        document.getElementById(publicationType + "-shows").textContent = numFormat(stat.shows);
+        document.getElementById(publicationType + "-feedShows").textContent = numFormat(stat.feedShows);
         document.getElementById(publicationType + "-views").textContent = numFormat(stat.views) + viewsPercentStr;
         document.getElementById(publicationType + "-viewstillend").textContent = numFormat(stat.viewsTillEnd) + viewsTillEndPercentStr;
         document.getElementById(publicationType + "-firstpost").textContent = minAddTimeStr;
@@ -53,7 +53,7 @@ function countStats(publications) {
     const stats = new Map();
 
     for (let i = 0; i < TYPES.length; i++) {
-        stats.set(TYPES[i], {count: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0});
+        stats.set(TYPES[i], {count: 0, feedShows: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0});
     }
 
     for (let i = 0; i < publications.length; i++) {
@@ -61,16 +61,18 @@ function countStats(publications) {
         const type = publication.type;
         const stat = stats.get(type);
         stat.count++;
-        stat.shows += publication.shows;
+        stat.feedShows += publication.feedShows;
         stat.views += publication.views;
+        stat.shows += publication.shows;
         stat.viewsTillEnd += publication.viewsTillEnd;
         stat.minAddTime = (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
         stats.set(type, stat);
     }
     // Count totals stats
-    const total = {count: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0};
+    const total = {count: 0, feedShows: 0, shows: 0, views: 0, viewsTillEnd: 0, minAddTime: 0};
     stats.forEach((stat, type) => {
         total.count += stat.count;
+        total.feedShows += stat.feedShows;
         total.shows += stat.shows;
         total.views += stat.views;
         total.viewsTillEnd += stat.viewsTillEnd;
@@ -87,18 +89,20 @@ async function getStats(publicationType) {
     });
     const count = response.count;
     const result = await loadPublications(publicationType, count).then(response => {
+        let feedShows = 0;
         let shows = 0;
         let views = 0;
         let viewsTillEnd = 0;
         let minAddTime = 0;
         for (let i = 0, len = response.publications.length; i < len; i++) {
             const publication = response.publications[i];
-            shows += publication.privateData.statistics.feedShows;
+            feedShows += publication.privateData.statistics.feedShows;
+            shows += publication.privateData.statistics.shows;
             views += publication.privateData.statistics.views;
             viewsTillEnd += publication.privateData.statistics.viewsTillEnd;
             minAddTime = (publication.addTime !== undefined) && (publication.addTime < minAddTime || minAddTime === 0) ? publication.addTime : minAddTime;
         }
-        return {shows: shows, views: views, viewsTillEnd: viewsTillEnd, minAddTime: minAddTime};
+        return {feedShows: feedShows, shows: shows, views: views, viewsTillEnd: viewsTillEnd, minAddTime: minAddTime};
     });
     result.count = count;
     return result;
@@ -130,7 +134,8 @@ async function loadAllPublications() {
                 const pubData = {};
                 const publication = response.publications[i];
                 pubData.id = publication.id;
-                pubData.shows = publication.privateData.statistics.feedShows;
+                pubData.feedShows = publication.privateData.statistics.feedShows;
+                pubData.shows= publication.privateData.statistics.shows;
                 pubData.views = publication.privateData.statistics.views;
                 pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
                 pubData.comments = publication.privateData.statistics.comments;
