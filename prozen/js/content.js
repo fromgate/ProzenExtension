@@ -66,7 +66,7 @@ function main() {
     }
     if (pageType !== "edit") {
         showBalanceAndMetrics();
-        addNotificationCloseButton();
+        setTimeout(addNotificationCloseButton, 50);
     }
 
     if (pageType === "main") {
@@ -854,5 +854,11 @@ function debug(message, message2) {
             str += " " + message2;
         }
         console.log(str);
+    }
+}
+
+function log(message) {
+    if (DEBUG) {
+        console.log(message);
     }
 }
