@@ -529,7 +529,7 @@ function modifyCardFooter(pubData) {
     const line1 = createFooterLine(elementShows, elementLikes);
     cardFooter.appendChild(line1);
 
-    const ctr = (parseFloat(infiniteAndNan(pubData.feedShows/ pubData.feedShows) * 100)).toFixed(2);
+    const ctr = (parseFloat(infiniteAndNan(pubData.shows/ pubData.feedShows) * 100)).toFixed(2);
     // const ctrOld = (parseFloat(infiniteAndNan(pubData.views/ pubData.feedShows) * 100)).toFixed(2);
 
     const elementViews = createIcon(infiniteAndNanToStr(pubData.views) + " (" + ctr + "%)", "icon_views", "Просмотры (CTR)");
