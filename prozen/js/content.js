@@ -282,10 +282,11 @@ function showBalanceAndMetrics() {
     data.then(response => {
         if (response.money.isMonetezationAvaliable) {
             let money = parseFloat(response.money.simple.personalData.balance.toFixed(2));
-
             let total = money;
-            for (var i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
-                total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
+            for (let i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
+                if (response.money.simple.paymentHistory[i]["status"] === "completed") {
+                    total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
+                }
             }
             setBalance(money, total);
         }
