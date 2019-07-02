@@ -115,6 +115,10 @@
     max-width: 1600px;
 }
 
+.publications-groups-view__pubs-container {
+    width: auto;
+}
+
 .card-cover-publication__content_has-stats {
     margin-bottom: 80px;
 }
