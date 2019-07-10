@@ -281,7 +281,9 @@ function showBalanceAndMetrics() {
     }).then(response => response.json());
     data.then(response => {
         if (response.money.isMonetezationAvaliable) {
-            let money = parseFloat(response.money.simple.personalData.balance.toFixed(2));
+            const simpleBalance = response.money.simple.balance;
+            const personalDataBalance = response.money.simple.personalData.balance;
+            const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
             let total = money;
             for (let i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
                 if (response.money.simple.paymentHistory[i]["status"] === "completed") {
