@@ -77,6 +77,10 @@ function main() {
 
 function registerTargetObserver() {
     const target = document.getElementsByClassName("publications-groups-view")[0];
+    if (!target) {
+        setTimeout (registerTargetObserver, 50);
+        return;
+    }
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
             if (mutation.type === 'childList') {
@@ -231,7 +235,7 @@ function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
-            const a = document.getElementsByClassName("header-menu__link")[0];
+            const a = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left")[1];
             const href= a.getAttribute("href");
             return href.split("/")[4];
         case "money":
@@ -292,73 +296,53 @@ function showBalanceAndMetrics() {
             }
             setBalance(money, total);
         }
+        addTotalStatsButton();
         addMetricsButton(response.publisher.privateData.metrikaCounterId);
         addSearchButton();
-        addTotalStatsButton();
         addRobotIconIfNoNoIndex(publisherId);
     });
 }
 
 function setBalance(money, total) {
-    const moneyA = document.getElementsByClassName("header-menu__link")[1];
+    const moneySpan = document.getElementsByClassName("monetization-block__money-balance")[0];
+    if (!moneySpan) {
+        setTimeout (setBalance.bind(null, money, total), 50);
+        return;
+    }
     if (money !== total) {
         const totalStr = "Всего: " + total.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }) + " ₽";
-        const moneyDate = moneyA.getAttribute("data-tip");
+        const moneyDate = moneySpan.getAttribute("data-tip");
         if (moneyDate !== undefined && moneyDate !== null) {
-            moneyA.setAttribute("data-tip", moneyDate + " / " + totalStr);
+            moneySpan.setAttribute("data-tip", moneyDate + " / " + totalStr);
         } else {
-            moneyA.setAttribute("data-tip", totalStr);
+            moneySpan.setAttribute("data-tip", totalStr);
         }
     }
-    moneyA.innerText = money.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₽";
+    moneySpan.innerText = money.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₽";
 }
 
 function addMetricsButton(metricsId) {
     const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-    const metricsButton = createElement("div", "header__nav-block");
-    metricsButton.setAttribute("data-multiline", "true");
-    metricsButton.setAttribute("data-tip", "Яндекс.Метрика");
-    metricsButton.setAttribute("currentitem", "false");
-    const metricsA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
-    metricsA.setAttribute("aria-pressed", "false");
-    metricsA.setAttribute("tabindex", "0");
-    metricsA.setAttribute("aria-disabled", "false");
-    metricsA.setAttribute("target", "_blank");
-    metricsA.setAttribute("href", metricsUrl);
-    const aSpan = createElement("span", "button2__text");
-    metricsA.appendChild(aSpan);
-    const img = createElement("img");
-    img.setAttribute("src", "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZyBjbGFzcz0ibGF5ZXIiPgogICAgICAgIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICAgICAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGlkPSJzdmdfMSI+CiAgICAgICAgICAgIDxnIGZpbGw9IiMwMDc3RkYiIGlkPSJzdGF0cyIgc3Ryb2tlPSIjMDA3N0ZGIgogICAgICAgICAgICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjAwMDAwMCwgMS4wMDAwMDApIj4KICAgICAgICAgICAgICAgIDxwb2x5Z29uIGZpbGw9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBzdHJva2U9IiNmZjAwMDAiCiAgICAgICAgICAgICAgICAgICAgICAgICBpZD0ic3ZnXzIiCiAgICAgICAgICAgICAgICAgICAgICAgICBwb2ludHM9IjAgNyA0IDcgNCAxNCAwIDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbgogICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjNDI3N2NhIiBzdHJva2U9IiM0Mjc3Y2EiIGlkPSJzdmdfMyIgcG9pbnRzPSI2IDQgMTAgNCAxMCAxNCA2IDE0Ii8+CiAgICAgICAgICAgICAgICA8cG9seWdvbiBmaWxsPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgc3Ryb2tlPSIjZmZjYzAwIgogICAgICAgICAgICAgICAgICAgICAgICAgaWQ9InN2Z180IgogICAgICAgICA\n" +
-        "gICAgICAgICAgICAgICAgcG9pbnRzPSIxMiAwIDE2IDAgMTYgMTQgMTIgMTQiLz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+");
-    aSpan.appendChild(img);
-    metricsButton.appendChild(metricsA);
-    const navblocks = document.getElementsByClassName("header__nav-block");
+    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
+    button.setAttribute("href", metricsUrl);
+    button.innerText = "Метрика";
+    button.setAttribute ("data-tip", "Яндекс.Метрика");
+    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("beforebegin", metricsButton);
+    last.insertAdjacentElement("afterend", button);
 }
 
 function addSearchButton() {
-    const searchButton = createElement("div", "header__nav-block");
-    searchButton.setAttribute("data-multiline", "true");
-    searchButton.setAttribute("data-tip", "Поиск");
-    searchButton.setAttribute("currentitem", "false");
-    const searchA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
-    searchA.setAttribute("aria-pressed", "false");
-    searchA.setAttribute("tabindex", "0");
-    searchA.setAttribute("aria-disabled", "false");
-    const aSpan = createElement("span", "button2__text");
-    searchA.appendChild(aSpan);
-    const img = createElement("img");
-    img.setAttribute("src", "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='16px' height='16px' viewBox='0 0 21 20' version='1.1' id='svg823' sodipodi:docname='search_right %5B%231505%5D.svg' inkscape:version='0.92.3 (2405546, 2018-03-11)'%3E%3Cmetadata id='metadata827'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Csodipodi:namedview pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1' objecttolerance='10' gridtolerance='10' guidetolerance='10' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:window-width='1920' inkscape:window-height='1017' id='namedview825' showgrid='false' inkscape:zoom='42.5' inkscape:cx='10.5' inkscape:cy='10' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='icons' /%3E%3Ctitle id='title815'%3Esearch%3C/title%3E%3Cdefs id='defs817' /%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg style='fill:%230077ff' transform='translate(-203,-120)' id='icons'%3E%3Cpath inkscape:connector-curvature='0' id='search' d='m 215.6,120 c -4.6389,0 -8.4,3.582 -8.4,8 0,4.418 3.7611,8 8.4,8 4.63995,0 8.4,-3.582 8.4,-8 0,-4.418 -3.76005,-8 -8.4,-8 z' sodipodi:nodetypes='sssss' style='opacity:1;fill:%230077ff;fill-opacity:1' /%3E%3Crect style='opacity:1;fill:%230077ff;fill-opacity:1;stroke:%230077ff;stroke-width:1.21700835;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' id='rect833' width='4.1235108' height='6.7866111' x='240.28654' y='-52.299572' transform='matrix(0.71035493,0.70384364,-0.71035493,0.70384364,0,0)' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A");
-    aSpan.appendChild(img);
-    searchButton.appendChild(searchA);
-    const navblocks = document.getElementsByClassName("header__nav-block");
+    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
+    button.innerText = "Поиск";
+    button.setAttribute ("data-tip", "Поиск по заголовкам и описаниям");
+    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("beforebegin", searchButton);
-    searchButton.addEventListener('click', clickSearchButton);
+    last.insertAdjacentElement("afterend", button);
+    button.addEventListener('click', clickSearchButton);
 }
 
 function clickSearchButton(searchString) {
@@ -375,25 +359,13 @@ function clickSearchButton(searchString) {
 }
 
 function addTotalStatsButton() {
-    const totalStatsButton = createElement("div", "header__nav-block");
-    totalStatsButton.setAttribute("data-multiline", "true");
-    totalStatsButton.setAttribute("data-tip", "Итоговая статистика");
-    totalStatsButton.setAttribute("currentitem", "false");
-    const searchA = createElement("a", "control button2 button2_view_classic button2_size_m button2_theme_zen-header-tab button2_type_link");
-    searchA.setAttribute("aria-pressed", "false");
-    searchA.setAttribute("tabindex", "0");
-    searchA.setAttribute("aria-disabled", "false");
-    const aSpan = createElement("span", "button2__text");
-    aSpan.setAttribute("style", "margin-top: 5px");
-    searchA.appendChild(aSpan);
-    const img = createElement("img");
-    img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABfAAAAXwBsrqMZwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE8SURBVEiJ7ZSxLkRBFIa/IxvJbrYQVEqVKPESCpViK0LhBUhcW5CrEHZXQaHbUHkAj7BRSLSiEI1tFEKiICHLHsU2946Z646djr/8ZnK+MyczA//5IWKlGxqjLHhVUo6py46JC47tI8C4l0AYtuEBryK/iOsEV1YqtFA6jrVbO7ZGhYgzYM7YvcKeNB1NWeMYkSjvLAJ3aS+HVHUigAA4kGeUCqRGUqLLKbEO9i8AqMslyrZBp3hjK4wAoEQN4TzFlIiqToYR3CMoRYM+0eExjGCIXWAmQT7pUmFfHvIIXO+gl0hngVWDNmhIK09xyDrBmo4CTZJvRbmgyGbe4tmCAkfAWIK8AsvE8uEjcP2mSygnBn0BbjJqtanJ/Pc+bVHWLbQMTGcIyjboGlGwX9Z1i67pjcQn7T57+av5AoyVRffOpHGeAAAAAElFTkSuQmCC");
-    aSpan.appendChild(img);
-    totalStatsButton.appendChild(searchA);
-    const navblocks = document.getElementsByClassName("header__nav-block");
+    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
+    button.innerText = "Показатели";
+    button.setAttribute ("data-tip", "Полная статистика");
+    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
     const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("beforebegin", totalStatsButton);
-    totalStatsButton.addEventListener('click', clickTotalStatsButton);
+    last.insertAdjacentElement("afterend", button);
+    button.addEventListener('click', clickTotalStatsButton);
 }
 
 function clickTotalStatsButton() {
@@ -728,7 +700,7 @@ function addRobotIcon() {
         "пессимизацией и иными ограничениями канала\n" +
         "официально не подтверждена.");
     sadRobotIcon.appendChild(img);
-    const navblocks = document.getElementsByClassName("header__readers-count");
+    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
     const last = navblocks.item(navblocks.length - 1);
     last.insertAdjacentElement("afterend", sadRobotIcon);
 }
@@ -749,6 +721,11 @@ function infiniteAndNanToStr(num, digits) {
 }
 
 function addSearchInput() {
+    const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
+    if (!boxDiv) {
+        setTimeout (addSearchInput, 50);
+        return;
+    }
     const input = createElement("input", "ui-lib-input__control"); //zen-ui-input__control
     input.setAttribute("type", "text");
     input.setAttribute("id", "search");
@@ -758,7 +735,7 @@ function addSearchInput() {
     divInputContainer.appendChild(divUiBox);
     const divUiInputControl = createElement("div", "ui-lib-input _size_m", divInputContainer);
     const divUiSelect = createElement("div", "ui-lib-select _size_m _type_input publications-groups-view__content-type-filter-control", divUiInputControl);
-    const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
+    divUiSelect.style.width = "165px";
     const span = createElement("span");
     span.innerText = "|";
     span.setAttribute("style", "margin-left: 5px; margin-right: 5px; color:silver;");
@@ -799,13 +776,15 @@ function closeNotification(event) {
     const notificationId = getNotificationId(container);
     container.parentElement.removeChild(container);
     setNotifictionHidden(notificationId);
+    event.stopPropagation();
+    event.preventDefault();
     return false;
 }
 
 function getNotificationId(notification) {
-    const titles = notification.querySelector(".notification-item__title");
+    const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-title");
     const title = titles !== undefined && titles !== null ? titles.innerText : "";
-    const texts = notification.querySelector(".notification-item__text");
+    const texts = notification.querySelector(".notifications__item > .notifications__item-container > .notification-item__text");
     const text = texts !== undefined && texts !== null && texts.innerText !== undefined > 0 ? texts.innerText : "";
     if (title.length === 0 && text.length === 0) {
         return "";
@@ -819,7 +798,6 @@ async function addNotificationCloseButton() {
         for (let i = 0; i < notifications.length; i++) {
             const notification = notifications[i];
             const notificationId = getNotificationId(notification);
-
             if (notificationId.length === 0) {
                 continue;
             }
@@ -828,13 +806,14 @@ async function addNotificationCloseButton() {
                 notification.parentElement.removeChild(notification);
             } else {
                 const cross = createElement("span");
-                cross.setAttribute("class", "notification-item__cross");
+                cross.setAttribute("class", "notifications__item-cross");
                 cross.innerText = "❌";
                 cross.style.cursor = "pointer";
                 cross.setAttribute("title", "Закрыть уведомление\nОно будет скрыто, пока не появится новое");
                 cross.setAttribute("closeClass", notification.getAttribute("class"));
                 cross.addEventListener('click', closeNotification);
-                notifications[i].appendChild(cross);
+                const container = notification.querySelector(".notifications__item > .notifications__item-container");
+                container.appendChild(cross);
             }
         }
     }
