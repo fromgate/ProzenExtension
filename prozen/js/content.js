@@ -11,6 +11,7 @@ const observers = [];
 let token;
 let data;
 let publisherId;
+let mediaUrl;
 
 
 ///////////////////////////////////
@@ -70,6 +71,7 @@ function main() {
     }
 
     if (pageType === "main") {
+        mediaUrl = window.location.href.replace("profile/editor","media");
         addSearchInput();
         registerTargetObserver();
     }
@@ -201,10 +203,10 @@ async function articleShowStats() {
     const spanIcon4 = createElement("span", "article-stat__icon icon_url");
     // spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
 
-    const shortUrlA = createElement("a", undefined, spanIcon4);
-    shortUrlA.setAttribute("href", shortUrl);
-    const wrapper4 = createElement("div", "article-stat__counts-wrapper", shortUrlA);
-    wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nСкопируйте её в буфер обмена.");
+    const wrapper4 = createElement("div", "article-stat__counts-wrapper", spanIcon4);
+    wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+    wrapper4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+    wrapper4.style.cursor = "pointer";
 
     const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
     wrapper3.insertAdjacentElement("afterend", wrapper4);
@@ -455,7 +457,7 @@ function processCardsViews(ids) {
         const value = publications.get(publicationId);
         if (value.card.hasChildNodes()) {
             setPublicationTime(value);
-            modifyCardFooter(value);
+            modifyCardFooter(value, publicationId);
         }
         value.processed = true;
     }
@@ -486,7 +488,7 @@ function createFooterLine(element1, element2, element3) {
 }
 
 
-function modifyCardFooter(pubData) {
+function modifyCardFooter(pubData, publicationId) {
     const cardFooters = pubData.card.getElementsByClassName("card-cover-publication__stats-container");
     if (cardFooters === undefined || cardFooters.length === 0) {
         return;
@@ -526,7 +528,7 @@ function modifyCardFooter(pubData) {
     const readTimeTitle = "Время дочитывания" + (pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
     const elementReadTime = createIcon(readTimeCount, "icon_clock", readTimeTitle);
 
-    const elementTags = createIcon(null, "icon_tags", pubData.tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(pubData.tags));
+    const elementTags = createIconsTagLink (pubData.tags, mediaUrl+"/"+publicationId);
 
     const line4 = createFooterLine(elementReadTime, elementTags);
     cardFooter.appendChild(line4);
@@ -574,6 +576,34 @@ function createIcon(value, icon, tip) {
         valueDiv.innerText = value;
         a.appendChild(valueDiv);
     }
+    return a;
+}
+
+function createIconsTagLink (tags, url) {
+    const a = document.createElement("a");
+    a.setAttribute("class", "card-cover-footer-stats__item");
+    const iconSpan1 = document.createElement("span");
+    iconSpan1.setAttribute("class", "card-cover-footer-stats__icon icon_tags");
+
+    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(tags);
+    if (tagTip.indexOf("\n") !== -1) {
+        iconSpan1.setAttribute("title", tagTip);
+    } else {
+        iconSpan1.setAttribute("data-tip", tagTip);
+    }
+    if (tags.length !== 0) {
+        iconSpan1.addEventListener('click', copyTextToClipboard.bind(null, tags));
+    }
+    iconSpan1.style.cursor = "pointer";
+
+    const iconSpan2 = document.createElement("span");
+    iconSpan2.setAttribute("class", "icon_short_url");
+    iconSpan2.setAttribute("data-tip", "Скопировать короткую ссылку");
+    iconSpan2.style.cursor = "pointer";
+    iconSpan2.addEventListener('click', copyTextToClipboard.bind(null, url));
+    a.appendChild(iconSpan2);
+    a.appendChild(iconSpan1);
+
     return a;
 }
 
@@ -830,6 +860,20 @@ function isNotificationHidden(notificationId) {
 
 function setNotifictionHidden(notificationId) {
     chrome.storage.local.set({prozenHideNotification: notificationId});
+}
+
+function copyTextToClipboard(text) {
+    const copyFrom = document.createElement("textarea");
+    copyFrom.setAttribute('readonly', '');
+    copyFrom.style.position = 'absolute';
+    copyFrom.style.left = '-9999px';
+    copyFrom.style.too = '0px';
+    copyFrom.textContent = text;
+    document.body.appendChild(copyFrom);
+    copyFrom.select();
+    document.execCommand('copy');
+    copyFrom.blur();
+    document.body.removeChild(copyFrom);
 }
 
 function debug(message, message2) {
