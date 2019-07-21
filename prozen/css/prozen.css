@@ -148,3 +148,10 @@
 html body .ui-lib-header__item._type_left {
     margin-right: 24px;
 }
+
+.prozen-popup-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
