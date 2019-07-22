@@ -25,6 +25,15 @@ class Channel {
         return "https://zen.yandex.ru/"+( useShortname ? id : "id/"+id);
     }
 
+    stripHtml(str) {
+        if ((str===null) || (str==='')) {
+            return "";
+        } else  {
+            str = str.toString();
+        }
+        return str.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/,' ');
+    }
+
     async getLastPostCard(imgSize) {
         if (this.json === undefined) {
             await this.load();
@@ -37,7 +46,7 @@ class Channel {
         console.log (item);
         if (item.type === "post") {
             lastPost.image = item.image.link !== undefined ? item.image.link.replace("post_crop_big_1080", imgSize === undefined ? "smart_crop_336x116" : imgSize) : "";
-            lastPost.title = item.rich_text.html;
+            lastPost.title = this.stripHtml(item.rich_text.html);
             lastPost.link = item.link.split("?")[0];
             lastPost.text = "";
         } else {
