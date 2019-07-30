@@ -3,6 +3,7 @@ start();
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_ZEN_ID = "https://zen.yandex.ru/id/";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
+const URL_API_EDITOR = "https://zen.yandex.ru/editor-api/v2/publisher/";
 const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
 const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
 
@@ -176,9 +177,7 @@ async function articleShowStats() {
     counters[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
 
     if (counters.length === 1) {
-        ////article-stat__counts-wrapper
         const wrapper1 = document.getElementsByClassName("article-stat__counts-wrapper")[0];
-
         const wrapper2 = createElement("div", "article-stat__counts-wrapper");
         const spanIcon2 = createElement("span", "article-stat__icon article-stat__icon_type_perusal-black");
         const spanCount2 = createElement("span", "article-stat__count");
@@ -201,7 +200,6 @@ async function articleShowStats() {
     const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
 
     const spanIcon4 = createElement("span", "article-stat__icon icon_url");
-    // spanIcon4.setAttribute("style", "background-color: #FFFFFF80;");
 
     const wrapper4 = createElement("div", "article-stat__counts-wrapper", spanIcon4);
     wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
@@ -297,12 +295,53 @@ function showBalanceAndMetrics() {
                 }
             }
             setBalance(money, total);
+            addViewsTillEnd();
         }
+        const audience = response.publisher.audience;
+        setAudience (audience);
         addTotalStatsButton();
         addMetricsButton(response.publisher.privateData.metrikaCounterId);
         addSearchButton();
         addRobotIconIfNoNoIndex(publisherId);
     });
+}
+
+function addViewsTillEnd() {
+    const url = URL_API_EDITOR + publisherId + "/side-block";
+    const data = fetch(url, {
+        credentials: 'same-origin',
+        headers: {'X-Csrf-Token': token}
+    }).then(response => response.json());
+    data.then(response => {
+        console.log(response);
+        const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
+        const isNirvana = response.publisher.publisher.isNirvana;
+        const divFullReadsBlock = createElement("div", "full-reads-block");
+        const spanTitle = createElement("span","full-reads-block__title");
+        spanTitle.innerText = "Дочитывания за 7 дней";
+        const spanCount = createElement("span","full-reads-block__count");
+        spanCount.innerText = numViews;
+        const divStatus = createElement("div", "full-reads-block__status", spanCount);
+        const spanDesc = createElement("span","full-reads-block__desc");
+        spanDesc.innerText = isNirvana ? "Информация приводится справочно" : "Для подачи заявки в Нирвану необходимо поддерживать дочитывания на уровне не менее 7000 в неделю";
+        divFullReadsBlock.appendChild(spanTitle);
+        divFullReadsBlock.appendChild(divStatus);
+        divFullReadsBlock.appendChild(spanDesc);
+        const divProfile = document.getElementsByClassName("profile-sidebar")[0];
+        divProfile.appendChild(divFullReadsBlock);
+    });
+}
+
+function setAudience(audience) {
+    const spanAudience = createElement("span", "channel-block__channel-stats-value");
+    spanAudience.innerText = audience.toLocaleString();
+    const spanAudienceLabel = createElement("span", "channel-block__channel-stats-label");
+    spanAudienceLabel.innerText = "аудитория";
+    const divAudience = createElement("div","channel-block__channel-stats-item");
+    divAudience.appendChild(spanAudience);
+    divAudience.appendChild(spanAudienceLabel);
+    const blockStats = document.getElementsByClassName ("channel-block__channel-stats")[0];
+    blockStats.appendChild(divAudience);
 }
 
 function setBalance(money, total) {
