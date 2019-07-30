@@ -315,18 +315,17 @@ function addViewsTillEnd() {
     data.then(response => {
         console.log(response);
         const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
-        const isNirvana = response.publisher.publisher.isNirvana;
         const divFullReadsBlock = createElement("div", "full-reads-block");
         const spanTitle = createElement("span","full-reads-block__title");
         spanTitle.innerText = "Дочитывания за 7 дней";
         const spanCount = createElement("span","full-reads-block__count");
         spanCount.innerText = numViews;
         const divStatus = createElement("div", "full-reads-block__status", spanCount);
-        const spanDesc = createElement("span","full-reads-block__desc");
-        spanDesc.innerText = isNirvana ? "Информация приводится справочно" : "Для подачи заявки в Нирвану необходимо поддерживать дочитывания на уровне не менее 7000 в неделю";
+        // const spanDesc = createElement("span","full-reads-block__desc");
+        // spanDesc.innerText ="";
         divFullReadsBlock.appendChild(spanTitle);
         divFullReadsBlock.appendChild(divStatus);
-        divFullReadsBlock.appendChild(spanDesc);
+        // divFullReadsBlock.appendChild(spanDesc);
         const divProfile = document.getElementsByClassName("profile-sidebar")[0];
         divProfile.appendChild(divFullReadsBlock);
     });
