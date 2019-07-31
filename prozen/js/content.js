@@ -297,8 +297,6 @@ function showBalanceAndMetrics() {
             setBalance(money, total);
             addViewsTillEnd();
         }
-        const audience = response.publisher.audience;
-        setAudience (audience);
         addTotalStatsButton();
         addMetricsButton(response.publisher.privateData.metrikaCounterId);
         addSearchButton();
@@ -329,18 +327,6 @@ function addViewsTillEnd() {
         const divProfile = document.getElementsByClassName("profile-sidebar")[0];
         divProfile.appendChild(divFullReadsBlock);
     });
-}
-
-function setAudience(audience) {
-    const spanAudience = createElement("span", "channel-block__channel-stats-value");
-    spanAudience.innerText = audience.toLocaleString();
-    const spanAudienceLabel = createElement("span", "channel-block__channel-stats-label");
-    spanAudienceLabel.innerText = "аудитория";
-    const divAudience = createElement("div","channel-block__channel-stats-item");
-    divAudience.appendChild(spanAudience);
-    divAudience.appendChild(spanAudienceLabel);
-    const blockStats = document.getElementsByClassName ("channel-block__channel-stats")[0];
-    blockStats.appendChild(divAudience);
 }
 
 function setBalance(money, total) {
