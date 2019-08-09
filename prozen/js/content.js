@@ -8,6 +8,7 @@ const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication
 const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
 
 const publications = new Map();
+let observer;
 const observers = [];
 let token;
 let data;
@@ -67,15 +68,39 @@ function main() {
         return;
     }
     if (pageType !== "edit") {
-        showBalanceAndMetrics();
         setTimeout(addNotificationCloseButton, 50);
     }
 
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor","media");
-        addSearchInput();
         registerTargetObserver();
+        registerContentObserver();
     }
+}
+
+function registerContentObserver() {
+    const target = document.getElementsByClassName("content")[0];
+    if (!target) {
+        setTimeout (registerContentObserver, 50);
+        return;
+    }
+    const contentObserver = new MutationObserver(function (mutations) {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(e => {
+                    if (e.hasAttribute("class") && e.getAttribute ("class") === "publications-root") {
+                        setUnprocessedPublications();
+                        loadCardsAll();
+                        processCards();
+                        registerCardObservers();
+                        addSearchInput();
+                        showBalanceAndMetrics();
+                    }
+                });
+            }
+        });
+    });
+    contentObserver.observe(target, {childList: true});
 }
 
 function registerTargetObserver() {
@@ -84,7 +109,10 @@ function registerTargetObserver() {
         setTimeout (registerTargetObserver, 50);
         return;
     }
-    const observer = new MutationObserver(function (mutations) {
+    if (observer !== undefined) {
+        observer.disconnect();
+    }
+    observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
             if (mutation.type === 'childList') {
                 setUnprocessedPublications();
@@ -305,28 +333,30 @@ function showBalanceAndMetrics() {
 }
 
 function addViewsTillEnd() {
-    const url = URL_API_EDITOR + publisherId + "/side-block";
-    const data = fetch(url, {
-        credentials: 'same-origin',
-        headers: {'X-Csrf-Token': token}
-    }).then(response => response.json());
-    data.then(response => {
-        console.log(response);
-        const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
-        const divFullReadsBlock = createElement("div", "full-reads-block");
-        const spanTitle = createElement("span","full-reads-block__title");
-        spanTitle.innerText = "Дочитывания за 7 дней";
-        const spanCount = createElement("span","full-reads-block__count");
-        spanCount.innerText = numViews;
-        const divStatus = createElement("div", "full-reads-block__status", spanCount);
-        // const spanDesc = createElement("span","full-reads-block__desc");
-        // spanDesc.innerText ="";
-        divFullReadsBlock.appendChild(spanTitle);
-        divFullReadsBlock.appendChild(divStatus);
-        // divFullReadsBlock.appendChild(spanDesc);
-        const divProfile = document.getElementsByClassName("profile-sidebar")[0];
-        divProfile.appendChild(divFullReadsBlock);
-    });
+        const url = URL_API_EDITOR + publisherId + "/side-block";
+        const data = fetch(url, {
+            credentials: 'same-origin',
+            headers: {'X-Csrf-Token': token}
+        }).then(response => response.json());
+        data.then(response => {
+            if (!document.getElementById("prozen-sidebar-full-reads")) {
+                const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
+                const divFullReadsBlock = createElement("div", "full-reads-block");
+                divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
+                const spanTitle = createElement("span", "full-reads-block__title");
+                spanTitle.innerText = "Дочитывания за 7 дней";
+                const spanCount = createElement("span", "full-reads-block__count");
+                spanCount.innerText = numViews;
+                const divStatus = createElement("div", "full-reads-block__status", spanCount);
+                // const spanDesc = createElement("span","full-reads-block__desc");
+                // spanDesc.innerText ="";
+                divFullReadsBlock.appendChild(spanTitle);
+                divFullReadsBlock.appendChild(divStatus);
+                // divFullReadsBlock.appendChild(spanDesc);
+                const divProfile = document.getElementsByClassName("profile-sidebar")[0];
+                divProfile.appendChild(divFullReadsBlock);
+            }
+        });
 }
 
 function setBalance(money, total) {
@@ -351,24 +381,31 @@ function setBalance(money, total) {
 }
 
 function addMetricsButton(metricsId) {
-    const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
-    button.setAttribute("href", metricsUrl);
-    button.innerText = "Метрика";
-    button.setAttribute ("data-tip", "Яндекс.Метрика");
-    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
-    const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", button);
+    if (!document.getElementById("prozen-button-metrics")) {
+        const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
+        const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
+        button.setAttribute("id","prozen-button-metrics");
+        button.setAttribute("href", metricsUrl);
+        button.setAttribute("target","_blank");
+        button.innerText = "Метрика";
+        button.setAttribute ("data-tip", "Яндекс.Метрика");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        const last = navblocks.item(navblocks.length - 1);
+        last.insertAdjacentElement("afterend", button);
+    }
 }
 
 function addSearchButton() {
-    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
-    button.innerText = "Поиск";
-    button.setAttribute ("data-tip", "Поиск по заголовкам и описаниям");
-    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
-    const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", button);
-    button.addEventListener('click', clickSearchButton);
+    if (!document.getElementById("prozen-button-search")) {
+        const button = createElement("a", "ui-lib-header-item ui-lib-header__item _type_left");
+        button.setAttribute("id","prozen-button-search");
+        button.innerText = "Поиск";
+        button.setAttribute("data-tip", "Поиск по заголовкам и описаниям");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        const last = navblocks.item(navblocks.length - 1);
+        last.insertAdjacentElement("afterend", button);
+        button.addEventListener('click', clickSearchButton);
+    }
 }
 
 function clickSearchButton(searchString) {
@@ -385,13 +422,16 @@ function clickSearchButton(searchString) {
 }
 
 function addTotalStatsButton() {
-    const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
-    button.innerText = "Показатели";
-    button.setAttribute ("data-tip", "Полная статистика");
-    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
-    const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", button);
-    button.addEventListener('click', clickTotalStatsButton);
+    if (!document.getElementById("prozen-button-stats")) {
+        const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
+        button.setAttribute("id","prozen-button-stats");
+        button.innerText = "Показатели";
+        button.setAttribute ("data-tip", "Полная статистика");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        const last = navblocks.item(navblocks.length - 1);
+        last.insertAdjacentElement("afterend", button);
+        button.addEventListener('click', clickTotalStatsButton);
+    }
 }
 
 function clickTotalStatsButton() {
@@ -578,7 +618,6 @@ function addDirectLinkButton(link) {
     directLink.innerText = "Прямая ссылка";
     link.insertAdjacentElement("afterend", directLink);
 }
-
 
 function createIcon(value, icon, tip) {
     const a = document.createElement("a");
@@ -775,14 +814,19 @@ function infiniteAndNanToStr(num, digits) {
 }
 
 function addSearchInput() {
+    if (document.getElementById("prozen-button-metrics")) {
+        return;
+    }
+
     const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
     if (!boxDiv) {
         setTimeout (addSearchInput, 50);
         return;
     }
+
     const input = createElement("input", "ui-lib-input__control"); //zen-ui-input__control
     input.setAttribute("type", "text");
-    input.setAttribute("id", "search");
+    input.setAttribute("id", "prozen-search");
     input.setAttribute("placeholder", "строка поиска");
     const divInputContainer = createElement("div", "ui-lib-input__control-container", input);
     const divUiBox = createElement("div", "ui-lib-input__box");
@@ -801,7 +845,6 @@ function addSearchInput() {
     divUiSelect.insertAdjacentElement("afterend", button);
     button.setAttribute("data-tip", "Поиск (откроется новое окно)");
     button.addEventListener('click', clickFind);
-
     input.addEventListener("keyup", event => {
         event.preventDefault();
         if (event.keyCode === 13) {
@@ -811,7 +854,7 @@ function addSearchInput() {
 }
 
 function clickFind() {
-    clickSearchButton(document.getElementById("search").value);
+    clickSearchButton(document.getElementById("prozen-search").value);
     return false;
 }
 
@@ -879,7 +922,6 @@ function isNotificationHidden(notificationId) {
             resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
         });
     });
-
 }
 
 function setNotifictionHidden(notificationId) {
