@@ -1,6 +1,7 @@
 start();
-
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
+const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
+const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
 const URL_ZEN_ID = "https://zen.yandex.ru/id/";
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
 const URL_API_EDITOR = "https://zen.yandex.ru/editor-api/v2/publisher/";
@@ -72,7 +73,7 @@ function main() {
     }
 
     if (pageType === "main") {
-        mediaUrl = window.location.href.replace("profile/editor","media");
+        mediaUrl = window.location.href.replace("profile/editor", "media");
         registerTargetObserver();
         registerContentObserver();
     }
@@ -81,16 +82,17 @@ function main() {
 function registerContentObserver() {
     const target = document.getElementsByClassName("content")[0];
     if (!target) {
-        setTimeout (registerContentObserver, 50);
+        setTimeout(registerContentObserver, 50);
         return;
     }
     const contentObserver = new MutationObserver(function (mutations) {
         mutations.forEach(mutation => {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                 mutation.addedNodes.forEach(e => {
-                    if (e.hasAttribute("class") && e.getAttribute ("class") === "publications-root") {
+                    if (e.hasAttribute("class") && e.getAttribute("class") === "publications-root") {
                         setUnprocessedPublications();
                         loadCardsAll();
+
                         processCards();
                         registerCardObservers();
                         addSearchInput();
@@ -106,7 +108,7 @@ function registerContentObserver() {
 function registerTargetObserver() {
     const target = document.getElementsByClassName("publications-groups-view")[0];
     if (!target) {
-        setTimeout (registerTargetObserver, 50);
+        setTimeout(registerTargetObserver, 50);
         return;
     }
     if (observer !== undefined) {
@@ -263,8 +265,8 @@ function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
-            const a = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left")[1];
-            const href= a.getAttribute("href");
+            const a = document.getElementsByClassName("ui-lib-header-item _type_left")[1];
+            const href = a.getAttribute("href");
             return href.split("/")[4];
         case "money":
         case "edit":
@@ -333,36 +335,36 @@ function showBalanceAndMetrics() {
 }
 
 function addViewsTillEnd() {
-        const url = URL_API_EDITOR + publisherId + "/side-block";
-        const data = fetch(url, {
-            credentials: 'same-origin',
-            headers: {'X-Csrf-Token': token}
-        }).then(response => response.json());
-        data.then(response => {
-            if (!document.getElementById("prozen-sidebar-full-reads")) {
-                const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
-                const divFullReadsBlock = createElement("div", "full-reads-block");
-                divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
-                const spanTitle = createElement("span", "full-reads-block__title");
-                spanTitle.innerText = "Дочитывания за 7 дней";
-                const spanCount = createElement("span", "full-reads-block__count");
-                spanCount.innerText = numViews;
-                const divStatus = createElement("div", "full-reads-block__status", spanCount);
-                // const spanDesc = createElement("span","full-reads-block__desc");
-                // spanDesc.innerText ="";
-                divFullReadsBlock.appendChild(spanTitle);
-                divFullReadsBlock.appendChild(divStatus);
-                // divFullReadsBlock.appendChild(spanDesc);
-                const divProfile = document.getElementsByClassName("profile-sidebar")[0];
-                divProfile.appendChild(divFullReadsBlock);
-            }
-        });
+    const url = URL_API_EDITOR + publisherId + "/side-block";
+    const data = fetch(url, {
+        credentials: 'same-origin',
+        headers: {'X-Csrf-Token': token}
+    }).then(response => response.json());
+    data.then(response => {
+        if (!document.getElementById("prozen-sidebar-full-reads")) {
+            const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
+            const divFullReadsBlock = createElement("div", "full-reads-block");
+            divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
+            const spanTitle = createElement("span", "full-reads-block__title");
+            spanTitle.innerText = "Дочитывания за 7 дней";
+            const spanCount = createElement("span", "full-reads-block__count");
+            spanCount.innerText = numViews;
+            const divStatus = createElement("div", "full-reads-block__status", spanCount);
+            // const spanDesc = createElement("span","full-reads-block__desc");
+            // spanDesc.innerText ="";
+            divFullReadsBlock.appendChild(spanTitle);
+            divFullReadsBlock.appendChild(divStatus);
+            // divFullReadsBlock.appendChild(spanDesc);
+            const divProfile = document.getElementsByClassName("profile-sidebar")[0];
+            divProfile.appendChild(divFullReadsBlock);
+        }
+    });
 }
 
 function setBalance(money, total) {
     const moneySpan = document.getElementsByClassName("monetization-block__money-balance")[0];
     if (!moneySpan) {
-        setTimeout (setBalance.bind(null, money, total), 50);
+        setTimeout(setBalance.bind(null, money, total), 50);
         return;
     }
     if (money !== total) {
@@ -383,13 +385,13 @@ function setBalance(money, total) {
 function addMetricsButton(metricsId) {
     if (!document.getElementById("prozen-button-metrics")) {
         const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-        const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
-        button.setAttribute("id","prozen-button-metrics");
+        const button = createElement("a", "ui-lib-header-item _type_left");
+        button.setAttribute("id", "prozen-button-metrics");
         button.setAttribute("href", metricsUrl);
-        button.setAttribute("target","_blank");
+        button.setAttribute("target", "_blank");
         button.innerText = "Метрика";
-        button.setAttribute ("data-tip", "Яндекс.Метрика");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        button.setAttribute("data-tip", "Яндекс.Метрика");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
         const last = navblocks.item(navblocks.length - 1);
         last.insertAdjacentElement("afterend", button);
     }
@@ -397,11 +399,11 @@ function addMetricsButton(metricsId) {
 
 function addSearchButton() {
     if (!document.getElementById("prozen-button-search")) {
-        const button = createElement("a", "ui-lib-header-item ui-lib-header__item _type_left");
-        button.setAttribute("id","prozen-button-search");
+        const button = createElement("a", "ui-lib-header-item _type_left");
+        button.setAttribute("id", "prozen-button-search");
         button.innerText = "Поиск";
         button.setAttribute("data-tip", "Поиск по заголовкам и описаниям");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
         const last = navblocks.item(navblocks.length - 1);
         last.insertAdjacentElement("afterend", button);
         button.addEventListener('click', clickSearchButton);
@@ -423,11 +425,11 @@ function clickSearchButton(searchString) {
 
 function addTotalStatsButton() {
     if (!document.getElementById("prozen-button-stats")) {
-        const button = createElement("a","ui-lib-header-item ui-lib-header__item _type_left");
-        button.setAttribute("id","prozen-button-stats");
+        const button = createElement("a", "ui-lib-header-item _type_left");
+        button.setAttribute("id", "prozen-button-stats");
         button.innerText = "Показатели";
-        button.setAttribute ("data-tip", "Полная статистика");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+        button.setAttribute("data-tip", "Полная статистика");
+        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
         const last = navblocks.item(navblocks.length - 1);
         last.insertAdjacentElement("afterend", button);
         button.addEventListener('click', clickTotalStatsButton);
@@ -453,8 +455,22 @@ function setUnprocessedPublications() {
 }
 
 function loadPublicationsStat(publicationIds) {
-    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","));
+    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","))+"&publisherId="+publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+function loadPublicationsPublisher(publisherId) {
+    const countUrl = URL_API_COUNT_PUBLISHED + publisherId;
+    return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
+        .then(response => response.json())
+        .then(data => {
+            const pageSize = data.count;
+            const url = URL_API_PUBLICATIONS_PUBLISHED.replace("%pageSize%", pageSize).replace("%publisherId%", publisherId);
+            return fetch(url, {
+                credentials: 'same-origin',
+                headers: {'X-Csrf-Token': token}
+            }).then(response => response.json());
+        });
 }
 
 function loadPublicationStat(publicationId) {
@@ -569,7 +585,7 @@ function modifyCardFooter(pubData, publicationId) {
     const line1 = createFooterLine(elementShows, elementLikes);
     cardFooter.appendChild(line1);
 
-    const ctr = (parseFloat(infiniteAndNan(pubData.shows/ pubData.feedShows) * 100)).toFixed(2);
+    const ctr = (parseFloat(infiniteAndNan(pubData.shows / pubData.feedShows) * 100)).toFixed(2);
     // const ctrOld = (parseFloat(infiniteAndNan(pubData.views/ pubData.feedShows) * 100)).toFixed(2);
 
     const elementViews = createIcon(infiniteAndNanToStr(pubData.views) + " (" + ctr + "%)", "icon_views", "Просмотры (CTR)");
@@ -592,7 +608,7 @@ function modifyCardFooter(pubData, publicationId) {
     const readTimeTitle = "Время дочитывания" + (pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
     const elementReadTime = createIcon(readTimeCount, "icon_clock", readTimeTitle);
 
-    const elementTags = createIconsTagLink (pubData.tags, mediaUrl+"/"+publicationId);
+    const elementTags = createIconsTagLink(pubData.tags, mediaUrl + "/" + publicationId);
 
     const line4 = createFooterLine(elementReadTime, elementTags);
     cardFooter.appendChild(line4);
@@ -642,7 +658,7 @@ function createIcon(value, icon, tip) {
     return a;
 }
 
-function createIconsTagLink (tags, url) {
+function createIconsTagLink(tags, url) {
     const a = document.createElement("a");
     a.setAttribute("class", "card-cover-footer-stats__item");
     const iconSpan1 = document.createElement("span");
@@ -793,7 +809,7 @@ function addRobotIcon() {
         "пессимизацией и иными ограничениями канала\n" +
         "официально не подтверждена.");
     sadRobotIcon.appendChild(img);
-    const navblocks = document.getElementsByClassName("ui-lib-header-item ui-lib-header__item _type_left");
+    const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
     const last = navblocks.item(navblocks.length - 1);
     last.insertAdjacentElement("afterend", sadRobotIcon);
 }
@@ -820,7 +836,7 @@ function addSearchInput() {
 
     const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
     if (!boxDiv) {
-        setTimeout (addSearchInput, 50);
+        setTimeout(addSearchInput, 50);
         return;
     }
 
@@ -879,9 +895,9 @@ function closeNotification(event) {
 }
 
 function getNotificationId(notification) {
-    const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-title");
+    const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-link");
     const title = titles !== undefined && titles !== null ? titles.innerText : "";
-    const texts = notification.querySelector(".notifications__item > .notifications__item-container > .notification-item__text");
+    const texts = notification.querySelector(".notifications__item > .notifications__item-container > notifications__item-text");
     const text = texts !== undefined && texts !== null && texts.innerText !== undefined > 0 ? texts.innerText : "";
     if (title.length === 0 && text.length === 0) {
         return "";
