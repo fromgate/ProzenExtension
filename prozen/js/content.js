@@ -437,7 +437,7 @@ function addTotalStatsButton() {
 }
 
 function clickTotalStatsButton() {
-    chrome.storage.local.set({prozenToken: token}, function () {
+    chrome.storage.local.set({prozenToken: token, prozenPublisherId: publisherId}, function () {
         window.open(browser.extension.getURL("totalstats.html"));
     });
 }

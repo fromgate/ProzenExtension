@@ -3,6 +3,7 @@ const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publicatio
 const TYPES = ["article", "narrative", "post", "gif"];
 
 var token;
+var publisherId;
 
 main();
 
@@ -16,9 +17,18 @@ function getToken() {
     });
 }
 
+function getPublisherId() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get("prozenPublisherId", function (result) {
+            resolve(result.prozenPublisherId);
+        });
+    });
+}
+
 async function main() {
     showSpinner();
     token = await getToken();
+    publisherId = await getPublisherId();
     const publications = await loadAllPublications();
     const stats = countStats(publications);
     showStats(stats);
@@ -109,12 +119,12 @@ async function getStats(publicationType) {
 }
 
 function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType);
+    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType)+"&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 function loadPublications(publicationType, count) {
-    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType);
+    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
