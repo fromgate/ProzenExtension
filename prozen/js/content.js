@@ -214,7 +214,10 @@ async function articleShowStats() {
         wrapper2.appendChild(spanIcon2);
         wrapper2.appendChild(spanCount2);
         wrapper1.insertAdjacentElement("afterend", wrapper2);
-
+        counters = document.getElementsByClassName("article-stat__count");
+    }
+    if (counters.length === 2) {
+        const wrapper2 = document.getElementsByClassName("article-stat__counts-wrapper")[1];
         const wrapper3 = createElement("div", "article-stat__counts-wrapper");
         const spanIcon3 = createElement("span", "article-stat__icon article-stat__icon_type_time-black");
         const spanCount3 = createElement("span", "article-stat__count");
