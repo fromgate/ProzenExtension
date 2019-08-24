@@ -204,6 +204,17 @@ async function articleShowStats() {
     const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
     elArticleDate.innerText = showTime;
     let counters = document.getElementsByClassName("article-stat__count");
+    if (counters.length === 0) {
+        const container = document.getElementsByClassName("article-stat__date-container")[0];
+
+        const wrapper1 = createElement("div", "article-stat__counts-wrapper");
+        const spanIcon1 = createElement("span", "article-stat__icon article-stat__icon_type_book-black");
+        wrapper1.appendChild (spanIcon1);
+        const spanCount1 = createElement("span", "article-stat__count");
+        wrapper1.appendChild (spanCount1);
+        container.appendChild(wrapper1);
+        counters = document.getElementsByClassName("article-stat__count");
+    }
     counters[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
 
     if (counters.length === 1) {
