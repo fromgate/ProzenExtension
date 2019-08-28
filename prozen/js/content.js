@@ -532,7 +532,7 @@ function processCards(loadedIds) {
                     const card = publications.get(id);
                     card.addTime = article.publications[0].addTime;
                     card.modTime = article.publications[0].content.modTime;
-                    card.tags = article.publications[0].privateData.tags;
+                    card.tags = article.publications[0].tags;
                     card.processed = true;
                 }
             }).then(function () {
