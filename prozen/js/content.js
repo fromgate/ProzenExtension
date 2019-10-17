@@ -7,6 +7,8 @@ const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
 const URL_API_EDITOR = "https://zen.yandex.ru/editor-api/v2/publisher/";
 const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
 const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
+const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
+const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
 
 const publications = new Map();
 let observer;
@@ -50,7 +52,7 @@ function start() {
     });
 }
 
-function main() {
+async function main() {
     const pageType = getPageType();
     if (pageType === "unknown") {
         return;
@@ -64,7 +66,7 @@ function main() {
         setTimeout(articleShowStats, 300);
         return;
     }
-    publisherId = getPublisherId();
+    publisherId = await getPublisherId();
     if (token === undefined || publisherId === undefined) {
         return;
     }
@@ -209,9 +211,9 @@ async function articleShowStats() {
 
         const wrapper1 = createElement("div", "article-stat__counts-wrapper");
         const spanIcon1 = createElement("span", "article-stat__icon article-stat__icon_type_book-black");
-        wrapper1.appendChild (spanIcon1);
+        wrapper1.appendChild(spanIcon1);
         const spanCount1 = createElement("span", "article-stat__count");
-        wrapper1.appendChild (spanCount1);
+        wrapper1.appendChild(spanCount1);
         container.appendChild(wrapper1);
         counters = document.getElementsByClassName("article-stat__count");
     }
@@ -275,13 +277,22 @@ function getPostIdFromUrl(url) {
     return ln[ln.length - 1];
 }
 
-function getPublisherId() {
+async function getPublisherIdFromLink() {
+    const a = document.getElementsByClassName("ui-lib-header-item _type_left")[1];
+    if (a === undefined || !a.hasAttribute("href")) {
+        return new Promise(resolve => {
+            resolve(setTimeout(getPublisherIdFromLink, 300));
+        });
+    }
+    const href = a.getAttribute("href");
+    return href.split("/")[4];
+}
+
+async function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
-            const a = document.getElementsByClassName("ui-lib-header-item _type_left")[1];
-            const href = a.getAttribute("href");
-            return href.split("/")[4];
+            return await getPublisherIdFromLink();
         case "money":
         case "edit":
         case "karma":
@@ -469,7 +480,7 @@ function setUnprocessedPublications() {
 }
 
 function loadPublicationsStat(publicationIds) {
-    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(","))+"&publisherId="+publisherId;
+    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(",")) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
@@ -695,8 +706,9 @@ function createIconsTagLink(tags, url) {
     iconSpan2.style.cursor = "pointer";
     iconSpan2.addEventListener('click', copyTextToClipboard.bind(null, url));
     a.appendChild(iconSpan2);
-    a.appendChild(iconSpan1);
-
+    if (tags.length !== 0) {
+        a.appendChild(iconSpan1);
+    }
     return a;
 }
 
@@ -909,14 +921,23 @@ function closeNotification(event) {
 }
 
 function getNotificationId(notification) {
+    const idParts =[];
     const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-link");
-    const title = titles !== undefined && titles !== null ? titles.innerText : "";
-    const texts = notification.querySelector(".notifications__item > .notifications__item-container > notifications__item-text");
-    const text = texts !== undefined && texts !== null && texts.innerText !== undefined > 0 ? texts.innerText : "";
-    if (title.length === 0 && text.length === 0) {
+    if (titles !== undefined && titles !== null && titles.innerText) {
+        idParts.push(titles.innerText);
+    }
+    const links = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-title");
+    if (links !== undefined && links !== null && links.innerText) {
+        idParts.push(links.innerText);
+    }
+    const texts = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-text");
+    if (texts !== undefined && texts !== null && texts.innerText) {
+        idParts.push(texts.innerText);
+    }
+    if (idParts.length === 0) {
         return "";
     }
-    return title + "_" + text;
+    return idParts.join("_");
 }
 
 async function addNotificationCloseButton() {
@@ -986,4 +1007,48 @@ function log(message) {
     if (DEBUG) {
         console.log(message);
     }
+}
+
+function loadPublicationsCount(publicationType) {
+    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+function loadPublications(publicationType, count) {
+    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+async function loadAllPublications() {
+    const publications = [];
+    for (let i = 0; i < TYPES.length; i++) {
+        const publicationType = TYPES[i];
+
+        const response = await loadPublicationsCount(publicationType).then(response => {
+            return response;
+        });
+        const count = response.count;
+
+        const result = await loadPublications(publicationType, count).then(response => {
+            const cards = [];
+            for (let i = 0, len = response.publications.length; i < len; i++) {
+                const pubData = {};
+                const publication = response.publications[i];
+                pubData.id = publication.id;
+                pubData.feedShows = publication.privateData.statistics.feedShows;
+                pubData.shows = publication.privateData.statistics.shows;
+                pubData.views = publication.privateData.statistics.views;
+                pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
+                pubData.comments = publication.privateData.statistics.comments;
+                pubData.likes = publication.privateData.statistics.likes;
+                pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
+                pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
+                pubData.type = publication.content.type;
+                cards.push(pubData);
+            }
+            return cards;
+        });
+        publications.push(...result);
+    }
+    return publications;
 }
