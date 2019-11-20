@@ -52,7 +52,7 @@ function start() {
     });
 }
 
-async function main() {
+function main() {
     const pageType = getPageType();
     if (pageType === "unknown") {
         return;
@@ -66,14 +66,13 @@ async function main() {
         setTimeout(articleShowStats, 300);
         return;
     }
-    publisherId = await getPublisherId();
+    publisherId = getPublisherId();
     if (token === undefined || publisherId === undefined) {
         return;
     }
     if (pageType !== "edit") {
         setTimeout(addNotificationCloseButton, 50);
     }
-
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
         registerTargetObserver();
@@ -94,7 +93,6 @@ function registerContentObserver() {
                     if (e.hasAttribute("class") && e.getAttribute("class") === "publications-root") {
                         setUnprocessedPublications();
                         loadCardsAll();
-
                         processCards();
                         registerCardObservers();
                         addSearchInput();
@@ -277,6 +275,7 @@ function getPostIdFromUrl(url) {
     return ln[ln.length - 1];
 }
 
+/*
 async function getPublisherIdFromLink() {
     const a = document.getElementsByClassName("ui-lib-header-item _type_left")[1];
     if (a === undefined || !a.hasAttribute("href")) {
@@ -286,13 +285,13 @@ async function getPublisherIdFromLink() {
     }
     const href = a.getAttribute("href");
     return href.split("/")[4];
-}
+} */
 
-async function getPublisherId() {
+function getPublisherId() {
     const path = window.location.pathname;
     switch (getPageType()) {
         case "main":
-            return await getPublisherIdFromLink();
+            return data.userPublisher.id;
         case "money":
         case "edit":
         case "karma":
@@ -921,7 +920,7 @@ function closeNotification(event) {
 }
 
 function getNotificationId(notification) {
-    const idParts =[];
+    const idParts = [];
     const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-link");
     if (titles !== undefined && titles !== null && titles.innerText) {
         idParts.push(titles.innerText);
@@ -993,22 +992,6 @@ function copyTextToClipboard(text) {
     document.body.removeChild(copyFrom);
 }
 
-function debug(message, message2) {
-    if (DEBUG) {
-        let str = "[ПРОДЗЕН]: " + message;
-        if (message2 !== undefined) {
-            str += " " + message2;
-        }
-        console.log(str);
-    }
-}
-
-function log(message) {
-    if (DEBUG) {
-        console.log(message);
-    }
-}
-
 function loadPublicationsCount(publicationType) {
     const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
@@ -1023,12 +1006,10 @@ async function loadAllPublications() {
     const publications = [];
     for (let i = 0; i < TYPES.length; i++) {
         const publicationType = TYPES[i];
-
         const response = await loadPublicationsCount(publicationType).then(response => {
             return response;
         });
         const count = response.count;
-
         const result = await loadPublications(publicationType, count).then(response => {
             const cards = [];
             for (let i = 0, len = response.publications.length; i < len; i++) {
@@ -1051,4 +1032,20 @@ async function loadAllPublications() {
         publications.push(...result);
     }
     return publications;
+}
+
+function debug(message, message2) {
+    if (DEBUG) {
+        let str = "[ПРОДЗЕН]: " + message;
+        if (message2 !== undefined) {
+            str += " " + message2;
+        }
+        console.log(str);
+    }
+}
+
+function log(message) {
+    if (DEBUG) {
+        console.log(message);
+    }
 }
