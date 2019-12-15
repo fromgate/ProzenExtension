@@ -47,6 +47,7 @@ function start() {
         if (event.data.type && (event.data.type === "prozen-data")) {
             token = event.data.text;
             data = event.data.jsonData;
+            publisherId = event.data.jsonData.userPublisher.id;
             main();
         }
     });
@@ -682,13 +683,23 @@ function createIcon(value, icon, tip) {
     return a;
 }
 
+function getTagsTitles (tagObjects) {
+    const tagTitles = [];
+    if (tagObjects !== undefined && tagObjects.length>0) {
+        for (i = 0; i < tagObjects.length; i++) {
+            tagTitles.push(tagObjects[i].title);
+        }
+    }
+    return tagTitles;
+}
+
 function createIconsTagLink(tags, url) {
     const a = document.createElement("a");
     a.setAttribute("class", "card-cover-footer-stats__item");
     const iconSpan1 = document.createElement("span");
     iconSpan1.setAttribute("class", "card-cover-footer-stats__icon icon_tags");
 
-    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(tags);
+    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(getTagsTitles(tags));
     if (tagTip.indexOf("\n") !== -1) {
         iconSpan1.setAttribute("title", tagTip);
     } else {
