@@ -225,20 +225,3 @@ function paucalMonth(num) {
 function paucalDay(num) {
     return paucal(num, "день", "дня", "дней");
 }
-
-function paucal(num, p1, p234, p) {
-    const x = num % 100;
-    if (x >= 10 && x < 20) {
-        return num + " " + p;
-    }
-    switch (num % 10) {
-        case 1:
-            return num + " " + p1;
-        case 2:
-        case 3:
-        case 4:
-            return num + " " + p234;
-        default:
-            return num + " " + p;
-    }
-}

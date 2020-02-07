@@ -64,7 +64,7 @@ function main() {
     }
 
     if (pageType === "narrative") {
-        setTimeout(articleShowStats, 300);
+        setTimeout(articleShowStatsNarrative, 300);
         return;
     }
     publisherId = getPublisherId();
@@ -79,6 +79,10 @@ function main() {
         registerTargetObserver();
         registerContentObserver();
     }
+}
+
+function registerFeedObservers() {
+
 }
 
 function registerContentObserver() {
@@ -186,6 +190,62 @@ function loadCards(soureElement) {
         ids.push(publicationId);
     }
     return ids;
+}
+
+async function articleShowStatsNarrative() {
+    if (data == null) {
+        return;
+    }
+    const postId = getPostIdFromUrl(window.location.pathname);
+    const dayMod = dateFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+    const articleData = await loadPublicationStat(postId);
+    const sumViewTimeSec = articleData.sumViewTimeSec;
+    const views = articleData.views;
+    const viewsTillEnd = articleData.viewsTillEnd;
+    const timeRead = "Время дочитывания: "+secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+
+
+    const elArticleDates = document.getElementsByClassName("article-stat__date");
+    for (let i = 0; i < elArticleDates.length; i++) {
+        const elArticleDate = document.getElementsByClassName("article-stat__date")[i];
+        elArticleDate.innerText = showTime;
+    }
+
+    const divsStat = document.getElementsByClassName("article-stat__info");
+    const divList = [];
+    for (let i = 0; i < divsStat.length; i++) {
+        divList.push(divsStat[i]);
+        //<div class="article-stat__info article-stat__info_loaded"><div class="article-stat__counts-wrapper"><span class="article-stat__count">7,2 тыс. дочитываний</span></div></div>
+    }
+
+    for (let i = 0; i < divList.length; i++) {
+        const divStat = divList.pop();
+        const spanViewsTillEnd = divStat.querySelector (".article-stat__counts-wrapper > .article-stat__count");
+        spanViewsTillEnd.innerText = paucal(viewsTillEnd, "дочитывание", "дочитывания", "дочитываний") + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
+        const spanViews = createElement("span","article-stat__count");
+        spanViews.innerText = paucal(views, "просмотр", "просмотра", "просмотров");
+        const divViewsWrapper = createElement("div","article-stat__counts-wrapper", spanViews);
+        const divViews = createElement("div","article-stat__info article-stat__info_loaded", divViewsWrapper);
+        divStat.insertAdjacentElement ("beforebegin", divViews);
+        const spanTimeReads = createElement("span","article-stat__count");
+        spanTimeReads.innerText = timeRead;
+        const divTimeReadsWrapper = createElement("div","article-stat__counts-wrapper", spanTimeReads);
+        const divReads = createElement("div","article-stat__info article-stat__info_loaded", divTimeReadsWrapper);
+        divStat.insertAdjacentElement ("afterend", divReads);
+        if (checkNoIndex()) {
+            const spanIcon5 = createElement("span", "article-stat__icon icon_sad_robot");
+            spanIcon5.setAttribute("style", "background-color: #FFFFFF80;");
+            const wrapper5 = createElement("div", "article-stat__counts-wrapper", spanIcon5);
+            wrapper5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+                "Публикация не индексируется поисковиками.\n" +
+                "Примечание: связь этого тега с показами,\n" +
+                "пессимизацией и иными ограничениями канала\n" +
+                "официально не подтверждена.");
+            divReads.insertAdjacentElement("afterend", wrapper5);
+        }
+    }
 }
 
 async function articleShowStats() {
@@ -368,20 +428,22 @@ function addViewsTillEnd() {
     data.then(response => {
         if (!document.getElementById("prozen-sidebar-full-reads")) {
             const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
-            const divFullReadsBlock = createElement("div", "full-reads-block");
-            divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
-            const spanTitle = createElement("span", "full-reads-block__title");
-            spanTitle.innerText = "Дочитывания за 7 дней";
-            const spanCount = createElement("span", "full-reads-block__count");
-            spanCount.innerText = numViews;
-            const divStatus = createElement("div", "full-reads-block__status", spanCount);
-            // const spanDesc = createElement("span","full-reads-block__desc");
-            // spanDesc.innerText ="";
-            divFullReadsBlock.appendChild(spanTitle);
-            divFullReadsBlock.appendChild(divStatus);
-            // divFullReadsBlock.appendChild(spanDesc);
-            const divProfile = document.getElementsByClassName("profile-sidebar")[0];
-            divProfile.appendChild(divFullReadsBlock);
+            if (numViews.length < 10) { // Prevent Zen bug noticed at 22/01/2020
+                const divFullReadsBlock = createElement("div", "full-reads-block");
+                divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
+                const spanTitle = createElement("span", "full-reads-block__title");
+                spanTitle.innerText = "Дочитывания за 7 дней";
+                const spanCount = createElement("span", "full-reads-block__count");
+                spanCount.innerText = numViews;
+                const divStatus = createElement("div", "full-reads-block__status", spanCount);
+                // const spanDesc = createElement("span","full-reads-block__desc");
+                // spanDesc.innerText ="";
+                divFullReadsBlock.appendChild(spanTitle);
+                divFullReadsBlock.appendChild(divStatus);
+                // divFullReadsBlock.appendChild(spanDesc);
+                const divProfile = document.getElementsByClassName("profile-sidebar")[0];
+                divProfile.appendChild(divFullReadsBlock);
+            }
         }
     });
 }
@@ -683,9 +745,9 @@ function createIcon(value, icon, tip) {
     return a;
 }
 
-function getTagsTitles (tagObjects) {
+function getTagsTitles(tagObjects) {
     const tagTitles = [];
-    if (tagObjects !== undefined && tagObjects.length>0) {
+    if (tagObjects !== undefined && tagObjects.length > 0) {
         for (i = 0; i < tagObjects.length; i++) {
             tagTitles.push(tagObjects[i].title);
         }
@@ -1043,6 +1105,24 @@ async function loadAllPublications() {
         publications.push(...result);
     }
     return publications;
+}
+
+function paucal(num, p1, p234, p) {
+    const x = num % 100;
+    if (x >= 10 && x < 20) {
+        return num + " " + p;
+    }
+    const numStr = infiniteAndNanToStr(num, 0);
+    switch (num % 10) {
+        case 1:
+            return numStr + " " + p1;
+        case 2:
+        case 3:
+        case 4:
+            return numStr + " " + p234;
+        default:
+            return numStr + " " + p;
+    }
 }
 
 function debug(message, message2) {
