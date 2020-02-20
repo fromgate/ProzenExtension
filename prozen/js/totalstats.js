@@ -130,6 +130,7 @@ function loadPublications(publicationType, count) {
 
 async function loadAllPublications() {
     const publications = [];
+    let recordCount = 0;
     for (let i = 0; i < TYPES.length; i++) {
         const publicationType = TYPES[i];
 
@@ -154,6 +155,8 @@ async function loadAllPublications() {
                 pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
                 pubData.type = publication.content.type;
                 cards.push(pubData);
+                recordCount++;
+                document.getElementById("records_count").innerText = "Загружено: " + paucal(recordCount, " публикация"," публикации"," публикаций");
             }
             return cards;
         });
@@ -165,11 +168,13 @@ async function loadAllPublications() {
 function hideSpinner() {
     document.getElementById("spinner").style.display = "none";
     document.getElementById("stats").style.display = "block";
+    document.getElementById("records_count").innerText = "";
 }
 
 function showSpinner() {
     document.getElementById("spinner").style.display = "block";
     document.getElementById("stats").style.display = "none";
+    document.getElementById("records_count").innerText = "";
 }
 
 function numFormat(num, digits) {
@@ -224,4 +229,30 @@ function paucalMonth(num) {
 
 function paucalDay(num) {
     return paucal(num, "день", "дня", "дней");
+}
+
+function paucal(num, p1, p234, p) {
+    const x = num % 100;
+    if (x >= 10 && x < 20) {
+        return num + " " + p;
+    }
+    const numStr = infiniteAndNanToStr(num, 0);
+    switch (num % 10) {
+        case 1:
+            return numStr + " " + p1;
+        case 2:
+        case 3:
+        case 4:
+            return numStr + " " + p234;
+        default:
+            return numStr + " " + p;
+    }
+}
+
+function infiniteAndNanToStr(num, digits) {
+    return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
+}
+
+function infiniteAndNan(number) {
+    return isNaN(number) ? 0 : (isFinite(number) ? number : 0);
 }
