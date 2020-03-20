@@ -73,6 +73,8 @@ function main() {
     }
     if (pageType !== "edit") {
         setTimeout(addNotificationCloseButton, 50);
+        setTimeout(addZenjournalCloseButton, 1000);
+        //function addZenjournalCloseButton()
     }
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
@@ -335,18 +337,6 @@ function getPostIdFromUrl(url) {
     const ln = url.replace("?from=editor", "").split("-");
     return ln[ln.length - 1];
 }
-
-/*
-async function getPublisherIdFromLink() {
-    const a = document.getElementsByClassName("ui-lib-header-item _type_left")[1];
-    if (a === undefined || !a.hasAttribute("href")) {
-        return new Promise(resolve => {
-            resolve(setTimeout(getPublisherIdFromLink, 300));
-        });
-    }
-    const href = a.getAttribute("href");
-    return href.split("/")[4];
-} */
 
 function getPublisherId() {
     const path = window.location.pathname;
@@ -1042,6 +1032,14 @@ async function addNotificationCloseButton() {
 function isNotificationHidden(notificationId) {
     return new Promise((resolve) => {
         chrome.storage.local.get("prozenHideNotification", function (result) {
+            resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
+        });
+    });
+}
+
+function isZenjournalHidden(notificationId) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get("prozenHideZenjournal", function (result) {
             resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
         });
     });
