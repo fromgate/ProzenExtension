@@ -17,6 +17,7 @@
 
 * [Установить для Google Chrome](https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)
 * [Установить для Mozilla Firefox](https://addons.mozilla.org/ru/firefox/addon/prozen-for-yandex-zen/)
+* [Установить для Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/jllkbelkmfedpblbkegkbijkmcobhlkp)
 * Для установки в Opera необходиомимо воспользоваться расширением [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) и установить расширение из маркета [Chrome]((https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)).
 
 ## Расширение не является официальным расширением Яндекс.Дзен
