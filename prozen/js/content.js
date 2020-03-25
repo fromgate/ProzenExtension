@@ -1,3 +1,4 @@
+const DEBUG = true;
 start();
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
@@ -1037,10 +1038,39 @@ function isNotificationHidden(notificationId) {
     });
 }
 
-function isZenjournalHidden(notificationId) {
+async function addZenjournalCloseButton() {
+    const zenjournalDiv0 = document.getElementsByClassName("publications-news-block")[0];
+    const state = await getZenjournalState();
+    /*const zenjournalDiv = document.getElementsByClassName("publications-news-block")[0];
+    const zenjournalLink = zenjournalDiv.querySelector("a.publications-news-block__channel-link"); */
+    const zenjournalDiv = document.querySelector("body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block");
+    const zenjournalLink = document.querySelector("body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block > a.publications-news-block__channel-link");
+    //body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block > a.publications-news-block__channel-link
+    //publications-news-block__channel-link
+    //<a class="publications-news-block__channel-link" href="/id/59706d883c50f7cc7f69b291" target="_blank">Все статьи</a>
+    const space = createElement("span");
+    space.innerText = " • ";
+    const hideLink = createElement("a", "publications-news-block__channel-link")
+    if (state === "show") {
+        hideLink.innerText = "Скрыть";
+    } else {
+        hideLink.innerText = "Вернуть";
+    }
+    zenjournalLink.insertAdjacentElement("afterend", space);
+    space.insertAdjacentElement("afterend", hideLink);
+}
+
+// show, hide, prozen
+function getZenjournalState() {
     return new Promise((resolve) => {
         chrome.storage.local.get("prozenHideZenjournal", function (result) {
-            resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
+            if (result === undefined || result === null ||
+                result.prozenHideZenjournal === undefined ||
+                result.prozenHideZenjournal === null) {
+                resolve ("show");
+            } else {
+                resolve (result.prozenHideZenjournal);
+            }
         });
     });
 }
