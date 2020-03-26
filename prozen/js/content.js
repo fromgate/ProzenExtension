@@ -1,3 +1,4 @@
+const DEBUG = true;
 start();
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
@@ -224,7 +225,13 @@ async function articleShowStatsNarrative() {
 
     for (let i = 0; i < divList.length; i++) {
         const divStat = divList.pop();
-        const spanViewsTillEnd = divStat.querySelector (".article-stat__counts-wrapper > .article-stat__count");
+        let spanViewsTillEnd = divStat.querySelector (".article-stat__counts-wrapper > .article-stat__count");
+        if (spanViewsTillEnd === undefined || spanViewsTillEnd === null) {
+            spanViewsTillEnd = createElement("span", "article-stat__count")
+            const divArticleStatCountsWrapper = createElement("div","article-stat__counts-wrapper", spanViewsTillEnd);
+            const divArticleStatDateContainer = document.getElementsByClassName("article-stat__date-container")[i];
+            divArticleStatDateContainer.insertAdjacentElement("afterend", divArticleStatCountsWrapper);
+        }
         spanViewsTillEnd.innerText = paucal(viewsTillEnd, "дочитывание", "дочитывания", "дочитываний") + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
         const spanViews = createElement("span","article-stat__count");
         spanViews.innerText = paucal(views, "просмотр", "просмотра", "просмотров");
