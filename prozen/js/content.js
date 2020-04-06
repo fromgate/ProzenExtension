@@ -1,4 +1,3 @@
-const DEBUG = true;
 start();
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
@@ -74,8 +73,7 @@ function main() {
     }
     if (pageType !== "edit") {
         setTimeout(addNotificationCloseButton, 50);
-        setTimeout(addZenjournalCloseButton, 1000);
-        //function addZenjournalCloseButton()
+        // setTimeout(addZenjournalCloseButton, 1000);
     }
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
@@ -94,6 +92,15 @@ function registerContentObserver() {
         setTimeout(registerContentObserver, 50);
         return;
     }
+
+    if (document.getElementsByClassName("publications-root")) {
+        setUnprocessedPublications();
+        loadCardsAll();
+        processCards();
+        registerCardObservers();
+        addSearchInput();
+        setTimeout (showBalanceAndMetrics, 100);
+    }
     const contentObserver = new MutationObserver(function (mutations) {
         mutations.forEach(mutation => {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
@@ -104,7 +111,7 @@ function registerContentObserver() {
                         processCards();
                         registerCardObservers();
                         addSearchInput();
-                        showBalanceAndMetrics();
+                        setTimeout (showBalanceAndMetrics, 150);
                     }
                 });
             }
@@ -220,7 +227,6 @@ async function articleShowStatsNarrative() {
     const divList = [];
     for (let i = 0; i < divsStat.length; i++) {
         divList.push(divsStat[i]);
-        //<div class="article-stat__info article-stat__info_loaded"><div class="article-stat__counts-wrapper"><span class="article-stat__count">7,2 тыс. дочитываний</span></div></div>
     }
 
     for (let i = 0; i < divList.length; i++) {
@@ -406,8 +412,8 @@ function showBalanceAndMetrics() {
                     total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
                 }
             }
-            setBalance(money, total);
             addViewsTillEnd();
+            setBalance(money, total);
         }
         addProzenMenu(response.publisher.privateData.metrikaCounterId);
         addRobotIconIfNoNoIndex(publisherId);
@@ -415,44 +421,52 @@ function showBalanceAndMetrics() {
 }
 
 function addProzenMenu(metricsId) {
-    const divProzenMenu = createElement("div", "monetization-block");
-    const aProzenMenuTitle = createElement("a", "monetization-block__title");
-    aProzenMenuTitle.innerText = "Дополнительные возможности";
-    aProzenMenuTitle.setAttribute("data-tip", "Добавлены расширением ПРОДЗЕН");
-    divProzenMenu.appendChild(aProzenMenuTitle);
+    if (!document.getElementById("prozen-menu")) {
+        const divProzenMenu = createElement("div", "monetization-block");
+        divProzenMenu.setAttribute("id", "prozen-menu");
 
-    const spanEmpty = createElement("span", "ui-lib-header-item");
-    spanEmpty.innerText = " ";
-    divProzenMenu.appendChild(spanEmpty);
+        const aProzenMenuTitle = createElement("a", "monetization-block__title");
+        aProzenMenuTitle.innerText = "Дополнительные возможности";
+        aProzenMenuTitle.setAttribute("data-tip", "Добавлены расширением ПРОДЗЕН");
+        divProzenMenu.appendChild(aProzenMenuTitle);
 
-    const aTotalStats = createElement("a", "ui-lib-header-item");
-    aTotalStats.innerText = "Полная статистика";
-    aTotalStats.addEventListener('click', clickTotalStatsButton);
-    divProzenMenu.appendChild(aTotalStats);
+        const spanEmpty = createElement("span", "karma-block__karma-stats-label");
+        spanEmpty.innerText = " ";
+        divProzenMenu.appendChild(spanEmpty);
 
-    const aMetrics = createElement("a", "ui-lib-header-item");
-    const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-    aMetrics.innerText = "Метрика";
-    aMetrics.setAttribute("href", metricsUrl);
-    aMetrics.setAttribute("target", "_blank");
-    divProzenMenu.appendChild(aMetrics);
+        const aTotalStats = createElement("a", "ui-lib-header-item");
+        aTotalStats.innerText = "Полная статистика";
+        aTotalStats.addEventListener('click', clickTotalStatsButton);
+        divProzenMenu.appendChild(aTotalStats);
 
-    const aSearch = createElement("a", "ui-lib-header-item");
-    aSearch.innerText = "Поиск";
-    aSearch.addEventListener('click', clickSearchButton);
-    divProzenMenu.appendChild(aSearch);
+        const aMetrics = createElement("a", "ui-lib-header-item");
+        const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
+        aMetrics.innerText = "Метрика";
+        aMetrics.setAttribute("href", metricsUrl);
+        aMetrics.setAttribute("target", "_blank");
+        divProzenMenu.appendChild(aMetrics);
 
-    const aSadRobot = createElement("a", "ui-lib-header-item");
-    aSadRobot.innerText = "Неиндексируемые";
-    aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
-    aSadRobot.addEventListener('click', clickFindSadRobots);
-    divProzenMenu.appendChild(aSadRobot);
+        const aSearch = createElement("a", "ui-lib-header-item");
+        aSearch.innerText = "Поиск";
+        aSearch.addEventListener('click', clickSearchButton);
+        divProzenMenu.appendChild(aSearch);
 
-    const spanEmpty2 = createElement("span");
-    spanEmpty.innerText = " ";
-    divProzenMenu.appendChild(spanEmpty2);
-    const divProfileSidebar = document.getElementsByClassName("profile-sidebar")[0];
-    divProfileSidebar.appendChild(divProzenMenu);
+        const aSadRobot = createElement("a", "ui-lib-header-item");
+        aSadRobot.innerText = "Неиндексируемые";
+        aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
+        aSadRobot.addEventListener('click', clickFindSadRobots);
+        divProzenMenu.appendChild(aSadRobot);
+        const spanEmpty2 = createElement("span", "karma-block__karma-stats-label");
+        spanEmpty2.innerText = " ";
+        divProzenMenu.appendChild(spanEmpty2);
+
+        const spanProzen = createElement("span", "karma-block__karma-stats-label");
+        spanProzen.innerText = "Добавлено расширением ПРОДЗЕН";
+        divProzenMenu.appendChild(spanProzen);
+
+        const divProfileSidebar = document.getElementsByClassName("profile-sidebar")[0];
+        divProfileSidebar.appendChild(divProzenMenu);
+    }
 }
 
 function addViewsTillEnd() {
@@ -472,11 +486,8 @@ function addViewsTillEnd() {
                 const spanCount = createElement("span", "full-reads-block__count");
                 spanCount.innerText = numViews;
                 const divStatus = createElement("div", "full-reads-block__status", spanCount);
-                // const spanDesc = createElement("span","full-reads-block__desc");
-                // spanDesc.innerText ="";
                 divFullReadsBlock.appendChild(spanTitle);
                 divFullReadsBlock.appendChild(divStatus);
-                // divFullReadsBlock.appendChild(spanDesc);
                 const divProfile = document.getElementsByClassName("profile-sidebar")[0];
                 divProfile.appendChild(divFullReadsBlock);
             }
@@ -681,7 +692,6 @@ function modifyCardFooter(pubData, publicationId) {
     cardFooter.appendChild(line1);
 
     const ctr = (parseFloat(infiniteAndNan(pubData.shows / pubData.feedShows) * 100)).toFixed(2);
-    // const ctrOld = (parseFloat(infiniteAndNan(pubData.views/ pubData.feedShows) * 100)).toFixed(2);
 
     const elementViews = createIcon(infiniteAndNanToStr(pubData.views) + " (" + ctr + "%)", "icon_views", "Просмотры (CTR)");
     const readsPercent = ((pubData.viewsTillEnd / pubData.views) * 100).toFixed(2);
@@ -946,7 +956,7 @@ function addSearchInput() {
         return;
     }
 
-    const input = createElement("input", "ui-lib-input__control"); //zen-ui-input__control
+    const input = createElement("input", "ui-lib-input__control");
     input.setAttribute("type", "text");
     input.setAttribute("id", "prozen-search");
     input.setAttribute("placeholder", "строка поиска");
