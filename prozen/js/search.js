@@ -1,6 +1,6 @@
 const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
 
-const VISIABLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "search_not_found"];
+const VISIBLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "search_not_found"];
 const SEARCH_PLACEHOLDER = ["кора осины", "продзен", "варенье из огурцов", "смысл жизни", "показы"];
 
 var id;
@@ -278,8 +278,8 @@ function cardToDiv(card) {
 }
 
 function hideAll() {
-    for (let i = 0; i < VISIABLE.length; i++) {
-        document.getElementById(VISIABLE[i]).style.display = "none";
+    for (let i = 0; i < VISIBLE.length; i++) {
+        document.getElementById(VISIBLE[i]).style.display = "none";
     }
 }
 

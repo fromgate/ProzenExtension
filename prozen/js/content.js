@@ -207,7 +207,7 @@ async function articleShowStatsNarrative() {
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
     const viewsTillEnd = articleData.viewsTillEnd;
-    const timeRead = "Время дочитывания: "+secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+    const timeRead = "Время дочитывания: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
 
 
     const elArticleDates = document.getElementsByClassName("article-stat__date");
@@ -225,24 +225,24 @@ async function articleShowStatsNarrative() {
 
     for (let i = 0; i < divList.length; i++) {
         const divStat = divList.pop();
-        let spanViewsTillEnd = divStat.querySelector (".article-stat__counts-wrapper > .article-stat__count");
+        let spanViewsTillEnd = divStat.querySelector(".article-stat__counts-wrapper > .article-stat__count");
         if (spanViewsTillEnd === undefined || spanViewsTillEnd === null) {
             spanViewsTillEnd = createElement("span", "article-stat__count")
-            const divArticleStatCountsWrapper = createElement("div","article-stat__counts-wrapper", spanViewsTillEnd);
+            const divArticleStatCountsWrapper = createElement("div", "article-stat__counts-wrapper", spanViewsTillEnd);
             const divArticleStatDateContainer = document.getElementsByClassName("article-stat__date-container")[i];
             divArticleStatDateContainer.insertAdjacentElement("afterend", divArticleStatCountsWrapper);
         }
         spanViewsTillEnd.innerText = paucal(viewsTillEnd, "дочитывание", "дочитывания", "дочитываний") + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-        const spanViews = createElement("span","article-stat__count");
+        const spanViews = createElement("span", "article-stat__count");
         spanViews.innerText = paucal(views, "просмотр", "просмотра", "просмотров");
-        const divViewsWrapper = createElement("div","article-stat__counts-wrapper", spanViews);
-        const divViews = createElement("div","article-stat__info article-stat__info_loaded", divViewsWrapper);
-        divStat.insertAdjacentElement ("beforebegin", divViews);
-        const spanTimeReads = createElement("span","article-stat__count");
+        const divViewsWrapper = createElement("div", "article-stat__counts-wrapper", spanViews);
+        const divViews = createElement("div", "article-stat__info article-stat__info_loaded", divViewsWrapper);
+        divStat.insertAdjacentElement("beforebegin", divViews);
+        const spanTimeReads = createElement("span", "article-stat__count");
         spanTimeReads.innerText = timeRead;
-        const divTimeReadsWrapper = createElement("div","article-stat__counts-wrapper", spanTimeReads);
-        const divReads = createElement("div","article-stat__info article-stat__info_loaded", divTimeReadsWrapper);
-        divStat.insertAdjacentElement ("afterend", divReads);
+        const divTimeReadsWrapper = createElement("div", "article-stat__counts-wrapper", spanTimeReads);
+        const divReads = createElement("div", "article-stat__info article-stat__info_loaded", divTimeReadsWrapper);
+        divStat.insertAdjacentElement("afterend", divReads);
         if (checkNoIndex()) {
             const spanIcon5 = createElement("span", "article-stat__icon icon_sad_robot");
             spanIcon5.setAttribute("style", "background-color: #FFFFFF80;");
@@ -258,7 +258,7 @@ async function articleShowStatsNarrative() {
 }
 
 async function articleShowStats() {
-    if (data == null) {
+    if (data === null) {
         return;
     }
     const postId = getPostIdFromUrl(window.location.pathname);
@@ -409,11 +409,50 @@ function showBalanceAndMetrics() {
             setBalance(money, total);
             addViewsTillEnd();
         }
-        addTotalStatsButton();
-        addMetricsButton(response.publisher.privateData.metrikaCounterId);
-        addSearchButton();
+        addProzenMenu(response.publisher.privateData.metrikaCounterId);
         addRobotIconIfNoNoIndex(publisherId);
     });
+}
+
+function addProzenMenu(metricsId) {
+    const divProzenMenu = createElement("div", "monetization-block");
+    const aProzenMenuTitle = createElement("a", "monetization-block__title");
+    aProzenMenuTitle.innerText = "Дополнительные возможности";
+    aProzenMenuTitle.setAttribute("data-tip", "Добавлены расширением ПРОДЗЕН");
+    divProzenMenu.appendChild(aProzenMenuTitle);
+
+    const spanEmpty = createElement("span", "ui-lib-header-item");
+    spanEmpty.innerText = " ";
+    divProzenMenu.appendChild(spanEmpty);
+
+    const aTotalStats = createElement("a", "ui-lib-header-item");
+    aTotalStats.innerText = "Полная статистика";
+    aTotalStats.addEventListener('click', clickTotalStatsButton);
+    divProzenMenu.appendChild(aTotalStats);
+
+    const aMetrics = createElement("a", "ui-lib-header-item");
+    const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
+    aMetrics.innerText = "Метрика";
+    aMetrics.setAttribute("href", metricsUrl);
+    aMetrics.setAttribute("target", "_blank");
+    divProzenMenu.appendChild(aMetrics);
+
+    const aSearch = createElement("a", "ui-lib-header-item");
+    aSearch.innerText = "Поиск";
+    aSearch.addEventListener('click', clickSearchButton);
+    divProzenMenu.appendChild(aSearch);
+
+    const aSadRobot = createElement("a", "ui-lib-header-item");
+    aSadRobot.innerText = "Неиндексируемые";
+    aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
+    aSadRobot.addEventListener('click', clickFindSadRobots);
+    divProzenMenu.appendChild(aSadRobot);
+
+    const spanEmpty2 = createElement("span");
+    spanEmpty.innerText = " ";
+    divProzenMenu.appendChild(spanEmpty2);
+    const divProfileSidebar = document.getElementsByClassName("profile-sidebar")[0];
+    divProfileSidebar.appendChild(divProzenMenu);
 }
 
 function addViewsTillEnd() {
@@ -466,33 +505,6 @@ function setBalance(money, total) {
     moneySpan.innerText = money.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₽";
 }
 
-function addMetricsButton(metricsId) {
-    if (!document.getElementById("prozen-button-metrics")) {
-        const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-        const button = createElement("a", "ui-lib-header-item _type_left");
-        button.setAttribute("id", "prozen-button-metrics");
-        button.setAttribute("href", metricsUrl);
-        button.setAttribute("target", "_blank");
-        button.innerText = "Метрика";
-        button.setAttribute("data-tip", "Яндекс.Метрика");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
-        const last = navblocks.item(navblocks.length - 1);
-        last.insertAdjacentElement("afterend", button);
-    }
-}
-
-function addSearchButton() {
-    if (!document.getElementById("prozen-button-search")) {
-        const button = createElement("a", "ui-lib-header-item _type_left");
-        button.setAttribute("id", "prozen-button-search");
-        button.innerText = "Поиск";
-        button.setAttribute("data-tip", "Поиск по заголовкам и описаниям");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
-        const last = navblocks.item(navblocks.length - 1);
-        last.insertAdjacentElement("afterend", button);
-        button.addEventListener('click', clickSearchButton);
-    }
-}
 
 function clickSearchButton(searchString) {
     let id;
@@ -507,17 +519,16 @@ function clickSearchButton(searchString) {
     });
 }
 
-function addTotalStatsButton() {
-    if (!document.getElementById("prozen-button-stats")) {
-        const button = createElement("a", "ui-lib-header-item _type_left");
-        button.setAttribute("id", "prozen-button-stats");
-        button.innerText = "Показатели";
-        button.setAttribute("data-tip", "Полная статистика");
-        const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
-        const last = navblocks.item(navblocks.length - 1);
-        last.insertAdjacentElement("afterend", button);
-        button.addEventListener('click', clickTotalStatsButton);
+function clickFindSadRobots() {
+    let id;
+    if (data.publisher.nickname === undefined) {
+        id = "channel_id=" + publisherId;
+    } else {
+        id = "channel_name=" + data.publisher.nickname.raw;
     }
+    chrome.storage.local.set({prozenId: id}, function () {
+        window.open(chrome.extension.getURL("sadrobot.html"));
+    });
 }
 
 function clickTotalStatsButton() {
@@ -1073,9 +1084,9 @@ function getZenjournalState() {
             if (result === undefined || result === null ||
                 result.prozenHideZenjournal === undefined ||
                 result.prozenHideZenjournal === null) {
-                resolve ("show");
+                resolve("show");
             } else {
-                resolve (result.prozenHideZenjournal);
+                resolve(result.prozenHideZenjournal);
             }
         });
     });

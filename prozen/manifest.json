@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.6.17",
+  "version": "1.7.1",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "update_url": "https://clients2.google.com/service/update2/crx",
@@ -22,8 +22,10 @@
   "web_accessible_resources": [
     "search.html",
     "totalstats.html",
+    "sadrobot.html",
     "js/search.js",
     "js/totalstats.js",
+    "js/sadrobot.js",
     "js/page.js",
     "css/prozen.css"
   ],

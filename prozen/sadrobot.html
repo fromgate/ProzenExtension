@@ -1,0 +1,79 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="css/mini.css">
+    <link rel="stylesheet" href="css/prozen.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ПРОДЗЕН | Поиск неиндексируемых публикаций</title>
+</head>
+<body style="max-width: 1000px; min-width: 600px; margin: auto;">
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="section double-padded">
+            <div class="card fluid">
+                <div class="section dark">
+                    <h4>ПРОДЗЕН<small>Расширенный редактор для Яндекс.Дзен</small></h4>
+                </div>
+                <div class="section" id="start_text">
+                    <h4>Поиск публикаций, исключённых из индексации</h4>
+                    <p>Для поиска публикаций, которые исключены из поисковой индексации, необходимо нажать кнопку
+                        «Начать поиск».</p>
+                    <p>Подробнее о таких публикациях можно прочитать <strong><a
+                            href="https://zen.yandex.ru/media/id/5a3def60e86a9e50b401ab4a/5c4cba890d446800ad3ab6dd?utm_source=prozen_noindex_finder"
+                            target="_blank">здесь</a></strong>.</p>
+                    <p>Поиск может занять продолжительное время, поскольку фактически произойдёт загрузка всех
+                        публикаций на канале.</p>
+                    <p>Не рекомендуется пользоваться этой функцией часто.</p>
+                    <p><label for="find_all"><input type="checkbox" id="find_all"/>Искать во всех публикациях</label>
+                    </p>
+                    <p>
+                        <button id="start_button">Начать поиск</button>
+                    </p>
+                </div>
+                <div class="section" id="disclaimer">
+                    <p>
+                        <mark class="secondary inline-block">Отказ от ответственности.</mark>
+                        <br>Поиск неиндескируемых публикаций осуществляется путём их последовательной загрузки и
+                        анализа.
+                        <br>Многочисленное открытие публикаций — это поведение непредусмотренное редактором Яндекс.Дзен
+                        и не является обычным поведение читателя или автора.
+                        <br>Может ли это привести к каким-то негативным последствиям — неизвестно. Но если вы
+                        решите воспользоваться этой функцией, то делаете это под свою ответственность.
+                    </p>
+                    <button class="inverse" id="agree">Я всё понял и принимаю ответственность</button>
+                </div>
+                <div class="section" id="search_msg_empty">
+                    <p>
+                        <mark class="secondary inline-block">Не указан текст для поиска!</mark>
+                        <br>Введите слово, несколько слов или часть слова в строке поиска и нажмите кнопку «Найти».
+                        Поиск осуществляется по заголовкам и описаниям.
+                    </p>
+                </div>
+                <div class="section" id="not_found">
+                    <p>
+                        <mark class="tertiary inline-block">Неиндексируемые публикации не обнаружены!</mark>
+                        <br>Поздравляем! На вашем канале не обнаружены публикации, исключённые из поиска.
+                    </p>
+                </div>
+                <div class="section" id="search_result">
+                </div>
+                <div class="section" id="spinner">
+                    <div class="section" style="text-align: center;"><span class="spinner"></span></div>
+                </div>
+                <div class="section" id="progress">
+                    <progress value="20" max="100" id="progress-bar"></progress>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<footer><a href="https://prozen.ru/prozen-extension-policy/" target="_blank">Политика безопасности / Privacy policy</a>
+    | <a href="https://zen.yandex.ru/id/5a3def60e86a9e50b401ab4a/" target="_blank">Канал ПРОДЗЕН в Яндекс.Дзен</a> | <a
+            href="http://yasobe.ru/na/prozen/" target="_blank">Поддержать разработчика</a><br>
+</footer>
+<script type="text/javascript" src="js/sadrobot.js"></script>
+</body>
+</html>
