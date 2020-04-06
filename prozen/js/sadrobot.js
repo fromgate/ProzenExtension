@@ -135,7 +135,6 @@ async function loadPageData(initUrl, loadAll) {
     let url = initUrl;
     const cards = [];
     while (true) {
-        console.log(url);
         const request = await fetch(url, {headers: header, method: "GET"});
         let json;
         try {
