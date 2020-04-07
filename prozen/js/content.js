@@ -946,7 +946,7 @@ function infiniteAndNanToStr(num, digits) {
 }
 
 function addSearchInput() {
-    if (document.getElementById("prozen-button-metrics")) {
+    if (document.getElementById("prozen-search")) {
         return;
     }
 

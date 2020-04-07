@@ -119,11 +119,12 @@ async function executeSearch(pubs) {
 function loadPublicationsAndSearch() {
     let url = API_URL + id;
     showElement("spinner");
-    const findAll = document.getElementById("find_all").checked;
+    const findAll = document.getElementById("radio_find_all").checked;
     loadPageData(url, findAll).then(cards => {
         publications = cards;
         executeSearch(publications);
     });
+    return false;
 }
 
 async function loadPageData(initUrl, loadAll) {

@@ -17,20 +17,28 @@
                     <h4>ПРОДЗЕН<small>Расширенный редактор для Яндекс.Дзен</small></h4>
                 </div>
                 <div class="section" id="start_text">
-                    <h4>Поиск публикаций, исключённых из индексации</h4>
-                    <p>Для поиска публикаций, которые исключены из поисковой индексации, необходимо нажать кнопку
-                        «Начать поиск».</p>
-                    <p>Подробнее о таких публикациях можно прочитать <strong><a
-                            href="https://zen.yandex.ru/media/id/5a3def60e86a9e50b401ab4a/5c4cba890d446800ad3ab6dd?utm_source=prozen_noindex_finder"
-                            target="_blank">здесь</a></strong>.</p>
-                    <p>Поиск может занять продолжительное время, поскольку фактически произойдёт загрузка всех
-                        публикаций на канале.</p>
+                    <form>
+                        <fieldset>
+                            <legend>Поиск публикаций, исключённых из индексации</legend>
+                            <label for="radio_find_all">
+                                <input type="radio" id="radio_find_all" name="all-or-20"/>Проверить
+                                все публикации канала</label>
+                            <br>
+                            <label for="radio_find_20"><input type="radio" id="radio_find_20" name="all-or-20"
+                                                              checked/>Проверить последние 20 публикаций</label>
+                            <br>
+                            <button id="start_button">Начать поиск</button>
+                        </fieldset>
+                    </form>
+                    <p>Публикаций, исключённые индексации, не отображаются поисковиками; в исходном коде страницы таких
+                        публикаций можно найти мета-тег
+                        <code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot; /&gt;</code>. Техподдержка
+                        Яндекс.Дзена
+                        не подтверждает связь этого тега с ограничениями канала.<br>
+                        Подробнее о таких публикациях можно прочитать <strong><a
+                                href="https://zen.yandex.ru/media/id/5a3def60e86a9e50b401ab4a/5c4cba890d446800ad3ab6dd?utm_source=prozen_noindex_finder"
+                                target="_blank">здесь</a></strong>.</p>
                     <p>Не рекомендуется пользоваться этой функцией часто.</p>
-                    <p><label for="find_all"><input type="checkbox" id="find_all"/>Искать во всех публикациях</label>
-                    </p>
-                    <p>
-                        <button id="start_button">Начать поиск</button>
-                    </p>
                 </div>
                 <div class="section" id="disclaimer">
                     <p>
