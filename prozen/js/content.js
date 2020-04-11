@@ -94,6 +94,11 @@ function registerContentObserver() {
     }
 
     if (document.getElementsByClassName("publications-root")) {
+        setUnprocessedPublications();
+        loadCardsAll();
+        processCards();
+        registerCardObservers();
+
         addSearchInput();
         setTimeout (showBalanceAndMetrics, 100);
         addRobotIconIfNoNoIndex(publisherId);
