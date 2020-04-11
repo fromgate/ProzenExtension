@@ -775,14 +775,16 @@ function createIconsTagLink(tags, url) {
     const iconSpan1 = document.createElement("span");
     iconSpan1.setAttribute("class", "card-cover-footer-stats__icon icon_tags");
 
-    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(getTagsTitles(tags));
+    const textTags = getTagsTitles(tags);
+
+    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(textTags);
     if (tagTip.indexOf("\n") !== -1) {
         iconSpan1.setAttribute("title", tagTip);
     } else {
         iconSpan1.setAttribute("data-tip", tagTip);
     }
     if (tags.length !== 0) {
-        iconSpan1.addEventListener('click', copyTextToClipboard.bind(null, tags));
+        iconSpan1.addEventListener('click', copyTextToClipboard.bind(null, textTags));
     }
     iconSpan1.style.cursor = "pointer";
 
@@ -1194,3 +1196,12 @@ function log(message) {
         console.log(message);
     }
 }
+
+
+//////
+function registerEvents() {
+
+}
+
+
+// Event handlers
