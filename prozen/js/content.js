@@ -414,9 +414,9 @@ function showBalanceAndMetrics() {
                     total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
                 }
             }
-            addViewsTillEnd();
             setBalance(money, total);
         }
+        addViewsTillEnd();
         addProzenMenu(response.publisher.privateData.metrikaCounterId);
     });
 }

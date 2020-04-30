@@ -10,7 +10,7 @@ main();
 //////////////////////////////////////////////////////////////////////////////////////
 
 function getToken() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         chrome.storage.local.get("prozenToken", function (result) {
             resolve(result.prozenToken);
         });

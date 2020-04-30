@@ -38,7 +38,7 @@ function saveAgree() {
 getChannelId();
 
 function getChannelId() {
-    chrome.storage.local.get(["prozenId"], function (result) {
+    chrome.storage.local.get(["prozenId"], result => {
         id = result.prozenId;
         if (id !== undefined) {
             chrome.storage.local.get([NOINDEX_KEY + id], function (result) {
