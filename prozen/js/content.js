@@ -67,13 +67,18 @@ function main() {
         setTimeout(articleShowStatsNarrative, 300);
         return;
     }
+
+    if (pageType === "video") {
+        setTimeout(articleShowStatsVideo, 300);
+        return;
+    }
+
     publisherId = getPublisherId();
     if (token === undefined || publisherId === undefined) {
         return;
     }
     if (pageType !== "edit") {
         setTimeout(addNotificationCloseButton, 50);
-        // setTimeout(addZenjournalCloseButton, 1000);
     }
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
@@ -265,6 +270,79 @@ async function articleShowStatsNarrative() {
     }
 }
 
+async function articleShowStatsVideo() {
+    if (data === null) {
+        return;
+    }
+    const postId = getPostIdFromUrl(window.location.pathname);
+    const dayMod = dateFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+    const articleData = await loadPublicationStat(postId);
+
+    const sumViewTimeSec = articleData.sumViewTimeSec;
+    const views = articleData.views;
+    const shows = articleData.shows;
+    const viewsTillEnd = articleData.viewsTillEnd;
+
+    const elArticleDate = document.getElementsByClassName("article__date-video")[0];
+    elArticleDate.innerText = showTime;
+
+    const container = document.getElementsByClassName("article__about")[0];
+    {
+        // Просмотры
+        const spanIcon1 = createElement("span", "article__date-video article-stat__icon article-stat__icon_type_book-black");
+        /* container.appendChild(spanIcon1);
+        spanIcon1.setAttribute("style", "background-color: #FFFFFF80;"); */
+        const spanCount1 = createElement("span", "article__date-video");
+        spanCount1.innerText = "📺 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
+        spanCount1.setAttribute("title", "Просмотры");
+        container.appendChild(spanCount1);
+    }
+    /*
+    {
+        // Просмотры (досмотры)?
+        const spanIcon2 = createElement("span", "article-stat__icon article-stat__icon_type_perusal-black");
+        container.appendChild(spanIcon2);
+        const spanCount2 = createElement("span", "article__date-video");
+        spanCount2.innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
+        container.appendChild(spanCount2);
+    }
+    */
+    {
+        // Среднее время просмотра
+        /* const spanIcon3 = createElement("span", "article-stat__icon article-stat__icon_type_time-black");
+        container.appendChild(spanIcon3);*/
+        const spanCount3 = createElement("span", "article__date-video");
+        spanCount3.innerText = "⌚ " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+        spanCount3.setAttribute("title", "Среднее время просмотра");
+        container.appendChild(spanCount3);
+    }
+
+    {
+        const url = window.location.href.split("\?")[0];
+        const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
+        const spanIcon4 = createElement("span", "article__date-video");
+        spanIcon4.innerText = "🔗";
+        spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+        spanIcon4.style.cursor = "pointer";
+        container.appendChild(spanIcon4);
+    }
+
+    {
+        if (checkNoIndex()) {
+            const spanIcon5 = createElement("span", "article__date-video");
+            spanIcon5.innerText = "🤖";
+            spanIcon5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+                "Публикация не индексируется поисковиками.\n" +
+                "Примечание: связь этого тега с показами,\n" +
+                "пессимизацией и иными ограничениями канала\n" +
+                "официально не подтверждена.");
+        }
+    }
+}
+
 async function articleShowStats() {
     if (data === null) {
         return;
@@ -378,6 +456,10 @@ function getPageType() {
             if (data.isNarrative === true) {
                 return "narrative";
             }
+
+            if (data.isGif === true) {
+                return "video";
+            }
         }
     } else if (path.startsWith("/profile/editor/")) {
         if (path.endsWith("/money/simple")) {
@@ -416,8 +498,7 @@ function showBalanceAndMetrics() {
             }
             setBalance(money, total);
         }
-        addViewsTillEnd();
-        addProzenMenu(response.publisher.privateData.metrikaCounterId);
+        setTimeout(addProzenMenu.bind(null, response.publisher.privateData.metrikaCounterId), 1000);
     });
 }
 
@@ -468,32 +549,6 @@ function addProzenMenu(metricsId) {
         const divProfileSidebar = document.getElementsByClassName("profile-sidebar")[0];
         divProfileSidebar.appendChild(divProzenMenu);
     }
-}
-
-function addViewsTillEnd() {
-    const url = URL_API_EDITOR + publisherId + "/side-block";
-    const data = fetch(url, {
-        credentials: 'same-origin',
-        headers: {'X-Csrf-Token': token}
-    }).then(response => response.json());
-    data.then(response => {
-        if (!document.getElementById("prozen-sidebar-full-reads")) {
-            const numViews = response.monetizationMeter.numViews !== undefined ? response.monetizationMeter.numViews.toLocaleString() : "0";
-            if (numViews.length < 10) { // Prevent Zen bug noticed at 22/01/2020
-                const divFullReadsBlock = createElement("div", "full-reads-block");
-                divFullReadsBlock.setAttribute("id", "prozen-sidebar-full-reads");
-                const spanTitle = createElement("span", "full-reads-block__title");
-                spanTitle.innerText = "Дочитывания за 7 дней";
-                const spanCount = createElement("span", "full-reads-block__count");
-                spanCount.innerText = numViews;
-                const divStatus = createElement("div", "full-reads-block__status", spanCount);
-                divFullReadsBlock.appendChild(spanTitle);
-                divFullReadsBlock.appendChild(divStatus);
-                const divProfile = document.getElementsByClassName("profile-sidebar")[0];
-                divProfile.appendChild(divFullReadsBlock);
-            }
-        }
-    });
 }
 
 function setBalance(money, total) {
