@@ -10,7 +10,7 @@ showLastPost ();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 async function showLastPost () {
-    const channel = new Channel("5a3def60e86a9e50b401ab4a");
+    const channel = new Channel("prodzn", true);
     const lastPost = await channel.getLastPostCard();
     if (lastPost !== undefined) {
         const a = document.getElementById("prozen-post-url");
