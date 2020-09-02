@@ -41,7 +41,19 @@ class Channel {
         if (this.json === undefined) {
             return undefined;
         }
-        const item = this.json.items[0];
+
+        let item = null;
+        for (let i =0; i< this.json.items.length; i++) {
+            if (this.json.items[i].type === "card") {
+                item = this.json.items[i];
+                break;
+            }
+        }
+
+        if (item === null) {
+            return undefined;
+        }
+
         const lastPost = {};
         if (item.type === "post") {
             lastPost.image = item.image.link !== undefined ? item.image.link.replace("post_crop_big_360", imgSize === undefined ? "smart_crop_336x116" : imgSize) : "";

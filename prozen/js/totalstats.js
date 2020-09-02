@@ -1,6 +1,6 @@
 const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
 const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
-const TYPES = ["article", "narrative", "post", "gif"];
+const TYPES = ["article", "narrative", "post", "gif", "gallery"];
 
 var token;
 var publisherId;
@@ -49,7 +49,7 @@ function showStats(stats) {
                 minAddTimeStr += "; Прошло: " + paucalDay(days) + " (" + daysReadable(days) + ")";
             }
         }
-        const publicationsPerDayStr = stat.count === 0 && days !== 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
+        const publicationsPerDayStr = stat.count === 0 || days === 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
         document.getElementById(publicationType + "-count").textContent = numFormat(stat.count) + publicationsPerDayStr;
         document.getElementById(publicationType + "-feedShows").textContent = numFormat(stat.feedShows);
         document.getElementById(publicationType + "-views").textContent = numFormat(stat.views) + viewsPercentStr;

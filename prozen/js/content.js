@@ -516,27 +516,30 @@ function addProzenMenu(metricsId) {
         spanEmpty.innerText = " ";
         divProzenMenu.appendChild(spanEmpty);
 
-        const aTotalStats = createElement("a", "ui-lib-header-item");
+        const aTotalStats = createElement("a", "karma-block__link"); //ui-lib-header-item
         aTotalStats.innerText = "Полная статистика";
         aTotalStats.addEventListener('click', clickTotalStatsButton);
+        aTotalStats.style.cursor = "pointer";
         divProzenMenu.appendChild(aTotalStats);
 
-        const aMetrics = createElement("a", "ui-lib-header-item");
+        const aMetrics = createElement("a", "karma-block__link");
         const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
         aMetrics.innerText = "Метрика";
         aMetrics.setAttribute("href", metricsUrl);
         aMetrics.setAttribute("target", "_blank");
         divProzenMenu.appendChild(aMetrics);
 
-        const aSearch = createElement("a", "ui-lib-header-item");
+        const aSearch = createElement("a", "karma-block__link");
         aSearch.innerText = "Поиск";
         aSearch.addEventListener('click', clickSearchButton);
+        aSearch.style.cursor = "pointer";
         divProzenMenu.appendChild(aSearch);
 
-        const aSadRobot = createElement("a", "ui-lib-header-item");
+        const aSadRobot = createElement("a", "karma-block__link");
         aSadRobot.innerText = "Неиндексируемые";
         aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
         aSadRobot.addEventListener('click', clickFindSadRobots);
+        aSadRobot.style.cursor = "pointer";
         divProzenMenu.appendChild(aSadRobot);
         const spanEmpty2 = createElement("span", "karma-block__karma-stats-label");
         spanEmpty2.innerText = " ";

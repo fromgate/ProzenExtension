@@ -14,6 +14,7 @@ document.getElementById('show_articles').onclick = showArticles;
 document.getElementById('show_narratives').onclick = showNarratives;
 document.getElementById('show_posts').onclick = showPosts;
 document.getElementById('show_videos').onclick = showVideos;
+document.getElementById('show_galleries').onclick = showGalleries;
 randomizeSearchPlaceholer();
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,12 @@ function showVideos() {
     return false;
 }
 
+function showGalleries() {
+    showByType("gallery");
+    return false;
+}
+
+
 function getChannelId() {
     chrome.storage.local.get(["prozenId", "prozenSearch"], function (result) {
         id = result.prozenId;
@@ -56,6 +63,7 @@ function updateSerchStats() {
         count['story'] = 0;
         count['post'] = 0;
         count['gif'] = 0;
+        count['gallery'] = 0;
 
         for (let i = 0; i < publications.length; i++) {
             count [publications[i].type]++;
@@ -64,6 +72,7 @@ function updateSerchStats() {
         document.getElementById('show_narratives').innerText = "Нарративы: " + count.story;
         document.getElementById('show_posts').innerText = "Посты: " + count.post;
         document.getElementById('show_videos').innerText = "Видео: " + count.gif;
+        document.getElementById('show_galleries').innerText = "Галереи: " + count.gallery;
     }
 }
 
@@ -190,7 +199,7 @@ async function loadPageData(initUrl) {
         const items = json.items;
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            if (item.link.startsWith("https://zen.yandex.ru")) {
+            if (item.link === undefined || item.link.startsWith("https://zen.yandex.ru")) {
                 cards.push(cardFromItem(item));
             }
         }
@@ -206,8 +215,8 @@ function randomizeSearchPlaceholer() {
 function cardFromItem(item) {
     const card = {};
     card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
-    card.url = item.link.split("?")[0];
-    card.title = card.type === "post" ? postJsonToText(item.rich_text.json) : item.title;
+    card.url = item.link === undefined ? "" : item.link.split("?")[0];
+    card.title = card.type === "post" || card.type === "gallery" ? postJsonToText(item.rich_text.json) : item.title;
     card.description = card.type === "post" ? "" : item.text;
     publications.push(card);
     return card;
@@ -232,13 +241,17 @@ function postJsonToText(json) {
 }
 
 function addSearchResult(card) {
-    const a = document.createElement("a");
-    a.setAttribute("href", card.url);
-    a.setAttribute("target", "_blank");
-    const div = cardToDiv(card);
-    a.appendChild(div);
     const searchResult = document.getElementById("search_result");
-    searchResult.appendChild(a);
+    const div = cardToDiv(card);
+    if (card.url !== undefined && card.url !== "") {
+        const a = document.createElement("a");
+        a.setAttribute("href", card.url);
+        a.setAttribute("target", "_blank");
+        a.appendChild(div);
+        searchResult.appendChild(a);
+    } else {
+        searchResult.appendChild(div);
+    }
     searchResult.appendChild(document.createElement("hr"));
 }
 
@@ -254,6 +267,10 @@ function cardToDiv(card) {
         case "story":
             icon.setAttribute("class", "icon_narrative span_icon");
             icon.setAttribute("title", "Нарратив");
+            break;
+        case "gallery":
+            icon.setAttribute("class", "icon_narrative span_icon");
+            icon.setAttribute("title", "Галерея\nУ галерей нет ссылки.");
             break;
         case "gif":
             icon.setAttribute("class", "icon_video span_icon");
