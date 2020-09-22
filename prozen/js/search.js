@@ -216,10 +216,34 @@ function cardFromItem(item) {
     const card = {};
     card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
     card.url = item.link === undefined ? "" : item.link.split("?")[0];
-    card.title = card.type === "post" || card.type === "gallery" ? postJsonToText(item.rich_text.json) : item.title;
-    card.description = card.type === "post" ? "" : item.text;
+    if (card.type === "post" || item.rich_text !== undefined) {
+        card.title = richTextJsonToText (item.rich_text.json);
+    } else if (card.type === "gallery") {
+        card.title = "";
+        for (let i = 0; i < item.items.length; i++) {
+            if (item.items[i].rich_text === undefined) continue;
+            if (i > 0) {
+                card.title = card.title + " ";
+            }
+            card.title = card.title + richTextJsonToText (item.items[i].rich_text.json);
+        }
+    } else {
+        card.title = item.title;
+    }
+    card.description = card.type === "post" ||  card.type === "gallery" ? "" : item.text;
     publications.push(card);
     return card;
+}
+
+function richTextJsonToText (data) {
+    let str = "";
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].type === "text") {
+            if (str.length >0) str = str + " ";
+            str = str + data[i].data;
+        }
+    }
+    return str;
 }
 
 function postJsonToText(json) {

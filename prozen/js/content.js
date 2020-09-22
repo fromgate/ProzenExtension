@@ -1261,7 +1261,7 @@ function log(message) {
 }
 
 
-//////
+// TODO надо всё на события переделать, а то как-то топорно
 function registerEvents() {
 
 }

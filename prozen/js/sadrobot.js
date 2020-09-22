@@ -148,7 +148,7 @@ async function loadPageData(initUrl, loadAll) {
         const items = json.items;
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            if (item.link.startsWith("https://zen.yandex.ru")) {
+            if (item.link !== undefined && item.link.startsWith("https://zen.yandex.ru")) {
                 cards.push(cardFromItem(item));
             }
         }
