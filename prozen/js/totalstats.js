@@ -119,7 +119,7 @@ async function getStats(publicationType) {
 }
 
 function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType)+"&publisherId=" + publisherId;
+    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
@@ -141,22 +141,24 @@ async function loadAllPublications() {
 
         const result = await loadPublications(publicationType, count).then(response => {
             const cards = [];
-            for (let i = 0, len = response.publications.length; i < len; i++) {
-                const pubData = {};
-                const publication = response.publications[i];
-                pubData.id = publication.id;
-                pubData.feedShows = publication.privateData.statistics.feedShows;
-                pubData.shows= publication.privateData.statistics.shows;
-                pubData.views = publication.privateData.statistics.views;
-                pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
-                pubData.comments = publication.privateData.statistics.comments;
-                pubData.likes = publication.privateData.statistics.likes;
-                pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
-                pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
-                pubData.type = publication.content.type;
-                cards.push(pubData);
-                recordCount++;
-                document.getElementById("records_count").innerText = "Загружено: " + paucal(recordCount, " публикация"," публикации"," публикаций");
+            if (response !== undefined && response.publications !== undefined) {
+                for (let i = 0, len = response.publications.length; i < len; i++) {
+                    const pubData = {};
+                    const publication = response.publications[i];
+                    pubData.id = publication.id;
+                    pubData.feedShows = publication.privateData.statistics.feedShows;
+                    pubData.shows = publication.privateData.statistics.shows;
+                    pubData.views = publication.privateData.statistics.views;
+                    pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
+                    pubData.comments = publication.privateData.statistics.comments;
+                    pubData.likes = publication.privateData.statistics.likes;
+                    pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
+                    pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
+                    pubData.type = publication.content.type;
+                    cards.push(pubData);
+                    recordCount++;
+                    document.getElementById("records_count").innerText = "Загружено: " + paucal(recordCount, " публикация", " публикации", " публикаций");
+                }
             }
             return cards;
         });
