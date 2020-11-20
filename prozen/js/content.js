@@ -700,7 +700,7 @@ function processCardsViews(ids) {
     for (let i = 0; i < ids.length; i++) {
         const publicationId = ids[i];
         const value = publications.get(publicationId);
-        if (value.card.hasChildNodes()) {
+        if (value.addTime !== undefined && value.card.hasChildNodes()) {
             setPublicationTime(value);
             modifyCardFooter(value, publicationId);
         }
@@ -825,7 +825,7 @@ function createIcon(value, icon, tip) {
 function getTagsTitles(tagObjects) {
     const tagTitles = [];
     if (tagObjects !== undefined && tagObjects.length > 0) {
-        for (i = 0; i < tagObjects.length; i++) {
+        for (let i = 0; i < tagObjects.length; i++) {
             tagTitles.push(tagObjects[i].title);
         }
     }
@@ -837,16 +837,14 @@ function createIconsTagLink(tags, url) {
     a.setAttribute("class", "card-cover-footer-stats__item");
     const iconSpan1 = document.createElement("span");
     iconSpan1.setAttribute("class", "card-cover-footer-stats__icon icon_tags");
-
     const textTags = getTagsTitles(tags);
-
-    const tagTip = tags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(textTags);
+    const tagTip = textTags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(textTags);
     if (tagTip.indexOf("\n") !== -1) {
         iconSpan1.setAttribute("title", tagTip);
     } else {
         iconSpan1.setAttribute("data-tip", tagTip);
     }
-    if (tags.length !== 0) {
+    if (textTags.length !== 0) {
         iconSpan1.addEventListener('click', copyTextToClipboard.bind(null, textTags));
     }
     iconSpan1.style.cursor = "pointer";
@@ -857,7 +855,7 @@ function createIconsTagLink(tags, url) {
     iconSpan2.style.cursor = "pointer";
     iconSpan2.addEventListener('click', copyTextToClipboard.bind(null, url));
     a.appendChild(iconSpan2);
-    if (tags.length !== 0) {
+    if (textTags.length !== 0) {
         a.appendChild(iconSpan1);
     }
     return a;
