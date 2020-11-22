@@ -73,6 +73,11 @@ function main() {
         return;
     }
 
+    if (pageType === "gallery") {
+        setTimeout(articleShowStatsGallery, 300);
+        return;
+    }
+
     publisherId = getPublisherId();
     if (token === undefined || publisherId === undefined) {
         return;
@@ -270,6 +275,53 @@ async function articleShowStatsNarrative() {
     }
 }
 
+async function articleShowStatsGallery() {
+    if (data === null) {
+        return;
+    }
+    const postId = getPostIdFromUrl(window.location.pathname);
+    const dayMod = dateFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+    const articleData = await loadPublicationStat(postId);
+
+    const sumViewTimeSec = articleData.sumViewTimeSec;
+    const views = articleData.views;
+    const shows = articleData.shows;
+    const viewsTillEnd = articleData.viewsTillEnd;
+
+    const divStat = createElement("div","card-gallery-text");
+    divStat.style.paddingLeft = "15px";
+    divStat.style.paddingRight = "15px";
+    divStat.style.paddingBottom = "10px";
+
+    {
+        const spanViews = createElement("span");
+        // Просмотры 👀
+        spanViews.innerText = " 👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
+        spanViews.setAttribute("title", "Просмотры");
+        divStat.appendChild (spanViews);
+    }
+
+    {
+        // Досмотры 🖼️
+        const spanViewsTillEnd = createElement("span");
+        spanViewsTillEnd.innerText = " 🖼️ " + viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
+        spanViewsTillEnd.setAttribute("title", "Досмотры");
+        divStat.appendChild (spanViewsTillEnd);
+    }
+
+    {
+        // Среднее время досмотров: ⌚
+        const spanTime = createElement("span");
+        spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+        spanTime.setAttribute("title", "Среднее время\nпросмотра: "+secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
+        divStat.appendChild (spanTime);
+    }
+    const divSeparator = document.getElementsByClassName("ui-lib-separator")[0];
+    divSeparator.insertAdjacentElement("afterend", divStat);
+}
+
 async function articleShowStatsVideo() {
     if (data === null) {
         return;
@@ -459,6 +511,9 @@ function getPageType() {
 
             if (data.isGif === true) {
                 return "video";
+            }
+            if (data.isGallery === true) {
+                return "gallery";
             }
         }
     } else if (path.startsWith("/profile/editor/")) {
