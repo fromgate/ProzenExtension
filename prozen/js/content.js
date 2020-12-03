@@ -191,7 +191,7 @@ function loadCardsAll() {
 function loadCards(soureElement) {
     const ids = [];
     const cards = soureElement.getElementsByClassName("card-cover-publication");
-    for (i = 0; i < cards.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
         const cardLinks = card.getElementsByTagName("a");
         if (cardLinks === undefined || cardLinks.length === 0) {
@@ -504,7 +504,7 @@ async function articleShowStats() {
 }
 
 function getPostIdFromUrl(url) {
-    const ln = url.replace("?from=editor", "").split("-");
+    const ln = url.replace("?from=editor", "").split(url.includes ("-") ? "-" : "/");
     return ln[ln.length - 1];
 }
 
