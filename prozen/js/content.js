@@ -318,6 +318,31 @@ async function articleShowStatsGallery() {
         spanTime.setAttribute("title", "Среднее время\nпросмотра: "+secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
         divStat.appendChild (spanTime);
     }
+
+    {
+        const url = window.location.href.split("\?")[0];
+        const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
+        const spanLink = createElement("span");
+        spanLink.innerText = " 🔗";
+        spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+        spanLink.style.cursor = "pointer";
+        divStat.appendChild (spanLink);
+    }
+
+    {
+        if (checkNoIndex()) {
+            const spanRobot = createElement("span");
+            spanRobot.innerText = " 🤖";
+            spanRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+                "Публикация не индексируется поисковиками.\n" +
+                "Примечание: связь этого тега с показами,\n" +
+                "пессимизацией и иными ограничениями канала\n" +
+                "официально не подтверждена.");
+            divStat.appendChild (spanLink);
+        }
+    }
+
     const divSeparator = document.getElementsByClassName("ui-lib-separator")[0];
     divSeparator.insertAdjacentElement("afterend", divStat);
 }
