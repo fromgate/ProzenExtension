@@ -343,7 +343,7 @@ async function articleShowStatsGallery() {
         }
     }
 
-    const divSeparator = document.getElementsByClassName("ui-lib-separator")[0];
+    const divSeparator = document.getElementsByClassName("ui-lib-desktop-gallery-page__separator")[0];
     divSeparator.insertAdjacentElement("afterend", divStat);
 }
 
