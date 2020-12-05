@@ -110,7 +110,7 @@ function registerContentObserver() {
         registerCardObservers();
 
         addSearchInput();
-        setTimeout (showBalanceAndMetrics, 100);
+        setTimeout(showBalanceAndMetrics, 100);
         addRobotIconIfNoNoIndex(publisherId);
     }
     const contentObserver = new MutationObserver(function (mutations) {
@@ -123,7 +123,7 @@ function registerContentObserver() {
                         processCards();
                         registerCardObservers();
                         addSearchInput();
-                        setTimeout (showBalanceAndMetrics, 150);
+                        setTimeout(showBalanceAndMetrics, 150);
                     }
                 });
             }
@@ -290,7 +290,7 @@ async function articleShowStatsGallery() {
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
-    const divStat = createElement("div","card-gallery-text");
+    const divStat = createElement("div", "card-gallery-text");
     divStat.style.paddingLeft = "15px";
     divStat.style.paddingRight = "15px";
     divStat.style.paddingBottom = "10px";
@@ -300,7 +300,7 @@ async function articleShowStatsGallery() {
         // Просмотры 👀
         spanViews.innerText = " 👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
         spanViews.setAttribute("title", "Просмотры");
-        divStat.appendChild (spanViews);
+        divStat.appendChild(spanViews);
     }
 
     {
@@ -308,15 +308,15 @@ async function articleShowStatsGallery() {
         const spanViewsTillEnd = createElement("span");
         spanViewsTillEnd.innerText = " 🖼️ " + viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
         spanViewsTillEnd.setAttribute("title", "Досмотры");
-        divStat.appendChild (spanViewsTillEnd);
+        divStat.appendChild(spanViewsTillEnd);
     }
 
     {
         // Среднее время досмотров: ⌚
         const spanTime = createElement("span");
         spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-        spanTime.setAttribute("title", "Среднее время\nпросмотра: "+secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
-        divStat.appendChild (spanTime);
+        spanTime.setAttribute("title", "Среднее время\nпросмотра: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
+        divStat.appendChild(spanTime);
     }
 
     {
@@ -327,7 +327,7 @@ async function articleShowStatsGallery() {
         spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
         spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
         spanLink.style.cursor = "pointer";
-        divStat.appendChild (spanLink);
+        divStat.appendChild(spanLink);
     }
 
     {
@@ -339,7 +339,7 @@ async function articleShowStatsGallery() {
                 "Примечание: связь этого тега с показами,\n" +
                 "пессимизацией и иными ограничениями канала\n" +
                 "официально не подтверждена.");
-            divStat.appendChild (spanLink);
+            divStat.appendChild(spanLink);
         }
     }
 
@@ -504,7 +504,7 @@ async function articleShowStats() {
 }
 
 function getPostIdFromUrl(url) {
-    const ln = url.replace("?from=editor", "").split(url.includes ("-") ? "-" : "/");
+    const ln = url.replace("?from=editor", "").split(url.includes("-") ? "-" : "/");
     return ln[ln.length - 1];
 }
 
@@ -559,27 +559,32 @@ function getPageType() {
     return "unknown";
 }
 
-function showBalanceAndMetrics() {
+async function showBalance() {
     const url = URL_API_MEDIA + publisherId + "/money";
-    const data = fetch(url, {
+    const responce = await fetch(url, {
         credentials: 'same-origin',
         headers: {'X-Csrf-Token': token}
-    }).then(response => response.json());
-    data.then(response => {
-        if (response.money.isMonetezationAvaliable) {
-            const simpleBalance = response.money.simple.balance;
-            const personalDataBalance = response.money.simple.personalData.balance;
-            const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
-            let total = money;
-            for (let i = 0, len = response.money.simple.paymentHistory.length; i < len; i++) {
-                if (response.money.simple.paymentHistory[i]["status"] === "completed") {
-                    total += parseFloat(response.money.simple.paymentHistory[i]["amount"]);
-                }
-            }
-            setBalance(money, total);
-        }
-        setTimeout(addProzenMenu.bind(null, response.publisher.privateData.metrikaCounterId), 1000);
     });
+    const data = await responce.json();
+    if (data.money.isMonetezationAvaliable) {
+        const simpleBalance = data.money.simple.balance;
+        const personalDataBalance = data.money.simple.personalData.balance;
+        const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
+        let total = money;
+        for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
+            if (data.money.simple.paymentHistory[i]["status"] === "completed") {
+                total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+            }
+        }
+        setBalance(money, total);
+    }
+    return data.publisher.privateData.metrikaCounterId
+}
+
+function showBalanceAndMetrics() {
+    showBalance().then(metricsId =>
+        setTimeout(addProzenMenu.bind(null, metricsId), 1000)
+    );
 }
 
 function addProzenMenu(metricsId) {
@@ -603,7 +608,7 @@ function addProzenMenu(metricsId) {
         divProzenMenu.appendChild(aTotalStats);
 
         const aMetrics = createElement("a", "karma-block__link");
-        const metricsUrl = metricsId !== undefined ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
+        const metricsUrl = metricsId !== undefined && metricsId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
         aMetrics.innerText = "Метрика";
         aMetrics.setAttribute("href", metricsUrl);
         aMetrics.setAttribute("target", "_blank");
