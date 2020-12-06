@@ -566,7 +566,7 @@ async function showBalance() {
         headers: {'X-Csrf-Token': token}
     });
     const data = await responce.json();
-    if (data.money.isMonetezationAvaliable) {
+    if (data.money.isMonetezationAvaliable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
         const simpleBalance = data.money.simple.balance;
         const personalDataBalance = data.money.simple.personalData.balance;
         const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
