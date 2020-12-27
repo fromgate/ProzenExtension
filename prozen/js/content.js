@@ -339,7 +339,7 @@ async function articleShowStatsGallery() {
                 "Примечание: связь этого тега с показами,\n" +
                 "пессимизацией и иными ограничениями канала\n" +
                 "официально не подтверждена.");
-            divStat.appendChild(spanLink);
+            divStat.appendChild(spanRobot);
         }
     }
 
