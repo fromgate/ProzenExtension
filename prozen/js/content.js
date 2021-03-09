@@ -295,10 +295,32 @@ async function articleShowStatsGallery() {
     divStat.style.paddingRight = "15px";
     divStat.style.paddingBottom = "10px";
 
+
+    {
+        const spanDate = createElement("span");
+        // Время создания / Модификации
+        spanDate.innerText = "◻" + dayCreate;
+        spanDate.setAttribute("title", "Время создания (модификации)");
+        divStat.appendChild(spanDate);
+    }
+
+    {
+        // Среднее время досмотров: ⌚
+        const spanTime = createElement("span");
+        spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+        spanTime.setAttribute("title", "Среднее время\nпросмотра: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
+        divStat.appendChild(spanTime);
+    }
+
+    {
+        const br1 = createElement("br");
+        divStat.appendChild(br1)
+    }
+
     {
         const spanViews = createElement("span");
         // Просмотры 👀
-        spanViews.innerText = " 👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
+        spanViews.innerText = "👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
         spanViews.setAttribute("title", "Просмотры");
         divStat.appendChild(spanViews);
     }
@@ -309,14 +331,6 @@ async function articleShowStatsGallery() {
         spanViewsTillEnd.innerText = " 🖼️ " + viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
         spanViewsTillEnd.setAttribute("title", "Досмотры");
         divStat.appendChild(spanViewsTillEnd);
-    }
-
-    {
-        // Среднее время досмотров: ⌚
-        const spanTime = createElement("span");
-        spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-        spanTime.setAttribute("title", "Среднее время\nпросмотра: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
-        divStat.appendChild(spanTime);
     }
 
     {
