@@ -92,8 +92,6 @@ function clearSearchResults() {
 async function executeSearch(pubs) {
     showElement("search_result");
     showProgress(0, pubs.length);
-    const card = pubs[4];
-    const check = await checkRobotNoNoIndex(card);
     let count = 0;
     let countRobots = 0;
     for (const card of publications) {
