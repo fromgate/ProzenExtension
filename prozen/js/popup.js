@@ -47,10 +47,8 @@ function setCheckbox (switchState, save=true) {
 function loadExtensionState() {
         chrome.storage.local.get("prozenEnabled", function (result) {
             if (result.prozenEnabled === undefined) {
-                console.log("result.prozenEnabled  -  undefined");
                 setCheckbox(true)
             } else {
-                console.log("result.prozenEnabled  : "+result.prozenEnabled);
                 setCheckbox(result.prozenEnabled, false)
             }
         });
@@ -58,6 +56,5 @@ function loadExtensionState() {
 
 function saveExtensionState(switchState) {
     chrome.storage.local.set({prozenEnabled: document.getElementById("prozen-switch").checked}, function () {
-        console.log("save prozenEnabled  : "+document.getElementById("prozen-switch").checked);
     });
 }
