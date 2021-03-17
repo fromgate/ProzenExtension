@@ -6,7 +6,7 @@ window.browser = (function () {
 const nameVersion = document.getElementById("extver");
 document.getElementById("prozen-switch").addEventListener('click', onCheckboxClick);
 
-//nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
+nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
 document.getElementById("prozen-image").style.visibility = "hidden";
 
 loadExtensionState();
