@@ -23,7 +23,11 @@ let mediaUrl;
 // Functions
 ///////////////////////////////////
 
-function start() {
+async function start() {
+    if (await getExtensionState() === false) {
+        return;
+    }
+
     window.browser = (function () {
         return window.msBrowser ||
             window.browser ||
@@ -52,6 +56,16 @@ function start() {
         }
     });
 }
+
+
+function getExtensionState() {
+    return new Promise(resolve => {
+        chrome.storage.local.get("prozenEnabled", result => {
+            resolve(result.prozenEnabled);
+        });
+    });
+}
+
 
 function main() {
     const pageType = getPageType();
