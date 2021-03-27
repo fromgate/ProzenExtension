@@ -125,7 +125,6 @@ function registerContentObserver() {
 
         addSearchInput();
         setTimeout(showBalanceAndMetrics, 100);
-        addRobotIconIfNoNoIndex(publisherId);
     }
     const contentObserver = new MutationObserver(function (mutations) {
         mutations.forEach(mutation => {
@@ -462,73 +461,64 @@ async function articleShowStats() {
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
-    const elArticleDate = document.getElementsByClassName("article-stat__date")[0];
+    const elArticleDate = document.getElementsByClassName("article-stats-view-redesign__date")[0]; // article-stats-view-redesign__date //article-stat__date"
     elArticleDate.innerText = showTime;
-    let counters = document.getElementsByClassName("article-stat__count");
-    if (counters.length === 0) {
-        const container = document.getElementsByClassName("article-stat__date-container")[0];
+    elArticleDate.setAttribute("title", "Время создания (редактиварония)");
 
-        const wrapper1 = createElement("div", "article-stat__counts-wrapper");
-        const spanIcon1 = createElement("span", "article-stat__icon article-stat__icon_type_book-black");
-        wrapper1.appendChild(spanIcon1);
-        const spanCount1 = createElement("span", "article-stat__count");
-        wrapper1.appendChild(spanCount1);
-        container.appendChild(wrapper1);
-        counters = document.getElementsByClassName("article-stat__count");
-    }
-    counters[0].innerText = views.toLocaleString(undefined, {maximumFractionDigits: 0});
+    removeByClass("article-stats-view-redesign__stats-item");
+    removeByClass ("article-stat-tip");
 
-    if (counters.length === 1) {
-        const wrapper1 = document.getElementsByClassName("article-stat__counts-wrapper")[0];
-        const wrapper2 = createElement("div", "article-stat__counts-wrapper");
-        const spanIcon2 = createElement("span", "article-stat__icon article-stat__icon_type_perusal-black");
-        const spanCount2 = createElement("span", "article-stat__count");
-        wrapper2.appendChild(spanIcon2);
-        wrapper2.appendChild(spanCount2);
-        wrapper1.insertAdjacentElement("afterend", wrapper2);
-        counters = document.getElementsByClassName("article-stat__count");
-    }
-    if (counters.length === 2) {
-        const wrapper2 = document.getElementsByClassName("article-stat__counts-wrapper")[1];
-        const wrapper3 = createElement("div", "article-stat__counts-wrapper");
-        const spanIcon3 = createElement("span", "article-stat__icon article-stat__icon_type_time-black");
-        const spanCount3 = createElement("span", "article-stat__count");
-        wrapper3.appendChild(spanIcon3);
-        wrapper3.appendChild(spanCount3);
-        wrapper2.insertAdjacentElement("afterend", wrapper3);
-        counters = document.getElementsByClassName("article-stat__count");
-    }
-    counters[1].innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-    counters[2].innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+    const spanViewsIcon = createElement("span", "publication_icon_views article-stats-view-redesign__stats-item-icon_type_views-count");
+    const spanViewsCount = createElement("span", "article-stats-view-redesign__stats-item-count");
+    spanViewsCount.innerText = views;
+    const divViews = createElement("div", "article-stats-view-redesign__stats-item");
+    divViews.setAttribute("title", "Просмотры");
+    divViews.appendChild(spanViewsIcon);
+    divViews.appendChild(spanViewsCount);
+
+    const spanFullViewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_views-count");
+    const spanFullViewsCount = createElement("span", "article-stats-view-redesign__stats-item-count");
+    spanFullViewsCount.innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
+    const divFullViews = createElement("div", "article-stats-view-redesign__stats-item");
+    divFullViews.setAttribute("title", "Дочитывания");
+    divFullViews.appendChild(spanFullViewsIcon);
+    divFullViews.appendChild(spanFullViewsCount);
+
+    const spanAvgTimeIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time")
+    const spanAvgTimeCount = createElement("span", "article-stats-view-redesign__stats-item-count");
+    spanAvgTimeCount.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+
+    const divAvgTime = createElement("div", "article-stats-view-redesign__stats-item")
+    divAvgTime.setAttribute("title", "Среднее время дочитывания");
+    divAvgTime.appendChild(spanAvgTimeIcon);
+    divAvgTime.appendChild(spanAvgTimeCount);
 
     const url = window.location.href.split("\?")[0];
     const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
+    const spanShortLinkIcon = createElement("span", "publication_icon_short_url");
+    const divShortLink = createElement("div","article-stats-view-redesign__stats-item");
+    divShortLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+    divShortLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+    divShortLink.style.cursor = "pointer";
+    divShortLink.appendChild(spanShortLinkIcon);
 
-    const spanIcon4 = createElement("span", "article-stat__icon icon_url");
+    const container = document.getElementsByClassName("article-stats-view-redesign__info-inner")[0];
+    container.appendChild(divViews);
+    container.appendChild(divFullViews);
+    container.appendChild(divAvgTime);
+    container.appendChild(divShortLink);
 
-    const wrapper4 = createElement("div", "article-stat__counts-wrapper", spanIcon4);
-    wrapper4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-    wrapper4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
-    wrapper4.style.cursor = "pointer";
-
-    const wrapper3 = document.getElementsByClassName("article-stat__counts-wrapper")[2];
-    wrapper3.insertAdjacentElement("afterend", wrapper4);
-
-
-    removeByClass("article-stat-tip");
     if (checkNoIndex()) {
-        const spanIcon5 = createElement("span", "article-stat__icon icon_sad_robot");
-        spanIcon5.setAttribute("style", "background-color: #FFFFFF80;");
-        const wrapper5 = createElement("div", "article-stat__counts-wrapper", spanIcon5);
-        wrapper5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+        const spanSadRobotIcon = createElement("span", "publication_icon_sad_robot");
+        const divSadRobot = createElement("div","article-stats-view-redesign__stats-item");
+        divSadRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        const wrapper4 = document.getElementsByClassName("article-stat__counts-wrapper")[3];
-        wrapper4.insertAdjacentElement("afterend", wrapper5);
+        divSadRobot.appendChild(spanSadRobotIcon);
+        container.appendChild(divSadRobot);
     }
-
 }
 
 function getPostIdFromUrl(url) {
@@ -647,13 +637,24 @@ function addProzenMenu(metricsId) {
         aSearch.addEventListener('click', clickSearchButton);
         aSearch.style.cursor = "pointer";
         divProzenMenu.appendChild(aSearch);
-
         const aSadRobot = createElement("a", "karma-block__link");
         aSadRobot.innerText = "Неиндексируемые";
         aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
         aSadRobot.addEventListener('click', clickFindSadRobots);
         aSadRobot.style.cursor = "pointer";
         divProzenMenu.appendChild(aSadRobot);
+        checkHasNone(publisherId).then(isNone => {
+            if (isNone) {
+                aSadRobot.innerText = "Канал не индексируется 🤖";
+                aSadRobot.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
+                    "Канал не индексируется поисковиками.\n" +
+                    "Это нормальная ситуация для новых каналов."); //\n" +
+                //"Нажмите здесь, чтобы узнать подробнее.");
+                aSadRobot.removeAttribute("data-tip");
+                aSadRobot.removeEventListener('click', clickFindSadRobots);
+            }
+        })
+
         const spanEmpty2 = createElement("span", "karma-block__karma-stats-label");
         spanEmpty2.innerText = " ";
         divProzenMenu.appendChild(spanEmpty2);
@@ -1069,40 +1070,25 @@ function checkNoIndex() {
     return false;
 }
 
-function addRobotIconIfNoNoIndex(id) {
-    if (!document.getElementById("prozen-robot-icon")) {
+function checkHasNone(id) {
+    return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const metas = xhr.responseXML.head.getElementsByTagName('meta');
             for (let i = 0; i < metas.length; i++) {
                 if (metas[i].getAttribute('property') === "robots") {
                     if (metas[i].getAttribute('content') === "none") {
-                        addRobotIcon();
+                        resolve(true);
                     }
                     break;
                 }
             }
+            resolve(false);
         };
         xhr.open("GET", URL_ZEN_ID + id);
         xhr.responseType = "document";
         xhr.send();
-    }
-}
-
-function addRobotIcon() {
-    const sadRobotIcon = createElement("span", "header__readers-count");
-    sadRobotIcon.setAttribute("id", "prozen-robot-icon");
-    const img = createElement("img");
-    img.setAttribute("src", "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='20px' height='20px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3Esad%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-100.000000, -6239.000000)' fill='%23ea7272'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M56,6086 C56,6085.448 56.448,6085 57,6085 L59,6085 C59.552,6085 60,6085.448 60,6086 L60,6088 C60,6088.55 59.55,6089 59,6089 L57,6089 C56.45,6089 56,6088.55 56,6088 L56,6086 Z M52,6088 C52,6088.552 51.552,6089 51,6089 L49,6089 C48.448,6089 48,6088.552 48,6088 L48,6086 C48,6085.448 48.448,6085 49,6085 L51,6085 C51.552,6085 52,6085.448 52,6086 L52,6088 Z M60,6092.689 L60,6093.585 C60,6094.137 59.552,6094.611 59,6094.611 L59,6094.637 C58.448,6094.637 58,6094.241 58,6093.689 L58,6093.792 C58,6093.24 57.552,6093 57,6093 L51,6093 C50.448,6093 50,6093.24 50,6093.792 L50,6093.585 C50,6094.137 49.552,6094.585 49,6094.585 C48.448,6094.585 48,6094.137 48,6093.585 L48,6092.689 C48,6091.584 48.896,6090.997 50,6090.997 L50,6091 L58,6091 C59,6091 60,6091.584 60,6092.689 L60,6092.689 Z M62,6096 C62,6096.552 61.552,6097 61,6097 L47,6097 C46.448,6097 46,6096.552 46,6096 L46,6082 C46,6081.448 46.448,6081 47,6081 L61,6081 C61.552,6081 62,6081.448 62,6082 L62,6096 Z M64,6081 C64,6079.895 63.105,6079 62,6079 L46,6079 C44.895,6079 44,6079.895 44,6081 L44,6097 C44,6098.105 44.895,6099 46,6099 L62,6099 C63.105,6099 64,6098.105 64,6097 L64,6081 Z' id='sad'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    img.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
-        "Канал не индексируется поисковиками.\n" +
-        "Примечание: связь этого тега с показами,\n" +
-        "пессимизацией и иными ограничениями канала\n" +
-        "официально не подтверждена.");
-    sadRobotIcon.appendChild(img);
-    const navblocks = document.getElementsByClassName("ui-lib-header-item _type_left");
-    const last = navblocks.item(navblocks.length - 1);
-    last.insertAdjacentElement("afterend", sadRobotIcon);
+    });
 }
 
 function createElement(elementType, elementClass, childElement) {
