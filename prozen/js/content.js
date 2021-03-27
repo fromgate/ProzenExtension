@@ -347,12 +347,10 @@ async function articleShowStatsGallery() {
     }
 
     {
-        const url = window.location.href.split("\?")[0];
-        const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
         const spanLink = createElement("span");
         spanLink.innerText = " 🔗";
         spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -425,11 +423,9 @@ async function articleShowStatsVideo() {
 
     {
         const url = window.location.href.split("\?")[0];
-        const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
-        const spanIcon4 = createElement("span", "article__date-video");
         spanIcon4.innerText = "🔗";
         spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
         spanIcon4.style.cursor = "pointer";
         container.appendChild(spanIcon4);
     }
@@ -447,7 +443,25 @@ async function articleShowStatsVideo() {
     }
 }
 
+function addHeaderClicks() {
+    const headers = document.querySelectorAll("h2, h3");
+    if (headers.length > 0) {
+        for (let i = 0; i<headers.length ; i++) {
+            const header = headers [i];
+            const ancorId = header.getAttribute("id");
+            if (ancorId !== undefined && ancorId !== null) {
+                const shortUrl = shortUrl() + "#" + ancorId;
+                const clickIcon = createElement("span", "publication_header_icon_url");
+                clickIcon.setAttribute("title", "Скопировать ссылку на этот заголовок");
+                clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+                header.insertBefore(clickIcon, header.firstChild);
+            }
+        }
+    }
+}
+
 async function articleShowStats() {
+
     if (data === null) {
         return;
     }
@@ -508,12 +522,10 @@ async function articleShowStats() {
     divAvgTime.appendChild(spanAvgTimeIcon);
     divAvgTime.appendChild(spanAvgTimeCount);
 
-    const url = window.location.href.split("\?")[0];
-    const shortUrl = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
     const spanShortLinkIcon = createElement("span", "publication_icon_short_url");
     const divShortLink = createElement("div","article-stats-view-redesign__stats-item");
     divShortLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-    divShortLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
+    divShortLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
     divShortLink.style.cursor = "pointer";
     divShortLink.appendChild(spanShortLinkIcon);
 
@@ -533,6 +545,8 @@ async function articleShowStats() {
         divSadRobot.appendChild(spanSadRobotIcon);
         container.appendChild(divSadRobot);
     }
+
+    addHeaderClicks();
 }
 
 function getPostIdFromUrl(url) {
@@ -1353,6 +1367,11 @@ function paucal(num, p1, p234, p) {
         default:
             return numStr + " " + p;
     }
+}
+
+function shortUrl() {
+    const url = window.location.href.split("\?")[0].split("#")[0];
+    return url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
 }
 
 function debug(message, message2) {
