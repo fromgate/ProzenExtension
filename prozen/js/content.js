@@ -463,10 +463,25 @@ async function articleShowStats() {
 
     const elArticleDate = document.getElementsByClassName("article-stats-view-redesign__date")[0]; // article-stats-view-redesign__date //article-stat__date"
     elArticleDate.innerText = showTime;
-    elArticleDate.setAttribute("title", "Время создания (редактиварония)");
+    elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
-    removeByClass("article-stats-view-redesign__stats-item");
-    removeByClass ("article-stat-tip");
+    removeByClass ("article-stats-view-redesign__info-container");
+
+    let divRightContainer;
+    if (document.getElementsByClassName("article-stats-view-redesign__info-container").length > 0) {
+        divRightContainer = document.getElementsByClassName("article-stats-view-redesign__info-container")[0];
+    } else {
+        divRightContainer = createElement("div", "article-stats-view-redesign__info-container article-stats-view-redesign__info-container_loaded");
+        document.getElementsByClassName("article-stats-view-redesign")[0].appendChild(divRightContainer);
+    }
+
+    let container;
+    if (document.getElementsByClassName("article-stats-view-redesign__info-inner").length > 0) {
+        container = document.getElementsByClassName("article-stats-view-redesign__info-inner")[0];
+    } else {
+        container = createElement("div","article-stats-view-redesign__info-inner");
+    }
+    divRightContainer.appendChild(container);
 
     const spanViewsIcon = createElement("span", "publication_icon_views article-stats-view-redesign__stats-item-icon_type_views-count");
     const spanViewsCount = createElement("span", "article-stats-view-redesign__stats-item-count");
@@ -502,7 +517,6 @@ async function articleShowStats() {
     divShortLink.style.cursor = "pointer";
     divShortLink.appendChild(spanShortLinkIcon);
 
-    const container = document.getElementsByClassName("article-stats-view-redesign__info-inner")[0];
     container.appendChild(divViews);
     container.appendChild(divFullViews);
     container.appendChild(divAvgTime);
