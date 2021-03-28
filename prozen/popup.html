@@ -36,14 +36,22 @@
         <div class="section">
             <div class="row">
                 <div>
-                    <label class="switch"><input id="prozen-switch" type="checkbox"/>
+                    <label class="switch"><input class="switch-checkbox" id="prozen-switch"
+                                                 data-text-switch-on="Расширение включено"
+                                                 data-text-switch-off="Расширение отключено" type="checkbox"/>
                         <div></div>
                     </label></div>
-                <div>&nbsp;</div>
                 <div id="prozen-switch-text">Расширение активно</div>
             </div>
+            <div class="row">
+                <div>
+                    <label class="switch"><input class="switch-checkbox" id="prozen-article-link-switch"
+                                                 type="checkbox"/>
+                        <div></div>
+                    </label></div>
+                <div id="prozen-article-link-switch-text">Ссылки в заголовках статьи</div>
+            </div>
         </div>
-
         <div class="section">
             <a href="https://t.me/prodzen" target="_blank"><span class="icon-telegram"></span><small>prodzen в
                 телеграме</small></a>

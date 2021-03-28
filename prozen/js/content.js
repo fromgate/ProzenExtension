@@ -1,4 +1,4 @@
-start();
+
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
 const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
@@ -18,13 +18,16 @@ let data;
 let publisherId;
 let mediaUrl;
 
+start();
 
 ///////////////////////////////////
 // Functions
 ///////////////////////////////////
 
+
+
 async function start() {
-    if (await getExtensionState() === false) {
+    if (await getOption("prozen-switch") === false) {
         return;
     }
 
@@ -58,10 +61,15 @@ async function start() {
 }
 
 
-function getExtensionState() {
+function getOption(optionId) {
+    const optionsIds = ["prozen-switch", "prozen-article-link-switch"];
     return new Promise(resolve => {
-        chrome.storage.local.get("prozenEnabled", result => {
-            resolve(result.prozenEnabled);
+        chrome.storage.local.get(optionsIds, option => {
+            if (option.hasOwnProperty(optionId)) {
+                resolve(option[optionId]);
+            } else {
+                resolve(true);
+            }
         });
     });
 }
@@ -444,20 +452,24 @@ async function articleShowStatsVideo() {
 }
 
 function addHeaderClicks() {
-    const headers = document.querySelectorAll("h2, h3");
-    if (headers.length > 0) {
-        for (let i = 0; i<headers.length ; i++) {
-            const header = headers [i];
-            const ancorId = header.getAttribute("id");
-            if (ancorId !== undefined && ancorId !== null) {
-                const shortUrl = shortUrl() + "#" + ancorId;
-                const clickIcon = createElement("span", "publication_header_icon_url");
-                clickIcon.setAttribute("title", "Скопировать ссылку на этот заголовок");
-                clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl));
-                header.insertBefore(clickIcon, header.firstChild);
+    getOption("prozen-article-link-switch").then(option => {
+        if (option) {
+            const headers = document.querySelectorAll("h2, h3");
+            if (headers.length > 0) {
+                for (let i = 0; i < headers.length; i++) {
+                    const header = headers [i];
+                    const ancorId = header.getAttribute("id");
+                    if (ancorId !== undefined && ancorId !== null) {
+                        const clickIcon = createElement("span", "publication_header_icon_url");
+                        clickIcon.setAttribute("title", "Ссылка на заголовок.\n" +
+                            "Кликните, чтобы скопировать её в буфер обмена");
+                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl() + "#" + ancorId));
+                        header.insertBefore(clickIcon, header.firstChild);
+                    }
+                }
             }
         }
-    }
+    });
 }
 
 async function articleShowStats() {
@@ -479,7 +491,7 @@ async function articleShowStats() {
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
-    removeByClass ("article-stats-view-redesign__info-container");
+    removeByClass("article-stats-view-redesign__info-container");
 
     let divRightContainer;
     if (document.getElementsByClassName("article-stats-view-redesign__info-container").length > 0) {
@@ -493,7 +505,7 @@ async function articleShowStats() {
     if (document.getElementsByClassName("article-stats-view-redesign__info-inner").length > 0) {
         container = document.getElementsByClassName("article-stats-view-redesign__info-inner")[0];
     } else {
-        container = createElement("div","article-stats-view-redesign__info-inner");
+        container = createElement("div", "article-stats-view-redesign__info-inner");
     }
     divRightContainer.appendChild(container);
 
@@ -523,7 +535,7 @@ async function articleShowStats() {
     divAvgTime.appendChild(spanAvgTimeCount);
 
     const spanShortLinkIcon = createElement("span", "publication_icon_short_url");
-    const divShortLink = createElement("div","article-stats-view-redesign__stats-item");
+    const divShortLink = createElement("div", "article-stats-view-redesign__stats-item");
     divShortLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
     divShortLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
     divShortLink.style.cursor = "pointer";
@@ -536,7 +548,7 @@ async function articleShowStats() {
 
     if (checkNoIndex()) {
         const spanSadRobotIcon = createElement("span", "publication_icon_sad_robot");
-        const divSadRobot = createElement("div","article-stats-view-redesign__stats-item");
+        const divSadRobot = createElement("div", "article-stats-view-redesign__stats-item");
         divSadRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +

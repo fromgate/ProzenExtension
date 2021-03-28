@@ -4,13 +4,41 @@ window.browser = (function () {
         window.chrome;
 })();
 const nameVersion = document.getElementById("extver");
-document.getElementById("prozen-switch").addEventListener('click', onCheckboxClick);
-
 nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
 document.getElementById("prozen-image").style.visibility = "hidden";
+const switchIds = [];
 
-loadExtensionState();
+initSwitches();
+loadOptions();
 showLastPost();
+
+
+function initSwitches() {
+    const switchElements = document.getElementsByClassName("switch-checkbox");
+    for (let i = 0; i<switchElements.length; i++) {
+        const el = switchElements[i];
+        const switchId = el.id;
+        switchIds.push(switchId);
+        document.getElementById(switchId).addEventListener('click', onCheckboxClick.bind(null, switchId));
+    }
+}
+
+function loadOptions() {
+    chrome.storage.local.get(switchIds, options => {
+        switchIds.forEach(switchId => {
+            let save = false;
+            if (options.hasOwnProperty (switchId)) {
+                setCheckbox(switchId, options[switchId])
+            } else {
+                setCheckbox(switchId, true);
+                save = true;
+            }
+            if (save) {
+                saveOptions();
+            }
+        })
+    });
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 async function showLastPost() {
@@ -30,31 +58,27 @@ async function showLastPost() {
 }
 
 
-function onCheckboxClick() {
-    setCheckbox (document.getElementById("prozen-switch").checked)
+function onCheckboxClick(switchId) {
+    setCheckbox (switchId, document.getElementById(switchId).checked, true)
 }
 
-function setCheckbox (switchState, save=true) {
-    document.getElementById("prozen-switch").checked = switchState;
-    const text = switchState ? "Расширение включено" : "Расширение отключено";
-    const divSwitch = document.getElementById("prozen-switch-text");
-    divSwitch.innerText = text
-    divSwitch.style.fontWeight = switchState ? "500" : "normal";
-    saveExtensionState(switchState);
+function setCheckbox (switchId, switchState, save = false) {
+    const switchEl = document.getElementById (switchId)
+    switchEl.checked = switchState;
+    const switchTextEl = document.getElementById(switchId + "-text");
+    if (switchEl.hasAttribute("data-text-switch-on") && switchEl.hasAttribute("data-text-switch-off")) {
+        switchTextEl.innerText = switchEl.checked ? switchEl.getAttribute("data-text-switch-on") : switchEl.getAttribute("data-text-switch-off");
+    }
+    switchTextEl.style.fontWeight = switchState ? "500" : "normal";
+    if (save) {
+        saveOptions();
+    }
 }
 
-
-function loadExtensionState() {
-        chrome.storage.local.get("prozenEnabled", function (result) {
-            if (result.prozenEnabled === undefined) {
-                setCheckbox(true)
-            } else {
-                setCheckbox(result.prozenEnabled, false)
-            }
-        });
-}
-
-function saveExtensionState(switchState) {
-    chrome.storage.local.set({prozenEnabled: document.getElementById("prozen-switch").checked}, function () {
-    });
+function saveOptions() {
+    const options = {}
+    switchIds.forEach(switchId => {
+        options[switchId] = document.getElementById(switchId).checked;
+    })
+    chrome.storage.local.set(options);
 }
