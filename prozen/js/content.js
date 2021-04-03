@@ -549,7 +549,7 @@ async function articleShowStats() {
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        const sadRobotIcon = createElement("span", "publication_icon_sad_robot");
+        const sadRobotIcon = createElement("span", "article-stats-view-redesign__stats-item-icon publication_icon_sad_robot");
         sadRobotContainer.appendChild(sadRobotIcon);
 
         elArticleLikes.appendChild(sadRobotContainer);
