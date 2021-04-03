@@ -472,8 +472,9 @@ function addHeaderClicks() {
     });
 }
 
-async function articleShowStats() {
 
+// According to redesign 03.04.2021
+async function articleShowStats() {
     if (data === null) {
         return;
     }
@@ -487,77 +488,74 @@ async function articleShowStats() {
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
-    const elArticleDate = document.getElementsByClassName("article-stats-view-redesign__date")[0]; // article-stats-view-redesign__date //article-stat__date"
+    const articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view-redesign__item");
+    const elArticleDate = articleStatsViewRedesignItems[0];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
+    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1];
 
-    removeByClass("article-stats-view-redesign__info-container");
-
-    let divRightContainer;
-    if (document.getElementsByClassName("article-stats-view-redesign__info-container").length > 0) {
-        divRightContainer = document.getElementsByClassName("article-stats-view-redesign__info-container")[0];
+    let elArticleStats;
+    if (articleStatsViewRedesignItems.length === 2) {
+        elArticleStats = createElement("div", "article-stats-view-redesign__item");
+        elArticleLikes.parentNode.insertBefore(elArticleStats, elArticleLikes);
     } else {
-        divRightContainer = createElement("div", "article-stats-view-redesign__info-container article-stats-view-redesign__info-container_loaded");
-        document.getElementsByClassName("article-stats-view-redesign")[0].appendChild(divRightContainer);
+        elArticleStats = articleStatsViewRedesignItems[1];
+        removeChilds(elArticleStats);
     }
+    const container = createElement("div", "article-stats-view-redesign__info-container article-stats-view-redesign__info-container_loaded");
+    elArticleStats.appendChild(container);
 
-    let container;
-    if (document.getElementsByClassName("article-stats-view-redesign__info-inner").length > 0) {
-        container = document.getElementsByClassName("article-stats-view-redesign__info-inner")[0];
-    } else {
-        container = createElement("div", "article-stats-view-redesign__info-inner");
-    }
-    divRightContainer.appendChild(container);
+    const containerInner = createElement("div", "article-stats-view-redesign__info-inner");
+    container.appendChild(containerInner);
 
-    const spanViewsIcon = createElement("span", "publication_icon_views article-stats-view-redesign__stats-item-icon_type_views-count");
-    const spanViewsCount = createElement("span", "article-stats-view-redesign__stats-item-count");
-    spanViewsCount.innerText = views;
-    const divViews = createElement("div", "article-stats-view-redesign__stats-item");
-    divViews.setAttribute("title", "Просмотры");
-    divViews.appendChild(spanViewsIcon);
-    divViews.appendChild(spanViewsCount);
+    // Просмотры
+    const viewsContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    viewsContainer.setAttribute("title", "Просмотры");
+    const viewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon publication_icon_views_2");
+    viewsContainer.appendChild(viewsIcon);
+    const viewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
+    viewsText.innerText = numFormat(views,0);
+    viewsContainer.appendChild(viewsText);
 
-    const spanFullViewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_views-count");
-    const spanFullViewsCount = createElement("span", "article-stats-view-redesign__stats-item-count");
-    spanFullViewsCount.innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
-    const divFullViews = createElement("div", "article-stats-view-redesign__stats-item");
-    divFullViews.setAttribute("title", "Дочитывания");
-    divFullViews.appendChild(spanFullViewsIcon);
-    divFullViews.appendChild(spanFullViewsCount);
+    containerInner.appendChild(viewsContainer);
 
-    const spanAvgTimeIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time")
-    const spanAvgTimeCount = createElement("span", "article-stats-view-redesign__stats-item-count");
-    spanAvgTimeCount.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+    // Дочитывания
+    const fullViewsContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    fullViewsContainer.setAttribute("title", "Дочитывания");
+    const fullViewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_views-count");
+    fullViewsContainer.appendChild(fullViewsIcon);
+    const fullViewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
+    fullViewsText.innerText = numFormat(viewsTillEnd,0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
+    fullViewsContainer.appendChild(fullViewsText);
 
-    const divAvgTime = createElement("div", "article-stats-view-redesign__stats-item")
-    divAvgTime.setAttribute("title", "Среднее время дочитывания");
-    divAvgTime.appendChild(spanAvgTimeIcon);
-    divAvgTime.appendChild(spanAvgTimeCount);
 
-    const spanShortLinkIcon = createElement("span", "publication_icon_short_url");
-    const divShortLink = createElement("div", "article-stats-view-redesign__stats-item");
-    divShortLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-    divShortLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
-    divShortLink.style.cursor = "pointer";
-    divShortLink.appendChild(spanShortLinkIcon);
+    containerInner.appendChild(fullViewsContainer);
 
-    container.appendChild(divViews);
-    container.appendChild(divFullViews);
-    container.appendChild(divAvgTime);
-    container.appendChild(divShortLink);
+    // Среднее время
+    const avgTimeContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
+    const avgTimeIcon = createElement("span","article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time");
+    avgTimeContainer.appendChild(avgTimeIcon);
+    const avgTimeText = createElement("span","article-stats-view-redesign__stats-item-count");
+    avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+    avgTimeContainer.appendChild(avgTimeText);
+
+    containerInner.appendChild(avgTimeContainer);
 
     if (checkNoIndex()) {
-        const spanSadRobotIcon = createElement("span", "publication_icon_sad_robot");
-        const divSadRobot = createElement("div", "article-stats-view-redesign__stats-item");
-        divSadRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+        const sadRobotContainer = createElement("div", "article-stats-view-redesign__stats-item");
+        sadRobotContainer.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        divSadRobot.appendChild(spanSadRobotIcon);
-        container.appendChild(divSadRobot);
+        const sadRobotIcon = createElement("span", "publication_icon_sad_robot");
+        sadRobotContainer.appendChild(sadRobotIcon);
+
+        elArticleLikes.appendChild(sadRobotContainer);
     }
 
+    // Ссылка на подзаголовок
     addHeaderClicks();
 }
 
@@ -1361,6 +1359,10 @@ async function loadAllPublications() {
         publications.push(...result);
     }
     return publications;
+}
+
+function numFormat(num, digits) {
+    return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
 }
 
 function paucal(num, p1, p234, p) {
