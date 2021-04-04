@@ -494,7 +494,8 @@ async function articleShowStats() {
     const elArticleDate = articleStatsViewRedesignItems[hasAdv];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
-    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1 + hasAdv];
+
+    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1];
 
     let elArticleStats;
     if (articleStatsViewRedesignItems.length === 2 + hasAdv) {
