@@ -488,18 +488,20 @@ async function articleShowStats() {
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
+    const hasAdv = document.getElementsByClassName("article-stats-view-redesign__block-item").length; // 1 - рекламная статья, 0 - обычная
+
     const articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view-redesign__item");
-    const elArticleDate = articleStatsViewRedesignItems[0];
+    const elArticleDate = articleStatsViewRedesignItems[hasAdv];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
-    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1];
+    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1 + hasAdv];
 
     let elArticleStats;
-    if (articleStatsViewRedesignItems.length === 2) {
+    if (articleStatsViewRedesignItems.length === 2 + hasAdv) {
         elArticleStats = createElement("div", "article-stats-view-redesign__item");
         elArticleLikes.parentNode.insertBefore(elArticleStats, elArticleLikes);
     } else {
-        elArticleStats = articleStatsViewRedesignItems[1];
+        elArticleStats = articleStatsViewRedesignItems[1 + hasAdv];
         removeChilds(elArticleStats);
     }
     const container = createElement("div", "article-stats-view-redesign__info-container article-stats-view-redesign__info-container_loaded");
@@ -542,6 +544,17 @@ async function articleShowStats() {
 
     containerInner.appendChild(avgTimeContainer);
 
+    // Короткая ссылка
+    const shortLinkContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    shortLinkContainer.setAttribute ("title","Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+    const shortLinkIcon = createElement("span", "publication_icon_short_url");
+    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+    shortLinkIcon.style.cursor = "pointer";
+    shortLinkContainer.appendChild(shortLinkIcon);
+
+    elArticleLikes.appendChild(shortLinkContainer)
+
+    // Грустный робот
     if (checkNoIndex()) {
         const sadRobotContainer = createElement("div", "article-stats-view-redesign__stats-item");
         sadRobotContainer.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
