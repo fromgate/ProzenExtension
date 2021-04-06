@@ -27,6 +27,7 @@
     "js/totalstats.js",
     "js/sadrobot.js",
     "js/page.js",
+    "js/litepicker.sj",
     "css/prozen.css"
   ],
   "content_scripts": [

@@ -1,53 +1,76 @@
-const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
+const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
+const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
+const TYPES = ["article", "narrative", "post", "gif", "gallery"];
 
 const VISIBLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "search_not_found"];
-const SEARCH_PLACEHOLDER = ["кора осины", "продзен", "варенье из огурцов", "смысл жизни", "показы"];
 
-var id;
+let token;
 let publications = [];
+let publisherId;
+
+const dateRange = {start: 0, end: 0}
+
+const picker = new Litepicker({
+    element: document.getElementById('start-date'),
+    elementEnd: document.getElementById('end-date'),
+    singleMode: false,
+    dropdowns: {"minYear": 2017, "months": false, "years": true},
+    numberOfColumns: 2,
+    numberOfMonths: 2,
+    format: "DD-MM-YYYY",
+    lang: "ru-RU",
+    position: "bottom left",
+    allowRepick: true,
+})
+picker.setDateRange ("30-05-2017", Date());
+
 
 showElement("search_msg");
 getChannelId();
+initButtons();
 
-document.getElementById('search_button').onclick = searchClick;
-document.getElementById('show_articles').onclick = showArticles;
-document.getElementById('show_narratives').onclick = showNarratives;
-document.getElementById('show_posts').onclick = showPosts;
-document.getElementById('show_videos').onclick = showVideos;
-document.getElementById('show_galleries').onclick = showGalleries;
-randomizeSearchPlaceholer();
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-function showArticles() {
-    showByType("card");
-    return false;
+function initButtons() {
+    document.getElementById('search_button').onclick = searchClick;
+    document.getElementById('search-clear').onclick = searchClear;
+    document.getElementById("range-clear").onclick = clickSearchAllTime;
+    document.getElementById("range-year").onclick = clickThisYear;
+    TYPES.forEach(pubType => {
+       document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
+    });
 }
 
-function showNarratives() {
-    showByType("story");
-    return false;
+function clickSearchAllTime() {
+    clearDateRange();
+    searchClick();
 }
 
-function showPosts() {
-    showByType("post");
-    return false;
+function clickThisYear() {
+    picker.setDateRange ( new Date (new Date().getFullYear(),0), new Date());
+    searchClick();
 }
 
-function showVideos() {
-    showByType("gif");
-    return false;
+function clearDateRange() {
+    if (publications.length > 0) {
+        let min = Date.now();
+        let max = 0;
+        publications.forEach(publication => {
+            if (publication.addTime < min) {
+                min = publication.addTime;
+            }
+            if (publication.addTime > max) {
+                max = publication.addTime;
+            }
+        });
+        picker.setDateRange(picker.DateTime (new Date(min)), picker.DateTime (new Date(max)));
+    } else {
+        picker.setDateRange ("30-05-2017", new Date());
+    }
 }
-
-function showGalleries() {
-    showByType("gallery");
-    return false;
-}
-
 
 function getChannelId() {
-    chrome.storage.local.get(["prozenId", "prozenSearch"], function (result) {
-        id = result.prozenId;
+    chrome.storage.local.get(["prozenSearch", "prozenToken", "prozenPublisherId"], result => {
+        publisherId = result.prozenPublisherId;
+        token = result.prozenToken;
         const searchString = result.prozenSearch;
         if (searchString.length > 0) {
             document.getElementById("search").value = searchString;
@@ -59,20 +82,15 @@ function getChannelId() {
 function updateSerchStats() {
     if (publications.length !== 0) {
         const count = {};
-        count['card'] = 0;
-        count['story'] = 0;
-        count['post'] = 0;
-        count['gif'] = 0;
-        count['gallery'] = 0;
-
+        TYPES.forEach(pubType => count[pubType] = 0);
         for (let i = 0; i < publications.length; i++) {
             count [publications[i].type]++;
         }
-        document.getElementById('show_articles').innerText = "Статьи: " + count.card;
-        document.getElementById('show_narratives').innerText = "Нарративы: " + count.story;
-        document.getElementById('show_posts').innerText = "Посты: " + count.post;
-        document.getElementById('show_videos').innerText = "Видео: " + count.gif;
-        document.getElementById('show_galleries').innerText = "Галереи: " + count.gallery;
+        document.getElementById('show-article').innerText = "Статьи: " + count.article;
+        document.getElementById('show-narrative').innerText = "Нарративы: " + count.article;
+        document.getElementById('show-post').innerText = "Посты: " + count.post;
+        document.getElementById('show-gif').innerText = "Видео: " + count.gif;
+        document.getElementById('show-gallery').innerText = "Галереи: " + count.gallery;
     }
 }
 
@@ -88,8 +106,13 @@ function showByType(pubType) {
 
 function executeShowByType(pubType) {
     const foundCards = [];
+    const dateStart = picker.getStartDate();
+    const dateEnd = picker.getEndDate();
     for (let i = 0; i < publications.length; i++) {
         const card = publications [i];
+        if (card.addTime < dateStart.getTime() || card.addTime > dateEnd.getTime()) {
+            continue;
+        }
         if (card.type === pubType) {
             foundCards.push(card);
         }
@@ -105,24 +128,25 @@ function executeShowByType(pubType) {
     }
 }
 
+function searchClear() {
+    document.getElementById("search").value = "";
+}
 
 function searchClick() {
     const searchString = document.getElementById("search").value;
     clearSearchResults();
-    if (searchString && searchString.length !== 0) {
-        showElement("spinner");
-        if (publications.length === 0) {
-            loadPublicationsAndSearch();
-        } else {
-            executSearch();
-        }
+    showElement("spinner");
+    if (publications.length === 0) {
+        loadPublicationsAndSearch();
     } else {
-        showElement("search_msg_empty");
+        executeSearch();
     }
-    return false;
 }
 
 function cardMatch(card, searchString) {
+    if (searchString === undefined || searchString.length === 0) {
+        return true;
+    }
     const ln = searchString.split(" ");
     let foundTitle = true;
     let foundDescription = true;
@@ -140,11 +164,16 @@ function cardMatch(card, searchString) {
     return foundTitle || foundDescription;
 }
 
-function executSearch() {
+function executeSearch() {
     const searchStr = document.getElementById("search").value;
+    const dateStart = picker.getStartDate();
+    const dateEnd = picker.getEndDate();
     const foundCards = [];
     for (let i = 0; i < publications.length; i++) {
         const card = publications [i];
+        if (card.addTime < dateStart.getTime() || card.addTime > dateEnd.getTime()) {
+            continue;
+        }
         if (cardMatch(card, searchStr)) {
             foundCards.push(card);
         }
@@ -161,8 +190,7 @@ function executSearch() {
 }
 
 function loadPublicationsAndShowByType(pubType) {
-    let url = API_URL + id;
-    loadPageData(url).then(cards => {
+    loadAllPublications().then(cards => {
         publications = cards;
         updateSerchStats();
         executeShowByType(pubType);
@@ -170,98 +198,11 @@ function loadPublicationsAndShowByType(pubType) {
 }
 
 function loadPublicationsAndSearch() {
-    let url = API_URL + id;
-    loadPageData(url).then(cards => {
+    loadAllPublications().then(cards => {
         publications = cards;
         updateSerchStats();
-        executSearch();
+        executeSearch();
     });
-}
-
-async function loadPageData(initUrl) {
-    const header = new Headers({
-        "Zen-Client-Experiments": "zen-version:2.32.0",
-        "Zen-Features": "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":241},\"need_background_image\":true,\"color_theme\":\"white-background\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"blocked_suggest\",\"video_recommend\",\"language\",\"comments_counter\"],\"stat_params_with_context\":true,\"native_onboarding\":true,\"card_types\":[\"post\"]}"
-    });
-
-    let url = initUrl;
-    const cards = [];
-    while (true) {
-        const request = await fetch(url, {headers: header, method: "GET"});
-        let json;
-        try {
-            json = await request.json();
-        } catch (e) {
-        }
-        if (!request.ok || json === undefined || json.items === undefined) {
-            break;
-        }
-        const items = json.items;
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            if (item.link === undefined || item.link.startsWith("https://zen.yandex.ru")) {
-                cards.push(cardFromItem(item));
-            }
-        }
-        url = json.more.link;
-    }
-    return cards;
-}
-
-function randomizeSearchPlaceholer() {
-    document.getElementById("search").setAttribute("placeholder", SEARCH_PLACEHOLDER[Math.floor(Math.random() * SEARCH_PLACEHOLDER.length)])
-}
-
-function cardFromItem(item) {
-    const card = {};
-    card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
-    card.url = item.link === undefined ? "" : item.link.split("?")[0];
-    if (card.type === "post" || item.rich_text !== undefined) {
-        card.title = richTextJsonToText (item.rich_text.json);
-    } else if (card.type === "gallery") {
-        card.title = "";
-        for (let i = 0; i < item.items.length; i++) {
-            if (item.items[i].rich_text === undefined) continue;
-            if (i > 0) {
-                card.title = card.title + " ";
-            }
-            card.title = card.title + richTextJsonToText (item.items[i].rich_text.json);
-        }
-    } else {
-        card.title = item.title;
-    }
-    card.description = card.type === "post" ||  card.type === "gallery" ? "" : item.text;
-    publications.push(card);
-    return card;
-}
-
-function richTextJsonToText (data) {
-    let str = "";
-    for (let i = 0; i < data.length; i++) {
-        if (data[i].type === "text") {
-            if (str.length >0) str = str + " ";
-            str = str + data[i].data;
-        }
-    }
-    return str;
-}
-
-function postJsonToText(json) {
-    if (json === undefined || json.length === 0) {
-        return "";
-    }
-    let str;
-    for (let i = 0; i < json.length; i++) {
-        const obj = json[i];
-        if (obj.type === "text") {
-            if (str === undefined) {
-                str = obj.data
-            } else {
-                str = str + " " + obj.data;
-            }
-        }
-    }
-    return str;
 }
 
 function addSearchResult(card) {
@@ -284,17 +225,17 @@ function cardToDiv(card) {
     div.setAttribute("class", "section");
     const icon = document.createElement("span");
     switch (card.type) {
-        case "card":
+        case "article":
             icon.setAttribute("class", "icon_views span_icon");
             icon.setAttribute("title", "Статья");
             break;
-        case "story":
+        case "narrative":
             icon.setAttribute("class", "icon_narrative span_icon");
             icon.setAttribute("title", "Нарратив");
             break;
         case "gallery":
             icon.setAttribute("class", "icon_narrative span_icon");
-            icon.setAttribute("title", "Галерея\nУ галерей нет ссылки.");
+            icon.setAttribute("title", "Галерея");
             break;
         case "gif":
             icon.setAttribute("class", "icon_video span_icon");
@@ -309,11 +250,15 @@ function cardToDiv(card) {
     const strong = document.createElement("strong");
     strong.innerText = card.title;
     div.appendChild(strong);
-    if (card.type === "card" || card.type === "story") {
+    if (card.type === "article" || card.type === "narrative") {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
         span.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
         div.appendChild(span);
+    } else if (card.type === "gallery") {
+        strong.innerText = card.title === undefined || card.title.length === 0 ? "Описание не указано" : card.title;
+    } else if (card.type === "post") {
+        strong.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
     }
     return div;
 }
@@ -334,4 +279,58 @@ function clearSearchResults() {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
     }
+}
+
+async function loadAllPublications() {
+    const publications = [];
+    let recordCount = 0;
+    for (let i = 0; i < TYPES.length; i++) {
+        const publicationType = TYPES[i];
+        const response = await loadPublicationsCount(publicationType).then(response => {
+            return response;
+        });
+        const count = response.count;
+        const result = await loadPublications(publicationType, count).then(response => {
+            const cards = [];
+            if (response !== undefined && response.publications !== undefined) {
+                for (let i = 0, len = response.publications.length; i < len; i++) {
+                    const pubData = {};
+                    const publication = response.publications[i];
+                    pubData.id = publication.id;
+                    pubData.feedShows = publication.privateData.statistics.feedShows;
+                    pubData.shows = publication.privateData.statistics.shows;
+                    pubData.views = publication.privateData.statistics.views;
+                    pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
+                    pubData.comments = publication.privateData.statistics.comments;
+                    pubData.likes = publication.privateData.statistics.likes;
+                    pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
+                    pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
+                    pubData.type = publication.content.type;
+                    pubData.tags = new Set(publication.privateData.tags);
+                    pubData.title = publication.content.preview.title;
+                    pubData.description = publication.content.preview.snippet;
+                    pubData.url = getMediaUrl(publication.id);
+                    cards.push(pubData);
+                    recordCount++;
+                }
+            }
+            return cards;
+        });
+        publications.push(...result);
+    }
+    return publications;
+}
+
+function getMediaUrl(publicationId) {
+    return "https://zen.yandex.ru/media/id/" + publisherId + "/" + publicationId;
+}
+
+function loadPublicationsCount(publicationType) {
+    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
+}
+
+function loadPublications(publicationType, count) {
+    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }

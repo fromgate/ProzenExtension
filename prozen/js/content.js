@@ -750,7 +750,7 @@ function clickSearchButton(searchString) {
     } else {
         id = "channel_name=" + data.publisher.nickname.raw;
     }
-    chrome.storage.local.set({prozenId: id, prozenSearch: textToFind}, function () {
+    chrome.storage.local.set({prozenId: id, prozenSearch: textToFind, prozenToken: token, prozenPublisherId: publisherId}, function () {
         window.open(browser.extension.getURL("search.html"));
     });
 }
