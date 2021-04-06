@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.18.4",
+  "version": "1.18.5",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "update_url": "https://clients2.google.com/service/update2/crx",
@@ -28,6 +28,7 @@
     "js/sadrobot.js",
     "js/page.js",
     "js/litepicker.sj",
+    "js/ranges.js",
     "css/prozen.css"
   ],
   "content_scripts": [

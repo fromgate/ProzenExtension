@@ -8,8 +8,6 @@ let token;
 let publications = [];
 let publisherId;
 
-const dateRange = {start: 0, end: 0}
-
 const picker = new Litepicker({
     element: document.getElementById('start-date'),
     elementEnd: document.getElementById('end-date'),
@@ -21,9 +19,28 @@ const picker = new Litepicker({
     lang: "ru-RU",
     position: "bottom left",
     allowRepick: true,
+    plugins: ['ranges'],
+    ranges: {
+        position: 'left',
+        customRanges: getCustomRanges()
+    }
 })
-picker.setDateRange ("30-05-2017", Date());
+picker.setDateRange("30-05-2017", Date());
 
+function getCustomRanges() {
+    const ranges = {};
+    const today = new Date()
+    const year = today.getFullYear();
+    ranges["Это месяц"] = [new Date (new Date().setDate(1)), today]
+    ranges["Прошлый месяц"] = [new Date (today.getFullYear(), today.getMonth()-1), new Date (today.getFullYear(), today.getMonth())]
+    ranges["Последние 30 дней"] = [new Date (new Date().setDate(today.getDate()-30)), today]
+    ranges["Последние 180 дней"] = [new Date (new Date().setDate(today.getDate()-180)), today]
+    ranges[year.toString() + " год"] = [new Date(year, 0), today]
+    ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)]
+    ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)]
+    ranges[(year - 3).toString() + " год"] = [new Date(year - 3, 0), new Date(year - 2, 0)]
+    return ranges
+}
 
 showElement("search_msg");
 getChannelId();
@@ -33,19 +50,13 @@ function initButtons() {
     document.getElementById('search_button').onclick = searchClick;
     document.getElementById('search-clear').onclick = searchClear;
     document.getElementById("range-clear").onclick = clickSearchAllTime;
-    document.getElementById("range-year").onclick = clickThisYear;
     TYPES.forEach(pubType => {
-       document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
+        document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
     });
 }
 
 function clickSearchAllTime() {
     clearDateRange();
-    searchClick();
-}
-
-function clickThisYear() {
-    picker.setDateRange ( new Date (new Date().getFullYear(),0), new Date());
     searchClick();
 }
 
@@ -61,9 +72,9 @@ function clearDateRange() {
                 max = publication.addTime;
             }
         });
-        picker.setDateRange(picker.DateTime (new Date(min)), picker.DateTime (new Date(max)));
+        picker.setDateRange(picker.DateTime(new Date(min)), picker.DateTime(new Date(max)));
     } else {
-        picker.setDateRange ("30-05-2017", new Date());
+        picker.setDateRange("30-05-2017", new Date());
     }
 }
 
