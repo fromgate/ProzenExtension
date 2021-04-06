@@ -17,6 +17,7 @@ const picker = new Litepicker({
     numberOfMonths: 2,
     format: "DD-MM-YYYY",
     lang: "ru-RU",
+    tooltipText: {one: "день", few: "дня", many: "дней"},
     position: "bottom left",
     allowRepick: true,
     plugins: ['ranges'],
