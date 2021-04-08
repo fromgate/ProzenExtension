@@ -330,6 +330,14 @@ async function loadAllPublications() {
         });
         publications.push(...result);
     }
+
+    publications.sort ((a, b) => {
+        const addTimeA = a.addTime;
+        const addTimeB = b.addTime;
+        if (addTimeA<addTimeB) return 1;
+        if (addTimeA>addTimeB) return -1;
+        return 0;
+    });
     return publications;
 }
 
