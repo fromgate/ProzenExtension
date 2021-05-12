@@ -1,4 +1,3 @@
-
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
 const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
@@ -23,7 +22,6 @@ start();
 ///////////////////////////////////
 // Functions
 ///////////////////////////////////
-
 
 
 async function start() {
@@ -219,7 +217,7 @@ function loadCards(soureElement) {
             continue;
         }
         const postLink = cardLinks[0].getAttribute("href");
-        if (postLink.startsWith("/profile/editor/id/")) {
+        if (postLink == null || postLink.startsWith("/profile/editor/id/")) {
             continue;
         }
         const publicationId = getPostIdFromUrl(postLink);
@@ -402,35 +400,20 @@ async function articleShowStatsVideo() {
     {
         // Просмотры
         const spanIcon1 = createElement("span", "article__date-video article-stat__icon article-stat__icon_type_book-black");
-        /* container.appendChild(spanIcon1);
-        spanIcon1.setAttribute("style", "background-color: #FFFFFF80;"); */
         const spanCount1 = createElement("span", "article__date-video");
         spanCount1.innerText = "📺 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
         spanCount1.setAttribute("title", "Просмотры");
         container.appendChild(spanCount1);
     }
-    /*
-    {
-        // Просмотры (досмотры)?
-        const spanIcon2 = createElement("span", "article-stat__icon article-stat__icon_type_perusal-black");
-        container.appendChild(spanIcon2);
-        const spanCount2 = createElement("span", "article__date-video");
-        spanCount2.innerText = viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-        container.appendChild(spanCount2);
-    }
-    */
     {
         // Среднее время просмотра
-        /* const spanIcon3 = createElement("span", "article-stat__icon article-stat__icon_type_time-black");
-        container.appendChild(spanIcon3);*/
         const spanCount3 = createElement("span", "article__date-video");
         spanCount3.innerText = "⌚ " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
         spanCount3.setAttribute("title", "Среднее время просмотра");
         container.appendChild(spanCount3);
     }
-
     {
-        const url = window.location.href.split("\?")[0];
+        const spanIcon4 = createElement("span", "article__date-video");
         spanIcon4.innerText = "🔗";
         spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
         spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
@@ -438,16 +421,15 @@ async function articleShowStatsVideo() {
         container.appendChild(spanIcon4);
     }
 
-    {
-        if (checkNoIndex()) {
-            const spanIcon5 = createElement("span", "article__date-video");
-            spanIcon5.innerText = "🤖";
-            spanIcon5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Публикация не индексируется поисковиками.\n" +
-                "Примечание: связь этого тега с показами,\n" +
-                "пессимизацией и иными ограничениями канала\n" +
-                "официально не подтверждена.");
-        }
+    if (checkNoIndex()) {
+        const spanIcon5 = createElement("span", "article__date-video");
+        spanIcon5.innerText = "🤖";
+        spanIcon5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+            "Публикация не индексируется поисковиками.\n" +
+            "Примечание: связь этого тега с показами,\n" +
+            "пессимизацией и иными ограничениями канала\n" +
+            "официально не подтверждена.");
+        container.appendChild(spanIcon5);
     }
 }
 
@@ -495,7 +477,7 @@ async function articleShowStats() {
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
-    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length-1];
+    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1];
 
     let elArticleStats;
     if (articleStatsViewRedesignItems.length === 2 + hasAdv) {
@@ -517,7 +499,7 @@ async function articleShowStats() {
     const viewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon publication_icon_views_2");
     viewsContainer.appendChild(viewsIcon);
     const viewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
-    viewsText.innerText = numFormat(views,0);
+    viewsText.innerText = numFormat(views, 0);
     viewsContainer.appendChild(viewsText);
 
     containerInner.appendChild(viewsContainer);
@@ -528,7 +510,7 @@ async function articleShowStats() {
     const fullViewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_views-count");
     fullViewsContainer.appendChild(fullViewsIcon);
     const fullViewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
-    fullViewsText.innerText = numFormat(viewsTillEnd,0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
+    fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
     fullViewsContainer.appendChild(fullViewsText);
 
 
@@ -537,9 +519,9 @@ async function articleShowStats() {
     // Среднее время
     const avgTimeContainer = createElement("div", "article-stats-view-redesign__stats-item");
     avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
-    const avgTimeIcon = createElement("span","article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time");
+    const avgTimeIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time");
     avgTimeContainer.appendChild(avgTimeIcon);
-    const avgTimeText = createElement("span","article-stats-view-redesign__stats-item-count");
+    const avgTimeText = createElement("span", "article-stats-view-redesign__stats-item-count");
     avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
     avgTimeContainer.appendChild(avgTimeText);
 
@@ -547,7 +529,7 @@ async function articleShowStats() {
 
     // Короткая ссылка
     const shortLinkContainer = createElement("div", "article-stats-view-redesign__stats-item");
-    shortLinkContainer.setAttribute ("title","Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+    shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
     const shortLinkIcon = createElement("span", "publication_icon_short_url");
     shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
     shortLinkIcon.style.cursor = "pointer";
@@ -750,7 +732,12 @@ function clickSearchButton(searchString) {
     } else {
         id = "channel_name=" + data.publisher.nickname.raw;
     }
-    chrome.storage.local.set({prozenId: id, prozenSearch: textToFind, prozenToken: token, prozenPublisherId: publisherId}, function () {
+    chrome.storage.local.set({
+        prozenId: id,
+        prozenSearch: textToFind,
+        prozenToken: token,
+        prozenPublisherId: publisherId
+    }, function () {
         window.open(browser.extension.getURL("search.html"));
     });
 }

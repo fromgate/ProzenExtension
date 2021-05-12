@@ -54,6 +54,14 @@ function initButtons() {
     TYPES.forEach(pubType => {
         document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
     });
+
+    const searchField = document.getElementById('search');
+    searchField.addEventListener("keyup", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("search_button").click();
+        }
+    });
 }
 
 function clickSearchAllTime() {

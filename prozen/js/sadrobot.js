@@ -185,8 +185,11 @@ function cardFromItem(item) {
     const card = {};
     card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
     card.url = item.link.split("?")[0];
-    card.title = card.type === "post" ? postJsonToText(item.rich_text.json) : item.title;
-    card.description = card.type === "post" ? "" : item.text;
+    card.title = (card.type === "post" || card.type === "gallery") && item.rich_text != null  ? postJsonToText(item.rich_text.json) : item.title;
+    card.description = card.type === "post" || card.type === "gallery" ? "" : item.text;
+    if (card.type === "gallery" && !card.title) {
+        card.title = "Галерея без описания";
+    }
     publications.push(card);
     return card;
 }
