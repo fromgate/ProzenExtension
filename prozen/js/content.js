@@ -526,7 +526,7 @@ async function articleShowStats() {
     shortLinkIcon.style.cursor = "pointer";
     shortLinkContainer.appendChild(shortLinkIcon);
 
-    elArticleLikes.appendChild(shortLinkContainer)
+    elArticleStats.appendChild(shortLinkContainer)
 
     // Грустный робот
     if (checkNoIndex()) {
@@ -539,7 +539,7 @@ async function articleShowStats() {
         const sadRobotIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_sad_robot");
         sadRobotContainer.appendChild(sadRobotIcon);
 
-        elArticleLikes.appendChild(sadRobotContainer);
+        elArticleStats.appendChild(sadRobotContainer);
     }
 
     // Ссылка на подзаголовок
