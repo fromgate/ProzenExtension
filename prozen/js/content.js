@@ -455,7 +455,6 @@ function addHeaderClicks() {
 }
 
 
-// According to redesign 03.04.2021
 async function articleShowStats() {
     if (data === null) {
         return;
@@ -470,65 +469,57 @@ async function articleShowStats() {
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
-    const hasAdv = document.getElementsByClassName("article-stats-view-redesign__block-item").length; // 1 - рекламная статья, 0 - обычная
+    const hasAdv = document.getElementsByClassName("article-stats-view__block-item").length; // 1 - рекламная статья, 0 - обычная
 
-    const articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view-redesign__item");
+    const articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     const elArticleDate = articleStatsViewRedesignItems[hasAdv];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
-    const elArticleLikes = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1];
+    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length -1]
+    removeChilds(elArticleStats);
 
-    let elArticleStats;
-    if (articleStatsViewRedesignItems.length === 2 + hasAdv) {
-        elArticleStats = createElement("div", "article-stats-view-redesign__item");
-        elArticleLikes.parentNode.insertBefore(elArticleStats, elArticleLikes);
-    } else {
-        elArticleStats = articleStatsViewRedesignItems[1 + hasAdv];
-        removeChilds(elArticleStats);
-    }
-    const container = createElement("div", "article-stats-view-redesign__info-container article-stats-view-redesign__info-container_loaded");
+    const container = createElement("div", "article-stats-view__info-container article-stats-view__info-container_loaded");
     elArticleStats.appendChild(container);
 
-    const containerInner = createElement("div", "article-stats-view-redesign__info-inner");
+    const containerInner = createElement("div", "article-stats-view__info-inner");
     container.appendChild(containerInner);
 
     // Просмотры
-    const viewsContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    const viewsContainer = createElement("div", "article-stats-view__stats-item");
     viewsContainer.setAttribute("title", "Просмотры");
-    const viewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon publication_icon_views_2");
+    const viewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_views_2");
     viewsContainer.appendChild(viewsIcon);
-    const viewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
+    const viewsText = createElement("span", "article-stats-view__stats-item-count")
     viewsText.innerText = numFormat(views, 0);
     viewsContainer.appendChild(viewsText);
 
     containerInner.appendChild(viewsContainer);
 
     // Дочитывания
-    const fullViewsContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    const fullViewsContainer = createElement("div", "article-stats-view__stats-item");
     fullViewsContainer.setAttribute("title", "Дочитывания");
-    const fullViewsIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_views-count");
+    const fullViewsIcon = createElement("span", "article-stats-view__stats-item-icon article-stats-view__stats-item-icon_type_views-count");
     fullViewsContainer.appendChild(fullViewsIcon);
-    const fullViewsText = createElement("span", "article-stats-view-redesign__stats-item-count")
+    const fullViewsText = createElement("span", "article-stats-view__stats-item-count")
     fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
     fullViewsContainer.appendChild(fullViewsText);
-
 
     containerInner.appendChild(fullViewsContainer);
 
     // Среднее время
-    const avgTimeContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    const avgTimeContainer = createElement("div", "article-stats-view__stats-item");
     avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
-    const avgTimeIcon = createElement("span", "article-stats-view-redesign__stats-item-icon article-stats-view-redesign__stats-item-icon_type_mid-time");
+    const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon article-stats-view__stats-item-icon_type_mid-time");
     avgTimeContainer.appendChild(avgTimeIcon);
-    const avgTimeText = createElement("span", "article-stats-view-redesign__stats-item-count");
+    const avgTimeText = createElement("span", "article-stats-view__stats-item-count");
     avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
     avgTimeContainer.appendChild(avgTimeText);
 
     containerInner.appendChild(avgTimeContainer);
 
     // Короткая ссылка
-    const shortLinkContainer = createElement("div", "article-stats-view-redesign__stats-item");
+    const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
     shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
     const shortLinkIcon = createElement("span", "publication_icon_short_url");
     shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
@@ -539,13 +530,13 @@ async function articleShowStats() {
 
     // Грустный робот
     if (checkNoIndex()) {
-        const sadRobotContainer = createElement("div", "article-stats-view-redesign__stats-item");
+        const sadRobotContainer = createElement("div", "article-stats-view__stats-item");
         sadRobotContainer.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        const sadRobotIcon = createElement("span", "article-stats-view-redesign__stats-item-icon publication_icon_sad_robot");
+        const sadRobotIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_sad_robot");
         sadRobotContainer.appendChild(sadRobotIcon);
 
         elArticleLikes.appendChild(sadRobotContainer);
