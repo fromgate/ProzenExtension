@@ -79,7 +79,7 @@ function main() {
         return;
     }
     if (pageType === "article") {
-        setTimeout(articleShowStats, 300);
+        setTimeout(showStatsArticle, 300);
         return;
     }
 
@@ -455,7 +455,7 @@ function addHeaderClicks() {
 }
 
 
-async function articleShowStats() {
+async function showStatsArticle() {
     if (data === null) {
         return;
     }
@@ -471,12 +471,18 @@ async function articleShowStats() {
 
     const hasAdv = document.getElementsByClassName("article-stats-view__block-item").length; // 1 - рекламная статья, 0 - обычная
 
-    const articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
+    let articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     const elArticleDate = articleStatsViewRedesignItems[hasAdv];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
+    if (articleStatsViewRedesignItems.length == 1 + hasAdv) {
+        document.getElementsByClassName("article-stats-view article-stats-view_theme_none")[0].appendChild(createElement("div","article-stats-view__item"));
+        articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
+    }
+
     const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length -1]
+    elArticleStats.classList.remove ("article-stats-view__item_no-opacity");
     removeChilds(elArticleStats);
 
     const container = createElement("div", "article-stats-view__info-container article-stats-view__info-container_loaded");
@@ -499,7 +505,7 @@ async function articleShowStats() {
     // Дочитывания
     const fullViewsContainer = createElement("div", "article-stats-view__stats-item");
     fullViewsContainer.setAttribute("title", "Дочитывания");
-    const fullViewsIcon = createElement("span", "article-stats-view__stats-item-icon article-stats-view__stats-item-icon_type_views-count");
+    const fullViewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_full_views");
     fullViewsContainer.appendChild(fullViewsIcon);
     const fullViewsText = createElement("span", "article-stats-view__stats-item-count")
     fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
@@ -510,7 +516,7 @@ async function articleShowStats() {
     // Среднее время
     const avgTimeContainer = createElement("div", "article-stats-view__stats-item");
     avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
-    const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon article-stats-view__stats-item-icon_type_mid-time");
+    const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_read_time");
     avgTimeContainer.appendChild(avgTimeIcon);
     const avgTimeText = createElement("span", "article-stats-view__stats-item-count");
     avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));

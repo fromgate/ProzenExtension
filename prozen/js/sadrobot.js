@@ -159,7 +159,6 @@ async function loadPageData(initUrl, loadAll) {
     return cards;
 }
 
-
 async function checkRobotNoNoIndex(card) {
     return new Promise(function (resolve,) {
         const xhr = new XMLHttpRequest();
@@ -175,6 +174,10 @@ async function checkRobotNoNoIndex(card) {
             }
             resolve(false);
         };
+        xhr.onerror = function () {
+            // //net::ERR_EMPTY_RESPONSE
+            console.log("Failed to load " + card.url);
+        }
         xhr.open("GET", card.url);
         xhr.responseType = "document";
         xhr.send();
