@@ -1,5 +1,9 @@
 const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
 const NOINDEX_KEY = "prozen-noindex-agree-";
+const ROBOTS_NOINDEX = "noindex"
+const ROBOTS_OK = "ok"
+const ROBOTS_FAIL = "fail"
+
 let AGREE = false;
 
 var id;
@@ -98,9 +102,9 @@ async function executeSearch(pubs) {
 
         count++;
         progress(count);
-        const robots = await checkRobotNoNoIndex(card);
-        if (robots) {
-            addSearchResult(card);
+        const checkState = await checkRobotNoNoIndex(card);
+        if (checkState !== ROBOTS_OK) {
+            addSearchResult(card, checkState);
             scrollToBottom();
             countRobots++;
         }
@@ -167,16 +171,15 @@ async function checkRobotNoNoIndex(card) {
             for (let i = 0; i < metas.length; i++) {
                 if (metas[i].getAttribute('name') === "robots") {
                     if (metas[i].getAttribute('content') === "noindex") {
-                        resolve(true);
+                        resolve(ROBOTS_NOINDEX);
                     }
                     break;
                 }
             }
-            resolve(false);
+            resolve(ROBOTS_OK);
         };
         xhr.onerror = function () {
-            // //net::ERR_EMPTY_RESPONSE
-            console.log("Failed to load " + card.url);
+            resolve (ROBOTS_FAIL)
         }
         xhr.open("GET", card.url);
         xhr.responseType = "document";
@@ -215,18 +218,18 @@ function postJsonToText(json) {
     return str;
 }
 
-function addSearchResult(card) {
+function addSearchResult(card, state = ROBOTS_NOINDEX) {
     const a = document.createElement("a");
     a.setAttribute("href", card.url);
     a.setAttribute("target", "_blank");
-    const div = cardToDiv(card);
+    const div = cardToDiv(card, state === ROBOTS_FAIL);
     a.appendChild(div);
     const searchResult = document.getElementById("search_result");
     searchResult.appendChild(a);
     searchResult.appendChild(document.createElement("hr"));
 }
 
-function cardToDiv(card) {
+function cardToDiv(card, fail = false) {
     const div = document.createElement("div");
     div.setAttribute("class", "section");
     const icon = document.createElement("span");
@@ -249,6 +252,14 @@ function cardToDiv(card) {
             break;
     }
     div.appendChild(icon);
+
+    if (fail) {
+        const red = document.createElement("mark");
+        red.innerText = "Ошибка проверки!";
+        red.className = "inline-block";
+        div.appendChild(red);
+    }
+
     const strong = document.createElement("strong");
     strong.innerText = card.title;
     div.appendChild(strong);
