@@ -107,13 +107,15 @@ function main() {
     }
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
-        registerTargetObserver();
-        registerContentObserver();
+        if (detectZenStudio()) {
+            // Дзен-студия (новый редактор)
+
+        } else {
+            // Старый редактор
+            registerTargetObserver();
+            registerContentObserver();
+        }
     }
-}
-
-function registerFeedObservers() {
-
 }
 
 function registerContentObserver() {
@@ -477,12 +479,12 @@ async function showStatsArticle() {
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
     if (articleStatsViewRedesignItems.length == 1 + hasAdv) {
-        document.getElementsByClassName("article-stats-view article-stats-view_theme_none")[0].appendChild(createElement("div","article-stats-view__item"));
+        document.getElementsByClassName("article-stats-view article-stats-view_theme_none")[0].appendChild(createElement("div", "article-stats-view__item"));
         articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     }
 
-    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length -1]
-    elArticleStats.classList.remove ("article-stats-view__item_no-opacity");
+    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1]
+    elArticleStats.classList.remove("article-stats-view__item_no-opacity");
     removeChilds(elArticleStats);
 
     const container = createElement("div", "article-stats-view__info-container article-stats-view__info-container_loaded");
@@ -1408,5 +1410,9 @@ function registerEvents() {
 
 }
 
-
 // Event handlers
+
+// ZenStudio
+function detectZenStudio() {
+    return document.getElementsByClassName("author-studio-layout__content").length > 0;
+}
