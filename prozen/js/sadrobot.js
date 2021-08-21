@@ -1,4 +1,5 @@
 const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
+const URL_ZEN_ID = "https://zen.yandex.ru/id/";
 const NOINDEX_KEY = "prozen-noindex-agree-";
 const ROBOTS_NOINDEX = "noindex"
 const ROBOTS_OK = "ok"
@@ -9,11 +10,28 @@ let AGREE = false;
 var id;
 let publications = [];
 
-const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found"];
+const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
 
 showWarning();
 document.getElementById("agree").onclick = clickAgree;
 document.getElementById("start_button").onclick = loadPublicationsAndSearch;
+
+start();
+
+function start() {
+    // getChannelId();
+   loadData().then(data=> {
+       id = data.id;
+       AGREE = data.agree;
+       checkHasNone(id).then(none => {
+           if (none) {
+               showElement("channel_none");
+           } else {
+               showWarning();
+           }
+       });
+   });
+}
 
 function showWarning() {
     if (AGREE) {
@@ -38,8 +56,6 @@ function saveAgree() {
     object [NOINDEX_KEY + id] = AGREE;
     chrome.storage.local.set(object);
 }
-
-getChannelId();
 
 function getChannelId() {
     chrome.storage.local.get(["prozenId"], result => {
@@ -294,4 +310,46 @@ function addListFooter(totalCount, robotsCount) {
 
 function scrollToBottom() {
     window.scrollTo(0, document.body.scrollHeight);
+}
+
+
+function loadData() {
+    return new Promise(resolve => {
+        const data = {id: null, agree: false}
+        chrome.storage.local.get(["prozenId"], result => {
+            data.id = result.prozenId;
+            if (data.id !== undefined) {
+                chrome.storage.local.get([NOINDEX_KEY + data.id], function (result) {
+                    const agree = result [NOINDEX_KEY + data.id];
+                    if (agree !== undefined) {
+                        data.agree = agree;
+                    } else {
+                        data.agree = false;
+                    }
+                    resolve (data);
+                });
+            }
+        });
+    });
+}
+
+function checkHasNone(id) {
+    return new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            const metas = xhr.responseXML.head.getElementsByTagName('meta');
+            for (let i = 0; i < metas.length; i++) {
+                if (metas[i].getAttribute('property') === "robots") {
+                    if (metas[i].getAttribute('content') === "none") {
+                        resolve(true);
+                    }
+                    break;
+                }
+            }
+            resolve(false);
+        };
+        xhr.open("GET", URL_ZEN_ID + id);
+        xhr.responseType = "document";
+        xhr.send();
+    });
 }

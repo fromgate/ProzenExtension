@@ -16,6 +16,14 @@ let token;
 let data;
 let publisherId;
 let mediaUrl;
+let metriksId;
+let moneySaldo;
+let moneyTotal;
+
+let oldHref = window.location.href;
+let observerWindowLocationHref;
+let observerInfoBlockStats;
+let observerBalanceTooltip;
 
 start();
 
@@ -28,22 +36,15 @@ async function start() {
     if (await getOption("prozen-switch") === false) {
         return;
     }
-
-    window.browser = (function () {
-        return window.msBrowser ||
-            window.browser ||
-            window.chrome;
-    })();
-
     const css = createElement("link");
     css.setAttribute("rel", "stylesheet");
     css.setAttribute("type", "text/css");
-    css.setAttribute("href", browser.extension.getURL("css/prozen.css"));
+    css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
     document.head.appendChild(css);
 
     const script = createElement("script");
     script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", browser.extension.getURL("js/page.js"));
+    script.setAttribute("src", chrome.extension.getURL("js/page.js"));
     document.body.appendChild(script);
 
     window.addEventListener("message", function (event) {
@@ -53,14 +54,22 @@ async function start() {
             token = event.data.text;
             data = event.data.jsonData;
             publisherId = event.data.jsonData.userPublisher.id;
-            main();
+            getBalanceAndMetriksId().then(result => {
+                metriksId = result.metriksId;
+                moneyTotal = result.total;
+                moneySaldo = result.money;
+                moneyDate = result.balanceDate;
+
+                main();
+            });
+
         }
     });
 }
 
 
 function getOption(optionId) {
-    const optionsIds = ["prozen-switch", "prozen-article-link-switch"];
+    const optionsIds = ["prozen-switch", "prozen-article-link-switch", "prozen-studio-comments-switch"];
     return new Promise(resolve => {
         chrome.storage.local.get(optionsIds, option => {
             if (option.hasOwnProperty(optionId)) {
@@ -107,14 +116,22 @@ function main() {
     }
     if (pageType === "main") {
         mediaUrl = window.location.href.replace("profile/editor", "media");
-        if (detectZenStudio()) {
-            // Дзен-студия (новый редактор)
+        if (isStudio()) {
+            hideComments();
+            addStudioMenu();
+            // updateStudioBalance();
+            registerObserverWindowsLocation();
+            registerObserverBalance();
 
         } else {
             // Старый редактор
             registerTargetObserver();
             registerContentObserver();
         }
+    }
+    if (pageType === "publications") {
+        addStudioMenu();
+        registerObserverWindowsLocation();
     }
 }
 
@@ -240,8 +257,8 @@ async function articleShowStatsNarrative() {
         return;
     }
     const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
     const articleData = await loadPublicationStat(postId);
     const sumViewTimeSec = articleData.sumViewTimeSec;
@@ -301,8 +318,8 @@ async function articleShowStatsGallery() {
         return;
     }
     const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
     const articleData = await loadPublicationStat(postId);
 
@@ -385,8 +402,8 @@ async function articleShowStatsVideo() {
         return;
     }
     const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
     const articleData = await loadPublicationStat(postId);
 
@@ -462,8 +479,8 @@ async function showStatsArticle() {
         return;
     }
     const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateFormat(data.publication.addTime);
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
     const articleData = await loadPublicationStat(postId);
     const sumViewTimeSec = articleData.sumViewTimeSec;
@@ -596,6 +613,12 @@ function getPageType() {
         if (path.endsWith("/money/simple")) {
             return "money";
         }
+        if (path.endsWith("/publications")) {
+            return "publications";
+        }
+        if (path.endsWith("/music")) {
+            return "music";
+        }
         if (path.endsWith("/edit")) {
             return "edit";
         }
@@ -617,7 +640,7 @@ async function showBalance() {
         headers: {'X-Csrf-Token': token}
     });
     const data = await responce.json();
-    if (data.money.isMonetezationAvaliable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
+    if (data.money.isMonetizationAvailable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
         const simpleBalance = data.money.simple.balance;
         const personalDataBalance = data.money.simple.personalData.balance;
         const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
@@ -638,6 +661,7 @@ function showBalanceAndMetrics() {
     );
 }
 
+// OLD EDITOR
 function addProzenMenu(metricsId) {
     if (!document.getElementById("prozen-menu")) {
         const divProzenMenu = createElement("div", "monetization-block");
@@ -701,6 +725,7 @@ function addProzenMenu(metricsId) {
     }
 }
 
+//OLD EDITOR
 function setBalance(money, total) {
     const moneySpan = document.getElementsByClassName("monetization-block__money-balance")[0];
     if (!moneySpan) {
@@ -737,7 +762,7 @@ function clickSearchButton(searchString) {
         prozenToken: token,
         prozenPublisherId: publisherId
     }, function () {
-        window.open(browser.extension.getURL("search.html"));
+        window.open(chrome.extension.getURL("search.html"));
     });
 }
 
@@ -755,7 +780,7 @@ function clickFindSadRobots() {
 
 function clickTotalStatsButton() {
     chrome.storage.local.set({prozenToken: token, prozenPublisherId: publisherId}, function () {
-        window.open(browser.extension.getURL("totalstats.html"));
+        window.open(chrome.extension.getURL("totalstats.html"));
     });
 }
 
@@ -863,8 +888,8 @@ function processCardsViews(ids) {
 function setPublicationTime(pubData) {
     const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
     if (dateDiv.innerText.match("(^Вчера)|(^Сегодня)|(^Три дня назад)|(^\\d{1,2}\\s([а-я]+)(\\s201\\d)?)")) {
-        const dayMod = dateFormat(pubData.modTime);
-        const dayCreate = pubData.addTime === undefined ? dayMod : dateFormat(pubData.addTime);
+        const dayMod = dateTimeFormat(pubData.modTime);
+        const dayCreate = pubData.addTime === undefined ? dayMod : dateTimeFormat(pubData.addTime);
         dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " (" + dayMod + ")");
     }
 }
@@ -1038,7 +1063,7 @@ function creatNotification(num, message) {
     return notification;
 }
 
-function dateFormat(unixTime) {
+function dateTimeFormat(unixTime) {
     const date = new Date(unixTime);
     const day = "0" + date.getDate();
     const month = "0" + (date.getMonth() + 1);
@@ -1403,16 +1428,225 @@ function log(message) {
         console.log(message);
     }
 }
+/************************************************/
+/*                 СТУДИЯ!                      */
+/************************************************/
+// Определяем изменение адреса
+function registerObserverWindowsLocation() {
+    const bodyList = document.querySelector("body")
+    if (observerWindowLocationHref !== undefined) {
+        observerWindowLocationHref.disconnect();
+    }
+    observerWindowLocationHref = new MutationObserver(mutations => {
+        mutations.forEach(() => {
+            if (oldHref !== document.location.href) {
+                oldHref = document.location.href;
+                main();
+            }
+        });
+    });
+    const config = {
+        childList: true,
+        subtree: true
+    };
+    observerWindowLocationHref.observe(bodyList, config);
+}
+// Вывод подсказки для баланса
+function registerObserverBalanceTooltip(ariaDescribedBy) {
+    const target = document.querySelector("body");
+    if (observerBalanceTooltip !== undefined) {
+        observerBalanceTooltip.disconnect();
+    }
+    observerBalanceTooltip = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(e => {
+                    if (e.tagName === "DIV" && e.classList.contains("author-studio-info-item-desktop")) {
+                        console.log(e.tagName + " " + e.className);
+                        if (e.childNodes.length > 0 && e.childNodes[0].id === ariaDescribedBy) {
+                            setBalanceTooltip(e.childNodes[0]);
+                            observerBalanceTooltip.disconnect();
+                        }
+                    }
+                });
+            }
+        });
+    });
+    observerBalanceTooltip.observe(target, {childList: true});
+}
+// Отображение баланса
+function registerObserverBalance() {
+    const target = document.querySelector("ul.author-studio-info-block__stats");
+    if (target == null) {
+        setTimeout(registerObserverBalance, 500);
+        return;
+    }
+    target.querySelectorAll("li.author-studio-info-block__stat-item").forEach(e => {
+        if (e.tagName === "LI") {
+            const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+            if (name === "баланс") {
+                updateStudioBalance(e.childNodes[0]);
+                return;
+            }
+        }
+    });
 
-
-// TODO надо всё на события переделать, а то как-то топорно
-function registerEvents() {
-
+    if (observerInfoBlockStats !== undefined) {
+        observerInfoBlockStats.disconnect();
+    }
+    observerInfoBlockStats = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                mutation.addedNodes.forEach(e => {
+                    if (e.tagName === "LI") {
+                        const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+                        if (name === "баланс") {
+                            updateStudioBalance(e.childNodes[0]);
+                            observerInfoBlockStats.disconnect();
+                        }
+                    }
+                });
+            }
+        });
+    });
+    observerInfoBlockStats.observe(target, {childList: true});
 }
 
-// Event handlers
 
-// ZenStudio
-function detectZenStudio() {
+function setBalanceTooltip(tooltip) {
+    if (document.getElementById("prozen-money-date") != null || document.getElementById("prozen-money-total")) {
+        return;
+    }
+    const messageDiv = tooltip.getElementsByClassName("author-studio-info-item-hint")[0];
+    if (moneyDate != null) {
+        const p = createElement("p", "Text Text_typography_text-14-18 author-studio-info-item-hint__text");
+        p.id = "prozen-money-date";
+        p.innerText = `Начислено за ${moneyDate}`;
+        messageDiv.appendChild(p);
+    }
+    if (moneyTotal != null) {
+        const p = createElement("p", "Text Text_typography_text-14-18 author-studio-info-item-hint__text");
+        p.id = "prozen-money-total";
+        p.innerText = `Всего: ${moneyTotal} ₽`;
+        messageDiv.appendChild(p);
+    }
+}
+
+
+
+function updateStudioBalance(balanceElement) {
+    if (!balanceElement.hasAttribute("aria-describedby")) {
+        return;
+    }
+    balanceElement.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/money/`));
+
+    if (moneySaldo != null) {
+        balanceElement.getElementsByClassName("author-studio-info-item__stat-item-value")[0].innerText = moneySaldo;
+    }
+    const ariaDescribedBy = balanceElement.getAttribute("aria-describedby");
+    registerObserverBalanceTooltip(ariaDescribedBy);
+}
+
+
+
+// Поддержка Студии
+function isStudio() {
     return document.getElementsByClassName("author-studio-layout__content").length > 0;
+}
+
+async function addStudioMenu() {
+    if (document.getElementById("prozen-main-menu") == null) {
+        const navbars = document.getElementsByClassName("navbar__nav-list");
+        const prozenMenu = createElement("ul", "navbar__nav-list prozen_navbar");
+        prozenMenu.id = "prozen-main-menu";
+        prozenMenu.appendChild(creatProzenMenuElement("\nДополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
+        prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
+        const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
+        prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
+        prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
+        prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots"));
+        navbars[0].insertAdjacentElement("afterend", prozenMenu);
+    }
+}
+
+function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
+    const navItem = createElement("li", "nav-item")
+    if (hint !== null) {
+        navItem.setAttribute("title", hint);
+    }
+    const menuLine = createElement("div", "navbar__nav-item-content");
+    if (url == null) {
+        const a = createElement("div", "navbar__nav-link")
+        navItem.appendChild(a);
+        a.appendChild(menuLine);
+        bold = true;
+    } else if (typeof url === "string") {
+        const a = createElement("a", "navbar__nav-link")
+        a.setAttribute("target", "_blank")
+        a.setAttribute("href", url)
+        navItem.appendChild(a);
+        a.appendChild(menuLine);
+    } else {
+        const a = createElement("a", "navbar__nav-link")
+        a.addEventListener('click', url);
+        a.cursor = "pointer";
+        navItem.appendChild(a);
+        a.appendChild(menuLine);
+    }
+
+    const menuIcon = createElement("span", "navbar__icon");
+    if (iconClass != null) {
+        menuIcon.classList.add(iconClass);
+        // TODO Разобраться с отображением картинки в свёрнутом режиме
+    }
+    menuLine.appendChild(menuIcon);
+
+    const menuText = createElement("span", "navbar__text");
+    menuText.innerText = title;
+    menuLine.appendChild(menuText);
+    if (bold) {
+        menuText.style.fontWeight = "bold";
+    }
+    return navItem;
+}
+
+async function getBalanceAndMetriksId() {
+    const result = {money: null, total: null, balanceDate: null, metriksId: null}
+    const url = URL_API_MEDIA + publisherId + "/money";
+    const responce = await fetch(url, {
+        credentials: 'same-origin',
+        headers: {'X-Csrf-Token': token}
+    });
+    const data = await responce.json();
+
+    if (data.money.isMonetizationAvailable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
+        const simpleBalance = data.money.simple.balance;
+        const options = {year: 'numeric', month: 'long', day: 'numeric'};
+        result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
+        const personalDataBalance = data.money.simple.personalData.balance;
+        const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
+
+        let total = money;
+        for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
+            if (data.money.simple.paymentHistory[i]["status"] === "completed") {
+                total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+            }
+        }
+        result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
+        result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
+    }
+    result.metriksId = data.publisher.privateData.metrikaCounterId;
+    return result;
+}
+
+function hideComments() {
+    getOption("prozen-studio-comments-switch").then(enable => {
+        if (!enable) {
+            document.getElementsByClassName("author-studio-main__middle-column")[0].style.display = "none";
+        }
+    });
+}
+
+function openUrl(url) {
+    location.href = url;
 }
