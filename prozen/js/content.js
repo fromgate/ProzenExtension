@@ -9,6 +9,14 @@ const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publicati
 const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
 const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
 
+const OPTIONS = {
+    prozen: "prozen-switch",
+    subtitleLinks: "prozen-article-link-switch",
+    dashboardComments: "prozen-studio-comments-switch",
+    prozenMenu: "prozen-menu-switch"
+}
+
+
 const publications = new Map();
 let observer;
 const observers = [];
@@ -33,43 +41,32 @@ start();
 
 
 async function start() {
-    if (await getOption("prozen-switch") === false) {
+    if (await getOption(OPTIONS.prozen) === false) {
         return;
     }
-    const css = createElement("link");
-    css.setAttribute("rel", "stylesheet");
-    css.setAttribute("type", "text/css");
-    css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
-    document.head.appendChild(css);
+    if (!document.getElementById("prozen-css")) {
+        const css = createElement("link");
+        css.setAttribute("rel", "stylesheet");
+        css.setAttribute("type", "text/css");
+        css.id = "prozen-css";
+        css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
+        document.head.appendChild(css);
+    }
 
-    const script = createElement("script");
-    script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", chrome.extension.getURL("js/page.js"));
-    document.body.appendChild(script);
-
-    window.addEventListener("message", function (event) {
-        if (event.source !== window)
-            return;
-        if (event.data.type && (event.data.type === "prozen-data")) {
-            token = event.data.text;
-            data = event.data.jsonData;
-            publisherId = event.data.jsonData.userPublisher.id;
-            getBalanceAndMetriksId().then(result => {
-                metriksId = result.metriksId;
-                moneyTotal = result.total;
-                moneySaldo = result.money;
-                moneyDate = result.balanceDate;
-
-                main();
-            });
-
-        }
-    });
+    if (!document.getElementById("prozen-page-script")) {
+        const script = createElement("script");
+        script.setAttribute("type", "text/javascript");
+        script.id = "prozen-page-script";
+        script.setAttribute("src", chrome.extension.getURL("js/page.js"));
+        document.body.appendChild(script);
+    }
+    window.addEventListener("message", ReceiveProzenData);
+    sendProzenRequest();
 }
 
 
 function getOption(optionId) {
-    const optionsIds = ["prozen-switch", "prozen-article-link-switch", "prozen-studio-comments-switch"];
+    const optionsIds = Object.values(OPTIONS);
     return new Promise(resolve => {
         chrome.storage.local.get(optionsIds, option => {
             if (option.hasOwnProperty(optionId)) {
@@ -127,6 +124,7 @@ function main() {
             // Старый редактор
             registerTargetObserver();
             registerContentObserver();
+            registerObserverWindowsLocation();
         }
     }
     if (pageType === "publications") {
@@ -179,7 +177,7 @@ function registerTargetObserver() {
     if (observer !== undefined) {
         observer.disconnect();
     }
-    observer = new MutationObserver(function (mutations) {
+    observer = new MutationObserver(mutations => {
         mutations.forEach(function (mutation) {
             if (mutation.type === 'childList') {
                 setUnprocessedPublications();
@@ -453,7 +451,7 @@ async function articleShowStatsVideo() {
 }
 
 function addHeaderClicks() {
-    getOption("prozen-article-link-switch").then(option => {
+    getOption(OPTIONS.subtitleLinks).then(option => {
         if (option) {
             const headers = document.querySelectorAll("h2, h3");
             if (headers.length > 0) {
@@ -801,7 +799,7 @@ function loadPublicationsStat(publicationIds) {
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
-function loadPublicationsPublisher(publisherId) {
+function loadPublicationsPublisher() {
     const countUrl = URL_API_COUNT_PUBLISHED + publisherId;
     return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
         .then(response => response.json())
@@ -1428,9 +1426,11 @@ function log(message) {
         console.log(message);
     }
 }
+
 /************************************************/
 /*                 СТУДИЯ!                      */
 /************************************************/
+
 // Определяем изменение адреса
 function registerObserverWindowsLocation() {
     const bodyList = document.querySelector("body")
@@ -1441,7 +1441,8 @@ function registerObserverWindowsLocation() {
         mutations.forEach(() => {
             if (oldHref !== document.location.href) {
                 oldHref = document.location.href;
-                main();
+                //main();
+                start();
             }
         });
     });
@@ -1451,6 +1452,7 @@ function registerObserverWindowsLocation() {
     };
     observerWindowLocationHref.observe(bodyList, config);
 }
+
 // Вывод подсказки для баланса
 function registerObserverBalanceTooltip(ariaDescribedBy) {
     const target = document.querySelector("body");
@@ -1462,7 +1464,6 @@ function registerObserverBalanceTooltip(ariaDescribedBy) {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                 mutation.addedNodes.forEach(e => {
                     if (e.tagName === "DIV" && e.classList.contains("author-studio-info-item-desktop")) {
-                        console.log(e.tagName + " " + e.className);
                         if (e.childNodes.length > 0 && e.childNodes[0].id === ariaDescribedBy) {
                             setBalanceTooltip(e.childNodes[0]);
                             observerBalanceTooltip.disconnect();
@@ -1474,6 +1475,7 @@ function registerObserverBalanceTooltip(ariaDescribedBy) {
     });
     observerBalanceTooltip.observe(target, {childList: true});
 }
+
 // Отображение баланса
 function registerObserverBalance() {
     const target = document.querySelector("ul.author-studio-info-block__stats");
@@ -1533,7 +1535,6 @@ function setBalanceTooltip(tooltip) {
 }
 
 
-
 function updateStudioBalance(balanceElement) {
     if (!balanceElement.hasAttribute("aria-describedby")) {
         return;
@@ -1548,13 +1549,15 @@ function updateStudioBalance(balanceElement) {
 }
 
 
-
 // Поддержка Студии
 function isStudio() {
     return document.getElementsByClassName("author-studio-layout__content").length > 0;
 }
 
 async function addStudioMenu() {
+    if (!await getOption(OPTIONS.prozenMenu)) {
+        return;
+    }
     if (document.getElementById("prozen-main-menu") == null) {
         const navbars = document.getElementsByClassName("navbar__nav-list");
         const prozenMenu = createElement("ul", "navbar__nav-list prozen_navbar");
@@ -1565,7 +1568,7 @@ async function addStudioMenu() {
         prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
         prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
         prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots"));
-        prozenMenu.appendChild(creatProzenMenuElement("Поддержка", "prozen_support_mail", openUrlNewTab.bind(null,"https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Написать в службу поддержки Яндекс.Дзен"));
+        prozenMenu.appendChild(creatProzenMenuElement("Служба поддержки", "prozen_support_mail", openUrlNewTab.bind(null, "https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Обратиться в службу поддержки Яндекс.Дзена"));
         navbars[0].insertAdjacentElement("afterend", prozenMenu);
     }
 }
@@ -1620,29 +1623,30 @@ async function getBalanceAndMetriksId() {
         headers: {'X-Csrf-Token': token}
     });
     const data = await responce.json();
-
-    if (data.money.isMonetizationAvailable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
+    if (data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
         const simpleBalance = data.money.simple.balance;
         const options = {year: 'numeric', month: 'long', day: 'numeric'};
         result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
-        const personalDataBalance = data.money.simple.personalData.balance;
-        const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
+        if (data.money.simple.personalData != null) {
+            const personalDataBalance = data.money.simple.personalData.balance;
+            const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
 
-        let total = money;
-        for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
-            if (data.money.simple.paymentHistory[i]["status"] === "completed") {
-                total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+            let total = money;
+            for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
+                if (data.money.simple.paymentHistory[i]["status"] === "completed") {
+                    total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+                }
             }
+            result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
+            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
         }
-        result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
-        result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
     }
     result.metriksId = data.publisher.privateData.metrikaCounterId;
     return result;
 }
 
 function hideComments() {
-    getOption("prozen-studio-comments-switch").then(enable => {
+    getOption(OPTIONS.dashboardComments).then(enable => {
         if (!enable) {
             document.getElementsByClassName("author-studio-main__middle-column")[0].style.display = "none";
         }
@@ -1655,4 +1659,29 @@ function openUrl(url) {
 
 function openUrlNewTab(url) {
     window.open(url, "_blank");
+}
+
+function sendProzenRequest() {
+    const data = {
+        type: "prozen-request"
+    };
+    window.postMessage(data, "*");
+}
+
+function ReceiveProzenData(event) {
+    if (event.source !== window) {
+        return;
+    }
+    if (event.data.type && (event.data.type === "prozen-data")) {
+        token = event.data.text;
+        data = event.data.jsonData;
+        publisherId = event.data.jsonData.publisher.id; //event.data.jsonData.userPublisher.id;
+        getBalanceAndMetriksId().then(result => {
+            metriksId = result.metriksId;
+            moneyTotal = result.total;
+            moneySaldo = result.money;
+            moneyDate = result.balanceDate;
+            main();
+        });
+    }
 }
