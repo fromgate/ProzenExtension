@@ -1565,6 +1565,7 @@ async function addStudioMenu() {
         prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
         prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
         prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots"));
+        prozenMenu.appendChild(creatProzenMenuElement("Поддержка", "prozen_support_mail", openUrlNewTab.bind(null,"https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Написать в службу поддержки Яндекс.Дзен"));
         navbars[0].insertAdjacentElement("afterend", prozenMenu);
     }
 }
@@ -1596,8 +1597,9 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
 
     const menuIcon = createElement("span", "navbar__icon");
     if (iconClass != null) {
-        menuIcon.classList.add(iconClass);
-        // TODO Разобраться с отображением картинки в свёрнутом режиме
+        const icon = createElement("span", "ui-lib-generic-svg");
+        icon.classList.add(iconClass);
+        menuIcon.appendChild(icon);
     }
     menuLine.appendChild(menuIcon);
 
@@ -1649,4 +1651,8 @@ function hideComments() {
 
 function openUrl(url) {
     location.href = url;
+}
+
+function openUrlNewTab(url) {
+    window.open(url, "_blank");
 }
