@@ -273,6 +273,7 @@ function cardToDiv(card, fail = false) {
         const red = document.createElement("mark");
         red.innerText = "Ошибка проверки!";
         red.className = "inline-block";
+        red.setAttribute("title", "Расширение не смогло проверить статью (возможно ошибка связи).\nНадо проверить статью вручную или, если таких ошибок много,\nповторить проверку позднее.")
         div.appendChild(red);
     }
 
