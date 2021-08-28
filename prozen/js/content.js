@@ -1741,7 +1741,6 @@ function ReceiveProzenData(event) {
         const pageType = getPageType();
         if (pageType === "main" || pageType === "publications") {
             getBalanceAndMetriksId().then(result => {
-                console.log("2 - 1")
                 metriksId = result.metriksId;
                 moneyTotal = result.total;
                 moneySaldo = result.money;
@@ -1812,17 +1811,22 @@ async function processDashboardCards() {
 
 function modifyDashboardCard(publicationBlock, card) {
     /*
-   Показы         Просмотры       Дочитывания
-   Лайки          Комменты        ER / Короткая ссылка/ Теги
-   */
-
-    publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0].innerText = card.timeStr;
+       Показы         Лайки     Среднее время
+       Просмотры      Коменты   isBanned?  moderationStatus // ок? isPromotionAvailable snippetFrozen
+       Дочитывания    ER        Короткая ссылка/ Теги
+     */
+    const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
+    timeBlock.innerText = card.timeStr;
+    //timeBlock.style.opacity = 1;
 
     const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
     removeChilds(publicationItemStats);
 
+    // Первая колонка
     const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
     publicationItemStats.appendChild(col1);
+
+    // Показы
     const с1r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     с1r1.setAttribute("title", "Показы");
     col1.appendChild(с1r1);
@@ -1832,82 +1836,103 @@ function modifyDashboardCard(publicationBlock, card) {
     с1r1.appendChild(с1r1Icon);
     с1r1.appendChild(с1r1Text);
 
+    // Просмотры
     const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c1r2.setAttribute("title", "Лайки (%)");
+    c1r2.setAttribute("title", "Просмотры (CTR, %)");
+    const с1r2Icon = createElement("span", "prozen_studio_card_icon_views");
+    const с1r2Text = createElement("span");
+    с1r2Text.innerText = card.viewsStr;
+    c1r2.appendChild(с1r2Icon);
+    c1r2.appendChild(с1r2Text);
     col1.appendChild(c1r2);
 
-    const c1r2Icon = createElement("span", "prozen_studio_card_icon_like");
-    const c1r2Text = createElement("span");
-    c1r2Text.innerText = card.likesStr;
-    c1r2.appendChild(c1r2Icon);
-    c1r2.appendChild(c1r2Text);
+    // Дочитывания
+    const c1r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    c1r3.setAttribute("title", "Дочитывания (%)");
+    const c1r3Icon = createElement("span", "prozen_studio_card_icon_full_views");
+    const c1r3Text = createElement("span");
+    c1r3Text.innerText = card.viewsTillEndStr;
+    c1r3.appendChild(c1r3Icon);
+    c1r3.appendChild(c1r3Text);
+    col1.appendChild(c1r3);
 
+    // Вторая колонка
     const col2 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_shows");
     publicationItemStats.appendChild(col2);
 
-    const с2r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    с2r1.setAttribute("title", "Просмотры (CTR, %)");
+    // Лайки
+    const c2r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    c2r1.setAttribute("title", "Лайки (%)");
+    const c2r1Icon = createElement("span", "prozen_studio_card_icon_like");
+    const c2r1Text = createElement("span");
+    c2r1Text.innerText = card.likesStr;
+    c2r1.appendChild(c2r1Icon);
+    c2r1.appendChild(c2r1Text);
+    col2.appendChild(c2r1);
 
-    col2.appendChild(с2r1);
-
-    const с2r1Icon = createElement("span", "prozen_studio_card_icon_views");
-    const с2r1Text = createElement("span");
-    с2r1Text.innerText = card.viewsStr;
-    с2r1.appendChild(с2r1Icon);
-    с2r1.appendChild(с2r1Text);
-
+    // Коменты
     const c2r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c2r2.setAttribute("title", "Комментарии (%)");
-    col2.appendChild(c2r2);
-
     const c2r2Icon = createElement("span", "prozen_studio_card_icon_comments");
     const c2r2Text = createElement("span");
     c2r2Text.innerText = card.commentsStr;
     c2r2.appendChild(c2r2Icon);
     c2r2.appendChild(c2r2Text);
+    col2.appendChild(c2r2);
 
+    // ER
+    const c2r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    c2r3.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
+    const c2r3Icon = createElement("span", "prozen_studio_card_icon_er");
+    const c2r3Text = createElement("span");
+    c2r3Text.innerText = card.erStr;
+    c2r3.appendChild(c2r3Icon);
+    c2r3.appendChild(c2r3Text);
+    col2.appendChild(c2r3);
 
+    // Третья колонка
     const col3 = createElement("div", "author-studio-publication-item__stat-item author-studio-publicauthor-studio-publication-itemation-item__stat-item_type_comments");
     publicationItemStats.appendChild(col3);
 
-    const с3r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    с3r1.setAttribute("title", "Дочитывания (%)");
+    // Среднее время просмотра
+    const c3r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    c3r1.style.textAlign = "right";
+    c3r1.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    const c3r1Icon = createElement("span", "prozen_studio_card_icon_clock");
+    const c3r1Text = createElement("span");
+    c3r1Text.innerText = card.readTimeStrHMS;
+    c3r1.appendChild(c3r1Icon);
+    c3r1.appendChild(c3r1Text);
+    col3.appendChild(c3r1);
 
-    col3.appendChild(с3r1);
-
-    const с3r1Icon = createElement("span", "prozen_studio_card_icon_full_views");
-    const с3r1Text = createElement("span");
-    с3r1Text.innerText = card.viewsTillEndStr;
-    с3r1.appendChild(с3r1Icon);
-    с3r1.appendChild(с3r1Text);
-
+    // Теги
+    const tagsHint = card.tags.length == 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
     const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    col3.appendChild(c3r2);
-    const c3r2Icon = createElement("span", "prozen_studio_card_icon_er");
-    c3r2Icon.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
+    c3r2.style.textAlign = "right";
+    c3r2.setAttribute("title", tagsHint);
+    const c3r2Icon = createElement("span", "prozen_studio_card_icon_tags");
     const c3r2Text = createElement("span");
-    c3r2Text.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
-    c3r2Text.innerText = card.erStr;
+    c3r2Text.innerText = paucal(card.tags.length, "тег", "тега", "тегов");
     c3r2.appendChild(c3r2Icon);
     c3r2.appendChild(c3r2Text);
-
-    const c3r2LinkIcon = createElement("span", "prozen_studio_card_icon_link");
-    c3r2LinkIcon.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
-    const shortUrl = mediaUrl != null ? `https://zen.yandex.ru/${mediaUrl}/${card.id}` : card.shortUrl;
-    c3r2LinkIcon.addEventListener('click', event => {
-        copyTextToClipboard(shortUrl);
-        event.preventDefault();
-    });
-    c3r2.appendChild(c3r2LinkIcon);
-
-    const c3r2TagIcon = createElement("span", "prozen_studio_card_icon_tags");
-    const tagsHint = card.tags.length == 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
-    c3r2TagIcon.setAttribute("title", tagsHint);
-    c3r2TagIcon.addEventListener('click', event => {
+    c3r2.addEventListener('click', event => {
         copyTextToClipboard(card.tagsStr);
         event.preventDefault();
     });
-    c3r2.appendChild(c3r2TagIcon);
+    col3.appendChild(c3r2);
+
+    // Ссылка
+    const c3r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    c3r3.style.textAlign = "right";
+    c3r3.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
+    const c3r3Icon = createElement("span", "prozen_studio_card_icon_link");
+    c3r3.appendChild(c3r3Icon);
+    const shortUrl = mediaUrl != null ? `https://zen.yandex.ru/${mediaUrl}/${card.id}` : card.shortUrl;
+    c3r3.addEventListener('click', event => {
+        copyTextToClipboard(shortUrl);
+        event.preventDefault();
+    });
+    col3.appendChild(c3r3);
 }
 
 function jsonToCardData(publicationData, publicationUrl) {
@@ -1949,7 +1974,7 @@ function jsonToCardData(publicationData, publicationUrl) {
 
     // Среднее время дочитывания
     card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
-    card.readStrHMS = secToHHMMSS(card.readTime);
+    card.readTimeStrHMS = secToHHMMSS(card.readTime);
     card.readTimeStr = card.readTime > 0 ? secToText(card.readTime) : "-";
 
     // Лайки (проценты)
