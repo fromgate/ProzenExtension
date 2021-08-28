@@ -1,4 +1,21 @@
-registerWebrequestListener();
+isProzenEnabled().then(enabled => {
+    console.log("Enabled: " + enabled);
+    if (enabled) {
+        registerWebrequestListener();
+    }
+});
+
+function isProzenEnabled() {
+    return new Promise(resolve => {
+        chrome.storage.local.get(["prozen-switch"], option => {
+            if (option.hasOwnProperty("prozen-switch")) {
+                resolve(option["prozen-switch"]);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+}
 
 function registerWebrequestListener() {
     chrome.webRequest.onBeforeSendHeaders.addListener(details => {
@@ -26,3 +43,6 @@ function registerWebrequestListener() {
         }, {urls: ["https://zen.yandex.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=*&pageSize=5"]},
         ["requestHeaders"]);
 }
+
+// Запрос при отправке
+//https://zen.yandex.ru/media-api/publication-view-stat?publicationId=61211a41962db963dbf5eeca

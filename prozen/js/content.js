@@ -28,6 +28,7 @@ let mediaUrl;
 let metriksId;
 let moneySaldo;
 let moneyTotal;
+let moneyDate;
 
 let oldHref = window.location.href;
 let observerWindowLocationHref;
@@ -42,10 +43,15 @@ start();
 
 
 async function start() {
-    listenToRequests();
     if (await getOption(OPTIONS.prozen) === false) {
         return;
     }
+    listenToRequests();
+    injectCssAndScript();
+}
+
+function injectCssAndScript() {
+    window.removeEventListener("message", ReceiveProzenData);
     if (!document.getElementById("prozen-css")) {
         const css = createElement("link");
         css.setAttribute("rel", "stylesheet");
@@ -54,7 +60,6 @@ async function start() {
         css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
         document.head.appendChild(css);
     }
-
     if (!document.getElementById("prozen-page-script")) {
         const script = createElement("script");
         script.setAttribute("type", "text/javascript");
@@ -63,7 +68,6 @@ async function start() {
         document.body.appendChild(script);
     }
     window.addEventListener("message", ReceiveProzenData);
-    sendProzenRequest();
 }
 
 
@@ -81,58 +85,55 @@ function getOption(optionId) {
 }
 
 
-function main() {
+function main(updatedId=null) {
     const pageType = getPageType();
-    if (pageType === "unknown") {
-        return;
-    }
-    if (pageType === "article") {
-        setTimeout(showStatsArticle, 300);
-        return;
-    }
+    publisherId = updatedId != null ? updatedId : getPublisherId();
+    switch (pageType) {
+        case "article":
+            setTimeout(showStatsArticle, 300);
+            break;
+        case "narrative":
+            setTimeout(articleShowStatsNarrative, 300);
+            break;
+        case "video":
+            setTimeout(articleShowStatsVideo, 300);
+            break;
+        case "brief":
+            setTimeout(articleShowStatsBrief, 300);
+            break;
+        case "gallery":
+            setTimeout(articleShowStatsGallery, 300);
+            break;
+        case "edit":
+            // setTimeout(addNotificationCloseButton, 50);
+            break;
+        case "main":
+            if (token != null && publisherId != null) {
+                mediaUrl = window.location.href.replace("profile/editor", "media");
+                if (isStudio()) {
+                    hideComments();
+                    addStudioMenu();
+                    // updateStudioBalance();
+                    registerObserverWindowsLocation();
+                    registerObserverBalance();
+                    listenToRequests();
+                } else {
+                    // Старый редактор
+                    registerTargetObserver();
+                    registerContentObserver();
+                    registerObserverWindowsLocation();
 
-    if (pageType === "narrative") {
-        setTimeout(articleShowStatsNarrative, 300);
-        return;
-    }
-
-    if (pageType === "video") {
-        setTimeout(articleShowStatsVideo, 300);
-        return;
-    }
-
-    if (pageType === "gallery") {
-        setTimeout(articleShowStatsGallery, 300);
-        return;
-    }
-
-    publisherId = getPublisherId();
-    if (token === undefined || publisherId === undefined) {
-        return;
-    }
-    if (pageType !== "edit") {
-        setTimeout(addNotificationCloseButton, 50);
-    }
-    if (pageType === "main") {
-        mediaUrl = window.location.href.replace("profile/editor", "media");
-        if (isStudio()) {
-            hideComments();
-            addStudioMenu();
-            // updateStudioBalance();
-            registerObserverWindowsLocation();
-            registerObserverBalance();
-            listenToRequests();
-
-        } else {
-            // Старый редактор
-            registerTargetObserver();
-            registerContentObserver();
-            registerObserverWindowsLocation();
-        }
-    }
-    if (pageType === "publications") {
-        addStudioMenu();
-        registerObserverWindowsLocation();
+                }
+            }
+            break;
+        case "publications":
+            if (token != null && publisherId != null) {
+                addStudioMenu();
+                registerObserverWindowsLocation();
+            }
+            break;
+        case "unknown":
+            break;
     }
 }
 
@@ -313,6 +314,53 @@ async function articleShowStatsNarrative() {
         }
     }
 }
+
+async function articleShowStatsBrief() {
+    if (data === null) {
+        return;
+    }
+    const postId = getPostIdFromUrl(window.location.pathname);
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+
+    /*
+    const articleData = await loadPublicationStat(postId);
+    const sumViewTimeSec = articleData.sumViewTimeSec;
+    const views = articleData.views;
+    const shows = articleData.shows;
+    const viewsTillEnd = articleData.viewsTillEnd;
+    */
+
+    const divStat = createElement("div", "article-stats-view__item");
+    {
+        const spanLink = createElement("span");
+        spanLink.innerText = "  🔗 ";
+        spanLink.setAttribute("title", "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена.");
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+        spanLink.style.cursor = "pointer";
+        divStat.appendChild(spanLink);
+    }
+    {
+        if (checkNoIndex()) {
+            const spanRobot = createElement("span");
+            spanRobot.innerText = " 🤖";
+            spanRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+                "Публикация не индексируется поисковиками.\n" +
+                "Примечание: связь этого тега с показами,\n" +
+                "пессимизацией и иными ограничениями канала\n" +
+                "официально не подтверждена.");
+            divStat.appendChild(spanRobot);
+        }
+    }
+
+    const briefStats = document.getElementsByClassName("desktop-brief-page__stats")[0];
+    const dateDiv = briefStats.querySelector("div.article-stats-view__item");
+    dateDiv.innerText = showTime;
+    dateDiv.setAttribute("title", "Время создания (модификации)");
+    dateDiv.insertAdjacentElement("afterend", divStat);
+}
+
 
 async function articleShowStatsGallery() {
     if (data === null) {
@@ -597,6 +645,10 @@ function getPageType() {
         if (data != null) {
             if (data.isArticle === true) {
                 return "article";
+            }
+
+            if (data.isBrief === true) {
+                return "brief";
             }
 
             if (data.isNarrative === true) {
@@ -1444,8 +1496,8 @@ function registerObserverWindowsLocation() {
         mutations.forEach(() => {
             if (oldHref !== document.location.href) {
                 oldHref = document.location.href;
-                //main();
-                start();
+                sendProzenRequest();
+                //start();
             }
         });
     });
@@ -1561,10 +1613,17 @@ async function addStudioMenu() {
     if (!await getOption(OPTIONS.prozenMenu)) {
         return;
     }
-    if (document.getElementById("prozen-main-menu") == null) {
+    let oldStudioMenu = document.getElementById("prozen-main-menu");
+    if (oldStudioMenu != null && oldStudioMenu.getAttribute("data-publisherId") !== publisherId) {
+        oldStudioMenu.parentNode.removeChild(oldStudioMenu);
+        oldStudioMenu = null;
+    }
+
+    if (oldStudioMenu == null) {
         const navbars = document.getElementsByClassName("navbar__nav-list");
         const prozenMenu = createElement("ul", "navbar__nav-list prozen_navbar");
         prozenMenu.id = "prozen-main-menu";
+        prozenMenu.setAttribute("data-publisherId", publisherId);
         prozenMenu.appendChild(creatProzenMenuElement("\nДополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
         prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
@@ -1626,7 +1685,7 @@ async function getBalanceAndMetriksId() {
         headers: {'X-Csrf-Token': token}
     });
     const data = await responce.json();
-    if (data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
+    if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
         const simpleBalance = data.money.simple.balance;
         const options = {year: 'numeric', month: 'long', day: 'numeric'};
         result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
@@ -1678,14 +1737,20 @@ function ReceiveProzenData(event) {
     if (event.data.type && (event.data.type === "prozen-data")) {
         token = event.data.text;
         data = event.data.jsonData;
-        publisherId = event.data.jsonData.publisher.id; //event.data.jsonData.userPublisher.id;
-        getBalanceAndMetriksId().then(result => {
-            metriksId = result.metriksId;
-            moneyTotal = result.total;
-            moneySaldo = result.money;
-            moneyDate = result.balanceDate;
-            main();
-        });
+        publisherId = event.data.jsonData.publisher.id;
+        const pageType = getPageType();
+        if (pageType === "main" || pageType === "publications") {
+            getBalanceAndMetriksId().then(result => {
+                console.log("2 - 1")
+                metriksId = result.metriksId;
+                moneyTotal = result.total;
+                moneySaldo = result.money;
+                moneyDate = result.balanceDate;
+                main(publisherId);
+            });
+        } else {
+            main(publisherId);
+        }
     }
 }
 
