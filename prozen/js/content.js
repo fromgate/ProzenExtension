@@ -85,7 +85,7 @@ function getOption(optionId) {
 }
 
 
-function main(updatedId=null) {
+function main(updatedId = null) {
     const pageType = getPageType();
     publisherId = updatedId != null ? updatedId : getPublisherId();
     switch (pageType) {
@@ -1969,7 +1969,7 @@ function jsonToCardData(publicationData, publicationUrl) {
     card.viewsStr = `${infiniteAndNanToStr(card.views)} (${ctr}%)`;
 
     // Дочитывания
-    const readsPercent = ((card.viewsTillEnd / card.views) * 100).toFixed(2);
+    const readsPercent = infiniteAndNan((card.viewsTillEnd / card.views) * 100).toFixed(2);
     card.viewsTillEndStr = `${card.viewsTillEnd} (${readsPercent}%)`;
 
     // Среднее время дочитывания
