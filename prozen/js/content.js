@@ -10,11 +10,14 @@ const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-public
 const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
 const GET_PUBLICATIONS_BY_FILTER = "https://zen.yandex.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=%publisherId%&pageSize=%pageSize%";
 
+const URL_API_GET_STATS_COUNTS = "https://zen.yandex.ru/editor-api/v2/publisher/%publisherId%/stats2?fields=views&publicationTypes=%publicationType%&publisherId=%publisherId%&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
+
 const OPTIONS = {
     prozen: "prozen-switch",
     subtitleLinks: "prozen-article-link-switch",
     dashboardComments: "prozen-studio-comments-switch",
-    prozenMenu: "prozen-menu-switch"
+    prozenMenu: "prozen-menu-switch",
+    informer: "prozen-informer-switch"
 }
 
 
@@ -117,6 +120,7 @@ function main(updatedId = null) {
                     registerObserverWindowsLocation();
                     registerObserverBalance();
                     listenToRequests();
+                    addInformerBlock();
                 } else {
                     // Старый редактор
                     registerTargetObserver();
@@ -688,11 +692,11 @@ function getPageType() {
 
 async function showBalance() {
     const url = URL_API_MEDIA + publisherId + "/money";
-    const responce = await fetch(url, {
+    const response = await fetch(url, {
         credentials: 'same-origin',
         headers: {'X-Csrf-Token': token}
     });
-    const data = await responce.json();
+    const data = await response.json();
     if (data.money.isMonetizationAvailable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
         const simpleBalance = data.money.simple.balance;
         const personalDataBalance = data.money.simple.personalData.balance;
@@ -1906,7 +1910,7 @@ function modifyDashboardCard(publicationBlock, card) {
     col3.appendChild(c3r1);
 
     // Теги
-    const tagsHint = card.tags.length == 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
+    const tagsHint = card.tags.length === 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
     const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r2.style.textAlign = "right";
     c3r2.setAttribute("title", tagsHint);
@@ -2040,4 +2044,123 @@ function arraysJoin(array1, array2) {
         }
     }
     return a;
+}
+
+
+// Информер
+async function addInformerBlock() {
+    if (!await getOption(OPTIONS.informer)) {
+        return;
+    }
+    /*
+       Предупреждения: 1
+       Канал не ограничен / канал ограничен
+       Канал индексируется / не индексируется
+       Актуальность статистики: 01.01.21 01:01
+       Публикации: A:234 V:100 G:100 P:25 L:10
+     */
+
+    const hasNone = await checkHasNone(publisherId);
+    const statsInfo = await getStatsInfo();
+    const strikesInfo = await getStrikesInfo();
+
+    const column = document.getElementsByClassName("author-studio-main__right-column")[0];
+    const informer = createElement("div", "author-studio-block");
+    column.appendChild(informer);
+
+    const informerContent = createElement("div", "author-studio-useful-articles-block");
+    informer.appendChild(informerContent);
+
+    const informerH3 = createElement("h3", "Text Text_weight_bold Text_color_full Text_typography_text-16-20 author-studio-useful-articles-block__title");
+    informerH3.innerText = "ПРОДЗЕН-инфо";
+    informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
+
+    informerContent.appendChild(informerH3);
+
+    if (strikesInfo.limitations != null) {
+        const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
+        informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
+        informerContent.appendChild(informerStrikes);
+    }
+
+    if (strikesInfo.channelRestricted != null) {
+        const informerPyos = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
+        informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
+        informerContent.appendChild(informerPyos);
+    }
+
+    if (hasNone != null) {
+        const allNone = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        if (hasNone) {
+            allNone.innerText = "Канал не индексируется 🤖";
+            allNone.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
+                "Канал не индексируется поисковиками.\n" +
+                "Это нормальная ситуация для новых каналов.");
+        } else {
+            allNone.innerText = "Канал индексируется";
+        }
+        informerContent.appendChild(allNone);
+    }
+
+    if (statsInfo.actuality != null) {
+        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        informerActuality.innerText = `Статистика от ${statsInfo.actuality}`;
+        informerActuality.setAttribute("title", "Время обновления статистики");
+        informerContent.appendChild(informerActuality);
+    }
+
+    if (statsInfo.counters != null) {
+        const publicationNames = {
+            article: "статей",
+            gif: "видео",
+            gallery: "галерей",
+            brief: "постов",
+            live: "трансляций"
+        };
+        const informerCounters = createElement("span", "Text Text_color_full Text_typography_text-14-18 prozen-mb5 prozen-va");
+        informerContent.appendChild(informerCounters);
+        for (const [type, count] of Object.entries(statsInfo.counters)) {
+            if (count != null) {
+                const title = `Количество ${publicationNames[type]} на канале`;
+                const icon = createElement("span", `prozen-publication-icon-${type}`);
+                icon.setAttribute("title", title);
+                informerCounters.appendChild(icon);
+                const text = createElement("span", "prozen-ml5r8");
+                text.setAttribute("title", title);
+                text.innerText = count;
+                informerCounters.appendChild(text);
+            }
+        }
+    }
+}
+
+async function getStatsInfo() {
+    const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
+    const counters = {};
+    let actuality;
+    for (const type of publicationTypes) {
+        const url = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
+        const response = await fetch(url, {
+            credentials: 'same-origin',
+            headers: {'X-Csrf-Token': token}
+        });
+        const data = await response.json();
+        if (actuality == null) {
+            actuality = dateTimeFormat(data.actuality);
+        }
+        counters[type] = data.publicationCount;
+    }
+    return {actuality: actuality, counters: counters};
+}
+
+async function getStrikesInfo() {
+    const url = `https://zen.yandex.ru/editor-api/v2/v2/get-strikes?publisherId=${publisherId}&language=ru`
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        headers: {'X-Csrf-Token': token}
+    });
+    const data = await response.json();
+    return {channelRestricted: data.channelRestricted, limitations: data.limitations.length};
 }

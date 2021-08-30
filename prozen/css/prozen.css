@@ -400,3 +400,64 @@ html body .ui-lib-header__item._type_left {
     height: 95px;
     width: 95px;
 }
+
+.prozen-publication-icon-placeholder {
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    padding: 2px;
+    border-radius: 3px;
+    color: #fff;
+    background: rgba(0,0,0,.45);
+}
+
+.prozen-publication-icon-live {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 20 15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 .5C1.716 2.333 0 4.674 0 7.83c0 3.142 1.734 5.337 4 7.17l1.075-.865A7.986 7.986 0 012 7.831 7.987 7.987 0 015.106 1.5L4 .5zM20 7.83c0 3.158-1.715 5.337-4 7.17l-1.11-.838A7.987 7.987 0 0018 7.83a7.987 7.987 0 00-3.14-6.356L16 .5c2.303 1.832 4 4.159 4 7.33z' fill='%23000'/%3E%3Cpath d='M16 7.83c0 1.996-1.002 3.08-2.5 4.17l-1.343-.8A3.997 3.997 0 0014 7.83c0-1.429-.75-2.683-1.877-3.39L13.5 3.5C15.017 4.589 16 5.82 16 7.83zM6 7.83c0 1.4.718 2.63 1.806 3.346L6.5 12C5.021 10.907 4 9.81 4 7.83 4 5.837 5.003 4.592 6.5 3.5l1.34.963A3.997 3.997 0 006 7.831zM10 9.83a2 2 0 100-4 2 2 0 000 4z' fill='%23000'/%3E%3C/svg%3E");
+    width: 13px;
+    height: 10px;
+    display: inline-block;
+}
+
+.prozen-publication-icon-gif {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 2l11.833 7L4 16V2z' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.prozen-publication-icon-gallery {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z' fill='%23000'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 11c0 2.828 0 4.243.879 5.121C1.757 17 3.172 17 6 17h6c2.828 0 4.243 0 5.121-.879C18 15.243 18 13.828 18 11V7c0-2.828 0-4.243-.879-5.121C16.243 1 14.828 1 12 1H6c-2.828 0-4.243 0-5.121.879C0 2.757 0 4.172 0 7v4zm6-8h6c1.47 0 2.373.004 3.025.092.574.077.67.187.681.2h.001l.001.002c.013.011.123.107.2.68C15.996 4.628 16 5.53 16 7v4.008l-4.422-4.422-6.082 6.082L2 9.172V7c0-1.47.004-2.373.092-3.025.077-.574.187-.67.2-.681v-.001l.002-.001c.011-.013.107-.123.68-.2C3.628 3.004 4.53 3 6 3zm-3.998 9.002l2.08 2.08-.855.855a6.511 6.511 0 01-.252-.029c-.574-.077-.67-.187-.681-.2h-.001l-.001-.002c-.013-.011-.123-.107-.2-.68-.066-.49-.085-1.12-.09-2.024zM5.992 15H12c1.47 0 2.373-.004 3.025-.092.574-.077.67-.187.681-.2h.001l.001-.002c.013-.011.123-.107.2-.68a7.23 7.23 0 00.041-.397l-.078.078-4.293-4.293L5.992 15z' fill='%23000'/%3E%3C/svg%3E");
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.prozen-publication-icon-article {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg fill='none' viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.237 1.226h3.498L16.323 17h-2.75l-1.452-4.136H5.477L4.025 17H1.671L7.237 1.226zm4.07 9.35L8.8 3.47l-2.508 7.106h5.016z' fill='%23000'/%3E%3C/svg%3E");
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.prozen-publication-icon-brief {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16' id='article_dc65--react'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M7.4 1.8h1.2c1.795 0 2.96.004 3.82.12.808.108 1.072.285 1.223.437.152.151.329.415.438 1.223.115.86.119 2.026.119 3.821v.189a1.173 1.173 0 0 1-.031.09h-1.543c-1.75 0-2.624 0-3.29.346a3.072 3.072 0 0 0-1.31 1.31c-.346.666-.346 1.54-.346 3.29v1.543a1.173 1.173 0 0 1-.09.031H7.4c-1.795 0-2.96-.004-3.82-.12-.81-.108-1.073-.285-1.224-.437-.152-.151-.329-.415-.438-1.223-.115-.86-.119-2.025-.119-3.82V7.4c0-1.795.004-2.96.12-3.82.108-.808.285-1.072.437-1.224.151-.151.415-.328 1.223-.437.86-.115 2.025-.119 3.82-.119zM0 7.4c0-3.488 0-5.233 1.084-6.316C2.167 0 3.912 0 7.4 0h1.2c3.488 0 5.233 0 6.316 1.084C16 2.167 16 3.912 16 7.4v.251C16 9.74 9.74 16 7.652 16h-.25c-3.49 0-5.235 0-6.318-1.084C0 13.833 0 12.088 0 8.6V7.4z' fill='currentColor'%3E%3C/path%3E%3C/svg%3E");
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.prozen-mb5 {
+    margin: 0 0 5px;
+}
+
+.prozen-ml5r8 {
+    margin-left: 5px;
+    margin-right: 8px;
+}
+
+
+.prozen-va {
+    vertical-align: middle;
+}
