@@ -2136,7 +2136,7 @@ async function addInformerBlock() {
     }
 }
 
-async function getStatsInfo() {
+async function getStatsInfo(getCounter = false) {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
     const counters = {};
     let actuality;
@@ -2149,6 +2149,9 @@ async function getStatsInfo() {
         const data = await response.json();
         if (actuality == null) {
             actuality = dateTimeFormat(data.actuality);
+            if (!getCounter) {
+                break;
+            }
         }
         counters[type] = data.publicationCount;
     }
