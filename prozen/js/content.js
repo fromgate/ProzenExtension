@@ -910,9 +910,8 @@ function processCards(loadedIds) {
                 card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
                 articles.push(loadArticle(id));
             }
-            Promise.all(articles).then(function (articles) {
-                for (let i in articles) {
-                    const article = articles[i];
+            Promise.all(articles).then(articles => {
+                for (const article of articles) {
                     const id = article.publications[0].id;
                     const card = publications.get(id);
                     card.addTime = article.publications[0].addTime;
@@ -920,7 +919,7 @@ function processCards(loadedIds) {
                     card.tags = article.publications[0].tags;
                     card.processed = true;
                 }
-            }).then(function () {
+            }).then(() => {
                 processCardsViews(ids);
             });
         });
@@ -968,6 +967,10 @@ function createFooterLine(element1, element2, element3) {
 
 
 function modifyCardFooter(pubData, publicationId) {
+    if (pubData.card.classList.contains("card-cover-publication_type_brief")) {
+        return;
+    }
+
     const cardFooters = pubData.card.getElementsByClassName("card-cover-publication__stats-container");
     if (cardFooters === undefined || cardFooters.length === 0) {
         return;
@@ -1974,7 +1977,7 @@ function jsonToCardData(publicationData, publicationUrl) {
 
     // Дочитывания
     const readsPercent = infiniteAndNan((card.viewsTillEnd / card.views) * 100).toFixed(2);
-    card.viewsTillEndStr = `${card.viewsTillEnd} (${readsPercent}%)`;
+    card.viewsTillEndStr = `${infiniteAndNanToStr(card.viewsTillEnd)} (${readsPercent}%)`;
 
     // Среднее время дочитывания
     card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
