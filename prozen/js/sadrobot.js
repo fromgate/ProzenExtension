@@ -1,5 +1,4 @@
 const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
-const URL_ZEN_ID = "https://zen.yandex.ru/id/";
 const NOINDEX_KEY = "prozen-noindex-agree-";
 const ROBOTS_NOINDEX = "noindex"
 const ROBOTS_OK = "ok"
@@ -145,42 +144,8 @@ function loadPublicationsAndSearch() {
     return false;
 }
 
-async function loadPageData(initUrl, loadAll) {
-    const header = new Headers({
-        "Zen-Client-Experiments": "zen-version:2.32.0",
-        "Zen-Features": "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":241},\"need_background_image\":true,\"color_theme\":\"white-background\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"blocked_suggest\",\"video_recommend\",\"language\",\"comments_counter\"],\"stat_params_with_context\":true,\"native_onboarding\":true,\"card_types\":[\"post\"]}"
-    });
-
-    let url = initUrl;
-    const cards = [];
-    while (true) {
-        const request = await fetch(url, {headers: header, method: "GET"});
-        let json;
-        try {
-            json = await request.json();
-        } catch (e) {
-        }
-        if (!request.ok || json === undefined || json.items === undefined) {
-            break;
-        }
-        const items = json.items;
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            if (item.link !== undefined && item.link.startsWith("https://zen.yandex.ru")) {
-                cards.push(cardFromItem(item));
-            }
-        }
-        if (loadAll) {
-            url = json.more.link;
-        } else {
-            break;
-        }
-    }
-    return cards;
-}
-
 async function checkRobotNoNoIndex(card) {
-    return new Promise(function (resolve,) {
+    return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const metas = xhr.responseXML.head.getElementsByTagName('meta');
@@ -194,7 +159,7 @@ async function checkRobotNoNoIndex(card) {
             }
             resolve(ROBOTS_OK);
         };
-        xhr.onerror = function () {
+        xhr.onerror = () => {
             resolve (ROBOTS_FAIL)
         }
         xhr.open("GET", card.url);
@@ -313,7 +278,6 @@ function scrollToBottom() {
     window.scrollTo(0, document.body.scrollHeight);
 }
 
-
 function loadData() {
     return new Promise(resolve => {
         const data = {id: null, agree: false}
@@ -331,26 +295,5 @@ function loadData() {
                 });
             }
         });
-    });
-}
-
-function checkHasNone(id) {
-    return new Promise(resolve => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const metas = xhr.responseXML.head.getElementsByTagName('meta');
-            for (let i = 0; i < metas.length; i++) {
-                if (metas[i].getAttribute('property') === "robots") {
-                    if (metas[i].getAttribute('content') === "none") {
-                        resolve(true);
-                    }
-                    break;
-                }
-            }
-            resolve(false);
-        };
-        xhr.open("GET", URL_ZEN_ID + id);
-        xhr.responseType = "document";
-        xhr.send();
     });
 }

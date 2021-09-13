@@ -1,26 +1,3 @@
-const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
-const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
-const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
-const URL_ZEN_ID = "https://zen.yandex.ru/id/";
-const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
-const URL_API_EDITOR = "https://zen.yandex.ru/editor-api/v2/publisher/";
-const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
-const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
-const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
-const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
-const GET_PUBLICATIONS_BY_FILTER = "https://zen.yandex.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=%publisherId%&pageSize=%pageSize%";
-
-const URL_API_GET_STATS_COUNTS = "https://zen.yandex.ru/editor-api/v2/publisher/%publisherId%/stats2?fields=views&publicationTypes=%publicationType%&publisherId=%publisherId%&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
-
-const OPTIONS = {
-    prozen: "prozen-switch",
-    subtitleLinks: "prozen-article-link-switch",
-    dashboardComments: "prozen-studio-comments-switch",
-    prozenMenu: "prozen-menu-switch",
-    informer: "prozen-informer-switch"
-}
-
-
 const publications = new Map();
 let observer;
 const observers = [];
@@ -43,7 +20,6 @@ start();
 ///////////////////////////////////
 // Functions
 ///////////////////////////////////
-
 
 async function start() {
     if (await getOption(OPTIONS.prozen) === false) {
@@ -74,42 +50,10 @@ function injectCssAndScript() {
 }
 
 
-function getOption(optionId) {
-    const optionsIds = Object.values(OPTIONS);
-    return new Promise(resolve => {
-        chrome.storage.local.get(optionsIds, option => {
-            if (option.hasOwnProperty(optionId)) {
-                resolve(option[optionId]);
-            } else {
-                resolve(true);
-            }
-        });
-    });
-}
-
-
 function main(updatedId = null) {
     const pageType = getPageType();
     publisherId = updatedId != null ? updatedId : getPublisherId();
     switch (pageType) {
-        case "article":
-            setTimeout(showStatsArticle, 300);
-            break;
-        case "narrative":
-            setTimeout(articleShowStatsNarrative, 300);
-            break;
-        case "video":
-            setTimeout(articleShowStatsVideo, 300);
-            break;
-        case "brief":
-            setTimeout(articleShowStatsBrief, 300);
-            break;
-        case "gallery":
-            setTimeout(articleShowStatsGallery, 300);
-            break;
-        case "edit":
-            // setTimeout(addNotificationCloseButton, 50);
-            break;
         case "main":
             if (token != null && publisherId != null) {
                 mediaUrl = window.location.href.replace("profile/editor", "media");
@@ -131,6 +75,12 @@ function main(updatedId = null) {
             }
             break;
         case "publications":
+            if (token != null && publisherId != null) {
+                addStudioMenu();
+                registerObserverWindowsLocation();
+            }
+            break;
+        case "money":
             if (token != null && publisherId != null) {
                 addStudioMenu();
                 registerObserverWindowsLocation();
@@ -258,376 +208,6 @@ function loadCards(soureElement) {
     return ids;
 }
 
-async function articleShowStatsNarrative() {
-    if (data == null) {
-        return;
-    }
-    const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const viewsTillEnd = articleData.viewsTillEnd;
-    const timeRead = "Время дочитывания: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-
-
-    const elArticleDates = document.getElementsByClassName("article-stat__date");
-    for (let i = 0; i < elArticleDates.length; i++) {
-        const elArticleDate = document.getElementsByClassName("article-stat__date")[i];
-        elArticleDate.innerText = showTime;
-    }
-
-    const divsStat = document.getElementsByClassName("article-stat__info");
-    const divList = [];
-    for (let i = 0; i < divsStat.length; i++) {
-        divList.push(divsStat[i]);
-    }
-
-    for (let i = 0; i < divList.length; i++) {
-        const divStat = divList.pop();
-        let spanViewsTillEnd = divStat.querySelector(".article-stat__counts-wrapper > .article-stat__count");
-        if (spanViewsTillEnd === undefined || spanViewsTillEnd === null) {
-            spanViewsTillEnd = createElement("span", "article-stat__count")
-            const divArticleStatCountsWrapper = createElement("div", "article-stat__counts-wrapper", spanViewsTillEnd);
-            const divArticleStatDateContainer = document.getElementsByClassName("article-stat__date-container")[i];
-            divArticleStatDateContainer.insertAdjacentElement("afterend", divArticleStatCountsWrapper);
-        }
-        spanViewsTillEnd.innerText = paucal(viewsTillEnd, "дочитывание", "дочитывания", "дочитываний") + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-        const spanViews = createElement("span", "article-stat__count");
-        spanViews.innerText = paucal(views, "просмотр", "просмотра", "просмотров");
-        const divViewsWrapper = createElement("div", "article-stat__counts-wrapper", spanViews);
-        const divViews = createElement("div", "article-stat__info article-stat__info_loaded", divViewsWrapper);
-        divStat.insertAdjacentElement("beforebegin", divViews);
-        const spanTimeReads = createElement("span", "article-stat__count");
-        spanTimeReads.innerText = timeRead;
-        const divTimeReadsWrapper = createElement("div", "article-stat__counts-wrapper", spanTimeReads);
-        const divReads = createElement("div", "article-stat__info article-stat__info_loaded", divTimeReadsWrapper);
-        divStat.insertAdjacentElement("afterend", divReads);
-        if (checkNoIndex()) {
-            const spanIcon5 = createElement("span", "article-stat__icon icon_sad_robot");
-            spanIcon5.setAttribute("style", "background-color: #FFFFFF80;");
-            const wrapper5 = createElement("div", "article-stat__counts-wrapper", spanIcon5);
-            wrapper5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Публикация не индексируется поисковиками.\n" +
-                "Примечание: связь этого тега с показами,\n" +
-                "пессимизацией и иными ограничениями канала\n" +
-                "официально не подтверждена.");
-            divReads.insertAdjacentElement("afterend", wrapper5);
-        }
-    }
-}
-
-async function articleShowStatsBrief() {
-    if (data === null) {
-        return;
-    }
-    const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-
-    /*
-    const articleData = await loadPublicationStat(postId);
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-    */
-
-    const divStat = createElement("div", "article-stats-view__item");
-    {
-        const spanLink = createElement("span");
-        spanLink.innerText = "  🔗 ";
-        spanLink.setAttribute("title", "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
-        spanLink.style.cursor = "pointer";
-        divStat.appendChild(spanLink);
-    }
-    {
-        if (checkNoIndex()) {
-            const spanRobot = createElement("span");
-            spanRobot.innerText = " 🤖";
-            spanRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Публикация не индексируется поисковиками.\n" +
-                "Примечание: связь этого тега с показами,\n" +
-                "пессимизацией и иными ограничениями канала\n" +
-                "официально не подтверждена.");
-            divStat.appendChild(spanRobot);
-        }
-    }
-
-    const briefStats = document.getElementsByClassName("desktop-brief-page__stats")[0];
-    const dateDiv = briefStats.querySelector("div.article-stats-view__item");
-    dateDiv.innerText = showTime;
-    dateDiv.setAttribute("title", "Время создания (модификации)");
-    dateDiv.insertAdjacentElement("afterend", divStat);
-}
-
-
-async function articleShowStatsGallery() {
-    if (data === null) {
-        return;
-    }
-    const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
-
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-
-    const divStat = createElement("div", "card-gallery-text");
-    divStat.style.paddingLeft = "15px";
-    divStat.style.paddingRight = "15px";
-    divStat.style.paddingBottom = "10px";
-
-
-    {
-        const spanDate = createElement("span");
-        // Время создания / Модификации
-        spanDate.innerText = "◻" + dayCreate;
-        spanDate.setAttribute("title", "Время создания (модификации)");
-        divStat.appendChild(spanDate);
-    }
-
-    {
-        // Среднее время досмотров: ⌚
-        const spanTime = createElement("span");
-        spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-        spanTime.setAttribute("title", "Среднее время\nпросмотра: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
-        divStat.appendChild(spanTime);
-    }
-
-    {
-        const br1 = createElement("br");
-        divStat.appendChild(br1)
-    }
-
-    {
-        const spanViews = createElement("span");
-        // Просмотры 👀
-        spanViews.innerText = "👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
-        spanViews.setAttribute("title", "Просмотры");
-        divStat.appendChild(spanViews);
-    }
-
-    {
-        // Досмотры 🖼️
-        const spanViewsTillEnd = createElement("span");
-        spanViewsTillEnd.innerText = " 🖼️ " + viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-        spanViewsTillEnd.setAttribute("title", "Досмотры");
-        divStat.appendChild(spanViewsTillEnd);
-    }
-
-    {
-        const spanLink = createElement("span");
-        spanLink.innerText = " 🔗";
-        spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
-        spanLink.style.cursor = "pointer";
-        divStat.appendChild(spanLink);
-    }
-
-    {
-        if (checkNoIndex()) {
-            const spanRobot = createElement("span");
-            spanRobot.innerText = " 🤖";
-            spanRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Публикация не индексируется поисковиками.\n" +
-                "Примечание: связь этого тега с показами,\n" +
-                "пессимизацией и иными ограничениями канала\n" +
-                "официально не подтверждена.");
-            divStat.appendChild(spanRobot);
-        }
-    }
-
-    const divSeparator = document.getElementsByClassName("ui-lib-desktop-gallery-page__separator")[0];
-    divSeparator.insertAdjacentElement("afterend", divStat);
-}
-
-async function articleShowStatsVideo() {
-    if (data === null) {
-        return;
-    }
-    const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
-
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-
-    const elArticleDate = document.getElementsByClassName("article__date-video")[0];
-    elArticleDate.innerText = showTime;
-
-    const container = document.getElementsByClassName("article__about")[0];
-    {
-        // Просмотры
-        const spanIcon1 = createElement("span", "article__date-video article-stat__icon article-stat__icon_type_book-black");
-        const spanCount1 = createElement("span", "article__date-video");
-        spanCount1.innerText = "📺 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
-        spanCount1.setAttribute("title", "Просмотры");
-        container.appendChild(spanCount1);
-    }
-    {
-        // Среднее время просмотра
-        const spanCount3 = createElement("span", "article__date-video");
-        spanCount3.innerText = "⌚ " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-        spanCount3.setAttribute("title", "Среднее время просмотра");
-        container.appendChild(spanCount3);
-    }
-    {
-        const spanIcon4 = createElement("span", "article__date-video");
-        spanIcon4.innerText = "🔗";
-        spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
-        spanIcon4.style.cursor = "pointer";
-        container.appendChild(spanIcon4);
-    }
-
-    if (checkNoIndex()) {
-        const spanIcon5 = createElement("span", "article__date-video");
-        spanIcon5.innerText = "🤖";
-        spanIcon5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-            "Публикация не индексируется поисковиками.\n" +
-            "Примечание: связь этого тега с показами,\n" +
-            "пессимизацией и иными ограничениями канала\n" +
-            "официально не подтверждена.");
-        container.appendChild(spanIcon5);
-    }
-}
-
-function addHeaderClicks() {
-    getOption(OPTIONS.subtitleLinks).then(option => {
-        if (option) {
-            const headers = document.querySelectorAll("h2, h3");
-            if (headers.length > 0) {
-                for (let i = 0; i < headers.length; i++) {
-                    const header = headers [i];
-                    const ancorId = header.getAttribute("id");
-                    if (ancorId !== undefined && ancorId !== null) {
-                        const clickIcon = createElement("span", "publication_header_icon_url");
-                        clickIcon.setAttribute("title", "Ссылка на заголовок.\n" +
-                            "Кликните, чтобы скопировать её в буфер обмена");
-                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl() + "#" + ancorId));
-                        header.insertBefore(clickIcon, header.firstChild);
-                    }
-                }
-            }
-        }
-    });
-}
-
-
-async function showStatsArticle() {
-    if (data === null) {
-        return;
-    }
-    const postId = getPostIdFromUrl(window.location.pathname);
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-
-    const hasAdv = document.getElementsByClassName("article-stats-view__block-item").length; // 1 - рекламная статья, 0 - обычная
-
-    let articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
-    const elArticleDate = articleStatsViewRedesignItems[hasAdv];
-    elArticleDate.innerText = showTime;
-    elArticleDate.setAttribute("title", "Время создания (редактирования)");
-
-    if (articleStatsViewRedesignItems.length == 1 + hasAdv) {
-        document.getElementsByClassName("article-stats-view article-stats-view_theme_none")[0].appendChild(createElement("div", "article-stats-view__item"));
-        articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
-    }
-
-    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1]
-    elArticleStats.classList.remove("article-stats-view__item_no-opacity");
-    removeChilds(elArticleStats);
-
-    const container = createElement("div", "article-stats-view__info-container article-stats-view__info-container_loaded");
-    elArticleStats.appendChild(container);
-
-    const containerInner = createElement("div", "article-stats-view__info-inner");
-    container.appendChild(containerInner);
-
-    // Просмотры
-    const viewsContainer = createElement("div", "article-stats-view__stats-item");
-    viewsContainer.setAttribute("title", "Просмотры");
-    const viewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_views_2");
-    viewsContainer.appendChild(viewsIcon);
-    const viewsText = createElement("span", "article-stats-view__stats-item-count")
-    viewsText.innerText = numFormat(views, 0);
-    viewsContainer.appendChild(viewsText);
-
-    containerInner.appendChild(viewsContainer);
-
-    // Дочитывания
-    const fullViewsContainer = createElement("div", "article-stats-view__stats-item");
-    fullViewsContainer.setAttribute("title", "Дочитывания");
-    const fullViewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_full_views");
-    fullViewsContainer.appendChild(fullViewsIcon);
-    const fullViewsText = createElement("span", "article-stats-view__stats-item-count")
-    fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
-    fullViewsContainer.appendChild(fullViewsText);
-
-    containerInner.appendChild(fullViewsContainer);
-
-    // Среднее время
-    const avgTimeContainer = createElement("div", "article-stats-view__stats-item");
-    avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
-    const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_read_time");
-    avgTimeContainer.appendChild(avgTimeIcon);
-    const avgTimeText = createElement("span", "article-stats-view__stats-item-count");
-    avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-    avgTimeContainer.appendChild(avgTimeText);
-
-    containerInner.appendChild(avgTimeContainer);
-
-    // Короткая ссылка
-    const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
-    shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-    const shortLinkIcon = createElement("span", "publication_icon_short_url");
-    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
-    shortLinkIcon.style.cursor = "pointer";
-    shortLinkContainer.appendChild(shortLinkIcon);
-
-    elArticleStats.appendChild(shortLinkContainer)
-
-    // Грустный робот
-    if (checkNoIndex()) {
-        const sadRobotContainer = createElement("div", "article-stats-view__stats-item");
-        sadRobotContainer.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-            "Публикация не индексируется поисковиками.\n" +
-            "Примечание: связь этого тега с показами,\n" +
-            "пессимизацией и иными ограничениями канала\n" +
-            "официально не подтверждена.");
-        const sadRobotIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_sad_robot");
-        sadRobotContainer.appendChild(sadRobotIcon);
-
-        elArticleStats.appendChild(sadRobotContainer);
-    }
-
-    // Ссылка на подзаголовок
-    addHeaderClicks();
-}
-
-function getPostIdFromUrl(url) {
-    const ln = url.replace("?from=editor", "").split(url.includes("-") ? "-" : "/");
-    return ln[ln.length - 1];
-}
 
 function getPublisherId() {
     const path = window.location.pathname;
@@ -645,28 +225,7 @@ function getPublisherId() {
 
 function getPageType() {
     const path = window.location.pathname;
-    if (path.startsWith("/media/")) {
-        if (data != null) {
-            if (data.isArticle === true) {
-                return "article";
-            }
-
-            if (data.isBrief === true) {
-                return "brief";
-            }
-
-            if (data.isNarrative === true) {
-                return "narrative";
-            }
-
-            if (data.isGif === true) {
-                return "video";
-            }
-            if (data.isGallery === true) {
-                return "gallery";
-            }
-        }
-    } else if (path.startsWith("/profile/editor/")) {
+    if (path.startsWith("/profile/editor/")) {
         if (path.endsWith("/money/simple")) {
             return "money";
         }
@@ -804,7 +363,6 @@ function setBalance(money, total) {
     moneySpan.innerText = money.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₽";
 }
 
-
 function clickSearchButton(searchString) {
     let id;
     const textToFind = searchString === undefined ? "" : searchString;
@@ -851,35 +409,6 @@ function setUnprocessedPublications() {
     Array.from(publications.keys()).forEach(function (key) {
         publications.get(key).processed = false;
     });
-}
-
-function loadPublicationsStat(publicationIds) {
-    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(",")) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-function loadPublicationsPublisher() {
-    const countUrl = URL_API_COUNT_PUBLISHED + publisherId;
-    return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
-        .then(response => response.json())
-        .then(data => {
-            const pageSize = data.count;
-            const url = URL_API_PUBLICATIONS_PUBLISHED.replace("%pageSize%", pageSize).replace("%publisherId%", publisherId);
-            return fetch(url, {
-                credentials: 'same-origin',
-                headers: {'X-Csrf-Token': token}
-            }).then(response => response.json());
-        });
-}
-
-function loadPublicationStat(publicationId) {
-    const url = URL_API_PUBLICATION_VIEW_STAT + encodeURIComponent(publicationId);
-    return fetch(url, {credentials: 'same-origin'}).then(response => response.json());
-}
-
-function loadArticle(publicationId) {
-    const url = URL_API_GET_PUBLICATION + publicationId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
 function processCards(loadedIds) {
@@ -1015,18 +544,6 @@ function modifyCardFooter(pubData, publicationId) {
     cardFooter.appendChild(line4);
 }
 
-function removeChilds(element) {
-    while (element.firstChild) {
-        element.removeChild(element.firstChild);
-    }
-}
-
-function removeByClass(className) {
-    const elements = document.getElementsByClassName(className);
-    while (elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-}
 
 function addDirectLinkButton(link) {
     const linkUrl = link.getAttribute("href").replace("?from=editor", "");
@@ -1121,112 +638,6 @@ function creatNotification(num, message) {
     link.appendChild(container);
     notification.appendChild(link);
     return notification;
-}
-
-function dateTimeFormat(unixTime) {
-    const date = new Date(unixTime);
-    const day = "0" + date.getDate();
-    const month = "0" + (date.getMonth() + 1);
-    const year = "" + date.getFullYear();
-    const hours = "0" + date.getHours();
-    const minutes = "0" + date.getMinutes();
-    return day.substr(-2) + "." + month.substr(-2) + "."
-        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
-}
-
-function secToHHMMSS(seconds) {
-    let time = seconds;
-    const hours = Math.floor(time / 3600);
-    time = time % 3600;
-    const min = ("0" + Math.floor(time / 60)).substr(-2);
-    const sec = ("0" + Math.floor(time % 60)).substr(-2);
-
-    if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "0";
-    return (hours > 0 ? hours + ":" : "") + min + ":" + sec;
-}
-
-function secToText(seconds) {
-    let time = seconds;
-    const hours = Math.floor(time / 3600);
-    time = time % 3600;
-    const min = Math.floor(time / 60);
-    const sec = Math.floor(time % 60);
-    if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
-    return (hours > 0 ? hours + " час " : "") + (min > 0 ? min + " мин " : "") + sec + " сек";
-}
-
-function joinByThree(list) {
-    let text = "";
-    for (let i = 0; i < list.length; i++) {
-        if (i === 0) {
-            text = list[i];
-        } else if ((i / 3) === Math.floor(i / 3)) {
-            text = text + ",\n" + list[i];
-        } else {
-            text = text + ", " + list[i];
-        }
-    }
-    return text;
-}
-
-function infiniteAndNan(number) {
-    return isNaN(number) ? 0 : (isFinite(number) ? number : 0);
-}
-
-function firstNotZ(a, b, c) {
-    if (a !== 0) {
-        return a;
-    }
-    if (b !== 0) {
-        return b;
-    }
-    return c;
-}
-
-function checkNoIndex() {
-    const metas = document.getElementsByTagName('meta');
-    for (let i = 0; i < metas.length; i++) {
-        if (metas[i].getAttribute('name') === "robots") {
-            return metas[i].getAttribute('content') === "noindex";
-        }
-    }
-    return false;
-}
-
-function checkHasNone(id) {
-    return new Promise(resolve => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const metas = xhr.responseXML.head.getElementsByTagName('meta');
-            for (let i = 0; i < metas.length; i++) {
-                if (metas[i].getAttribute('property') === "robots") {
-                    if (metas[i].getAttribute('content') === "none") {
-                        resolve(true);
-                    }
-                    break;
-                }
-            }
-            resolve(false);
-        };
-        xhr.open("GET", URL_ZEN_ID + id);
-        xhr.responseType = "document";
-        xhr.send();
-    });
-}
-
-function createElement(elementType, elementClass, childElement) {
-    const newElement = document.createElement(elementType);
-    if (elementClass !== undefined) {
-        newElement.setAttribute("class", elementClass);
-    }
-    if (childElement !== undefined) {
-        newElement.appendChild(childElement);
-    }
-    return newElement;
-}
-
-function infiniteAndNanToStr(num, digits) {
-    return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
 }
 
 function addSearchInput() {
@@ -1390,105 +801,6 @@ function setNotifictionHidden(notificationId) {
     chrome.storage.local.set({prozenHideNotification: notificationId});
 }
 
-function copyTextToClipboard(text) {
-    const copyFrom = document.createElement("textarea");
-    copyFrom.setAttribute('readonly', '');
-    copyFrom.style.position = 'absolute';
-    copyFrom.style.left = '-9999px';
-    copyFrom.style.too = '0px';
-    copyFrom.textContent = text;
-    document.body.appendChild(copyFrom);
-    copyFrom.select();
-    document.execCommand('copy');
-    copyFrom.blur();
-    document.body.removeChild(copyFrom);
-}
-
-function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-function loadPublications(publicationType, count) {
-    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-async function loadAllPublications() {
-    const publications = [];
-    for (let i = 0; i < TYPES.length; i++) {
-        const publicationType = TYPES[i];
-        const response = await loadPublicationsCount(publicationType).then(response => {
-            return response;
-        });
-        const count = response.count;
-        const result = await loadPublications(publicationType, count).then(response => {
-            const cards = [];
-            for (let i = 0, len = response.publications.length; i < len; i++) {
-                const pubData = {};
-                const publication = response.publications[i];
-                pubData.id = publication.id;
-                pubData.feedShows = publication.privateData.statistics.feedShows;
-                pubData.shows = publication.privateData.statistics.shows;
-                pubData.views = publication.privateData.statistics.views;
-                pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
-                pubData.comments = publication.privateData.statistics.comments;
-                pubData.likes = publication.privateData.statistics.likes;
-                pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
-                pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
-                pubData.type = publication.content.type;
-                cards.push(pubData);
-            }
-            return cards;
-        });
-        publications.push(...result);
-    }
-    return publications;
-}
-
-function numFormat(num, digits) {
-    return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
-}
-
-function paucal(num, p1, p234, p) {
-    const x = num % 100;
-    if (x >= 10 && x < 20) {
-        return num + " " + p;
-    }
-    const numStr = infiniteAndNanToStr(num, 0);
-    switch (num % 10) {
-        case 1:
-            return numStr + " " + p1;
-        case 2:
-        case 3:
-        case 4:
-            return numStr + " " + p234;
-        default:
-            return numStr + " " + p;
-    }
-}
-
-function shortUrl() {
-    const url = window.location.href.split("\?")[0].split("#")[0];
-    return url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
-}
-
-function debug(message, message2) {
-    if (DEBUG) {
-        let str = "[ПРОДЗЕН]: " + message;
-        if (message2 !== undefined) {
-            str += " " + message2;
-        }
-        console.log(str);
-    }
-}
-
-function log(message) {
-    if (DEBUG) {
-        console.log(message);
-    }
-}
-
 /************************************************/
 /*                 СТУДИЯ!                      */
 /************************************************/
@@ -1620,6 +932,7 @@ async function addStudioMenu() {
     if (!await getOption(OPTIONS.prozenMenu)) {
         return;
     }
+
     let oldStudioMenu = document.getElementById("prozen-main-menu");
     if (oldStudioMenu != null && oldStudioMenu.getAttribute("data-publisherId") !== publisherId) {
         oldStudioMenu.parentNode.removeChild(oldStudioMenu);
@@ -1684,40 +997,13 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     return navItem;
 }
 
-async function getBalanceAndMetriksId() {
-    const result = {money: null, total: null, balanceDate: null, metriksId: null}
-    const url = URL_API_MEDIA + publisherId + "/money";
-    const responce = await fetch(url, {
-        credentials: 'same-origin',
-        headers: {'X-Csrf-Token': token}
-    });
-    const data = await responce.json();
-    if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
-        const simpleBalance = data.money.simple.balance;
-        const options = {year: 'numeric', month: 'long', day: 'numeric'};
-        result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
-        if (data.money.simple.personalData != null) {
-            const personalDataBalance = data.money.simple.personalData.balance;
-            const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
-
-            let total = money;
-            for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
-                if (data.money.simple.paymentHistory[i]["status"] === "completed") {
-                    total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
-                }
-            }
-            result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
-            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
-        }
-    }
-    result.metriksId = data.publisher.privateData.metrikaCounterId;
-    return result;
-}
 
 function hideComments() {
     getOption(OPTIONS.dashboardComments).then(enable => {
         if (!enable) {
-            document.getElementsByClassName("author-studio-main__middle-column")[0].style.display = "none";
+            const column = document.getElementsByClassName("author-studio-main__middle-column")[0];
+            column.parentNode.removeChild(column);
+            //column.style.display = "none";
         }
     });
 }
@@ -1776,43 +1062,6 @@ function backgroundListener(request) {
         publisherId = request.publisherId;
         token = request.token;
         processDashboardCards();
-    }
-}
-
-function isMain() {
-
-}
-
-async function processDashboardCards() {
-    const requestUrl = GET_PUBLICATIONS_BY_FILTER
-        .replace("%publisherId%", publisherId)
-        .replace("%pageSize%", "5");
-
-    const response = await (fetch(requestUrl, {
-        credentials: 'same-origin',
-        headers: {
-            'X-Csrf-Token': token,
-            'X-Prozen-Request': 'processDashboardCards'
-        }
-    }));
-
-    const data = await response.json();
-    const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
-    const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
-    if (publicationsBlocks.length > 0) {
-        for (let i = 0; i < publicationsBlocks.length; i++) {
-            const publicationBlock = publicationsBlocks.item(i);
-            const publicationtionId = getPublicationBlockId(publicationBlock);
-            const publicationUrl = getPublicationBlockUrl(publicationBlock);
-            if (publicationtionId != null) {
-                const publicationData = getCardData(publicationtionId, data.publications);
-                if (publicationData != null) {
-                    const card = jsonToCardData(publicationData, publicationUrl);
-                    modifyDashboardCard(publicationBlock, card);
-                }
-            }
-
-        }
     }
 }
 
@@ -1943,75 +1192,7 @@ function modifyDashboardCard(publicationBlock, card) {
 }
 
 function jsonToCardData(publicationData, publicationUrl) {
-    const card = {
-        title: publicationData.content.title,
-        id: publicationData.id,
-        publisherId: publicationData.publisherId,
-        addTime: publicationData.addTime,
-        modTime: publicationData.modTime,
-        publishTime: publicationData.publishTime,
-        feedShows: publicationData.privateData.statistics.feedShows,
-        shows: publicationData.privateData.statistics.shows,
-        views: publicationData.privateData.statistics.views,
-        viewsTillEnd: publicationData.privateData.statistics.viewsTillEnd,
-        sumViewTimeSec: publicationData.privateData.statistics.sumViewTimeSec,
-        likes: publicationData.privateData.statistics.likes,
-        comments: publicationData.privateData.statistics.comments,
-        type: publicationData.content.type,
-        tags: arraysJoin(publicationData.privateData.tags, publicationData.privateData.embeddedTags)
-    }
-
-    // Текстовые представления данных
-    // Время модификации
-    const dayMod = dateTimeFormat(card.modTime);
-    const dayCreate = card.addTime === undefined ? dayMod : dateTimeFormat(card.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    card.timeStr = showTime;
-
-    // Показы
-    card.feedShowStr = infiniteAndNanToStr(card.feedShows);
-
-    // Просмотры (CTR%)
-    const ctr = (parseFloat(infiniteAndNan(card.shows / card.feedShows) * 100)).toFixed(2);
-    card.viewsStr = `${infiniteAndNanToStr(card.views)} (${ctr}%)`;
-
-    // Дочитывания
-    const readsPercent = infiniteAndNan((card.viewsTillEnd / card.views) * 100).toFixed(2);
-    card.viewsTillEndStr = `${infiniteAndNanToStr(card.viewsTillEnd)} (${readsPercent}%)`;
-
-    // Среднее время дочитывания
-    card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
-    card.readTimeStrHMS = secToHHMMSS(card.readTime);
-    card.readTimeStr = card.readTime > 0 ? secToText(card.readTime) : "-";
-
-    // Лайки (проценты)
-    const erViews = firstNotZ(card.viewsTillEnd, card.views, card.feedShows);
-    const likesEr = infiniteAndNan((card.likes / erViews) * 100);
-    card.likesStr = card.likes === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(card.likes)} (${parseFloat(likesEr).toFixed(2)}%)`;
-
-    // Комментарии (проценты)
-    const commentsEr = infiniteAndNan((card.comments / erViews) * 100);
-    card.commentsStr = card.comments === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(card.comments)} (${parseFloat(commentsEr).toFixed(2)}%)`;
-
-    // Коэффициент вовлечённости
-    card.erStr = `${infiniteAndNan((((card.comments + card.likes) / erViews)) * 100).toFixed(2)}%`;
-
-    // Теги
-    card.tagsStr = joinByThree(card.tags);
-
-    // Ссылка на статья (сокращённая)
-
-    card.shortUrl = `https://zen.yandex.ru/media/id/${card.publisherId}/${card.id}`
-    if (publicationUrl != null) {
-        card.url = `https://zen.yandex.ru${publicationUrl}`;
-        const publicationPath = publicationUrl.split("/");
-        if (publicationPath[2] !== "id") {
-            card.shortUrl = `https://zen.yandex.ru/media/${publicationPath[2]}/${card.id}`
-        }
-    } else {
-        card.url = card.shortUrl;
-    }
-    return card;
+    return new Card(publicationData, publicationUrl);
 }
 
 function getPublicationBlockUrl(publicationBlock) {
@@ -2055,6 +1236,9 @@ async function addInformerBlock() {
     if (!await getOption(OPTIONS.informer)) {
         return;
     }
+    if (document.getElementById("prozen-informer")) {
+        return;
+    }
     /*
        Предупреждения: 1
        Канал не ограничен / канал ограничен
@@ -2069,6 +1253,7 @@ async function addInformerBlock() {
 
     const column = document.getElementsByClassName("author-studio-main__right-column")[0];
     const informer = createElement("div", "author-studio-block");
+    informer.id = "prozen-informer";
     column.appendChild(informer);
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
@@ -2139,34 +1324,76 @@ async function addInformerBlock() {
     }
 }
 
-async function getStatsInfo(getCounter = false) {
-    const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
-    const counters = {};
-    let actuality;
-    for (const type of publicationTypes) {
-        const url = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
-        const response = await fetch(url, {
-            credentials: 'same-origin',
-            headers: {'X-Csrf-Token': token}
-        });
-        const data = await response.json();
-        if (actuality == null) {
-            actuality = dateTimeFormat(data.actuality);
-            if (!getCounter) {
-                break;
-            }
-        }
-        counters[type] = data.publicationCount;
-    }
-    return {actuality: actuality, counters: counters};
-}
+class Card {
+    constructor(publicationData, publicationUrl) {
+        this.title = publicationData.content.title;
+        this.id = publicationData.id;
+        this.publisherId = publicationData.publisherId;
+        this.addTime = publicationData.addTime;
+        this.modTime = publicationData.modTime;
+        this.publishTime = publicationData.publishTime;
+        this.feedShows = publicationData.privateData.statistics.feedShows;
+        this.shows = publicationData.privateData.statistics.shows;
+        this.views = publicationData.privateData.statistics.views;
+        this.viewsTillEnd = publicationData.privateData.statistics.viewsTillEnd;
+        this.sumViewTimeSec = publicationData.privateData.statistics.sumViewTimeSec;
+        this.likes = publicationData.privateData.statistics.likes;
+        this.comments = publicationData.privateData.statistics.comments;
+        this.type = publicationData.content.type;
+        this.tags = arraysJoin(publicationData.privateData.tags, publicationData.privateData.embeddedTags)
 
-async function getStrikesInfo() {
-    const url = `https://zen.yandex.ru/editor-api/v2/v2/get-strikes?publisherId=${publisherId}&language=ru`
-    const response = await fetch(url, {
-        credentials: 'same-origin',
-        headers: {'X-Csrf-Token': token}
-    });
-    const data = await response.json();
-    return {channelRestricted: data.channelRestricted, limitations: data.limitations.length};
+        // Текстовые представления данных
+        // Время модификации
+        this.dayMod = dateTimeFormat(this.modTime);
+        this.dayCreate = this.addTime === undefined ? this.dayMod : dateTimeFormat(this.addTime);
+        this.showTime = this.dayMod !== this.dayCreate ? this.dayCreate + " (" + this.dayMod + ")" : this.dayCreate;
+        this.timeStr = this.showTime;
+
+        // Показы
+        this.feedShowStr = infiniteAndNanToStr(this.feedShows);
+
+        // Просмотры (CTR%)
+        this.ctr = (infiniteAndNan(this.shows / this.feedShows) * 100).toFixed(2);
+        if (this.type === "brief") {
+            this.ctr = (infiniteAndNan(this.views / this.feedShows) * 100).toFixed(2);
+        }
+        this.viewsStr = `${infiniteAndNanToStr(this.views)} (${this.ctr}%)`;
+
+        // Дочитывания
+        this.readsPercent = infiniteAndNan((this.viewsTillEnd / this.views) * 100).toFixed(2);
+        this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
+
+        // Среднее время дочитывания
+        this.readTime = this.sumViewTimeSec / this.viewsTillEnd;
+        this.readTimeStrHMS = secToHHMMSS(this.readTime);
+        this.readTimeStr = this.readTime > 0 ? secToText(this.readTime) : "-";
+
+
+        // Лайки (проценты)
+        this.erViews = firstNotZ(this.viewsTillEnd, this.views, this.feedShows);
+        this.likesEr = infiniteAndNan((this.likes / this.erViews) * 100);
+        this.likesStr = this.likes === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.likes)} (${this.likesEr.toFixed(2)}%)`;
+
+        // Комментарии (проценты)
+        this.commentsEr = infiniteAndNan((this.comments / this.erViews) * 100);
+        this.commentsStr = this.comments === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.comments)} (${this.commentsEr.toFixed(2)}%)`;
+
+        // Коэффициент вовлечённости
+        this.erStr = `${infiniteAndNan((((this.comments + this.likes) / this.erViews)) * 100).toFixed(2)}%`;
+
+        // Теги
+        this.tagsStr = joinByThree(this.tags);
+
+        // Ссылка на статью (сокращённая)
+        this.shortUrl = `https://zen.yandex.ru/media/id/${this.publisherId}/${this.id}`
+        if (publicationUrl != null) {
+            this.url = publicationUrl.startsWith("https://zen.yandex") ? publicationUrl : `https://zen.yandex.ru${publicationUrl}`;
+            const publicationPath = publicationUrl.split("/");
+            if (publicationPath[2] !== "id") {
+                this.shortUrl = `https://zen.yandex.ru/media/${publicationPath[2]}/${this.id}`
+            }
+        } else {
+            this.url = this.shortUrl;
+        }
+    }
 }
