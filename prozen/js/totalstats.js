@@ -1,9 +1,5 @@
-const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
-const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
-const TYPES = ["article", "narrative", "post", "gif", "gallery"];
-
-var token;
-var publisherId;
+let token;
+let publisherId;
 
 main();
 
@@ -118,16 +114,6 @@ async function getStats(publicationType) {
     return result;
 }
 
-function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-function loadPublications(publicationType, count) {
-    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
 async function loadAllPublications() {
     const publications = [];
     let recordCount = 0;
@@ -177,84 +163,4 @@ function showSpinner() {
     document.getElementById("spinner").style.display = "block";
     document.getElementById("stats").style.display = "none";
     document.getElementById("records_count").innerText = "";
-}
-
-function numFormat(num, digits) {
-    return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
-}
-
-function dateFormat(unixTime) {
-    const date = new Date(unixTime);
-    const day = "0" + date.getDate();
-    const month = "0" + (date.getMonth() + 1);
-    const year = "" + date.getFullYear();
-    const hours = "0" + date.getHours();
-    const minutes = "0" + date.getMinutes();
-    return day.substr(-2) + "." + month.substr(-2) + "."
-        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
-}
-
-function daysSinceDate(unixTime) {
-    const date1 = new Date(unixTime).getTime();
-    const date2 = new Date().getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const difference = date2 - date1;
-    return Math.round(difference / oneDay);
-}
-
-function daysReadable(daysInterval) {
-    let days = daysInterval;
-    const years = Math.floor(days / 365);
-    days = days % 365;
-    const months = Math.floor(days / 30);
-    days = days % 30;
-    return paucalYear(years) + ", " + paucalMonth(months) + ", " + paucalDay(days);
-}
-
-function secToText(seconds) {
-    let time = seconds;
-    const hours = Math.floor(time / 3600);
-    time = time % 3600;
-    const min = Math.floor(time / 60);
-    const sec = Math.floor(time % 60);
-    if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
-    return (hours > 0 ? hours + " час. " : "") + (min > 0 ? min + " мин. " : "") + sec + " сек.";
-}
-
-function paucalYear(num) {
-    return paucal(num, "год", "года", "лет");
-}
-
-function paucalMonth(num) {
-    return paucal(num, "месяц", "месяца", "месяцев");
-}
-
-function paucalDay(num) {
-    return paucal(num, "день", "дня", "дней");
-}
-
-function paucal(num, p1, p234, p) {
-    const x = num % 100;
-    if (x >= 10 && x < 20) {
-        return num + " " + p;
-    }
-    const numStr = infiniteAndNanToStr(num, 0);
-    switch (num % 10) {
-        case 1:
-            return numStr + " " + p1;
-        case 2:
-        case 3:
-        case 4:
-            return numStr + " " + p234;
-        default:
-            return numStr + " " + p;
-    }
-}
-
-function infiniteAndNanToStr(num, digits) {
-    return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
-}
-
-function infiniteAndNan(number) {
-    return isNaN(number) ? 0 : (isFinite(number) ? number : 0);
 }

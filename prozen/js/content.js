@@ -1064,7 +1064,26 @@ function backgroundListener(request) {
         processDashboardCards();
     }
 }
+async function processDashboardCards() {
+    const data = await getPublicationsByFilter (5);
+    const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
+    const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
+    if (publicationsBlocks.length > 0) {
+        for (let i = 0; i < publicationsBlocks.length; i++) {
+            const publicationBlock = publicationsBlocks.item(i);
+            const publicationtionId = getPublicationBlockId(publicationBlock);
+            const publicationUrl = getPublicationBlockUrl(publicationBlock);
+            if (publicationtionId != null) {
+                const publicationData = getCardData(publicationtionId, data.publications);
+                if (publicationData != null) {
+                    const card = jsonToCardData(publicationData, publicationUrl);
+                    modifyDashboardCard(publicationBlock, card);
+                }
+            }
 
+        }
+    }
+}
 function modifyDashboardCard(publicationBlock, card) {
     /*
        Показы         Лайки     Среднее время
@@ -1233,28 +1252,28 @@ function arraysJoin(array1, array2) {
 
 // Информер
 async function addInformerBlock() {
+    /*
+   Предупреждения: 1
+   Канал не ограничен / канал ограничен
+   Канал индексируется / не индексируется
+   Актуальность статистики: 01.01.21 01:01
+   Публикации: A:234 V:100 G:100 P:25 L:10
+ */
     if (!await getOption(OPTIONS.informer)) {
         return;
     }
     if (document.getElementById("prozen-informer")) {
         return;
     }
-    /*
-       Предупреждения: 1
-       Канал не ограничен / канал ограничен
-       Канал индексируется / не индексируется
-       Актуальность статистики: 01.01.21 01:01
-       Публикации: A:234 V:100 G:100 P:25 L:10
-     */
-
-    const hasNone = await checkHasNone(publisherId);
-    const statsInfo = await getStatsInfo();
-    const strikesInfo = await getStrikesInfo();
 
     const column = document.getElementsByClassName("author-studio-main__right-column")[0];
     const informer = createElement("div", "author-studio-block");
     informer.id = "prozen-informer";
     column.appendChild(informer);
+
+    const hasNone = await checkHasNone(publisherId);
+    const statsInfo = await getStatsInfo();
+    const strikesInfo = await getStrikesInfo();
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
     informer.appendChild(informerContent);

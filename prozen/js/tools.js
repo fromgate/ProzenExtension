@@ -97,6 +97,18 @@ function numFormat(num, digits) {
     return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
 }
 
+function paucalYear(num) {
+    return paucal(num, "год", "года", "лет");
+}
+
+function paucalMonth(num) {
+    return paucal(num, "месяц", "месяца", "месяцев");
+}
+
+function paucalDay(num) {
+    return paucal(num, "день", "дня", "дней");
+}
+
 function paucal(num, p1, p234, p) {
     const x = num % 100;
     if (x >= 10 && x < 20) {
@@ -144,6 +156,33 @@ function shortUrl() {
     return url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
 }
 
+function dateFormat(unixTime) {
+    const date = new Date(unixTime);
+    const day = "0" + date.getDate();
+    const month = "0" + (date.getMonth() + 1);
+    const year = "" + date.getFullYear();
+    const hours = "0" + date.getHours();
+    const minutes = "0" + date.getMinutes();
+    return day.substr(-2) + "." + month.substr(-2) + "."
+        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
+}
+
+function daysSinceDate(unixTime) {
+    const date1 = new Date(unixTime).getTime();
+    const date2 = new Date().getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    const difference = date2 - date1;
+    return Math.round(difference / oneDay);
+}
+function daysReadable(daysInterval) {
+    let days = daysInterval;
+    const years = Math.floor(days / 365);
+    days = days % 365;
+    const months = Math.floor(days / 30);
+    days = days % 30;
+    return paucalYear(years) + ", " + paucalMonth(months) + ", " + paucalDay(days);
+}
+
 function debug(message, message2) {
     if (DEBUG) {
         let str = "[ПРОДЗЕН]: " + message;
@@ -159,3 +198,4 @@ function log(message) {
         console.log(message);
     }
 }
+

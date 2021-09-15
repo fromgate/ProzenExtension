@@ -174,6 +174,7 @@ function loadArticle(publicationId) {
 }
 
 const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
+
 function loadPublicationsCount(publicationType) {
     const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
@@ -185,7 +186,7 @@ function loadPublications(publicationType, count) {
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
 
-const TYPES = ["article", "narrative", "post", "gif", "gallery"];
+const TYPES = ["article", "gif", "gallery", "brief", "narrative", "post"]; // repost?
 async function loadAllPublications() {
     const publications = [];
     for (let i = 0; i < TYPES.length; i++) {
@@ -219,6 +220,7 @@ async function loadAllPublications() {
 }
 
 const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
+
 function loadPublicationsStat(publicationIds) {
     const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(",")) + "&publisherId=" + publisherId;
     return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
@@ -226,6 +228,7 @@ function loadPublicationsStat(publicationIds) {
 
 const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
 const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
+
 function loadPublicationsPublisher() {
     const countUrl = URL_API_COUNT_PUBLISHED + publisherId;
     return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
@@ -240,42 +243,48 @@ function loadPublicationsPublisher() {
         });
 }
 
-const GET_PUBLICATIONS_BY_FILTER = "https://zen.yandex.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=%publisherId%&pageSize=%pageSize%";
-async function processDashboardCards() {
-    const requestUrl = GET_PUBLICATIONS_BY_FILTER
-        .replace("%publisherId%", publisherId)
-        .replace("%pageSize%", "5");
-
+async function countGroupedPublicationsByType() {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/count-grouped-publications-by-type?publisherId=${publisherId}`;
     const response = await (fetch(requestUrl, {
         credentials: 'same-origin',
         headers: {
             'X-Csrf-Token': token,
-            'X-Prozen-Request': 'processDashboardCards'
+            'X-Prozen-Request': 'countGroupedPublicationsByType'
         }
     }));
-
-    const data = await response.json();
-    const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
-    const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
-    if (publicationsBlocks.length > 0) {
-        for (let i = 0; i < publicationsBlocks.length; i++) {
-            const publicationBlock = publicationsBlocks.item(i);
-            const publicationtionId = getPublicationBlockId(publicationBlock);
-            const publicationUrl = getPublicationBlockUrl(publicationBlock);
-            if (publicationtionId != null) {
-                const publicationData = getCardData(publicationtionId, data.publications);
-                if (publicationData != null) {
-                    const card = jsonToCardData(publicationData, publicationUrl);
-                    modifyDashboardCard(publicationBlock, card);
-                }
-            }
-
-        }
-    }
+    return await response.json();
 }
 
-const URL_ZEN_ID = "https://zen.yandex.ru/id/";
+async function getPublicationsByFilter(pageSize, types) {
+    const url = new URL("editor-api/v2/get-publications-by-filter", "https://zen.yandex.ru");
+    url.searchParams.set("group", "published");
+    url.searchParams.append("publisherId", publisherId);
+    url.searchParams.append("pageSize", pageSize != null ? pageSize : 5);
+    if (types != null) {
+        url.searchParams.append("types", types);
+    }
+    const response = await (fetch(url.href, {
+        credentials: 'same-origin',
+        headers: {
+            'X-Csrf-Token': token,
+            'X-Prozen-Request': 'getPublicationsByFilter'
+        }
+    }));
+    const data = await response.json();
+    return data;
+}
+
 function checkHasNone(id) {
+    let url = `https://zen.yandex.ru/id/${id}`;
+    if (id.startsWith("channel_name")) {
+        url = `https://zen.yandex.ru/${id.replace("channel_name=","")}`;
+    } else if (id.startsWith("channel_id")) {
+        url = `https://zen.yandex.ru/id/${id.replace("channel_id","")}`;
+    }
+    return checkHasNoneUrl (url);
+}
+
+function checkHasNoneUrl(url) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
@@ -290,7 +299,7 @@ function checkHasNone(id) {
             }
             resolve(false);
         };
-        xhr.open("GET", URL_ZEN_ID + id);
+        xhr.open("GET", url);
         xhr.responseType = "document";
         xhr.send();
     });

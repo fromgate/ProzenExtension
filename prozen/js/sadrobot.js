@@ -19,17 +19,18 @@ start();
 
 function start() {
     // getChannelId();
-   loadData().then(data=> {
-       id = data.id;
-       AGREE = data.agree;
-       checkHasNone(id).then(none => {
-           if (none) {
-               showElement("channel_none");
-           } else {
-               showWarning();
-           }
-       });
-   });
+    showElement("spinner");
+    loadData().then(data => {
+        id = data.id;
+        AGREE = data.agree;
+        checkHasNone(id).then(none => {
+            if (none) {
+                showElement("channel_none");
+            } else {
+                setTimeout(showWarning, 1);
+            }
+        });
+    });
 }
 
 function showWarning() {
@@ -113,17 +114,20 @@ async function executeSearch(pubs) {
     showProgress(0, pubs.length);
     let count = 0;
     let countRobots = 0;
-    for (const card of publications) {
-
-        count++;
-        progress(count);
-        const checkState = await checkRobotNoNoIndex(card);
-        if (checkState !== ROBOTS_OK) {
-            addSearchResult(card, checkState);
-            scrollToBottom();
-            countRobots++;
+    if (!["post", "narrative"].includes(card.type)) {
+        for (const card of publications) {
+            types.add(card.type);
+            count++;
+            progress(count);
+            const checkState = await checkRobotNoNoIndex(card);
+            if (checkState !== ROBOTS_OK) {
+                addSearchResult(card, checkState);
+                scrollToBottom();
+                countRobots++;
+            }
         }
     }
+
     if (countRobots === 0) {
         showElement("not_found");
     } else {
@@ -160,7 +164,7 @@ async function checkRobotNoNoIndex(card) {
             resolve(ROBOTS_OK);
         };
         xhr.onerror = () => {
-            resolve (ROBOTS_FAIL)
+            resolve(ROBOTS_FAIL)
         }
         xhr.open("GET", card.url);
         xhr.responseType = "document";
@@ -172,7 +176,7 @@ function cardFromItem(item) {
     const card = {};
     card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
     card.url = item.link.split("?")[0];
-    card.title = (card.type === "post" || card.type === "gallery") && item.rich_text != null  ? postJsonToText(item.rich_text.json) : item.title;
+    card.title = (card.type === "post" || card.type === "gallery") && item.rich_text != null ? postJsonToText(item.rich_text.json) : item.title;
     card.description = card.type === "post" || card.type === "gallery" ? "" : item.text;
     if (card.type === "gallery" && !card.title) {
         card.title = "Галерея без описания";
@@ -223,11 +227,19 @@ function cardToDiv(card, fail = false) {
             icon.setAttribute("class", "icon_narrative span_icon");
             icon.setAttribute("title", "Нарратив");
             break;
+        case "gallery":
+            icon.setAttribute("class", "icon_narrative span_icon");
+            icon.setAttribute("title", "Нарратив");
+            break;
         case "gif":
             icon.setAttribute("class", "icon_video span_icon");
             icon.setAttribute("title", "Видео / GIF");
             break;
         case "post":
+            icon.setAttribute("class", "icon_post span_icon");
+            icon.setAttribute("title", "Пост");
+            break;
+        case "brief":
             icon.setAttribute("class", "icon_post span_icon");
             icon.setAttribute("title", "Пост");
             break;
@@ -291,7 +303,7 @@ function loadData() {
                     } else {
                         data.agree = false;
                     }
-                    resolve (data);
+                    resolve(data);
                 });
             }
         });
