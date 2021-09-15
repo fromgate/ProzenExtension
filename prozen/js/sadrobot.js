@@ -114,9 +114,8 @@ async function executeSearch(pubs) {
     showProgress(0, pubs.length);
     let count = 0;
     let countRobots = 0;
-    if (!["post", "narrative"].includes(card.type)) {
-        for (const card of publications) {
-            types.add(card.type);
+    for (const card of publications) {
+        if (!["post", "narrative"].includes(card.type)) {
             count++;
             progress(count);
             const checkState = await checkRobotNoNoIndex(card);
