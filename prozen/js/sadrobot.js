@@ -114,6 +114,7 @@ async function executeSearch(pubs) {
     showProgress(0, pubs.length);
     let count = 0;
     let countRobots = 0;
+    let links = ""
     for (const card of publications) {
         if (!["post", "narrative"].includes(card.type)) {
             count++;
@@ -121,6 +122,9 @@ async function executeSearch(pubs) {
             const checkState = await checkRobotNoNoIndex(card);
             if (checkState !== ROBOTS_OK) {
                 addSearchResult(card, checkState);
+                if (checkState === ROBOTS_NOINDEX) {
+                    links += `${card.url}\n`;
+                }
                 scrollToBottom();
                 countRobots++;
             }
@@ -130,7 +134,7 @@ async function executeSearch(pubs) {
     if (countRobots === 0) {
         showElement("not_found");
     } else {
-        addListFooter(count, countRobots);
+        addListFooter(count, countRobots, links);
     }
     hideProgress();
 }
@@ -228,15 +232,15 @@ function cardToDiv(card, fail = false) {
             break;
         case "gallery":
             icon.setAttribute("class", "icon_narrative span_icon");
-            icon.setAttribute("title", "Нарратив");
+            icon.setAttribute("title", "Галерея");
             break;
         case "gif":
             icon.setAttribute("class", "icon_video span_icon");
-            icon.setAttribute("title", "Видео / GIF");
+            icon.setAttribute("title", "Видео");
             break;
         case "post":
             icon.setAttribute("class", "icon_post span_icon");
-            icon.setAttribute("title", "Пост");
+            icon.setAttribute("title", "Пост (старый)");
             break;
         case "brief":
             icon.setAttribute("class", "icon_post span_icon");
@@ -246,11 +250,11 @@ function cardToDiv(card, fail = false) {
     div.appendChild(icon);
 
     if (fail) {
-        const red = document.createElement("mark");
-        red.innerText = "Ошибка проверки!";
-        red.className = "inline-block";
-        red.setAttribute("title", "Расширение не смогло проверить статью (возможно ошибка связи).\nНадо проверить статью вручную или, если таких ошибок много,\nповторить проверку позднее.")
-        div.appendChild(red);
+        const marked = document.createElement("mark");
+        marked.innerText = "Ошибка проверки!";
+        marked.className = "inline-block";
+        marked.setAttribute("title", "Расширение не смогло проверить статью (возможно ошибка связи).\nНадо проверить статью вручную или, если таких ошибок много,\nповторить проверку позднее.")
+        div.appendChild(marked);
     }
 
     const strong = document.createElement("strong");
@@ -265,7 +269,7 @@ function cardToDiv(card, fail = false) {
     return div;
 }
 
-function addListFooter(totalCount, robotsCount) {
+function addListFooter(totalCount, robotsCount, links) {
     const div = document.createElement("div");
     div.setAttribute("class", "section");
     const p = document.createElement("p");
@@ -280,6 +284,13 @@ function addListFooter(totalCount, robotsCount) {
     strong2.innerText = robotsCount;
     p.append(text1, strong1, br, text2, strong2);
     div.append(p);
+    if (links) {
+        const button = createElement("button");
+        button.innerText = "Скопировать ссылки в буфер обмена";
+        button.setAttribute("title", "Ссылки на публикации с ошибкой проверки скопированы не будут");
+        button.addEventListener("click", copyTextToClipboard.bind(null, links));
+        div.append(button);
+    }
     const searchResult = document.getElementById("search_result");
     searchResult.appendChild(div);
 }
@@ -295,7 +306,7 @@ function loadData() {
         chrome.storage.local.get(["prozenId"], result => {
             data.id = result.prozenId;
             if (data.id !== undefined) {
-                chrome.storage.local.get([NOINDEX_KEY + data.id], function (result) {
+                chrome.storage.local.get([NOINDEX_KEY + data.id], result => {
                     const agree = result [NOINDEX_KEY + data.id];
                     if (agree !== undefined) {
                         data.agree = agree;
