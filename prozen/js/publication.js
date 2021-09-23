@@ -185,8 +185,7 @@ async function showStatsGallery(data) {
     }
 
     {
-        const br1 = createElement("br");
-        divStat.appendChild(br1)
+        divStat.appendChild(createElement("br"));
     }
 
     {

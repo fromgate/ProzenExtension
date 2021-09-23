@@ -1251,6 +1251,9 @@ function arraysJoin(array1, array2) {
 
 
 // Информер
+function getData() {
+    return this.data
+}
 async function addInformerBlock() {
     /*
    Предупреждения: 1
@@ -1262,6 +1265,7 @@ async function addInformerBlock() {
     if (!await getOption(OPTIONS.informer)) {
         return;
     }
+
     if (document.getElementById("prozen-informer")) {
         return;
     }
@@ -1271,6 +1275,8 @@ async function addInformerBlock() {
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
+    const subscribersData = await monthlySubscribers();
+    const karmaData = await getUserKarma();
     const hasNone = await checkHasNone(publisherId);
     const statsInfo = await getStatsInfo();
     const strikesInfo = await getStrikesInfo();
@@ -1283,6 +1289,19 @@ async function addInformerBlock() {
     informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
 
     informerContent.appendChild(informerH3);
+
+    if (subscribersData != null) {
+        const subscribers = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        subscribers.innerText = `Подписчики: ${subscribersData.currentSubscribers}`;
+        informerContent.appendChild(subscribers);
+    }
+
+    if (karmaData != null) {
+        const karma = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        karma.innerText = `Карма: ${karmaData.karma[3].values.finalScore}`;
+        karma.setAttribute("title", `Бонусные показы: ${karmaData.totalBonusShows}`);
+        informerContent.appendChild(karma);
+    }
 
     if (strikesInfo.limitations != null) {
         const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");

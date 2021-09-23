@@ -338,3 +338,27 @@ async function loadPageData(initUrl, loadAll) {
     }
     return cards;
 }
+
+async function monthlySubscribers() {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/monthly-subscribers`;
+    const response = await (fetch(requestUrl, {
+        credentials: 'same-origin',
+        headers: {
+            'X-Csrf-Token': token,
+            'X-Prozen-Request': 'countGroupedPublicationsByType'
+        }
+    }));
+    return await response.json();
+}
+
+async function getUserKarma() {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/get-user-karma?publisherId=${publisherId}`
+    const response = await (fetch(requestUrl, {
+        credentials: 'same-origin',
+        headers: {
+            'X-Csrf-Token': token,
+            'X-Prozen-Request': 'countGroupedPublicationsByType'
+        }
+    }));
+    return await response.json();
+}

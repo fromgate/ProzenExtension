@@ -1,7 +1,3 @@
-const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
-const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
-const TYPES = ["article", "narrative", "post", "gif", "gallery"];
-
 const VISIBLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "search_not_found"];
 
 let token;
@@ -108,7 +104,8 @@ function updateSerchStats() {
         }
         document.getElementById('show-article').innerText = "Статьи: " + count.article;
         document.getElementById('show-narrative').innerText = "Нарративы: " + count.article;
-        document.getElementById('show-post').innerText = "Посты: " + count.post;
+        document.getElementById('show-brief').innerText = "Посты: " + count.brief;
+        document.getElementById('show-post').innerText = "Посты (старые): " + count.post;
         document.getElementById('show-gif').innerText = "Видео: " + count.gif;
         document.getElementById('show-gallery').innerText = "Галереи: " + count.gallery;
     }
@@ -261,9 +258,13 @@ function cardToDiv(card) {
             icon.setAttribute("class", "icon_video span_icon");
             icon.setAttribute("title", "Видео / GIF");
             break;
-        case "post":
+        case "brief":
             icon.setAttribute("class", "icon_post span_icon");
             icon.setAttribute("title", "Пост");
+            break;
+        case "post":
+            icon.setAttribute("class", "icon_post span_icon");
+            icon.setAttribute("title", "Пост (старый)");
             break;
     }
     div.appendChild(icon);
@@ -277,7 +278,7 @@ function cardToDiv(card) {
         div.appendChild(span);
     } else if (card.type === "gallery") {
         strong.innerText = card.title === undefined || card.title.length === 0 ? "Описание не указано" : card.title;
-    } else if (card.type === "post") {
+    } else if (card.type === "post" || card.type == "brief")  {
         strong.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
     }
     return div;
@@ -329,7 +330,7 @@ async function loadAllPublications() {
                     pubData.tags = new Set(publication.privateData.tags);
                     pubData.title = publication.content.preview.title;
                     pubData.description = publication.content.preview.snippet;
-                    pubData.url = getMediaUrl(publication.id);
+                    pubData.url = `https://zen.yandex.ru/media/id/${publisherId}/${publication.id}`;
                     cards.push(pubData);
                     recordCount++;
                 }
@@ -347,18 +348,4 @@ async function loadAllPublications() {
         return 0;
     });
     return publications;
-}
-
-function getMediaUrl(publicationId) {
-    return "https://zen.yandex.ru/media/id/" + publisherId + "/" + publicationId;
-}
-
-function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
-}
-
-function loadPublications(publicationType, count) {
-    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
-    return fetch(url, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}}).then(response => response.json());
 }
