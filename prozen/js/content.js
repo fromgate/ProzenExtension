@@ -1064,8 +1064,9 @@ function backgroundListener(request) {
         processDashboardCards();
     }
 }
+
 async function processDashboardCards() {
-    const data = await getPublicationsByFilter (5);
+    const data = await getPublicationsByFilter(5);
     const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
     const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
     if (publicationsBlocks.length > 0) {
@@ -1084,6 +1085,7 @@ async function processDashboardCards() {
         }
     }
 }
+
 function modifyDashboardCard(publicationBlock, card) {
     /*
        Показы         Лайки     Среднее время
@@ -1254,6 +1256,7 @@ function arraysJoin(array1, array2) {
 function getData() {
     return this.data
 }
+
 async function addInformerBlock() {
     /*
    Предупреждения: 1
@@ -1292,14 +1295,20 @@ async function addInformerBlock() {
 
     if (subscribersData != null) {
         const subscribers = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        subscribers.innerText = `Подписчики: ${subscribersData.currentSubscribers}`;
+        subscribers.innerText = `Подписчики: ${numFormat(subscribersData.currentSubscribers)}`;
         informerContent.appendChild(subscribers);
     }
 
     if (karmaData != null) {
         const karma = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        karma.innerText = `Карма: ${karmaData.karma[3].values.finalScore}`;
-        karma.setAttribute("title", `Бонусные показы: ${karmaData.totalBonusShows}`);
+        if (karmaData.karma && karmaData.karma.length > 0) {
+            karma.innerText = `Карма: ${karmaData.karma[karmaData.karma.length - 1].values.finalScore}`;
+        } else {
+            karma.innerText = "Карма: 0";
+        }
+        if (karmaData.totalBonusShows) {
+            karma.setAttribute("title", `Бонусные показы: ${numFormat(karmaData.totalBonusShows)}`);
+        }
         informerContent.appendChild(karma);
     }
 
