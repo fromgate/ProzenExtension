@@ -77,7 +77,7 @@ function createElement(elementType, elementClass, childElement) {
 }
 
 function infiniteAndNanToStr(num, digits) {
-    return infiniteAndNan(num).toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits})
+    return infiniteAndNan(num).toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits})
 }
 
 function removeChilds(element) {
@@ -94,7 +94,7 @@ function removeByClass(className) {
 }
 
 function numFormat(num, digits) {
-    return num.toLocaleString(undefined, {maximumFractionDigits: digits === undefined ? 0 : digits});
+    return num.toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits})
 }
 
 function paucalYear(num) {

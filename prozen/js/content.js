@@ -1278,7 +1278,6 @@ async function addInformerBlock() {
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
-    const subscribersData = await monthlySubscribers();
     const karmaData = await getUserKarma();
     const hasNone = await checkHasNone(publisherId);
     const statsInfo = await getStatsInfo();
@@ -1292,12 +1291,6 @@ async function addInformerBlock() {
     informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
 
     informerContent.appendChild(informerH3);
-
-    if (subscribersData != null) {
-        const subscribers = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        subscribers.innerText = `Подписчики: ${numFormat(subscribersData.currentSubscribers)}`;
-        informerContent.appendChild(subscribers);
-    }
 
     if (karmaData != null) {
         const karma = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
