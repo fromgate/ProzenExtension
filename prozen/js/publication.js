@@ -1,23 +1,27 @@
 start();
 
 function start() {
-    window.removeEventListener("message", ReceiveProzenData);
-    if (!document.getElementById("prozen-css")) {
-        const css = document.createElement("link");
-        css.setAttribute("rel", "stylesheet");
-        css.setAttribute("type", "text/css");
-        css.id = "prozen-css";
-        css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
-        document.head.appendChild(css);
-    }
-    if (!document.getElementById("prozen-page-script")) {
-        const script = document.createElement("script");
-        script.setAttribute("type", "text/javascript");
-        script.id = "prozen-page-script";
-        script.setAttribute("src", chrome.extension.getURL("js/page.js"));
-        document.body.appendChild(script);
-    }
-    window.addEventListener("message", ReceiveProzenData);
+    getOption(OPTIONS.prozen).then(enabled => {
+        if (enabled) {
+            window.removeEventListener("message", ReceiveProzenData);
+            if (!document.getElementById("prozen-css")) {
+                const css = document.createElement("link");
+                css.setAttribute("rel", "stylesheet");
+                css.setAttribute("type", "text/css");
+                css.id = "prozen-css";
+                css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
+                document.head.appendChild(css);
+            }
+            if (!document.getElementById("prozen-page-script")) {
+                const script = document.createElement("script");
+                script.setAttribute("type", "text/javascript");
+                script.id = "prozen-page-script";
+                script.setAttribute("src", chrome.extension.getURL("js/page.js"));
+                document.body.appendChild(script);
+            }
+            window.addEventListener("message", ReceiveProzenData);
+        }
+    });
 }
 
 function ReceiveProzenData(event) {
@@ -26,11 +30,8 @@ function ReceiveProzenData(event) {
     }
     if (event.data.type && (event.data.type === "prozen-data")) {
         const data = event.data.jsonData;
-
         publisherId = event.data.jsonData.publisher.id;
-        console.log(publisherId);
         const pageType = getPageType(data);
-        console.log(pageType);
         setTimeout (showPublicationStats.bind(null, pageType, data, publisherId), 300);
     }
 }
@@ -287,12 +288,9 @@ async function showStatsVideo(data) {
 
 
 async function showStatsArticle(data) {
-    console.log("showStatsArticle 1");
     if (data === null) {
         return;
     }
-
-    console.log("showStatsArticle 2");
     const postId = getPostIdFromUrl(window.location.pathname);
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);

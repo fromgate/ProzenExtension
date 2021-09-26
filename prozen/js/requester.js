@@ -265,11 +265,14 @@ async function getUserKarma() {
 }
 
 function request(requestUrl) {
-    return fetch(requestUrl, {
-        credentials: 'same-origin',
+    const headers = {
+        credentials: "same-origin",
         headers: {
-            'X-Csrf-Token': token,
-            'X-Prozen-Request': 'countGroupedPublicationsByType'
+            "X-Prozen-Request": "countGroupedPublicationsByType"
         }
-    });
+    }
+    if (typeof token !== "undefined") {
+        headers.headers["X-Csrf-Token"] = token
+    }
+    return fetch(requestUrl, headers);
 }

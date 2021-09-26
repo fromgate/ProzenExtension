@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "update_url": "https://clients2.google.com/service/update2/crx",
@@ -50,6 +50,7 @@
     },
     {
       "js": [
+        "js/options.js",
         "js/tools.js",
         "js/requester.js",
         "js/publication.js"
