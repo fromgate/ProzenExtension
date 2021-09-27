@@ -75,12 +75,11 @@ function main(updatedId = null) {
             }
             break;
         case "publications":
-            if (token != null && publisherId != null) {
-                addStudioMenu();
-                registerObserverWindowsLocation();
-            }
-            break;
         case "money":
+        case "karma":
+        case "music":
+        case "stats":
+        case "campaigns":
             if (token != null && publisherId != null) {
                 addStudioMenu();
                 registerObserverWindowsLocation();
@@ -243,6 +242,9 @@ function getPageType() {
         }
         if (path.endsWith("/publications-stat")) {
             return "stats";
+        }
+        if (path.endsWith("/campaigns")) {
+            return "campaigns";
         }
         return "main";
     }
@@ -816,7 +818,6 @@ function registerObserverWindowsLocation() {
             if (oldHref !== document.location.href) {
                 oldHref = document.location.href;
                 sendProzenRequest();
-                //start();
             }
         });
     });
@@ -894,12 +895,6 @@ function setBalanceTooltip(tooltip) {
         return;
     }
     const messageDiv = tooltip.getElementsByClassName("author-studio-info-item-hint")[0];
-    if (moneyDate != null) {
-        const p = createElement("p", "Text Text_typography_text-14-18 author-studio-info-item-hint__text");
-        p.id = "prozen-money-date";
-        p.innerText = `Начислено за ${moneyDate}`;
-        messageDiv.appendChild(p);
-    }
     if (moneyTotal != null) {
         const p = createElement("p", "Text Text_typography_text-14-18 author-studio-info-item-hint__text");
         p.id = "prozen-money-total";
@@ -1061,44 +1056,86 @@ function backgroundListener(request) {
     if (request.type === "prozen-webrequest") {
         publisherId = request.publisherId;
         token = request.token;
-        processDashboardCards();
+        const pageType = getPageType();
+
+        if (pageType == "main") {
+            processDashboardCards(request.pageSize);
+        } else if (pageType == "publications") {
+            processPublicationsCards(request);
+        }
     }
 }
 
-async function processDashboardCards() {
-    const data = await getPublicationsByFilter(5);
+async function processPublicationsCards(request) {
+    const data = await getPublicationsByFilter(request.pageSize, request.types, request.publicationIdAfter, request.query);
+    modifyPublicationTable(data.publications);
+}
+
+function getPublicationCellById(publicationId) {
+    const table = document.querySelector("table.publications-list");
+    const a = table.querySelector(`a.publication-preview[href*='${publicationId}'`);
+    return a != null ? a.parentNode : null;
+}
+
+function modifyPublicationsCell(cell, card) {
+    if (cell.hasAttribute("data-prozen-publication-id")) {
+        return;
+    }
+    cell.setAttribute("data-prozen-publication-id", card.id);
+    const snippet = cell.querySelector("p.publication-preview__snippet");
+    if (snippet != null && snippet.style != null && !["post","gallery"].includes(card.type)) {
+        snippet.style.setProperty("-webkit-line-clamp", "2");
+    }
+
+    const timeCell = cell.parentNode.cells[1];
+    timeCell.querySelector("span").innerText = card.timeStr;
+
+    const previewContainer = cell.querySelector("div.publication-preview__preview-container");
+    const publicationItemStats = createElement("div", "author-studio-publication-item__stats");
+    previewContainer.appendChild(publicationItemStats);
+    modifyPublicationsCard(publicationItemStats, card);
+}
+
+function modifyPublicationTable(requestData) {
+    const waitList = []
+    for (let i = 0; i < requestData.length; i++) {
+        const publicationData = requestData[i];
+        const cell = getPublicationCellById(publicationData.id);
+        if (cell == null) {
+            if (!["post", "narrative", "story"].includes(publicationData.content.type)) {
+                waitList.push(publicationData);
+            }
+        } else {
+            const card = jsonToCardData(publicationData, cell.querySelector("a.publication-preview").href);
+            modifyPublicationsCell(cell, card);
+        }
+    }
+    if (waitList.length > 0) {
+        setTimeout(modifyPublicationTable.bind(null, waitList), 300);
+    }
+}
+
+async function processDashboardCards(pageSize) {
+    const data = await getPublicationsByFilter(pageSize);
     const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
     const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
     if (publicationsBlocks.length > 0) {
         for (let i = 0; i < publicationsBlocks.length; i++) {
             const publicationBlock = publicationsBlocks.item(i);
-            const publicationtionId = getPublicationBlockId(publicationBlock);
+            const publicationId = getPublicationBlockId(publicationBlock);
             const publicationUrl = getPublicationBlockUrl(publicationBlock);
-            if (publicationtionId != null) {
-                const publicationData = getCardData(publicationtionId, data.publications);
+            if (publicationId != null) {
+                const publicationData = getCardData(publicationId, data.publications);
                 if (publicationData != null) {
                     const card = jsonToCardData(publicationData, publicationUrl);
                     modifyDashboardCard(publicationBlock, card);
                 }
             }
-
         }
     }
 }
 
-function modifyDashboardCard(publicationBlock, card) {
-    /*
-       Показы         Лайки     Среднее время
-       Просмотры      Коменты   isBanned?  moderationStatus // ок? isPromotionAvailable snippetFrozen
-       Дочитывания    ER        Короткая ссылка/ Теги
-     */
-    const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
-    timeBlock.innerText = card.timeStr;
-    //timeBlock.style.opacity = 1;
-
-    const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
-    removeChilds(publicationItemStats);
-
+function modifyPublicationsCard(publicationItemStats, card) {
     // Первая колонка
     const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
     publicationItemStats.appendChild(col1);
@@ -1210,6 +1247,24 @@ function modifyDashboardCard(publicationBlock, card) {
         event.preventDefault();
     });
     col3.appendChild(c3r3);
+
+
+}
+
+function modifyDashboardCard(publicationBlock, card) {
+    /*
+       Показы         Лайки     Среднее время
+       Просмотры      Коменты   isBanned?  moderationStatus // ок? isPromotionAvailable snippetFrozen
+       Дочитывания    ER        Короткая ссылка/ Теги
+     */
+    const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
+    timeBlock.innerText = card.timeStr;
+    //timeBlock.style.opacity = 1;
+
+    const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
+    removeChilds(publicationItemStats);
+
+    modifyPublicationsCard (publicationItemStats, card);
 }
 
 function jsonToCardData(publicationData, publicationUrl) {
@@ -1274,6 +1329,9 @@ async function addInformerBlock() {
     }
 
     const column = document.getElementsByClassName("author-studio-main__right-column")[0];
+    if (column == null) {
+        return;
+    }
     const informer = createElement("div", "author-studio-block");
     informer.id = "prozen-informer";
     column.appendChild(informer);
@@ -1294,7 +1352,7 @@ async function addInformerBlock() {
 
     if (karmaData != null) {
         const karma = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        if (karmaData.karma && karmaData.karma.length > 0) {
+        if (karmaData.karma && karmaData.karma.length > 0 && karmaData.karma[karmaData.karma.length - 1].values) {
             karma.innerText = `Карма: ${karmaData.karma[karmaData.karma.length - 1].values.finalScore}`;
         } else {
             karma.innerText = "Карма: 0";
@@ -1428,10 +1486,10 @@ class Card {
         this.shortUrl = `https://zen.yandex.ru/media/id/${this.publisherId}/${this.id}`
         if (publicationUrl != null) {
             this.url = publicationUrl.startsWith("https://zen.yandex") ? publicationUrl : `https://zen.yandex.ru${publicationUrl}`;
-            const publicationPath = publicationUrl.split("/");
-            if (publicationPath[2] !== "id") {
-                this.shortUrl = `https://zen.yandex.ru/media/${publicationPath[2]}/${this.id}`
-            }
+            const publicationPath = this.url.split("/");
+            this.shortUrl = publicationPath[4] === "id" ?
+                `https://zen.yandex.ru/media/id/${publicationPath[5]}/${this.id}`
+                : `https://zen.yandex.ru/media/${publicationPath[4]}/${this.id}`;
         } else {
             this.url = this.shortUrl;
         }

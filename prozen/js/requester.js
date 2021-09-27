@@ -174,13 +174,19 @@ async function countGroupedPublicationsByType() {
     return await response.json();
 }
 
-async function getPublicationsByFilter(pageSize, types) {
+async function getPublicationsByFilter(pageSize, types, publicationIdAfter, query) {
     const url = new URL("editor-api/v2/get-publications-by-filter", "https://zen.yandex.ru");
     url.searchParams.set("group", "published");
     url.searchParams.append("publisherId", publisherId);
     url.searchParams.append("pageSize", pageSize != null ? pageSize : 5);
     if (types != null) {
         url.searchParams.append("types", types);
+    }
+    if (publicationIdAfter != null) {
+        url.searchParams.append("publicationIdAfter", publicationIdAfter);
+    }
+    if (query != null) {
+        url.searchParams.append("query", query);
     }
     const response = await request(url.href);
     const data = await response.json();

@@ -397,8 +397,8 @@ html body .ui-lib-header__item._type_left {
 
 
 .author-studio-publication-cover {
-    height: 95px;
-    width: 95px;
+    height: 95px !important;
+    width: 95px !important;
 }
 
 .prozen-publication-icon-placeholder {
