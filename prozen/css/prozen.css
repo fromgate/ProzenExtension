@@ -461,3 +461,15 @@ html body .ui-lib-header__item._type_left {
 .prozen-va {
     vertical-align: middle;
 }
+
+.prozen-card-container {
+    display: -webkit-flex;
+    display: flex;
+    margin-bottom: 4px;
+}
+
+.prozen-card-container-item {
+    min-width: 60px;
+    border-radius: 6px;
+    margin-right: 16px;
+}

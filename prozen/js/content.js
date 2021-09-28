@@ -1091,7 +1091,9 @@ function modifyPublicationsCell(cell, card) {
     timeCell.querySelector("span").innerText = card.timeStr;
 
     const previewContainer = cell.querySelector("div.publication-preview__preview-container");
-    const publicationItemStats = createElement("div", "author-studio-publication-item__stats");
+    //const publicationItemStats = createElement("div", "author-studio-publication-item__stats");
+    const publicationItemStats = createElement("div", "prozen-card-container");
+
     previewContainer.appendChild(publicationItemStats);
     modifyPublicationsCard(publicationItemStats, card);
 }
@@ -1137,7 +1139,8 @@ async function processDashboardCards(pageSize) {
 
 function modifyPublicationsCard(publicationItemStats, card) {
     // Первая колонка
-    const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
+    //const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
+    const col1 = createElement("div", "prozen-card-container-item");
     publicationItemStats.appendChild(col1);
 
     // Показы
@@ -1171,7 +1174,8 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col1.appendChild(c1r3);
 
     // Вторая колонка
-    const col2 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_shows");
+    //const col2 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_shows");
+    const col2 = createElement("div", "prozen-card-container-item");
     publicationItemStats.appendChild(col2);
 
     // Лайки
@@ -1205,7 +1209,8 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col2.appendChild(c2r3);
 
     // Третья колонка
-    const col3 = createElement("div", "author-studio-publication-item__stat-item author-studio-publicauthor-studio-publication-itemation-item__stat-item_type_comments");
+    //const col3 = createElement("div", "author-studio-publication-item__stat-item author-studio-publicauthor-studio-publication-itemation-item__stat-item_type_comments");
+    const col3 = createElement("div", "prozen-card-container-item");
     publicationItemStats.appendChild(col3);
 
     // Среднее время просмотра
