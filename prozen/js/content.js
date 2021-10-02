@@ -1083,7 +1083,7 @@ function modifyPublicationsCell(cell, card) {
     }
     cell.setAttribute("data-prozen-publication-id", card.id);
     const snippet = cell.querySelector("p.publication-preview__snippet");
-    if (snippet != null && snippet.style != null && !["post","gallery"].includes(card.type)) {
+    if (snippet != null && snippet.style != null && !["post", "gallery"].includes(card.type)) {
         snippet.style.setProperty("-webkit-line-clamp", "2");
     }
 
@@ -1246,7 +1246,9 @@ function modifyPublicationsCard(publicationItemStats, card) {
     c3r3.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
     const c3r3Icon = createElement("span", "prozen_studio_card_icon_link");
     c3r3.appendChild(c3r3Icon);
-    const shortUrl = mediaUrl != null ? `https://zen.yandex.ru/${mediaUrl}/${card.id}` : card.shortUrl;
+    const shortUrl = mediaUrl != null ?
+        (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
+        : card.shortUrl;
     c3r3.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
@@ -1269,7 +1271,7 @@ function modifyDashboardCard(publicationBlock, card) {
     const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
     removeChilds(publicationItemStats);
 
-    modifyPublicationsCard (publicationItemStats, card);
+    modifyPublicationsCard(publicationItemStats, card);
 }
 
 function jsonToCardData(publicationData, publicationUrl) {
@@ -1345,6 +1347,7 @@ async function addInformerBlock() {
     const hasNone = await checkHasNone(publisherId);
     const statsInfo = await getStatsInfo();
     const strikesInfo = await getStrikesInfo();
+    const countInfo = await countGroupedPublicationsByType();
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
     informer.appendChild(informerContent);
@@ -1402,7 +1405,7 @@ async function addInformerBlock() {
         informerContent.appendChild(informerActuality);
     }
 
-    if (statsInfo.counters != null) {
+    if (countInfo != null) {
         const publicationNames = {
             article: "статей",
             gif: "видео",
@@ -1412,9 +1415,11 @@ async function addInformerBlock() {
         };
         const informerCounters = createElement("span", "Text Text_color_full Text_typography_text-14-18 prozen-mb5 prozen-va");
         informerContent.appendChild(informerCounters);
-        for (const [type, count] of Object.entries(statsInfo.counters)) {
+
+        for (const [type, name] of Object.entries(publicationNames)) {
+            const count = countInfo.countedPublicationsByType[type];
             if (count != null) {
-                const title = `Количество ${publicationNames[type]} на канале`;
+                const title = `Количество ${name} на канале`;
                 const icon = createElement("span", `prozen-publication-icon-${type}`);
                 icon.setAttribute("title", title);
                 informerCounters.appendChild(icon);
