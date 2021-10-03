@@ -70,6 +70,26 @@ async function getStrikesInfo() {
     return {channelRestricted: data.channelRestricted, limitations: data.limitations.length};
 }
 
+function getStatsInfoAndCounter() {
+    const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
+    const promises = []
+    for (const type of publicationTypes) {
+        const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
+        promises.push(new Promise(resolve => {
+            request(requestUrl)
+                .then(response =>{
+                    response.json().then(data=>{
+                        const counter = {}
+                        counter.actuality = dateTimeFormat(data.actuality);
+                        counter[type] = data.publicationCount;
+                        resolve (counter);
+                    })
+                })
+        }));
+    }
+    return Promise.all(promises);
+}
+
 async function getStatsInfo(getCounter = false) {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
     const counters = {};

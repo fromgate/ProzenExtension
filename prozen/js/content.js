@@ -1343,11 +1343,18 @@ async function addInformerBlock() {
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
-    const karmaData = await getUserKarma();
-    const hasNone = await checkHasNone(publisherId);
-    const statsInfo = await getStatsInfo();
-    const strikesInfo = await getStrikesInfo();
-    const countInfo = await countGroupedPublicationsByType();
+
+    const result = await Promise.all([getUserKarma(),
+        checkHasNone(publisherId),
+        //getStatsInfo(true),
+        getStatsInfoAndCounter(),
+    getStrikesInfo()]);
+
+    const karmaData = result[0];
+    const hasNone = result[1];
+    const statsInfo = result[2];
+    const strikesInfo = result[3];
+    // const countInfo = await countGroupedPublicationsByType();
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
     informer.appendChild(informerContent);
@@ -1398,35 +1405,47 @@ async function addInformerBlock() {
         informerContent.appendChild(allNone);
     }
 
-    if (statsInfo.actuality != null) {
-        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        informerActuality.innerText = `Статистика от ${statsInfo.actuality}`;
-        informerActuality.setAttribute("title", "Время обновления статистики");
-        informerContent.appendChild(informerActuality);
-    }
+    if (statsInfo && statsInfo.length > 0) {
+        if (statsInfo[0] && statsInfo[0].actuality) {
+            const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+            informerActuality.innerText = `Статистика от ${statsInfo[0].actuality}`;
+            informerActuality.setAttribute("title", "Время обновления статистики");
+            informerContent.appendChild(informerActuality);
+        }
 
-    if (countInfo != null) {
-        const publicationNames = {
-            article: "статей",
-            gif: "видео",
-            gallery: "галерей",
-            brief: "постов",
-            live: "трансляций"
-        };
-        const informerCounters = createElement("span", "Text Text_color_full Text_typography_text-14-18 prozen-mb5 prozen-va");
-        informerContent.appendChild(informerCounters);
 
-        for (const [type, name] of Object.entries(publicationNames)) {
-            const count = countInfo.countedPublicationsByType[type];
-            if (count != null) {
+
+
+        if (statsInfo && statsInfo.length > 0) {
+            const counters = {};
+            for (let i =0; i<statsInfo.length; i++) {
+                const key = Object.getOwnPropertyNames(statsInfo[i])[1];
+                counters[key] = statsInfo[i][key];
+            }
+
+            const publicationNames = {
+                article: "статей",
+                gif: "видео",
+                gallery: "галерей",
+                brief: "постов",
+                live: "трансляций"
+            };
+
+            const informerCounters = createElement("span", "Text Text_color_full Text_typography_text-14-18 prozen-mb5 prozen-va");
+            informerContent.appendChild(informerCounters);
+
+            for (const [type, name] of Object.entries(publicationNames)) {
                 const title = `Количество ${name} на канале`;
-                const icon = createElement("span", `prozen-publication-icon-${type}`);
-                icon.setAttribute("title", title);
-                informerCounters.appendChild(icon);
-                const text = createElement("span", "prozen-ml5r8");
-                text.setAttribute("title", title);
-                text.innerText = count;
-                informerCounters.appendChild(text);
+                const count = counters[type];
+                if (count != null) {
+                    const icon = createElement("span", `prozen-publication-icon-${type}`);
+                    icon.setAttribute("title", title);
+                    informerCounters.appendChild(icon);
+                    const text = createElement("span", "prozen-ml5r8");
+                    text.setAttribute("title", title);
+                    text.innerText = count;
+                    informerCounters.appendChild(text);
+                }
             }
         }
     }
