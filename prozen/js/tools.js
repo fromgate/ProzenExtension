@@ -1,6 +1,7 @@
 const DEBUG = true;
 
-function getPostIdFromUrl(url) {
+function getPostIdFromUrl(link) {
+    const url = link.endsWith("/") ? link.substring(0, link.length - 1) : link;
     const ln = url.replace("?from=editor", "").split(url.includes("-") ? "-" : "/");
     return ln[ln.length - 1];
 }

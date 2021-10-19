@@ -1320,13 +1320,7 @@ function getData() {
 }
 
 async function addInformerBlock() {
-    /*
-   Предупреждения: 1
-   Канал не ограничен / канал ограничен
-   Канал индексируется / не индексируется
-   Актуальность статистики: 01.01.21 01:01
-   Публикации: A:234 V:100 G:100 P:25 L:10
- */
+
     if (!await getOption(OPTIONS.informer)) {
         return;
     }
@@ -1344,17 +1338,16 @@ async function addInformerBlock() {
     column.appendChild(informer);
 
 
-    const result = await Promise.all([getUserKarma(),
+    const result = await Promise.all([
         checkHasNone(publisherId),
         //getStatsInfo(true),
         getStatsInfoAndCounter(),
-    getStrikesInfo()]);
+        getStrikesInfo()
+    ]);
 
-    const karmaData = result[0];
-    const hasNone = result[1];
-    const statsInfo = result[2];
-    const strikesInfo = result[3];
-    // const countInfo = await countGroupedPublicationsByType();
+    const hasNone = result[0];
+    const statsInfo = result[1];
+    const strikesInfo = result[2];
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
     informer.appendChild(informerContent);
@@ -1364,19 +1357,6 @@ async function addInformerBlock() {
     informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
 
     informerContent.appendChild(informerH3);
-
-    if (karmaData != null) {
-        const karma = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-        if (karmaData.karma && karmaData.karma.length > 0 && karmaData.karma[karmaData.karma.length - 1].values) {
-            karma.innerText = `Карма: ${karmaData.karma[karmaData.karma.length - 1].values.finalScore}`;
-        } else {
-            karma.innerText = "Карма: 0";
-        }
-        if (karmaData.totalBonusShows) {
-            karma.setAttribute("title", `Бонусные показы: ${numFormat(karmaData.totalBonusShows)}`);
-        }
-        informerContent.appendChild(karma);
-    }
 
     if (strikesInfo.limitations != null) {
         const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
@@ -1414,11 +1394,9 @@ async function addInformerBlock() {
         }
 
 
-
-
         if (statsInfo && statsInfo.length > 0) {
             const counters = {};
-            for (let i =0; i<statsInfo.length; i++) {
+            for (let i = 0; i < statsInfo.length; i++) {
                 const key = Object.getOwnPropertyNames(statsInfo[i])[1];
                 counters[key] = statsInfo[i][key];
             }

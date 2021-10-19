@@ -28,6 +28,16 @@
                         </div>
                         <div id="stats">
                             <fieldset>
+                                <div>
+                                    <label>Период статистики</label>
+                                    <span>с</span><input type="text" id="start-date"><span>по</span>
+                                    <input type="text" id="end-date">
+                                    <button id="range-filter" type="button"
+                                            title="Показать статистику по публикациям за заданный период">Показать
+                                    </button>
+                                </div>
+                            </fieldset>
+                            <fieldset id="total-fieldset">
                                 <legend>Общая статистика</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="total-count"></span><br/>
@@ -37,7 +47,7 @@
                                     <label>Первая публикация: </label><span id="total-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="article-fieldset">
                                 <legend>Статьи</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="article-count"></span><br/>
@@ -47,7 +57,7 @@
                                     <label>Первая публикация: </label><span id="article-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="gif-fieldset">
                                 <legend>Видео</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="gif-count"></span><br/>
@@ -57,7 +67,7 @@
                                     <label>Первая публикация: </label><span id="gif-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="gallery-fieldset">
                                 <legend>Галереи</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="gallery-count"></span><br/>
@@ -67,7 +77,7 @@
                                     <label>Первая публикация: </label><span id="gallery-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="brief-fieldset">
                                 <legend>Посты</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="brief-count"></span><br/>
@@ -77,7 +87,7 @@
                                     <label>Первая публикация: </label><span id="brief-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="narrative-fieldset">
                                 <legend>Нарративы</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="narrative-count"></span><br/>
@@ -87,7 +97,7 @@
                                     <label>Первая публикация: </label><span id="narrative-firstpost"></span>
                                 </div>
                             </fieldset>
-                            <fieldset>
+                            <fieldset id="post-fieldset">
                                 <legend>Посты (старые)</legend>
                                 <div>
                                     <label>Опубликовано: </label><span id="post-count"></span><br/>
@@ -97,6 +107,9 @@
                                     <label>Первая публикация: </label><span id="post-firstpost"></span>
                                 </div>
                             </fieldset>
+                            <div id = "not-found">
+                                <p>Публикации не найдены!</p>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
@@ -113,6 +126,8 @@
 </footer>
 <script type="text/javascript" src="js/requester.js"></script>
 <script type="text/javascript" src="js/tools.js"></script>
+<script type="text/javascript" src="js/litepicker.js"></script>
+<script type="text/javascript" src="js/ranges.js"></script>
 <script type="text/javascript" src="js/totalstats.js"></script>
 </body>
 </html>

@@ -28,7 +28,7 @@ function getCustomRanges() {
     const ranges = {};
     const today = new Date()
     const year = today.getFullYear();
-    ranges["Это месяц"] = [new Date (new Date().setDate(1)), today]
+    ranges["Текущий месяц"] = [new Date (new Date().setDate(1)), today]
     ranges["Прошлый месяц"] = [new Date (today.getFullYear(), today.getMonth()-1), new Date (today.getFullYear(), today.getMonth())]
     ranges["Последние 30 дней"] = [new Date (new Date().setDate(today.getDate()-30)), today]
     ranges["Последние 180 дней"] = [new Date (new Date().setDate(today.getDate()-180)), today]
@@ -278,7 +278,7 @@ function cardToDiv(card) {
         div.appendChild(span);
     } else if (card.type === "gallery") {
         strong.innerText = card.title === undefined || card.title.length === 0 ? "Описание не указано" : card.title;
-    } else if (card.type === "post" || card.type == "brief")  {
+    } else if (card.type === "post" || card.type === "brief")  {
         strong.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
     }
     return div;

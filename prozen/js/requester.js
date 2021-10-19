@@ -134,6 +134,7 @@ function loadPublications(publicationType, count) {
     return request(url).then(response => response.json());
 }
 
+// deprecated?
 const TYPES = ["article", "gif", "gallery", "brief", "narrative", "post"]; // repost?
 async function loadAllPublications() {
     const publications = [];
@@ -213,6 +214,22 @@ async function getPublicationsByFilter(pageSize, types, publicationIdAfter, quer
     return data;
 }
 
+async function getAllPublications() {
+    const counters = await countGroupedPublicationsByType()
+    const promises = [];
+    for (const [key, value] of Object.entries(counters.countedPublicationsByType)) {
+        console.log(`${key} ${value}`);
+        promises.push(getPublicationsByFilter(value, key));
+    }
+    const data = await Promise.all(promises);
+
+    const publications = [];
+    for (const result of data) {
+        publications.push(...result.publications);
+    }
+    return publications;
+}
+
 function checkHasNone(id) {
     let url = `https://zen.yandex.ru/id/${id}`;
     if (id.startsWith("channel_name")) {
@@ -284,6 +301,7 @@ async function monthlySubscribers() {
     return await response.json();
 }
 
+/* Deprecated */
 async function getUserKarma() {
     const requestUrl = `https://zen.yandex.ru/editor-api/v2/get-user-karma?publisherId=${publisherId}`
     const response = await request(requestUrl);
