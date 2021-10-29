@@ -1340,13 +1340,12 @@ async function addInformerBlock() {
 
     const result = await Promise.all([
         checkHasNone(publisherId),
-        //getStatsInfo(true),
-        getStatsInfoAndCounter(),
+        getStatsActuality(), // getStatsInfo(), // getStatsInfoAndCounter()
         getStrikesInfo()
     ]);
 
     const hasNone = result[0];
-    const statsInfo = result[1];
+    const actuality = result [1]; // const statsInfo = result[1];
     const strikesInfo = result[2];
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
@@ -1385,6 +1384,14 @@ async function addInformerBlock() {
         informerContent.appendChild(allNone);
     }
 
+    if (actuality) {
+        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        informerActuality.innerText = `Статистика от ${actuality}`;
+        informerActuality.setAttribute("title", "Время обновления статистики");
+        informerContent.appendChild(informerActuality);
+    }
+
+    /*
     if (statsInfo && statsInfo.length > 0) {
         if (statsInfo[0] && statsInfo[0].actuality) {
             const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
@@ -1392,8 +1399,6 @@ async function addInformerBlock() {
             informerActuality.setAttribute("title", "Время обновления статистики");
             informerContent.appendChild(informerActuality);
         }
-
-
         if (statsInfo && statsInfo.length > 0) {
             const counters = {};
             for (let i = 0; i < statsInfo.length; i++) {
@@ -1427,6 +1432,7 @@ async function addInformerBlock() {
             }
         }
     }
+     */
 }
 
 class Card {

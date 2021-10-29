@@ -90,6 +90,18 @@ function getStatsInfoAndCounter() {
     return Promise.all(promises);
 }
 
+function getStatsActuality() {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=article&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
+    return new Promise(resolve => {
+        request(requestUrl).then(response => {
+            response.json().then(data => {
+                const actuality = dateTimeFormat(data.actuality);
+                resolve(actuality);
+            })
+        })
+    })
+}
+
 async function getStatsInfo(getCounter = false) {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
     const counters = {};
@@ -218,7 +230,6 @@ async function getAllPublications() {
     const counters = await countGroupedPublicationsByType()
     const promises = [];
     for (const [key, value] of Object.entries(counters.countedPublicationsByType)) {
-        console.log(`${key} ${value}`);
         promises.push(getPublicationsByFilter(value, key));
     }
     const data = await Promise.all(promises);
@@ -243,17 +254,17 @@ function checkHasNone(id) {
 function checkHasNoneUrl(url) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const metas = xhr.responseXML.head.getElementsByTagName('meta');
-            for (let i = 0; i < metas.length; i++) {
-                if (metas[i].getAttribute('property') === "robots") {
-                    if (metas[i].getAttribute('content') === "none") {
-                        resolve(true);
-                    }
+        xhr.onload = () => {
+            const metas = xhr.responseXML.head.getElementsByTagName("meta");
+            let hasNone = false;
+            for (const meta of metas) {
+                if (meta.getAttribute("property") === "robots"
+                    && meta.getAttribute("content") === "none") {
+                    hasNone = true;
                     break;
                 }
             }
-            resolve(false);
+            resolve(hasNone);
         };
         xhr.open("GET", url);
         xhr.responseType = "document";

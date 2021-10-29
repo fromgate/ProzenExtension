@@ -144,12 +144,15 @@ function copyTextToClipboard(text) {
 
 function checkNoIndex() {
     const metas = document.getElementsByTagName('meta');
-    for (let i = 0; i < metas.length; i++) {
-        if (metas[i].getAttribute('name') === "robots") {
-            return metas[i].getAttribute('content') === "noindex";
+    let noindex = false;
+    for (const meta of metas) {
+        if (meta.getAttribute("name") === "robots"
+            && meta.getAttribute("content") === "noindex") {
+             noindex = true;
+             break;
         }
     }
-    return false;
+    return noindex;
 }
 
 function shortUrl() {
