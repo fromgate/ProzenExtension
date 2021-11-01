@@ -1,4 +1,3 @@
-const publications = new Map();
 let observer;
 const observers = [];
 let token;
@@ -67,10 +66,8 @@ function main(updatedId = null) {
                     addInformerBlock();
                 } else {
                     // Старый редактор
-                    registerTargetObserver();
                     registerContentObserver();
                     registerObserverWindowsLocation();
-
                 }
             }
             break;
@@ -96,13 +93,7 @@ function registerContentObserver() {
         setTimeout(registerContentObserver, 50);
         return;
     }
-
     if (document.getElementsByClassName("publications-root")) {
-        setUnprocessedPublications();
-        loadCardsAll();
-        processCards();
-        registerCardObservers();
-
         addSearchInput();
         setTimeout(showBalanceAndMetrics, 100);
     }
@@ -111,10 +102,6 @@ function registerContentObserver() {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                 mutation.addedNodes.forEach(e => {
                     if (e.hasAttribute("class") && e.getAttribute("class") === "publications-root") {
-                        setUnprocessedPublications();
-                        loadCardsAll();
-                        processCards();
-                        registerCardObservers();
                         addSearchInput();
                         setTimeout(showBalanceAndMetrics, 150);
                     }
@@ -124,89 +111,6 @@ function registerContentObserver() {
     });
     contentObserver.observe(target, {childList: true});
 }
-
-function registerTargetObserver() {
-    const target = document.getElementsByClassName("publications-groups-view")[0];
-    if (!target) {
-        setTimeout(registerTargetObserver, 50);
-        return;
-    }
-    if (observer !== undefined) {
-        observer.disconnect();
-    }
-    observer = new MutationObserver(mutations => {
-        mutations.forEach(function (mutation) {
-            if (mutation.type === 'childList') {
-                setUnprocessedPublications();
-                loadCardsAll();
-                processCards();
-                registerCardObservers();
-            }
-        });
-    });
-    observer.observe(target, {childList: true});
-}
-
-function registerCardObservers() {
-    for (let i = 0; i < observers.length; i++) {
-        const oldObserver = observers.pop();
-        oldObserver.disconnect();
-    }
-    const targets = document.getElementsByClassName('publications-groups-view__pubs-container');
-    for (let i = 0; i < targets.length; i++) {
-        const target = targets[i];
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.type === 'childList') {
-                    if (mutation.addedNodes !== undefined && mutation.addedNodes.length > 0) {
-                        mutation.addedNodes.forEach(function (node) {
-                            const ids = loadCards(node);
-                            processCards(ids);
-                        });
-                    }
-                }
-            });
-        });
-        const config = {
-            attributes: false,
-            childList: true,
-            characterData: false
-        };
-        observer.observe(target, config);
-        observers.push(observer);
-    }
-}
-
-function loadCardsAll() {
-    return loadCards(document);
-}
-
-function loadCards(soureElement) {
-    const ids = [];
-    const cards = soureElement.getElementsByClassName("card-cover-publication");
-    for (let i = 0; i < cards.length; i++) {
-        const card = cards[i];
-        const cardLinks = card.getElementsByTagName("a");
-        if (cardLinks === undefined || cardLinks.length === 0) {
-            continue;
-        }
-        const postLink = cardLinks[0].getAttribute("href");
-        if (postLink == null || postLink.startsWith("/profile/editor/id/")) {
-            continue;
-        }
-        const publicationId = getPostIdFromUrl(postLink);
-        if (publications.has(publicationId)) {
-            publications.get(publicationId).card = card;
-        } else {
-            publications.set(publicationId, {});
-            publications.get(publicationId).card = card;
-            publications.get(publicationId).processed = false;
-        }
-        ids.push(publicationId);
-    }
-    return ids;
-}
-
 
 function getPublisherId() {
     const path = window.location.pathname;
@@ -400,78 +304,7 @@ function clickTotalStatsButton() {
         window.open(chrome.extension.getURL("totalstats.html"));
     });
 }
-
-function getUnproccedPublications() {
-    return Array.from(publications.keys()).filter(function (key) {
-        return !publications.get(key).processed;
-    });
-}
-
-function setUnprocessedPublications() {
-    Array.from(publications.keys()).forEach(function (key) {
-        publications.get(key).processed = false;
-    });
-}
-
-function processCards(loadedIds) {
-    const ids = loadedIds === undefined ? getUnproccedPublications() : loadedIds;
-    if (ids.length === 0) {
-        return;
-    }
-    const idsToLoad = [];
-    ids.forEach(function (id) {
-        if (!publications.get(id).processed) {
-            idsToLoad.push(id);
-        }
-    });
-    if (idsToLoad.length > 0) {
-        loadPublicationsStat(idsToLoad).then(function (data) {
-            const articles = [];
-            for (let i in data.items) {
-                const stat = data.items[i];
-                const id = stat.publicationId;
-                const card = publications.get(id);
-                card.comments = stat.comments;
-                card.feedShows = stat.feedShows;
-                card.likes = stat.likes;
-                card.views = stat.views;
-                card.shows = stat.shows;
-                card.sumViewTimeSec = stat.sumViewTimeSec;
-                card.viewsTillEnd = stat.viewsTillEnd;
-                card.readTime = card.sumViewTimeSec / card.viewsTillEnd;
-                articles.push(loadArticle(id));
-            }
-            Promise.all(articles).then(articles => {
-                for (const article of articles) {
-                    const id = article.publications[0].id;
-                    const card = publications.get(id);
-                    card.addTime = article.publications[0].addTime;
-                    card.modTime = article.publications[0].content.modTime;
-                    card.tags = article.publications[0].tags;
-                    card.processed = true;
-                }
-            }).then(() => {
-                processCardsViews(ids);
-            });
-        });
-    } else {
-        processCardsViews(ids);
-    }
-}
-
-
-function processCardsViews(ids) {
-    for (let i = 0; i < ids.length; i++) {
-        const publicationId = ids[i];
-        const value = publications.get(publicationId);
-        if (value.addTime !== undefined && value.card.hasChildNodes()) {
-            setPublicationTime(value);
-            modifyCardFooter(value, publicationId);
-        }
-        value.processed = true;
-    }
-}
-
+/*
 function setPublicationTime(pubData) {
     const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
     if (dateDiv.innerText.match("(^Вчера)|(^Сегодня)|(^Три дня назад)|(^\\d{1,2}\\s([а-я]+)(\\s201\\d)?)")) {
@@ -479,8 +312,8 @@ function setPublicationTime(pubData) {
         const dayCreate = pubData.addTime === undefined ? dayMod : dateTimeFormat(pubData.addTime);
         dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " (" + dayMod + ")");
     }
-}
-
+} */
+/*
 function createFooterLine(element1, element2, element3) {
     const div = document.createElement("div");
     div.setAttribute("class", "card-cover-footer-stats");
@@ -494,90 +327,9 @@ function createFooterLine(element1, element2, element3) {
         div.appendChild(element3);
     }
     return div;
-}
+} */
 
-
-function modifyCardFooter(pubData, publicationId) {
-    if (pubData.card.classList.contains("card-cover-publication_type_brief")) {
-        return;
-    }
-
-    const cardFooters = pubData.card.getElementsByClassName("card-cover-publication__stats-container");
-    if (cardFooters === undefined || cardFooters.length === 0) {
-        return;
-    }
-    const cardFooter = cardFooters[0];
-    removeChilds(cardFooter);
-    const elementShows = createIcon(infiniteAndNanToStr(pubData.feedShows), "icon_shows_in_feed", "Показы");
-
-    const erViews = firstNotZ(pubData.viewsTillEnd, pubData.views, pubData.feedShows);
-    const likesEr = infiniteAndNan((pubData.likes / erViews) * 100);
-    const likesValue = pubData.likes === 0 ? "0 (0.00%)" : infiniteAndNanToStr(pubData.likes) + " (" + parseFloat(likesEr).toFixed(2) + "%)";
-    const elementLikes = createIcon(likesValue, "icon_like", "Лайки");
-
-    const line1 = createFooterLine(elementShows, elementLikes);
-    cardFooter.appendChild(line1);
-
-    const ctr = (parseFloat(infiniteAndNan(pubData.shows / pubData.feedShows) * 100)).toFixed(2);
-
-    const elementViews = createIcon(infiniteAndNanToStr(pubData.views) + " (" + ctr + "%)", "icon_views", "Просмотры (CTR)");
-    const readsPercent = ((pubData.viewsTillEnd / pubData.views) * 100).toFixed(2);
-
-    const commentsEr = infiniteAndNan((pubData.comments / erViews) * 100);
-    const commentsValue = pubData.comments === 0 ? "0 (0.00%)" : infiniteAndNanToStr(pubData.comments) + " (" + parseFloat(commentsEr).toFixed(2) + "%)";
-    const elementComments = createIcon(commentsValue, "icon_comments", "Комментарии");
-    const line2 = createFooterLine(elementViews, elementComments);
-    cardFooter.appendChild(line2);
-
-    const elementViewsTillEnd = createIcon(infiniteAndNanToStr(pubData.viewsTillEnd) + " (" + parseFloat(infiniteAndNan(readsPercent)).toFixed(2) + "%)",
-        "icon_views_till_end", "Дочитывания");
-    const erValue = infiniteAndNan((((pubData.comments + pubData.likes) / erViews)) * 100).toFixed(2) + "%";
-    const elementEr = createIcon(erValue, "icon_er", "Коэффициент вовлеченности, ER");
-    const line3 = createFooterLine(elementViewsTillEnd, elementEr);
-    cardFooter.appendChild(line3);
-
-    const readTimeCount = secToHHMMSS(pubData.readTime);
-    const readTimeTitle = "Время дочитывания" + (pubData.readTime > 0 ? " - " + secToText(pubData.readTime) : "");
-    const elementReadTime = createIcon(readTimeCount, "icon_clock", readTimeTitle);
-
-    const elementTags = createIconsTagLink(pubData.tags, mediaUrl + "/" + publicationId);
-
-    const line4 = createFooterLine(elementReadTime, elementTags);
-    cardFooter.appendChild(line4);
-}
-
-
-function addDirectLinkButton(link) {
-    const linkUrl = link.getAttribute("href").replace("?from=editor", "");
-    const directLink = createElement("a", "action-menu__action-button");
-    directLink.setAttribute("href", linkUrl);
-    directLink.innerText = "Прямая ссылка";
-    link.insertAdjacentElement("afterend", directLink);
-}
-
-function createIcon(value, icon, tip) {
-    const a = document.createElement("a");
-    a.setAttribute("class", "card-cover-footer-stats__item");
-    if (tip.indexOf("\n") !== -1) {
-        a.setAttribute("title", tip);
-    } else {
-        a.setAttribute("data-tip", tip);
-    }
-    a.setAttribute("currentitem", "false");
-
-    const iconSpan = document.createElement("span");
-    iconSpan.setAttribute("class", "card-cover-footer-stats__icon " + icon);
-    a.appendChild(iconSpan);
-
-    if (value !== null) {
-        const valueDiv = document.createElement("div");
-        valueDiv.setAttribute("class", "card-cover-footer-stats__value");
-        valueDiv.innerText = value;
-        a.appendChild(valueDiv);
-    }
-    return a;
-}
-
+/*
 function getTagsTitles(tagObjects) {
     const tagTitles = [];
     if (tagObjects !== undefined && tagObjects.length > 0) {
@@ -586,61 +338,7 @@ function getTagsTitles(tagObjects) {
         }
     }
     return tagTitles;
-}
-
-function createIconsTagLink(tags, url) {
-    const a = document.createElement("a");
-    a.setAttribute("class", "card-cover-footer-stats__item");
-    const iconSpan1 = document.createElement("span");
-    iconSpan1.setAttribute("class", "card-cover-footer-stats__icon icon_tags");
-    const textTags = getTagsTitles(tags);
-    const tagTip = textTags.length === 0 ? "Теги не указаны" : "Теги: " + joinByThree(textTags);
-    if (tagTip.indexOf("\n") !== -1) {
-        iconSpan1.setAttribute("title", tagTip);
-    } else {
-        iconSpan1.setAttribute("data-tip", tagTip);
-    }
-    if (textTags.length !== 0) {
-        iconSpan1.addEventListener('click', copyTextToClipboard.bind(null, textTags));
-    }
-    iconSpan1.style.cursor = "pointer";
-
-    const iconSpan2 = document.createElement("span");
-    iconSpan2.setAttribute("class", "icon_short_url");
-    iconSpan2.setAttribute("data-tip", "Скопировать короткую ссылку");
-    iconSpan2.style.cursor = "pointer";
-    iconSpan2.addEventListener('click', copyTextToClipboard.bind(null, url));
-    a.appendChild(iconSpan2);
-    if (textTags.length !== 0) {
-        a.appendChild(iconSpan1);
-    }
-    return a;
-}
-
-
-function creatNotification(num, message) {
-    const notification = createElement("div", "notifications notifications_num_" + num);
-    const link = createElement("a", "notification-item");
-    link.setAttribute("href", message.href);
-    link.setAttribute("target", "_blank");
-    link.setAttribute("style", "");
-    const container = createElement("div", "notification-item__container");
-    const icon = createElement("div", "notification-item__icon");
-    container.appendChild(icon);
-    const title = createElement("span", "notification-item__title");
-    title.innerText = message.title;
-    container.appendChild(title);
-    const text = createElement("span", "notification-item__text");
-    text.innerText = message.text + " ";
-    container.appendChild(text);
-
-    const linkStr = createElement("span", "notification-item__link");
-    linkStr.innerText = message.link;
-    container.appendChild(linkStr);
-    link.appendChild(container);
-    notification.appendChild(link);
-    return notification;
-}
+} */
 
 function addSearchInput() {
     if (document.getElementById("prozen-search")) {
@@ -687,121 +385,6 @@ function clickFind() {
     return false;
 }
 
-function showAnnouncement(message) {
-    const notifications = document.getElementsByClassName("notifications");
-    if (notifications.length > 0) {
-        const last = notifications.item(notifications.length - 1);
-        const notification = creatNotification(notifications.length, message);
-        last.insertAdjacentElement("afterend", notification);
-    }
-}
-
-function closeNotification(event) {
-    const cross = event.target;
-    const container = cross.parentElement;
-    const notificationId = getNotificationId(container);
-    container.parentElement.removeChild(container);
-    setNotifictionHidden(notificationId);
-    event.stopPropagation();
-    event.preventDefault();
-    return false;
-}
-
-function getNotificationId(notification) {
-    const idParts = [];
-    const titles = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-link");
-    if (titles !== undefined && titles !== null && titles.innerText) {
-        idParts.push(titles.innerText);
-    }
-    const links = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-title");
-    if (links !== undefined && links !== null && links.innerText) {
-        idParts.push(links.innerText);
-    }
-    const texts = notification.querySelector(".notifications__item > .notifications__item-container > .notifications__item-text");
-    if (texts !== undefined && texts !== null && texts.innerText) {
-        idParts.push(texts.innerText);
-    }
-    if (idParts.length === 0) {
-        return "";
-    }
-    return idParts.join("_");
-}
-
-async function addNotificationCloseButton() {
-    const notifications = document.getElementsByClassName("notifications");
-    if (notifications && notifications.length > 0) {
-        for (let i = 0; i < notifications.length; i++) {
-            const notification = notifications[i];
-            const notificationId = getNotificationId(notification);
-            if (notificationId.length === 0) {
-                continue;
-            }
-            const hidden = await isNotificationHidden(notificationId);
-            if (hidden) {
-                notification.parentElement.removeChild(notification);
-            } else {
-                const cross = createElement("span");
-                cross.setAttribute("class", "notifications__item-cross");
-                cross.innerText = "❌";
-                cross.style.cursor = "pointer";
-                cross.setAttribute("title", "Закрыть уведомление\nОно будет скрыто, пока не появится новое");
-                cross.setAttribute("closeClass", notification.getAttribute("class"));
-                cross.addEventListener('click', closeNotification);
-                const container = notification.querySelector(".notifications__item > .notifications__item-container");
-                container.appendChild(cross);
-            }
-        }
-    }
-}
-
-function isNotificationHidden(notificationId) {
-    return new Promise((resolve) => {
-        chrome.storage.local.get("prozenHideNotification", function (result) {
-            resolve(result !== undefined && result !== null && result.prozenHideNotification === notificationId);
-        });
-    });
-}
-
-async function addZenjournalCloseButton() {
-    const zenjournalDiv0 = document.getElementsByClassName("publications-news-block")[0];
-    const state = await getZenjournalState();
-    /*const zenjournalDiv = document.getElementsByClassName("publications-news-block")[0];
-    const zenjournalLink = zenjournalDiv.querySelector("a.publications-news-block__channel-link"); */
-    const zenjournalDiv = document.querySelector("body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block");
-    const zenjournalLink = document.querySelector("body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block > a.publications-news-block__channel-link");
-    //body > div.content > div.publications-root > div.publications-root__publications-list > div.publications-root__right-block > div.publications-news-block > a.publications-news-block__channel-link
-    //publications-news-block__channel-link
-    //<a class="publications-news-block__channel-link" href="/id/59706d883c50f7cc7f69b291" target="_blank">Все статьи</a>
-    const space = createElement("span");
-    space.innerText = " • ";
-    const hideLink = createElement("a", "publications-news-block__channel-link")
-    if (state === "show") {
-        hideLink.innerText = "Скрыть";
-    } else {
-        hideLink.innerText = "Вернуть";
-    }
-    zenjournalLink.insertAdjacentElement("afterend", space);
-    space.insertAdjacentElement("afterend", hideLink);
-}
-
-// show, hide, prozen
-function getZenjournalState() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get("prozenHideZenjournal", function (result) {
-            if (result === undefined || result === null ||
-                result.prozenHideZenjournal === undefined ||
-                result.prozenHideZenjournal === null) {
-                resolve("show");
-            } else {
-                resolve(result.prozenHideZenjournal);
-            }
-        });
-    });
-}
-
-function setNotifictionHidden(notificationId) {
-    chrome.storage.local.set({prozenHideNotification: notificationId});
-}
 
 /************************************************/
 /*                 СТУДИЯ!                      */
@@ -1057,7 +640,6 @@ function backgroundListener(request) {
         publisherId = request.publisherId;
         token = request.token;
         const pageType = getPageType();
-
         if (pageType == "main") {
             processDashboardCards(request.pageSize);
         } else if (pageType == "publications") {
@@ -1591,49 +1173,6 @@ async function addInformerBlock() {
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);
     }
-
-    /*
-    if (statsInfo && statsInfo.length > 0) {
-        if (statsInfo[0] && statsInfo[0].actuality) {
-            const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
-            informerActuality.innerText = `Статистика от ${statsInfo[0].actuality}`;
-            informerActuality.setAttribute("title", "Время обновления статистики");
-            informerContent.appendChild(informerActuality);
-        }
-        if (statsInfo && statsInfo.length > 0) {
-            const counters = {};
-            for (let i = 0; i < statsInfo.length; i++) {
-                const key = Object.getOwnPropertyNames(statsInfo[i])[1];
-                counters[key] = statsInfo[i][key];
-            }
-
-            const publicationNames = {
-                article: "статей",
-                gif: "видео",
-                gallery: "галерей",
-                brief: "постов",
-                live: "трансляций"
-            };
-
-            const informerCounters = createElement("span", "Text Text_color_full Text_typography_text-14-18 prozen-mb5 prozen-va");
-            informerContent.appendChild(informerCounters);
-
-            for (const [type, name] of Object.entries(publicationNames)) {
-                const title = `Количество ${name} на канале`;
-                const count = counters[type];
-                if (count != null) {
-                    const icon = createElement("span", `prozen-publication-icon-${type}`);
-                    icon.setAttribute("title", title);
-                    informerCounters.appendChild(icon);
-                    const text = createElement("span", "prozen-ml5r8");
-                    text.setAttribute("title", title);
-                    text.innerText = count;
-                    informerCounters.appendChild(text);
-                }
-            }
-        }
-    }
-     */
 }
 
 class Card {

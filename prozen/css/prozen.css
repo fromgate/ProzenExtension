@@ -163,23 +163,6 @@
     margin-left: 8px;
 }
 
-.card-cover-publication__title {
-    font-size: 16px !important;
-    font-weight: 500 !important;
-}
-
-.card-cover-publication__content_has-stats {
-    margin-bottom: 80px !important;
-}
-
-.card-cover-publication__stats-container {
-    border-radius: 3px;
-    padding: 1px 3px !important;
-    background-color: rgba(0, 0, 0, .6);
-    max-width: 98%;
-    margin-left: 1%;
-}
-
 .prozen_button {
     display: inline-block;
     background: #e2e2e2;

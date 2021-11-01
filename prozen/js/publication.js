@@ -110,13 +110,37 @@ async function showStatsBrief(data) {
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
 
-    /*
-    const articleData = await loadPublicationStat(postId);
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-    */
+    const views = data.publication.publicationStatistics.views;
+    const sumTime = data.publication.publicationStatistics.sumViewTimeSec;
+    const avgTime = Math.round(sumTime / views);
+    const avgTimeStrHHMMSS = secToHHMMSS(avgTime);
+    const avgTimeStr = secToText(avgTime);
+
+    const briefStats = document.getElementsByClassName("desktop-brief-page__stats")[0];
+    const dateDiv = briefStats.querySelector("div.article-stats-view__item");
+    dateDiv.innerText = showTime;
+    dateDiv.setAttribute("title", "Время создания (модификации)");
+
+    const statsView = briefStats.querySelector("div.article-stats-view");
+    let viewsDiv = statsView.querySelector("div.article-stats-view__item_no-opacity");
+    if (!viewsDiv) {
+        viewsDiv = createElement("div", "article-stats-view__item article-stats-view__item_no-opacity");
+        statsView.appendChild(viewsDiv);
+        const viewsContainer = createElement("div", "article-stats-view__info-container article-stats-view__info-container_loaded");
+        viewsDiv.appendChild(viewsContainer);
+        viewsContainer.appendChild(createElement("div", "article-stats-view__info-inner article-stats-view__info-inner_with-opacity"));
+    }
+    const viewsInner = viewsDiv.querySelector("div.article-stats-view__info-inner");
+    viewsInner.innerText = "📃 "+numFormat(views);
+    viewsInner.setAttribute("title", "Просмотры");
+
+    const timeDiv = createElement("div", "article-stats-view__item");
+
+    const timeSpan = createElement("span");
+    timeSpan.innerText = "  ⌚ "+ avgTimeStrHHMMSS;
+    timeSpan.setAttribute("title", "Среднее время просмотра "+ avgTimeStr);
+    timeDiv.appendChild(timeSpan);
+    statsView.appendChild(timeDiv);
 
     const divStat = createElement("div", "article-stats-view__item");
     {
@@ -139,12 +163,7 @@ async function showStatsBrief(data) {
             divStat.appendChild(spanRobot);
         }
     }
-
-    const briefStats = document.getElementsByClassName("desktop-brief-page__stats")[0];
-    const dateDiv = briefStats.querySelector("div.article-stats-view__item");
-    dateDiv.innerText = showTime;
-    dateDiv.setAttribute("title", "Время создания (модификации)");
-    dateDiv.insertAdjacentElement("afterend", divStat);
+    statsView.appendChild(divStat);
 }
 
 
