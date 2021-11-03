@@ -517,18 +517,25 @@ async function addStudioMenu() {
         oldStudioMenu = null;
     }
 
+    const fullSize = document.documentElement.clientHeight > 626;
+    const addition = fullSize ? "": "\nДобавлено расширением продзен";
+
     if (oldStudioMenu == null) {
         const navbars = document.getElementsByClassName("navbar__nav-list");
         const prozenMenu = createElement("ul", "navbar__nav-list prozen_navbar");
         prozenMenu.id = "prozen-main-menu";
         prozenMenu.setAttribute("data-publisherId", publisherId);
-        prozenMenu.appendChild(creatProzenMenuElement("\nДополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
-        prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
+        if (fullSize) {
+            prozenMenu.appendChild(creatProzenMenuElement("Дополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
+        }
+        prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
-        prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
-        prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
-        prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots"));
-        prozenMenu.appendChild(creatProzenMenuElement("Служба поддержки", "prozen_support_mail", openUrlNewTab.bind(null, "https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Обратиться в службу поддержки Яндекс.Дзена"));
+        prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
+        prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
+        prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots" + addition));
+        if (fullSize) {
+            prozenMenu.appendChild(creatProzenMenuElement("Служба поддержки", "prozen_support_mail", openUrlNewTab.bind(null, "https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Обратиться в службу поддержки Яндекс.Дзена"));
+        }
         navbars[0].insertAdjacentElement("afterend", prozenMenu);
     }
 }
