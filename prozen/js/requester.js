@@ -77,12 +77,12 @@ function getStatsInfoAndCounter() {
         const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
         promises.push(new Promise(resolve => {
             request(requestUrl)
-                .then(response =>{
-                    response.json().then(data=>{
+                .then(response => {
+                    response.json().then(data => {
                         const counter = {}
                         counter.actuality = dateTimeFormat(data.actuality);
                         counter[type] = data.publicationCount;
-                        resolve (counter);
+                        resolve(counter);
                     })
                 })
         }));
@@ -148,6 +148,7 @@ function loadPublications(publicationType, count) {
 
 // deprecated?
 const TYPES = ["article", "gif", "gallery", "brief", "narrative", "post"]; // repost?
+/*
 async function loadAllPublications() {
     const publications = [];
     for (let i = 0; i < TYPES.length; i++) {
@@ -176,6 +177,56 @@ async function loadAllPublications() {
             return cards;
         });
         publications.push(...result);
+    }
+    return publications;
+} */
+
+async function loadAllPublications(sort = false) {
+    const publications = [];
+    let recordCount = 0;
+    for (let i = 0; i < TYPES.length; i++) {
+        const publicationType = TYPES[i];
+        const response = await loadPublicationsCount(publicationType).then(response => {
+            return response;
+        });
+        const count = response.count;
+        const result = await loadPublications(publicationType, count).then(response => {
+            const cards = [];
+            if (response !== undefined && response.publications !== undefined) {
+                for (let i = 0, len = response.publications.length; i < len; i++) {
+                    const pubData = {};
+                    const publication = response.publications[i];
+                    pubData.id = publication.id;
+                    pubData.feedShows = publication.privateData.statistics.feedShows;
+                    pubData.shows = publication.privateData.statistics.shows;
+                    pubData.views = publication.privateData.statistics.views;
+                    pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
+                    pubData.comments = publication.privateData.statistics.comments;
+                    pubData.likes = publication.privateData.statistics.likes;
+                    pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
+                    pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
+                    pubData.type = publication.content.type;
+                    pubData.tags = new Set(publication.privateData.tags);
+                    pubData.title = publication.content.preview.title;
+                    pubData.description = publication.content.preview.snippet;
+                    pubData.url = `https://zen.yandex.ru/media/id/${publisherId}/${publication.id}`;
+                    cards.push(pubData);
+                    recordCount++;
+                }
+            }
+            return cards;
+        });
+        publications.push(...result);
+    }
+
+    if (sort) {
+        publications.sort((a, b) => {
+            const addTimeA = a.addTime;
+            const addTimeB = b.addTime;
+            if (addTimeA < addTimeB) return 1;
+            if (addTimeA > addTimeB) return -1;
+            return 0;
+        });
     }
     return publications;
 }
@@ -246,7 +297,7 @@ function checkHasNone(id) {
     if (id.startsWith("channel_name")) {
         url = `https://zen.yandex.ru/${id.replace("channel_name=", "")}`;
     } else if (id.startsWith("channel_id")) {
-        url = `https://zen.yandex.ru/id/${id.replace("channel_id", "")}`;
+        url = `https://zen.yandex.ru/id/${id.replace("channel_id=", "")}`;
     }
     return checkHasNoneUrl(url);
 }

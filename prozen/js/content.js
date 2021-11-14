@@ -56,19 +56,12 @@ function main(updatedId = null) {
         case "main":
             if (token != null && publisherId != null) {
                 mediaUrl = window.location.href.replace("profile/editor", "media");
-                if (isStudio()) {
-                    hideComments();
-                    addStudioMenu();
-                    // updateStudioBalance();
-                    registerObserverWindowsLocation();
-                    registerObserverBalance();
-                    listenToRequests();
-                    addInformerBlock();
-                } else {
-                    // Старый редактор
-                    registerContentObserver();
-                    registerObserverWindowsLocation();
-                }
+                hideComments();
+                addStudioMenu();
+                registerObserverWindowsLocation();
+                registerObserverBalance();
+                listenToRequests();
+                addInformerBlock();
             }
             break;
         case "publications":
@@ -85,31 +78,6 @@ function main(updatedId = null) {
         case "unknown":
             break;
     }
-}
-
-function registerContentObserver() {
-    const target = document.getElementsByClassName("content")[0];
-    if (!target) {
-        setTimeout(registerContentObserver, 50);
-        return;
-    }
-    if (document.getElementsByClassName("publications-root")) {
-        addSearchInput();
-        setTimeout(showBalanceAndMetrics, 100);
-    }
-    const contentObserver = new MutationObserver(function (mutations) {
-        mutations.forEach(mutation => {
-            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-                mutation.addedNodes.forEach(e => {
-                    if (e.hasAttribute("class") && e.getAttribute("class") === "publications-root") {
-                        addSearchInput();
-                        setTimeout(showBalanceAndMetrics, 150);
-                    }
-                });
-            }
-        });
-    });
-    contentObserver.observe(target, {childList: true});
 }
 
 function getPublisherId() {
@@ -155,120 +123,6 @@ function getPageType() {
     return "unknown";
 }
 
-async function showBalance() {
-    const url = URL_API_MEDIA + publisherId + "/money";
-    const response = await fetch(url, {
-        credentials: 'same-origin',
-        headers: {'X-Csrf-Token': token}
-    });
-    const data = await response.json();
-    if (data.money.isMonetizationAvailable && data.money.simple !== undefined && data.money.simple.balance !== undefined) {
-        const simpleBalance = data.money.simple.balance;
-        const personalDataBalance = data.money.simple.personalData.balance;
-        const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance).toFixed(2));
-        let total = money;
-        for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
-            if (data.money.simple.paymentHistory[i]["status"] === "completed") {
-                total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
-            }
-        }
-        setBalance(money, total);
-    }
-    return data.publisher.privateData.metrikaCounterId
-}
-
-function showBalanceAndMetrics() {
-    showBalance().then(metricsId =>
-        setTimeout(addProzenMenu.bind(null, metricsId), 1000)
-    );
-}
-
-// OLD EDITOR
-function addProzenMenu(metricsId) {
-    if (!document.getElementById("prozen-menu")) {
-        const divProzenMenu = createElement("div", "monetization-block");
-        divProzenMenu.setAttribute("id", "prozen-menu");
-
-        const aProzenMenuTitle = createElement("a", "monetization-block__title");
-        aProzenMenuTitle.innerText = "Дополнительные возможности";
-        aProzenMenuTitle.setAttribute("data-tip", "Добавлены расширением ПРОДЗЕН");
-        divProzenMenu.appendChild(aProzenMenuTitle);
-
-        const spanEmpty = createElement("span", "karma-block__karma-stats-label");
-        spanEmpty.innerText = " ";
-        divProzenMenu.appendChild(spanEmpty);
-
-        const aTotalStats = createElement("a", "karma-block__link"); //ui-lib-header-item
-        aTotalStats.innerText = "Полная статистика";
-        aTotalStats.addEventListener('click', clickTotalStatsButton);
-        aTotalStats.style.cursor = "pointer";
-        divProzenMenu.appendChild(aTotalStats);
-
-        const aMetrics = createElement("a", "karma-block__link");
-        const metricsUrl = metricsId !== undefined && metricsId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metricsId : "https://metrika.yandex.ru/list";
-        aMetrics.innerText = "Метрика";
-        aMetrics.setAttribute("href", metricsUrl);
-        aMetrics.setAttribute("target", "_blank");
-        divProzenMenu.appendChild(aMetrics);
-
-        const aSearch = createElement("a", "karma-block__link");
-        aSearch.innerText = "Поиск";
-        aSearch.addEventListener('click', clickSearchButton);
-        aSearch.style.cursor = "pointer";
-        divProzenMenu.appendChild(aSearch);
-        const aSadRobot = createElement("a", "karma-block__link");
-        aSadRobot.innerText = "Неиндексируемые";
-        aSadRobot.setAttribute("data-tip", "Поиск публикаций с мета-тегом robots");
-        aSadRobot.addEventListener('click', clickFindSadRobots);
-        aSadRobot.style.cursor = "pointer";
-        divProzenMenu.appendChild(aSadRobot);
-        checkHasNone(publisherId).then(isNone => {
-            if (isNone) {
-                aSadRobot.innerText = "Канал не индексируется 🤖";
-                aSadRobot.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
-                    "Канал не индексируется поисковиками.\n" +
-                    "Это нормальная ситуация для новых каналов."); //\n" +
-                //"Нажмите здесь, чтобы узнать подробнее.");
-                aSadRobot.removeAttribute("data-tip");
-                aSadRobot.removeEventListener('click', clickFindSadRobots);
-            }
-        })
-
-        const spanEmpty2 = createElement("span", "karma-block__karma-stats-label");
-        spanEmpty2.innerText = " ";
-        divProzenMenu.appendChild(spanEmpty2);
-
-        const spanProzen = createElement("span", "karma-block__karma-stats-label");
-        spanProzen.innerText = "Добавлено расширением ПРОДЗЕН";
-        divProzenMenu.appendChild(spanProzen);
-
-        const divProfileSidebar = document.getElementsByClassName("profile-sidebar")[0];
-        divProfileSidebar.appendChild(divProzenMenu);
-    }
-}
-
-//OLD EDITOR
-function setBalance(money, total) {
-    const moneySpan = document.getElementsByClassName("monetization-block__money-balance")[0];
-    if (!moneySpan) {
-        setTimeout(setBalance.bind(null, money, total), 50);
-        return;
-    }
-    if (money !== total) {
-        const totalStr = "Всего: " + total.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + " ₽";
-        const moneyDate = moneySpan.getAttribute("data-tip");
-        if (moneyDate !== undefined && moneyDate !== null) {
-            moneySpan.setAttribute("data-tip", moneyDate + " / " + totalStr);
-        } else {
-            moneySpan.setAttribute("data-tip", totalStr);
-        }
-    }
-    moneySpan.innerText = money.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₽";
-}
-
 function clickSearchButton(searchString) {
     let id;
     const textToFind = searchString === undefined ? "" : searchString;
@@ -304,87 +158,6 @@ function clickTotalStatsButton() {
         window.open(chrome.extension.getURL("totalstats.html"));
     });
 }
-/*
-function setPublicationTime(pubData) {
-    const dateDiv = pubData.card.getElementsByClassName("card-cover-publication__status")[0];
-    if (dateDiv.innerText.match("(^Вчера)|(^Сегодня)|(^Три дня назад)|(^\\d{1,2}\\s([а-я]+)(\\s201\\d)?)")) {
-        const dayMod = dateTimeFormat(pubData.modTime);
-        const dayCreate = pubData.addTime === undefined ? dayMod : dateTimeFormat(pubData.addTime);
-        dateDiv.innerText = dayCreate + (dayCreate === dayMod ? "" : " (" + dayMod + ")");
-    }
-} */
-/*
-function createFooterLine(element1, element2, element3) {
-    const div = document.createElement("div");
-    div.setAttribute("class", "card-cover-footer-stats");
-    div.setAttribute("style", "color: rgb(255, 255, 255);");
-
-    div.appendChild(element1);
-    if (element2 !== undefined) {
-        div.appendChild(element2);
-    }
-    if (element3 !== undefined) {
-        div.appendChild(element3);
-    }
-    return div;
-} */
-
-/*
-function getTagsTitles(tagObjects) {
-    const tagTitles = [];
-    if (tagObjects !== undefined && tagObjects.length > 0) {
-        for (let i = 0; i < tagObjects.length; i++) {
-            tagTitles.push(tagObjects[i].title);
-        }
-    }
-    return tagTitles;
-} */
-
-function addSearchInput() {
-    if (document.getElementById("prozen-search")) {
-        return;
-    }
-
-    const boxDiv = document.getElementsByClassName("publications-groups-view__content-type-filter")[0];
-    if (!boxDiv) {
-        setTimeout(addSearchInput, 50);
-        return;
-    }
-
-    const input = createElement("input", "ui-lib-input__control");
-    input.setAttribute("type", "text");
-    input.setAttribute("id", "prozen-search");
-    input.setAttribute("placeholder", "строка поиска");
-    const divInputContainer = createElement("div", "ui-lib-input__control-container", input);
-    const divUiBox = createElement("div", "ui-lib-input__box");
-    divInputContainer.appendChild(divUiBox);
-    const divUiInputControl = createElement("div", "ui-lib-input _size_m", divInputContainer);
-    const divUiSelect = createElement("div", "ui-lib-select _size_m _type_input publications-groups-view__content-type-filter-control", divUiInputControl);
-    divUiSelect.style.width = "165px";
-    const span = createElement("span");
-    span.innerText = "|";
-    span.setAttribute("style", "margin-left: 5px; margin-right: 5px; color:silver;");
-    const button = createElement("button");
-    button.innerText = "🔎";
-    button.setAttribute("class", "prozen_button");
-    boxDiv.insertAdjacentElement("afterend", span);
-    span.insertAdjacentElement("afterend", divUiSelect);
-    divUiSelect.insertAdjacentElement("afterend", button);
-    button.setAttribute("data-tip", "Поиск (откроется новое окно)");
-    button.addEventListener('click', clickFind);
-    input.addEventListener("keyup", event => {
-        event.preventDefault();
-        if (event.keyCode === 13) {
-            button.click();
-        }
-    });
-}
-
-function clickFind() {
-    clickSearchButton(document.getElementById("prozen-search").value);
-    return false;
-}
-
 
 /************************************************/
 /*                 СТУДИЯ!                      */
@@ -518,7 +291,7 @@ async function addStudioMenu() {
     }
 
     const fullSize = document.documentElement.clientHeight > 626;
-    const addition = fullSize ? "": "\nДобавлено расширением продзен";
+    const addition = fullSize ? "" : "\nДобавлено расширением продзен";
 
     if (oldStudioMenu == null) {
         const navbars = document.getElementsByClassName("navbar__nav-list");
@@ -683,9 +456,9 @@ function modifyPublicationsGridCell(cell, card) {
     }
     cell.setAttribute("data-prozen-publication-id", card.id);
     const date = cell.querySelector("span.Text_typography_text-12-16");
-    date.innerText = card.timeStr+ " · ";
+    date.innerText = card.timeStr + " · ";
 
-    modifyGridCellStats (cell, card);
+    modifyGridCellStats(cell, card);
 
 
 }
@@ -755,7 +528,6 @@ function modifyPublicationGrid(requestData) {
     }
 
 
-
 }
 
 async function processDashboardCards(pageSize) {
@@ -788,7 +560,7 @@ function isPublicationGrid() {
 }
 
 
-function modifyGridCellStats (cell, card) {
+function modifyGridCellStats(cell, card) {
     // Показы           |            Лайки
     // Просмотры (ctr)  |      Комментарии
     // Дочитывания      |    Вовлечённость
