@@ -435,6 +435,11 @@ html body .ui-lib-header__item._type_left {
     margin: 0 0 5px;
 }
 
+.prozen-mb5-block {
+    margin: 0 0 5px;
+    display: block;
+}
+
 .prozen-ml5r8 {
     margin-left: 5px;
     margin-right: 8px;

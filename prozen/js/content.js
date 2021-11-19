@@ -1,5 +1,4 @@
 let observer;
-const observers = [];
 let token;
 let data;
 let publisherId;
@@ -920,21 +919,21 @@ async function addInformerBlock() {
     informerContent.appendChild(informerH3);
 
     if (strikesInfo.limitations != null) {
-        const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerStrikes);
     }
 
     if (strikesInfo.channelRestricted != null) {
-        const informerPyos = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        const informerPyos = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
         informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerPyos);
     }
 
     if (hasNone != null) {
-        const allNone = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        const allNone = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         if (hasNone) {
             allNone.innerText = "Канал не индексируется 🤖";
             allNone.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
@@ -947,7 +946,7 @@ async function addInformerBlock() {
     }
 
     if (actuality) {
-        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5");
+        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         informerActuality.innerText = `Статистика от ${actuality}`;
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);

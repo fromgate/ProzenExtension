@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
   "browser_action": {
@@ -31,7 +31,9 @@
     "css/prozen.css"
   ],
   "background": {
-    "scripts": ["js/background.js"],
+    "scripts": [
+      "js/background.js"
+    ],
     "persistent": true
   },
   "content_scripts": [
