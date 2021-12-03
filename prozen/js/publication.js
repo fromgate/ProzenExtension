@@ -44,12 +44,12 @@ function showPublicationStats(pageType, data, publisherId) {
         case "brief":
             showStatsBrief(data);
             break;
-        case "video":
-            showStatsVideo(data);
+        case "video_old":
+            showStatsVideoOld(data);
             break;
         case "gallery":
             showStatsGallery(data);
-            break;
+            break;;
     }
 }
 
@@ -70,7 +70,7 @@ function getPageType(data) {
             }
 
             if (data.isGif === true) {
-                return "video";
+                return "video_old";
             }
             if (data.isGallery === true) {
                 return "gallery";
@@ -250,7 +250,7 @@ async function showStatsGallery(data) {
     divSeparator.insertAdjacentElement("afterend", divStat);
 }
 
-async function showStatsVideo(data) {
+async function showStatsVideoOld(data) {
     if (data === null) {
         return;
     }
@@ -291,17 +291,6 @@ async function showStatsVideo(data) {
         spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
         spanIcon4.style.cursor = "pointer";
         container.appendChild(spanIcon4);
-    }
-
-    if (checkNoIndex()) {
-        const spanIcon5 = createElement("span", "article__date-video");
-        spanIcon5.innerText = "🤖";
-        spanIcon5.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-            "Публикация не индексируется поисковиками.\n" +
-            "Примечание: связь этого тега с показами,\n" +
-            "пессимизацией и иными ограничениями канала\n" +
-            "официально не подтверждена.");
-        container.appendChild(spanIcon5);
     }
 }
 

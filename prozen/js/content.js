@@ -902,12 +902,14 @@ async function addInformerBlock() {
     const result = await Promise.all([
         checkHasNone(publisherId),
         getStatsActuality(), // getStatsInfo(), // getStatsInfoAndCounter()
-        getStrikesInfo()
+        getStrikesInfo(),
+        getBannedUsers()
     ]);
 
     const hasNone = result[0];
     const actuality = result [1]; // const statsInfo = result[1];
     const strikesInfo = result[2];
+    const bannedUsers = result[3];
 
     const informerContent = createElement("div", "author-studio-useful-articles-block");
     informer.appendChild(informerContent);
@@ -943,6 +945,13 @@ async function addInformerBlock() {
             allNone.innerText = "Канал индексируется";
         }
         informerContent.appendChild(allNone);
+    }
+
+    if (bannedUsers) {
+        const banCount = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        banCount.innerText = `Заблокировано: ${bannedUsers.bannedUsers.length}`;
+        banCount.setAttribute("title", "Количество заблокированных комментаторов");
+        informerContent.appendChild(banCount);
     }
 
     if (actuality) {

@@ -155,6 +155,19 @@ function checkNoIndex() {
     return noindex;
 }
 
+// <meta property="robots" content="all" /> //<meta property="robots" content="none" />
+function checkNone() {
+    const metas = document.getElementsByTagName("meta");
+    let none = false;
+    for (const meta of metas) {
+        if (meta.getAttribute("property") === "robots"
+            && meta.getAttribute("content") === "none") {
+            none = true;
+        }
+    }
+    return none;
+}
+
 function shortUrl() {
     const url = window.location.href.split("\?")[0].split("#")[0];
     return url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);

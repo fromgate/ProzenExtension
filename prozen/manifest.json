@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
   "update_url": "https://clients2.google.com/service/update2/crx",
@@ -57,6 +57,18 @@
       ],
       "matches": [
         "https://zen.yandex.ru/media/*"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "js": [
+        "js/options.js",
+        "js/tools.js",
+        "js/requester.js",
+        "js/video_watch.js"
+      ],
+      "matches": [
+        "https://zen.yandex.ru/video/watch/*"
       ],
       "run_at": "document_end"
     }

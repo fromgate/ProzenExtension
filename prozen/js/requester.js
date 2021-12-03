@@ -363,6 +363,12 @@ async function monthlySubscribers() {
     return await response.json();
 }
 
+async function getBannedUsers() {
+    const requestUrl = "https://zen.yandex.ru/api/comments/banned-users";
+    const response = await request(requestUrl);
+    return await response.json();
+}
+
 /* Deprecated */
 async function getUserKarma() {
     const requestUrl = `https://zen.yandex.ru/editor-api/v2/get-user-karma?publisherId=${publisherId}`
