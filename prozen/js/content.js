@@ -213,15 +213,14 @@ function registerObserverBalance() {
         setTimeout(registerObserverBalance, 500);
         return;
     }
-    target.querySelectorAll("li.author-studio-info-block__stat-item").forEach(e => {
-        if (e.tagName === "LI") {
+
+    for (const e of target.querySelectorAll("li.author-studio-info-block__stat-item")) {
             const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
             if (name === "баланс") {
                 updateStudioBalance(e.childNodes[0]);
-                // return;
+                return;
             }
-        }
-    });
+    }
 
     if (observerInfoBlockStats !== undefined) {
         observerInfoBlockStats.disconnect();
