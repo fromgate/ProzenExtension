@@ -218,7 +218,7 @@ function registerObserverBalance() {
             const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
             if (name === "баланс") {
                 updateStudioBalance(e.childNodes[0]);
-                return;
+                // return;
             }
         }
     });
@@ -345,7 +345,7 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     }
     menuLine.appendChild(menuIcon);
 
-    const menuText = createElement("span", "navbar__text");
+    const menuText = createElement("span", "Text Text_color_full Text_typography_text-14-18 navbar__text");
     menuText.innerText = title;
     menuLine.appendChild(menuText);
     if (bold) {
@@ -419,9 +419,9 @@ function backgroundListener(request) {
         publisherId = request.publisherId;
         token = request.token;
         const pageType = getPageType();
-        if (pageType == "main") {
+        if (pageType === "main") {
             processDashboardCards(request.pageSize);
-        } else if (pageType == "publications") {
+        } else if (pageType === "publications") {
             processPublicationsCards(request);
         }
     }
@@ -717,11 +717,11 @@ function modifyPublicationsCard(publicationItemStats, card) {
     // Просмотры
     const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c1r2.setAttribute("title", "Просмотры (CTR, %)");
-    const с1r2Icon = createElement("span", "prozen_studio_card_icon_views");
-    const с1r2Text = createElement("span");
-    с1r2Text.innerText = card.viewsStr;
-    c1r2.appendChild(с1r2Icon);
-    c1r2.appendChild(с1r2Text);
+    const c1r2Icon = createElement("span", "prozen_studio_card_icon_views");
+    const c1r2Text = createElement("span");
+    c1r2Text.innerText = card.viewsStr;
+    c1r2.appendChild(c1r2Icon);
+    c1r2.appendChild(c1r2Text);
     col1.appendChild(c1r2);
 
     // Дочитывания
