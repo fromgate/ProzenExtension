@@ -22,6 +22,11 @@ const picker = new Litepicker({
         customRanges: getCustomRanges()
     }
 })
+picker.getDayAfterEnd = function () {
+    const dateEnd = this.getEndDate();
+    dateEnd.setDate(dateEnd.getDate() + 1);
+    return dateEnd;
+}
 picker.setDateRange("30-05-2017", Date());
 
 function getCustomRanges() {
@@ -124,7 +129,9 @@ function showByType(pubType) {
 function executeShowByType(pubType) {
     const foundCards = [];
     const dateStart = picker.getStartDate();
-    const dateEnd = picker.getEndDate();
+    const dateEnd = picker.getDayAfterEnd();
+    //.getEndDate();
+    //dateEnd.setDate(dateEnd.getDate() + 1);
     for (let i = 0; i < publications.length; i++) {
         const card = publications [i];
         if (card.addTime < dateStart.getTime() || card.addTime > dateEnd.getTime()) {
@@ -184,7 +191,8 @@ function cardMatch(card, searchString) {
 function executeSearch() {
     const searchStr = document.getElementById("search").value;
     const dateStart = picker.getStartDate();
-    const dateEnd = picker.getEndDate();
+    const dateEnd = picker.getDayAfterEnd();//.getEndDate();
+    //dateEnd.setDate(dateEnd.getDate() + 1);
     const foundCards = [];
     for (let i = 0; i < publications.length; i++) {
         const card = publications [i];

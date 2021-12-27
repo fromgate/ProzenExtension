@@ -18,7 +18,6 @@ document.getElementById("start_button").onclick = loadPublicationsAndSearch;
 start();
 
 function start() {
-    // getChannelId();
     showElement("spinner");
     loadData().then(data => {
         id = data.id;
@@ -151,17 +150,28 @@ function loadPublicationsAndSearch() {
     return false;
 }
 
+
+/*
+        if (meta.getAttribute("property") === "robots"
+            && meta.getAttribute("content") === "none") {
+            none = true;
+        }
+ */
+
 async function checkRobotNoNoIndex(card) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const metas = xhr.responseXML.head.getElementsByTagName('meta');
+            const meta = metas[i];
             for (let i = 0; i < metas.length; i++) {
-                if (metas[i].getAttribute('name') === "robots") {
-                    if (metas[i].getAttribute('content') === "noindex") {
+                if (meta.getAttribute('name') === "robots") {
+                    if (meta.getAttribute('content') === "noindex") {
                         resolve(ROBOTS_NOINDEX);
                     }
-                    break;
+                } else if (meta.getAttribute("property") === "robots"
+                    && meta.getAttribute("content") === "none") {
+                    resolve(ROBOTS_NOINDEX);
                 }
             }
             resolve(ROBOTS_OK);

@@ -19,7 +19,13 @@ const picker = new Litepicker({
         position: 'left',
         customRanges: getCustomRanges()
     }
-})
+});
+
+picker.getDayAfterEnd = function () {
+    const dateEnd = this.getEndDate();
+    dateEnd.setDate(dateEnd.getDate() + 1);
+    return dateEnd;
+}
 
 main();
 
@@ -57,6 +63,7 @@ function getCustomRanges() {
     const ranges = {};
     const today = new Date()
     const year = today.getFullYear();
+
     ranges["Текущий месяц"] = [new Date (new Date().setDate(1)), today];
     ranges["Прошлый месяц"] = [new Date (today.getFullYear(), today.getMonth()-1), new Date (today.getFullYear(), today.getMonth())];
     ranges["Последние 30 дней"] = [new Date (new Date().setDate(today.getDate()-30)), today];
@@ -128,8 +135,8 @@ function countStats() {
     }
 
     const dateStart = picker.getStartDate();
-    const dateEnd = picker.getEndDate();
-
+    const dateEnd = picker.getDayAfterEnd();// .getEndDate();
+    //dateEnd.setDate(dateEnd.getDate() + 1);
 
 
     for (let i = 0; i < publications.length; i++) {
