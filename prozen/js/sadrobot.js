@@ -163,8 +163,8 @@ async function checkRobotNoNoIndex(card) {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
             const metas = xhr.responseXML.head.getElementsByTagName('meta');
-            const meta = metas[i];
             for (let i = 0; i < metas.length; i++) {
+                const meta = metas[i];
                 if (meta.getAttribute('name') === "robots") {
                     if (meta.getAttribute('content') === "noindex") {
                         resolve(ROBOTS_NOINDEX);
