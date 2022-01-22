@@ -20,6 +20,9 @@
 * [Установить для Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/jllkbelkmfedpblbkegkbijkmcobhlkp)
 * В других браузерах, совместимых с Chrome можно использовать версию для Google Chrome. Браузеру Opera может потребоваться дополнительное расширение [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) и установить расширение из маркета [Chrome]((https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)).
 
+## Создано в Intellij IDEA
+![Intellij IDEA logo](https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.png)
+
 ## Расширение не является официальным расширением Яндекс.Дзен
 
 ДАННОЕ РАСШИРЕНИЕ НЕ ЯВЛЯЕТСЯ ОФИЦИАЛЬНЫМ, НЕ СВЯЗАНО С ЯНДЕКС.ДЗЕН ИЛИ КОМПАНИЕЙ ЯНДЕКС.
