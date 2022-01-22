@@ -376,6 +376,52 @@ async function getUserKarma() {
     return await response.json();
 }
 
+async function getPublicationStatsSubscribers(publicationId) {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&isSubscriber=true`
+    const response = await request(requestUrl);
+    const json = await response.json();
+    if (json == null || json.publications == null || json.publications.length === 0) return 0
+    return json.publications[0].stats.typeSpecificViews
+}
+
+async function getPublicationsStatsSubscribers(publicationIds) {
+    const promises = []
+    for (const publicationId of publicationIds) {
+        const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&isSubscriber=true`
+        promises.push(new Promise(resolve => {
+                    request(requestUrl)
+                        .then(response => {
+                            response.json().then(data => {
+                                const publicationStats = [publicationId,  0];
+                                    if (data != null && data.publications != null && data.publications.length > 0) {
+                                        publicationStats[1] = data.publications[0].stats.typeSpecificViews
+                                    }
+                                    resolve(publicationStats);
+                                }
+                            )
+                        })
+                }));
+    }
+    const subscribersViews = await Promise.all(promises)
+    return Object.fromEntries (subscribersViews);
+}
+
+async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, query) {
+    const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
+    const ids = [];
+    for (const publication of data.publications) {
+        ids.push(publication.id)
+    }
+    const subscribersViews = await getPublicationsStatsSubscribers (ids)
+
+    for (const publication of data.publications) {
+        if (subscribersViews.hasOwnProperty(publication.id)) {
+            publication.subscribersViews = subscribersViews[publication.id]
+        }
+    }
+    return data
+}
+
 function request(requestUrl) {
     const headers = {
         credentials: "same-origin",

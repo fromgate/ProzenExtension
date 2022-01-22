@@ -428,6 +428,10 @@ function backgroundListener(request) {
 
 async function processPublicationsCards(request) {
     const data = await getPublicationsByFilter(request.pageSize, request.types, request.publicationIdAfter, request.query);
+    const ids = [];
+    for (const publication of data.publications) {
+        ids.push(publication.id)
+    }
     if (isPublicationGrid()) {
         modifyPublicationGrid(data.publications);
     } else {
@@ -447,7 +451,6 @@ function getPublicationGridCellById(publicationId) {
     return a != null ? a.parentNode : null; //div.publication-card__block-20
 }
 
-
 function modifyPublicationsGridCell(cell, card) {
     if (cell.hasAttribute("data-prozen-publication-id")) {
         return;
@@ -455,10 +458,16 @@ function modifyPublicationsGridCell(cell, card) {
     cell.setAttribute("data-prozen-publication-id", card.id);
     const date = cell.querySelector("span.Text_typography_text-12-16");
     date.innerText = card.timeStr + " · ";
-
     modifyGridCellStats(cell, card);
+    if (card.subscribersViews == null || card.subscribersViews === 0) {
+        setTimeout (fillupPublicationsCell.bind(null, cell, card), 1);
+    }
+}
 
-
+function fillupPublicationsGridCell (cell, publicationId) {
+    getPublicationStatsSubscribers (publicationId).then(subscribersViews => {
+        cell.querySelector()
+    })
 }
 
 function modifyPublicationsCell(cell, card) {
@@ -497,11 +506,25 @@ function modifyPublicationTable(requestData) {
         } else {
             const card = jsonToCardData(publicationData, cell.querySelector("a.publication-preview").href);
             modifyPublicationsCell(cell, card);
+            if (card.subscribersViews == null || card.subscribersViews === 0) {
+                setTimeout (fillupPublicationsCell.bind(null, cell, card), 1);
+            }
         }
     }
     if (waitList.length > 0) {
         setTimeout(modifyPublicationTable.bind(null, waitList), 300);
     }
+}
+
+// Добавляет данные о подписчка на карточки на карточку публикации (универсальная — оба режима отображения карточки)
+function fillupPublicationsCell (cell, card) {
+    getPublicationStatsSubscribers (card.id).then(subscribersViews => {
+        const span = cell.querySelector("span.prozen-subscribers-views");
+        if (span != null) {
+            card.subscribersViews = subscribersViews
+            span.innerText = card.getSubscribersViews()
+        }
+    })
 }
 
 function modifyPublicationGrid(requestData) {
@@ -529,7 +552,7 @@ function modifyPublicationGrid(requestData) {
 }
 
 async function processDashboardCards(pageSize) {
-    const data = await getPublicationsByFilter(pageSize);
+    const data = await getPublicationsByFilterAndSubscribers(pageSize);
     const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
     const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
     if (publicationsBlocks.length > 0) {
@@ -559,10 +582,10 @@ function isPublicationGrid() {
 
 
 function modifyGridCellStats(cell, card) {
-    // Показы           |            Лайки
-    // Просмотры (ctr)  |      Комментарии
-    // Дочитывания      |    Вовлечённость
-    // Время дочитывания|    Ссылка / Теги
+    // Показы                |            Лайки
+    // Просмотры (ctr)       |      Комментарии
+    // Дочитывания           |    Вовлечённость
+    // Просмотры подписчиков |    Время дочитывания /Ссылка / Теги
 
     const statsBlock = cell.querySelector("div.stats__block-gu");
     removeChilds(statsBlock);
@@ -655,20 +678,32 @@ function modifyGridCellStats(cell, card) {
     const col4 = createElement("div", "stats__item-HO");
     statsBlock.appendChild(col4);
 
-    // Время
+    // Просмотры подписчиков
     const c4r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c4r1.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
-    const c4r1Icon = createElement("span", "prozen_studio_card_icon_clock");
-    const c4r1Text = createElement("span");
-    c4r1Text.innerText = card.readTimeStrHMS;
+    c4r1.setAttribute("title", "Просмотры/Дочитывания подписчиков, %");
+    const c4r1Icon = createElement("span", "prozen_studio_card_icon_subscribers");
+    const c4r1Text = createElement("span", "prozen-subscribers-views");
+    c4r1Text.innerText = card.getSubscribersViews()
     c4r1.appendChild(c4r1Icon);
     c4r1.appendChild(c4r1Text);
     col4.appendChild(c4r1);
     c4r1.style.zIndex = "14";
     c4r1.style.cursor = "default";
 
+    col4.appendChild(c4r1);
     // Ссылка / Теги
     const c4r2 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
+
+    const c4r2TimeIcon = createElement("span", "prozen_studio_card_icon_clock");
+    c4r2TimeIcon.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    const c4r2TimeText = createElement("span");
+    c4r2TimeText.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    c4r2TimeText.innerText = card.readTimeStrHMS;
+    c4r2TimeText.style.marginRight = "7px";
+    c4r2.appendChild(c4r2TimeIcon);
+    c4r2.appendChild(c4r2TimeText);
+
+
     const c4r2Link = createElement("span", "prozen_studio_card_icon_link");
     c4r2Link.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
 
@@ -758,12 +793,12 @@ function modifyPublicationsCard(publicationItemStats, card) {
     c2r2.appendChild(c2r2Text);
     col2.appendChild(c2r2);
 
-    // ER
+    // Просмотры подписчиков //prozen-subscribers-views
     const c2r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c2r3.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
-    const c2r3Icon = createElement("span", "prozen_studio_card_icon_er");
-    const c2r3Text = createElement("span");
-    c2r3Text.innerText = card.erStr;
+    c2r3.setAttribute("title", "Просмотры/дочитывания подписчиков, %");
+    const c2r3Icon = createElement("span", "prozen_studio_card_icon_subscribers");
+    const c2r3Text = createElement("span", "prozen-subscribers-views");
+    c2r3Text.innerText = card.subscribersViewsStr;
     c2r3.appendChild(c2r3Icon);
     c2r3.appendChild(c2r3Text);
     col2.appendChild(c2r3);
@@ -773,43 +808,51 @@ function modifyPublicationsCard(publicationItemStats, card) {
     const col3 = createElement("div", "prozen-card-container-item");
     publicationItemStats.appendChild(col3);
 
-    // Среднее время просмотра
+    // ER
     const c3r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r1.style.textAlign = "right";
-    c3r1.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
-    const c3r1Icon = createElement("span", "prozen_studio_card_icon_clock");
+    c3r1.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
+    const c3r1Icon = createElement("span", "prozen_studio_card_icon_er");
     const c3r1Text = createElement("span");
-    c3r1Text.innerText = card.readTimeStrHMS;
+    c3r1Text.innerText = card.erStr;
     c3r1.appendChild(c3r1Icon);
     c3r1.appendChild(c3r1Text);
     col3.appendChild(c3r1);
 
-    // Теги
-    const tagsHint = card.tags.length === 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
+    // Среднее время просмотра
     const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r2.style.textAlign = "right";
-    c3r2.setAttribute("title", tagsHint);
-    const c3r2Icon = createElement("span", "prozen_studio_card_icon_tags");
+    c3r2.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    const c3r2Icon = createElement("span", "prozen_studio_card_icon_clock");
     const c3r2Text = createElement("span");
-    c3r2Text.innerText = paucal(card.tags.length, "тег", "тега", "тегов");
+    c3r2Text.innerText = card.readTimeStrHMS;
     c3r2.appendChild(c3r2Icon);
     c3r2.appendChild(c3r2Text);
-    c3r2.addEventListener('click', event => {
-        copyTextToClipboard(card.tagsStr);
-        event.preventDefault();
-    });
     col3.appendChild(c3r2);
 
-    // Ссылка
+    // Теги и ссылка
     const c3r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r3.style.textAlign = "right";
     c3r3.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
-    const c3r3Icon = createElement("span", "prozen_studio_card_icon_link");
-    c3r3.appendChild(c3r3Icon);
+    // Теги
+    const c3r3IconTags = createElement("span", "prozen_studio_card_icon_tags");
+    c3r3IconTags.addEventListener('click', event => {
+        copyTextToClipboard(card.tagsStr);
+        event.preventDefault();
+    });
+    c3r3.appendChild(c3r3IconTags);
+
+    const tagList = card.tags.length === 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
+    c3r3IconTags.setAttribute("title", tagList)
+
+
+    // Ссылка
+    const c3r3IconLink = createElement("span", "prozen_studio_card_icon_link");
+    c3r3.appendChild(c3r3IconLink);
     const shortUrl = mediaUrl != null ?
         (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
         : card.shortUrl;
-    c3r3.addEventListener('click', event => {
+    c3r3IconLink.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
     });
@@ -820,17 +863,17 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
 function modifyDashboardCard(publicationBlock, card) {
     /*
-       Показы         Лайки     Среднее время
-       Просмотры      Коменты   isBanned?  moderationStatus // ок? isPromotionAvailable snippetFrozen
-       Дочитывания    ER        Короткая ссылка/ Теги
+       Показы         Лайки                       ER
+       Просмотры      Коменты                     Среднее время
+       Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
      */
+
     const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
     timeBlock.innerText = card.timeStr;
     //timeBlock.style.opacity = 1;
 
     const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
     removeChilds(publicationItemStats);
-
     modifyPublicationsCard(publicationItemStats, card);
 }
 
@@ -973,6 +1016,7 @@ class Card {
         this.shows = publicationData.privateData.statistics.shows;
         this.views = publicationData.privateData.statistics.views;
         this.viewsTillEnd = publicationData.privateData.statistics.viewsTillEnd;
+        this.subscribersViews = publicationData.subscribersViews;
         this.sumViewTimeSec = publicationData.privateData.statistics.sumViewTimeSec;
         this.likes = publicationData.privateData.statistics.likes;
         this.comments = publicationData.privateData.statistics.comments;
@@ -999,6 +1043,15 @@ class Card {
         // Дочитывания
         this.readsPercent = infiniteAndNan((this.viewsTillEnd / this.views) * 100).toFixed(2);
         this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
+
+        // Просмотры подписчиков
+        this.subscribersViewsPercent = infiniteAndNan((this.subscribersViews / this.viewsTillEnd) * 100).toFixed(2);
+
+        if (this.subscribersViews == null || this.subscribersViews === 0) {
+            this.subscribersViewsStr = "0";
+        } else {
+            this.subscribersViewsStr = `${infiniteAndNanToStr(this.subscribersViews)} (${this.subscribersViewsPercent}%)`;
+        }
 
         // Среднее время дочитывания
         this.readTime = this.sumViewTimeSec / this.viewsTillEnd;
@@ -1032,5 +1085,14 @@ class Card {
         } else {
             this.url = this.shortUrl;
         }
+    }
+    getSubscribersViews() {
+        this.subscribersViewsPercent = infiniteAndNan((this.subscribersViews / this.viewsTillEnd) * 100).toFixed(2);
+        if (this.subscribersViews == null || this.subscribersViews === 0) {
+            this.subscribersViewsStr = "0";
+        } else {
+            this.subscribersViewsStr = `${infiniteAndNanToStr(this.subscribersViews)} (${this.subscribersViewsPercent}%)`;
+        }
+        return this.subscribersViewsStr
     }
 }
