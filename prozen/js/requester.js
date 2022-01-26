@@ -377,7 +377,7 @@ async function getUserKarma() {
 }
 
 async function getPublicationStatsSubscribers(publicationId) {
-    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&isSubscriber=true`
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
     const response = await request(requestUrl);
     const json = await response.json();
     if (json == null || json.publications == null || json.publications.length === 0) return 0
@@ -387,7 +387,7 @@ async function getPublicationStatsSubscribers(publicationId) {
 async function getPublicationsStatsSubscribers(publicationIds) {
     const promises = []
     for (const publicationId of publicationIds) {
-        const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&isSubscriber=true`
+        const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
         promises.push(new Promise(resolve => {
                     request(requestUrl)
                         .then(response => {
@@ -419,8 +419,70 @@ async function getPublicationsByFilterAndSubscribers(pageSize, types, publicatio
             publication.subscribersViews = subscribersViews[publication.id]
         }
     }
-    return data
+    return data;
 }
+
+/* Зарезервировано на будущее */
+async function getPublicationsByFilterAndSubscribers2 (pageSize, types, publicationIdAfter, query) {
+    const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
+    let addTimeFromStamp = Number.MAX_SAFE_INTEGER;
+    let addTimeToStamp = 0;
+    const pubTypes = new Set()
+    data.publications.forEach( it => {
+        if (it.addTime < addTimeFromStamp) {
+            addTimeFromStamp = it.addTime
+        }
+        if (it.addTime > addTimeToStamp) {
+            addTimeToStamp = it.addTime
+        }
+        pubTypes.add(it.content.type);
+    });
+    const addTimeTo = new Date (addTimeToStamp).toISOString().slice(0,10);
+    const addTimeFrom = new Date (addTimeFromStamp).toISOString().slice(0,10);
+    const stats = [];
+    for (const pubType of pubTypes) {
+       const statType = await getStatsPage (pubType, addTimeFrom, addTimeTo);
+       Array.prototype.push.apply (stats, statType);
+    }
+    for (const publication of data.publications) {
+        for (const stat of stats) {
+            if (publication.id === stat.id) {
+                publication.subscribersViews = stat.subscribersViews;
+            }
+        }
+    }
+    return data;
+}
+
+// Дата в формате: YYYY-MM-DD
+async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 100, page = 0) {
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationTypes=${publicationType}&allPublications=true&addTimeFrom=${addTimeFrom}&addTimeTo=${addTimeTo}&fields=shows&fields=views&fields=typeSpecificViews&fields=viewsTillEnd&fields=sumViewTimeSec&fields=viewTillEndAvgTimeSec&fields=viewTillEndRate&fields=ctr&fields=impressions&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=subscribersDeepViews&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&pageSize=${pageSize}&page${page}`
+    const response = await request(requestUrl);
+    const json = await response.json();
+    const stats = [];
+    if (json != null && json.publications != null && json.publications.length >0) {
+        const stat = {};
+        json.publications.forEach(it => {
+            stat.id = it.publication.publicationId;
+            stat.type = it.publication.publicationType;
+            stat.deleted = it.publication.deleted;
+            stat.shows = it.stats.shows;
+            stat.impressions = it.stats.impressions;
+            stat.comments = it.stats.comments;
+            stat.views = it.stats.views;
+            stat.viewsTillEnd = it.stats.viewsTillEnd;
+            stat.typeSpecificViews = it.stats.typeSpecificViews; // Похоже это замена дочиткам
+            stat.subscribersViews = it.stats.subscribersDeepViews; // Просмотры от подписчиков?
+            stat.subscriptions = it.stats.subscriptions; // Сколько подписалось
+            stat.unsubscriptions = it.stats.unsubscriptions; // Сколько отписалось
+            stat.sumViewTimeSec = it.stats.sumViewTimeSec;
+        });
+        stats.push(stat)
+    }
+    return stats
+}
+
+
 
 function request(requestUrl) {
     const headers = {
