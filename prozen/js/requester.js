@@ -379,9 +379,13 @@ async function getUserKarma() {
 async function getPublicationStatsSubscribers(publicationId) {
     const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
     const response = await request(requestUrl);
-    const json = await response.json();
-    if (json == null || json.publications == null || json.publications.length === 0) return 0
-    return json.publications[0].stats.typeSpecificViews
+    if (response.ok) {
+        const json = await response.json();
+        if (json == null || json.publications == null || json.publications.length === 0) return 0
+        return json.publications[0].stats.typeSpecificViews
+    } else {
+        return -1;
+    }
 }
 
 async function getPublicationsStatsSubscribers(publicationIds) {
@@ -389,21 +393,25 @@ async function getPublicationsStatsSubscribers(publicationIds) {
     for (const publicationId of publicationIds) {
         const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
         promises.push(new Promise(resolve => {
-                    request(requestUrl)
-                        .then(response => {
-                            response.json().then(data => {
-                                const publicationStats = [publicationId,  0];
-                                    if (data != null && data.publications != null && data.publications.length > 0) {
-                                        publicationStats[1] = data.publications[0].stats.typeSpecificViews
-                                    }
-                                    resolve(publicationStats);
+            request(requestUrl)
+                .then(response => {
+                    if (response.ok) {
+                        response.json().then(data => {
+                                const publicationStats = [publicationId, 0];
+                                if (data != null && data.publications != null && data.publications.length > 0) {
+                                    publicationStats[1] = data.publications[0].stats.typeSpecificViews
                                 }
-                            )
-                        })
-                }));
+                                resolve(publicationStats);
+                            }
+                        )
+                    } else {
+                        resolve([publicationId, -1]);
+                    }
+                })
+        }));
     }
     const subscribersViews = await Promise.all(promises)
-    return Object.fromEntries (subscribersViews);
+    return Object.fromEntries(subscribersViews);
 }
 
 async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, query) {
@@ -412,23 +420,24 @@ async function getPublicationsByFilterAndSubscribers(pageSize, types, publicatio
     for (const publication of data.publications) {
         ids.push(publication.id)
     }
-    const subscribersViews = await getPublicationsStatsSubscribers (ids)
-
+    const subscribersViews = await getPublicationsStatsSubscribers(ids)
     for (const publication of data.publications) {
         if (subscribersViews.hasOwnProperty(publication.id)) {
             publication.subscribersViews = subscribersViews[publication.id]
+        } else {
+            publication.subscribersViews = 0;
         }
     }
     return data;
 }
 
 /* Зарезервировано на будущее */
-async function getPublicationsByFilterAndSubscribers2 (pageSize, types, publicationIdAfter, query) {
+async function getPublicationsByFilterAndSubscribers2(pageSize, types, publicationIdAfter, query) {
     const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
     let addTimeFromStamp = Number.MAX_SAFE_INTEGER;
     let addTimeToStamp = 0;
     const pubTypes = new Set()
-    data.publications.forEach( it => {
+    data.publications.forEach(it => {
         if (it.addTime < addTimeFromStamp) {
             addTimeFromStamp = it.addTime
         }
@@ -437,12 +446,12 @@ async function getPublicationsByFilterAndSubscribers2 (pageSize, types, publicat
         }
         pubTypes.add(it.content.type);
     });
-    const addTimeTo = new Date (addTimeToStamp).toISOString().slice(0,10);
-    const addTimeFrom = new Date (addTimeFromStamp).toISOString().slice(0,10);
+    const addTimeTo = new Date(addTimeToStamp).toISOString().slice(0, 10);
+    const addTimeFrom = new Date(addTimeFromStamp).toISOString().slice(0, 10);
     const stats = [];
     for (const pubType of pubTypes) {
-       const statType = await getStatsPage (pubType, addTimeFrom, addTimeTo);
-       Array.prototype.push.apply (stats, statType);
+        const statType = await getStatsPage(pubType, addTimeFrom, addTimeTo);
+        Array.prototype.push.apply(stats, statType);
     }
     for (const publication of data.publications) {
         for (const stat of stats) {
@@ -460,7 +469,7 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
     const response = await request(requestUrl);
     const json = await response.json();
     const stats = [];
-    if (json != null && json.publications != null && json.publications.length >0) {
+    if (json != null && json.publications != null && json.publications.length > 0) {
         const stat = {};
         json.publications.forEach(it => {
             stat.id = it.publication.publicationId;
@@ -481,7 +490,6 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
     }
     return stats
 }
-
 
 
 function request(requestUrl) {

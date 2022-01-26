@@ -215,11 +215,11 @@ function registerObserverBalance() {
     }
 
     for (const e of target.querySelectorAll("li.author-studio-info-block__stat-item")) {
-            const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
-            if (name === "баланс") {
-                updateStudioBalance(e.childNodes[0]);
-                return;
-            }
+        const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+        if (name === "баланс") {
+            updateStudioBalance(e.childNodes[0]);
+            return;
+        }
     }
 
     if (observerInfoBlockStats !== undefined) {
@@ -460,12 +460,12 @@ function modifyPublicationsGridCell(cell, card) {
     date.innerText = card.timeStr + " · ";
     modifyGridCellStats(cell, card);
     if (card.subscribersViews == null || card.subscribersViews === 0) {
-        setTimeout (fillupPublicationsCell.bind(null, cell, card), 1);
+        setTimeout(fillupPublicationsCell.bind(null, cell, card), 1);
     }
 }
 
-function fillupPublicationsGridCell (cell, publicationId) {
-    getPublicationStatsSubscribers (publicationId).then(subscribersViews => {
+function fillupPublicationsGridCell(cell, publicationId) {
+    getPublicationStatsSubscribers(publicationId).then(subscribersViews => {
         cell.querySelector()
     })
 }
@@ -507,7 +507,7 @@ function modifyPublicationTable(requestData) {
             const card = jsonToCardData(publicationData, cell.querySelector("a.publication-preview").href);
             modifyPublicationsCell(cell, card);
             if (card.subscribersViews == null || card.subscribersViews === 0) {
-                setTimeout (fillupPublicationsCell.bind(null, cell, card), 1);
+                setTimeout(fillupPublicationsCell.bind(null, cell, card), 1);
             }
         }
     }
@@ -517,12 +517,13 @@ function modifyPublicationTable(requestData) {
 }
 
 // Добавляет данные о подписчка на карточки на карточку публикации (универсальная — оба режима отображения карточки)
-function fillupPublicationsCell (cell, card) {
-    getPublicationStatsSubscribers (card.id).then(subscribersViews => {
+function fillupPublicationsCell(cell, card) {
+    getPublicationStatsSubscribers(card.id).then(subscribersViews => {
         const span = cell.querySelector("span.prozen-subscribers-views");
         if (span != null) {
-            card.subscribersViews = subscribersViews
-            span.innerText = card.getSubscribersViews()
+            span.innerText = card.getSubscribersViews(subscribersViews)
+            const element = span.parentElement;
+            element.setAttribute("title", card.getSubscribersViewsHint());
         }
     })
 }
@@ -680,10 +681,10 @@ function modifyGridCellStats(cell, card) {
 
     // Просмотры подписчиков
     const c4r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c4r1.setAttribute("title", "Просмотры/Дочитывания подписчиков, %");
     const c4r1Icon = createElement("span", "prozen_studio_card_icon_subscribers");
     const c4r1Text = createElement("span", "prozen-subscribers-views");
-    c4r1Text.innerText = card.getSubscribersViews()
+    c4r1Text.innerText = card.getSubscribersViews();
+    c4r1.setAttribute("title", card.getSubscribersViewsHint());
     c4r1.appendChild(c4r1Icon);
     c4r1.appendChild(c4r1Text);
     col4.appendChild(c4r1);
@@ -795,10 +796,10 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
     // Просмотры подписчиков //prozen-subscribers-views
     const c2r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c2r3.setAttribute("title", "Просмотры/дочитывания подписчиков, %");
     const c2r3Icon = createElement("span", "prozen_studio_card_icon_subscribers");
     const c2r3Text = createElement("span", "prozen-subscribers-views");
-    c2r3Text.innerText = card.subscribersViewsStr;
+    c2r3Text.innerText = card.getSubscribersViews();
+    c2r3.setAttribute("title", card.getSubscribersViewsHint());
     c2r3.appendChild(c2r3Icon);
     c2r3.appendChild(c2r3Text);
     col2.appendChild(c2r3);
@@ -1086,10 +1087,23 @@ class Card {
             this.url = this.shortUrl;
         }
     }
-    getSubscribersViews() {
+
+    getSubscribersViewsHint() {
+        if (this.subscribersViews < 0) {
+            return "Не удалось получить данные\nо просмотрах подписчиках.";
+        } else {
+            return "Просмотры/дочитывания подписчиков, %";
+        }
+    }
+    getSubscribersViews(updateValue) {
+        if (updateValue != null) {
+            this.subscribersViews = updateValue
+        }
         this.subscribersViewsPercent = infiniteAndNan((this.subscribersViews / this.viewsTillEnd) * 100).toFixed(2);
         if (this.subscribersViews == null || this.subscribersViews === 0) {
             this.subscribersViewsStr = "0";
+        } else if (this.subscribersViews < 0) {
+            this.subscribersViewsStr = "–";
         } else {
             this.subscribersViewsStr = `${infiniteAndNanToStr(this.subscribersViews)} (${this.subscribersViewsPercent}%)`;
         }
