@@ -1,6 +1,4 @@
 const URL_API_MEDIA = "https://zen.yandex.ru/media-api/id/";
-const URL_API_PUBLICATION_VIEW_STAT = "https://zen.yandex.ru/media-api/publication-view-stat?publicationId=";
-const URL_API_GET_PUBLICATION = "https://zen.yandex.ru/media-api/get-publication?publicationId=";
 
 class Requester {
     constructor(publisherId, token) {
@@ -121,28 +119,23 @@ async function getStatsInfo(getCounter = false) {
     return {actuality: actuality, counters: counters};
 }
 
-
 function loadPublicationStat(publicationId) {
-    const url = URL_API_PUBLICATION_VIEW_STAT + encodeURIComponent(publicationId);
-    return request(url).then(response => response.json());
+    const requestUrl = `https://zen.yandex.ru/media-api/publication-view-stat?publicationId=${publicationId}`;
+    return request(requestUrl).then(response => response.json());
 }
 
 function loadArticle(publicationId) {
-    const url = URL_API_GET_PUBLICATION + publicationId;
-    return request(url).then(response => response.json());
+    const requestUrl = `https://zen.yandex.ru/media-api/get-publication?publicationId=${publicationId}`;
+    return request(requestUrl).then(response => response.json());
 }
-
-const COUNT_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=";
 
 function loadPublicationsCount(publicationType) {
-    const url = COUNT_PUBLICATIONS_API_URL + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    const url = `https://zen.yandex.ru/media-api/count-publications-by-state?state=published&type=${publicationType}&publisherId=${publisherId}`;
     return request(url).then(response => response.json());
 }
 
-const GET_PUBLICATIONS_API_URL = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=";
-
 function loadPublications(publicationType, count) {
-    const url = GET_PUBLICATIONS_API_URL + encodeURIComponent(count) + "&type=" + encodeURIComponent(publicationType) + "&publisherId=" + publisherId;
+    const url = `https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=${count}&type=${publicationType}&publisherId=${publisherId}`;
     return request(url).then(response => response.json());
 }
 
@@ -231,24 +224,23 @@ async function loadAllPublications(sort = false) {
     return publications;
 }
 
-const URL_API_PUBLICATIONS = "https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=";
 
+/* не используется */
 function loadPublicationsStat(publicationIds) {
-    const url = URL_API_PUBLICATIONS + encodeURIComponent(publicationIds.join(",")) + "&publisherId=" + publisherId;
+    const ids = encodeURIComponent(publicationIds.join(","));
+    const url = `https://zen.yandex.ru/media-api/publisher-publications-stat?publicationsIds=${ids}&publisherId=${publisherId}`;
     return request(url).then(response => response.json());
 }
 
-const URL_API_COUNT_PUBLISHED = "https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=";
-const URL_API_PUBLICATIONS_PUBLISHED = "https://zen.yandex.ru/media-api/get-publications-by-state?state=published&pageSize=%pageSize%&publisherId=%publisherId%";
-
+/* не используется */
 function loadPublicationsPublisher() {
-    const countUrl = URL_API_COUNT_PUBLISHED + publisherId;
+    const countUrl = `https://zen.yandex.ru/media-api/count-publications-by-state?state=published&publisherId=${publisherId}`;
     return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
         .then(response => response.json())
         .then(data => {
             const pageSize = data.count;
-            const url = URL_API_PUBLICATIONS_PUBLISHED.replace("%pageSize%", pageSize).replace("%publisherId%", publisherId);
-            return request(url).then(response => response.json());
+            const requestUrl = `https://zen.yandex.ru/media-api/get-publications-by-state?state=published&${pageSize}&publisherId=${publisherId}`;
+            return request(requestUrl).then(response => response.json());
         });
 }
 
@@ -357,6 +349,7 @@ async function loadPageData(initUrl, loadAll) {
     return cards;
 }
 
+/* Не используется */
 async function monthlySubscribers() {
     const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/monthly-subscribers`;
     const response = await request(requestUrl);
@@ -376,43 +369,31 @@ async function getUserKarma() {
     return await response.json();
 }
 
-async function getPublicationStatsSubscribers(publicationId) {
-    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
-    const response = await request(requestUrl);
-    if (response.ok) {
-        const json = await response.json();
-        if (json == null || json.publications == null || json.publications.length === 0) return 0
-        return json.publications[0].stats.typeSpecificViews
+
+async function getPublicationsStatsSubscribers(ids) {
+    let publicationIds = "";
+    if (Array.isArray(ids)) {
+        const idsParams = [];
+        ids.forEach(id => idsParams.push(`publicationIds=${id}`));
+        publicationIds = idsParams.join("&");
     } else {
-        return -1;
+        publicationIds = `publicationIds=${ids}`;
     }
+    const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&${publicationIds}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
+    const response = await request(requestUrl);
+    const json = await response.json();
+    const pubData = json.publications;
+    const subscribersViews = [];
+    if (pubData != null && pubData.length > 0) {
+        pubData.forEach(stat => {
+            const publicationId = stat.publication.publicationId;
+            const typeSpecificViews = stat.stats.typeSpecificViews;
+            subscribersViews [publicationId] = typeSpecificViews;
+        });
+    }
+    return subscribersViews;
 }
 
-async function getPublicationsStatsSubscribers(publicationIds) {
-    const promises = []
-    for (const publicationId of publicationIds) {
-        const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationIds=${publicationId}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true`
-        promises.push(new Promise(resolve => {
-            request(requestUrl)
-                .then(response => {
-                    if (response.ok) {
-                        response.json().then(data => {
-                                const publicationStats = [publicationId, 0];
-                                if (data != null && data.publications != null && data.publications.length > 0) {
-                                    publicationStats[1] = data.publications[0].stats.typeSpecificViews
-                                }
-                                resolve(publicationStats);
-                            }
-                        )
-                    } else {
-                        resolve([publicationId, -1]);
-                    }
-                })
-        }));
-    }
-    const subscribersViews = await Promise.all(promises)
-    return Object.fromEntries(subscribersViews);
-}
 
 async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, query) {
     const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
@@ -431,37 +412,6 @@ async function getPublicationsByFilterAndSubscribers(pageSize, types, publicatio
     return data;
 }
 
-/* Зарезервировано на будущее */
-async function getPublicationsByFilterAndSubscribers2(pageSize, types, publicationIdAfter, query) {
-    const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
-    let addTimeFromStamp = Number.MAX_SAFE_INTEGER;
-    let addTimeToStamp = 0;
-    const pubTypes = new Set()
-    data.publications.forEach(it => {
-        if (it.addTime < addTimeFromStamp) {
-            addTimeFromStamp = it.addTime
-        }
-        if (it.addTime > addTimeToStamp) {
-            addTimeToStamp = it.addTime
-        }
-        pubTypes.add(it.content.type);
-    });
-    const addTimeTo = new Date(addTimeToStamp).toISOString().slice(0, 10);
-    const addTimeFrom = new Date(addTimeFromStamp).toISOString().slice(0, 10);
-    const stats = [];
-    for (const pubType of pubTypes) {
-        const statType = await getStatsPage(pubType, addTimeFrom, addTimeTo);
-        Array.prototype.push.apply(stats, statType);
-    }
-    for (const publication of data.publications) {
-        for (const stat of stats) {
-            if (publication.id === stat.id) {
-                publication.subscribersViews = stat.subscribersViews;
-            }
-        }
-    }
-    return data;
-}
 
 // Дата в формате: YYYY-MM-DD
 async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 100, page = 0) {
@@ -470,8 +420,8 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
     const json = await response.json();
     const stats = [];
     if (json != null && json.publications != null && json.publications.length > 0) {
-        const stat = {};
         json.publications.forEach(it => {
+            const stat = {};
             stat.id = it.publication.publicationId;
             stat.type = it.publication.publicationType;
             stat.deleted = it.publication.deleted;
@@ -485,8 +435,8 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
             stat.subscriptions = it.stats.subscriptions; // Сколько подписалось
             stat.unsubscriptions = it.stats.unsubscriptions; // Сколько отписалось
             stat.sumViewTimeSec = it.stats.sumViewTimeSec;
+            stats.push(stat)
         });
-        stats.push(stat)
     }
     return stats
 }

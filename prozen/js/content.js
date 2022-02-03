@@ -427,11 +427,7 @@ function backgroundListener(request) {
 }
 
 async function processPublicationsCards(request) {
-    const data = await getPublicationsByFilter(request.pageSize, request.types, request.publicationIdAfter, request.query);
-    const ids = [];
-    for (const publication of data.publications) {
-        ids.push(publication.id)
-    }
+    const data = await getPublicationsByFilterAndSubscribers (request.pageSize, request.types, request.publicationIdAfter, request.query);
     if (isPublicationGrid()) {
         modifyPublicationGrid(data.publications);
     } else {
@@ -447,8 +443,7 @@ function getPublicationCellById(publicationId) {
 
 function getPublicationGridCellById(publicationId) {
     const a = document.querySelector(`a.publication-card__link-2q[href*='${publicationId}'`);
-    // return a != null ? a.parentNode.parentNode : null; //div.publications-grid__item-c4
-    return a != null ? a.parentNode : null; //div.publication-card__block-20
+    return a != null ? a.parentNode : null;
 }
 
 function modifyPublicationsGridCell(cell, card) {
@@ -459,16 +454,8 @@ function modifyPublicationsGridCell(cell, card) {
     const date = cell.querySelector("span.Text_typography_text-12-16");
     date.innerText = card.timeStr + " · ";
     modifyGridCellStats(cell, card);
-    if (card.subscribersViews == null || card.subscribersViews === 0) {
-        setTimeout(fillupPublicationsCell.bind(null, cell, card), 1);
-    }
 }
 
-function fillupPublicationsGridCell(cell, publicationId) {
-    getPublicationStatsSubscribers(publicationId).then(subscribersViews => {
-        cell.querySelector()
-    })
-}
 
 function modifyPublicationsCell(cell, card) {
     if (cell.hasAttribute("data-prozen-publication-id")) {
@@ -506,9 +493,10 @@ function modifyPublicationTable(requestData) {
         } else {
             const card = jsonToCardData(publicationData, cell.querySelector("a.publication-preview").href);
             modifyPublicationsCell(cell, card);
+            /*
             if (card.subscribersViews == null || card.subscribersViews === 0) {
                 setTimeout(fillupPublicationsCell.bind(null, cell, card), 1);
-            }
+            } */
         }
     }
     if (waitList.length > 0) {
@@ -516,17 +504,6 @@ function modifyPublicationTable(requestData) {
     }
 }
 
-// Добавляет данные о подписчка на карточки на карточку публикации (универсальная — оба режима отображения карточки)
-function fillupPublicationsCell(cell, card) {
-    getPublicationStatsSubscribers(card.id).then(subscribersViews => {
-        const span = cell.querySelector("span.prozen-subscribers-views");
-        if (span != null) {
-            span.innerText = card.getSubscribersViews(subscribersViews)
-            const element = span.parentElement;
-            element.setAttribute("title", card.getSubscribersViewsHint());
-        }
-    })
-}
 
 function modifyPublicationGrid(requestData) {
     if (!isPublicationGrid()) {
