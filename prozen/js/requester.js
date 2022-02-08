@@ -440,11 +440,11 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
 
 
 function request(requestUrl) {
-
+    const callerName = request.caller == null ? "FoxCall" : request.caller.name;
     const headers = {
         credentials: "same-origin",
         headers: {
-            "X-Prozen-Request": request.caller.name
+            "X-Prozen-Request": callerName
         }
     }
     if (typeof token !== "undefined") {
