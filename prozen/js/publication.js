@@ -49,7 +49,7 @@ function showPublicationStats(pageType, data, publisherId) {
             break;
         case "gallery":
             showStatsGallery(data);
-            break;;
+            break;
     }
 }
 
@@ -293,7 +293,6 @@ async function showStatsVideoOld(data) {
         container.appendChild(spanIcon4);
     }
 }
-
 
 async function showStatsArticle(data) {
     if (data === null) {

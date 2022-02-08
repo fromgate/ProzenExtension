@@ -135,7 +135,7 @@ function clickSearchButton(searchString) {
         prozenSearch: textToFind,
         prozenToken: token,
         prozenPublisherId: publisherId
-    }, function () {
+    }, () => {
         window.open(chrome.extension.getURL("search.html"));
     });
 }
@@ -147,7 +147,11 @@ function clickFindSadRobots() {
     } else {
         id = "channel_name=" + data.publisher.nickname.raw;
     }
-    chrome.storage.local.set({prozenId: id}, function () {
+    chrome.storage.local.set({
+        prozenId: id,
+        prozenToken: token,
+        prozenPublisherId: publisherId
+    }, () => {
         window.open(chrome.extension.getURL("sadrobot.html"));
     });
 }

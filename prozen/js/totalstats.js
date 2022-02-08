@@ -203,45 +203,6 @@ async function getStats(publicationType) {
     return result;
 }
 
-async function loadAllPublications() {
-    const publications = [];
-    let recordCount = 0;
-    for (let i = 0; i < TYPES.length; i++) {
-        const publicationType = TYPES[i];
-
-        const response = await loadPublicationsCount(publicationType).then(response => {
-            return response;
-        });
-        const count = response.count;
-
-        const result = await loadPublications(publicationType, count).then(response => {
-            const cards = [];
-            if (response !== undefined && response.publications !== undefined) {
-                for (let i = 0, len = response.publications.length; i < len; i++) {
-                    const pubData = {};
-                    const publication = response.publications[i];
-                    pubData.id = publication.id;
-                    pubData.feedShows = publication.privateData.statistics.feedShows;
-                    pubData.shows = publication.privateData.statistics.shows;
-                    pubData.views = publication.privateData.statistics.views;
-                    pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
-                    pubData.comments = publication.privateData.statistics.comments;
-                    pubData.likes = publication.privateData.statistics.likes;
-                    pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
-                    pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
-                    pubData.type = publication.content.type;
-                    cards.push(pubData);
-                    recordCount++;
-                    document.getElementById("records_count").innerText = "Загружено: " + paucal(recordCount, " публикация", " публикации", " публикаций");
-                }
-            }
-            return cards;
-        });
-        publications.push(...result);
-    }
-    return publications;
-}
-
 function hideSpinner() {
     document.getElementById("spinner").style.display = "none";
     document.getElementById("stats").style.display = "block";

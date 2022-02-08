@@ -100,7 +100,7 @@ function getChannelId() {
     });
 }
 
-function updateSerchStats() {
+function updateSearchStats() {
     if (publications.length !== 0) {
         const count = {};
         TYPES.forEach(pubType => count[pubType] = 0);
@@ -108,9 +108,7 @@ function updateSerchStats() {
             count [publications[i].type]++;
         }
         document.getElementById('show-article').innerText = "Статьи: " + count.article;
-        document.getElementById('show-narrative').innerText = "Нарративы: " + count.article;
         document.getElementById('show-brief').innerText = "Посты: " + count.brief;
-        document.getElementById('show-post').innerText = "Посты (старые): " + count.post;
         document.getElementById('show-gif').innerText = "Видео: " + count.gif;
         document.getElementById('show-gallery').innerText = "Галереи: " + count.gallery;
     }
@@ -130,8 +128,6 @@ function executeShowByType(pubType) {
     const foundCards = [];
     const dateStart = picker.getStartDate();
     const dateEnd = picker.getDayAfterEnd();
-    //.getEndDate();
-    //dateEnd.setDate(dateEnd.getDate() + 1);
     for (let i = 0; i < publications.length; i++) {
         const card = publications [i];
         if (card.addTime < dateStart.getTime() || card.addTime > dateEnd.getTime()) {
@@ -217,7 +213,7 @@ function executeSearch() {
 function loadPublicationsAndShowByType(pubType) {
     loadAllPublications().then(cards => {
         publications = cards;
-        updateSerchStats();
+        updateSearchStats();
         executeShowByType(pubType);
     });
 }
@@ -225,7 +221,7 @@ function loadPublicationsAndShowByType(pubType) {
 function loadPublicationsAndSearch() {
     loadAllPublications().then(cards => {
         publications = cards;
-        updateSerchStats();
+        updateSearchStats();
         executeSearch();
     });
 }

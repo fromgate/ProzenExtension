@@ -8,6 +8,9 @@ let AGREE = false;
 
 var id;
 let publications = [];
+let newPublications = []
+let publisherId;
+let token;
 
 const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
 
@@ -21,6 +24,8 @@ function start() {
     showElement("spinner");
     loadData().then(data => {
         id = data.id;
+        token = data.token;
+        publisherId = data.publisherId;
         AGREE = data.agree;
         checkHasNone(id).then(none => {
             if (none) {
@@ -108,12 +113,13 @@ function clearSearchResults() {
 }
 
 
-async function executeSearch(pubs) {
+async function executeSearch(pubs, limitCount = -1) {
     showElement("search_result");
-    showProgress(0, pubs.length);
     let count = 0;
     let countRobots = 0;
     let links = ""
+    const maxCount = limitCount <0 ? publications.length : Math.min (limitCount, publications.length);
+    showProgress(0, maxCount);
     for (const card of publications) {
         if (!["post", "narrative"].includes(card.type)) {
             count++;
@@ -126,6 +132,9 @@ async function executeSearch(pubs) {
                 }
                 scrollToBottom();
                 countRobots++;
+            }
+            if (count >= maxCount) {
+                break;
             }
         }
     }
@@ -143,20 +152,12 @@ function loadPublicationsAndSearch() {
     let url = API_URL + id;
     showElement("spinner");
     const findAll = document.getElementById("radio_find_all").checked;
-    loadPageData(url, findAll).then(cards => {
+    loadAllPublications(true).then(cards => {
         publications = cards;
-        executeSearch(publications);
+        executeSearch(publications, findAll ? -1 : 20);
     });
     return false;
 }
-
-
-/*
-        if (meta.getAttribute("property") === "robots"
-            && meta.getAttribute("content") === "none") {
-            none = true;
-        }
- */
 
 async function checkRobotNoNoIndex(card) {
     return new Promise(resolve => {
@@ -185,37 +186,6 @@ async function checkRobotNoNoIndex(card) {
     });
 }
 
-function cardFromItem(item) {
-    const card = {};
-    card.type = item.type; // card — статья, story — нарратив, post — post, gif — видео
-    card.url = item.link.split("?")[0];
-    card.title = (card.type === "post" || card.type === "gallery") && item.rich_text != null ? postJsonToText(item.rich_text.json) : item.title;
-    card.description = card.type === "post" || card.type === "gallery" ? "" : item.text;
-    if (card.type === "gallery" && !card.title) {
-        card.title = "Галерея без описания";
-    }
-    publications.push(card);
-    return card;
-}
-
-function postJsonToText(json) {
-    if (json === undefined || json.length === 0) {
-        return "";
-    }
-    let str;
-    for (let i = 0; i < json.length; i++) {
-        const obj = json[i];
-        if (obj.type === "text") {
-            if (str === undefined) {
-                str = obj.data
-            } else {
-                str = str + " " + obj.data;
-            }
-        }
-    }
-    return str;
-}
-
 function addSearchResult(card, state = ROBOTS_NOINDEX) {
     const a = document.createElement("a");
     a.setAttribute("href", card.url);
@@ -232,7 +202,7 @@ function cardToDiv(card, fail = false) {
     div.setAttribute("class", "section");
     const icon = document.createElement("span");
     switch (card.type) {
-        case "card":
+        case "article":
             icon.setAttribute("class", "icon_views span_icon");
             icon.setAttribute("title", "Статья");
             break;
@@ -270,7 +240,7 @@ function cardToDiv(card, fail = false) {
     const strong = document.createElement("strong");
     strong.innerText = card.title;
     div.appendChild(strong);
-    if (card.type === "card" || card.type === "story") {
+    if (card.type === "article" || card.type === "gif" ) {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
         span.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
@@ -313,8 +283,10 @@ function scrollToBottom() {
 function loadData() {
     return new Promise(resolve => {
         const data = {id: null, agree: false}
-        chrome.storage.local.get(["prozenId"], result => {
+        chrome.storage.local.get(["prozenId", "prozenToken", "prozenPublisherId"], result => {
             data.id = result.prozenId;
+            data.token = result.prozenToken;
+            data.publisherId = result.prozenPublisherId;
             if (data.id !== undefined) {
                 chrome.storage.local.get([NOINDEX_KEY + data.id], result => {
                     const agree = result [NOINDEX_KEY + data.id];

@@ -1,10 +1,8 @@
 start();
 
 function start() {
-    //https://zen.yandex.ru/video/watch/619765a4c79525319b85665e
     getOption(OPTIONS.prozen).then(enabled => {
         if (enabled) {
-            // window.removeEventListener("message", ReceiveProzenData);
             if (!document.getElementById("prozen-css")) {
                 const css = document.createElement("link");
                 css.setAttribute("rel", "stylesheet");
@@ -14,22 +12,13 @@ function start() {
                 document.head.appendChild(css);
             }
             showStatsVideo();
-            /*
-            if (!document.getElementById("prozen-page-script")) {
-                const script = document.createElement("script");
-                script.setAttribute("type", "text/javascript");
-                script.id = "prozen-page-script";
-                script.setAttribute("src", chrome.extension.getURL("js/page.js"));
-                document.body.appendChild(script);
-            }
-            window.addEventListener("message", ReceiveProzenData);
-            */
         }
     });
 }
 
 
 async function showStatsVideo() {
+    // const zenObjectId = document.head.querySelector("[property~=zen_object_id][content]").content;
     /*const channelLink = document.querySelector("a.card-channel-info__link");
     const channelUrl = new URL (channelLink.href); */
 
@@ -41,14 +30,19 @@ async function showStatsVideo() {
     const viewsTillEnd = videoData.viewsTillEnd;
 
     const statsDiv = document.querySelector("div.video-viewer-description__info");
+
+    const spanCreateTime = createElement("span");
+    spanCreateTime.innerText = statsDiv.innerText;
     statsDiv.innerText = "";
+    statsDiv.appendChild(spanCreateTime);
+
     const spanViews = createElement("span");
-    spanViews.innerText = `📺 ${views.toLocaleString("ru-RU", {maximumFractionDigits: 0})}`;
+    spanViews.innerText = `  • 📺 ${views.toLocaleString("ru-RU", {maximumFractionDigits: 0})}`;
     spanViews.setAttribute("title", "Просмотры");
     statsDiv.appendChild(spanViews);
 
     const spanTime = createElement("span");
-    spanTime.innerText = ` • ⌚ ${secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd))}`;
+    spanTime.innerText = `  • ⌚ ${secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd))}`;
     spanTime.setAttribute("title", "Среднее время просмотра");
     statsDiv.appendChild(spanTime);
 
