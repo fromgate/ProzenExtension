@@ -918,7 +918,7 @@ async function addInformerBlock() {
     if (column == null) {
         return;
     }
-    const informer = createElement("div", "author-studio-block");
+    const informer = createElement("div", "author-studio-block__block-1a");
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
