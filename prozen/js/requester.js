@@ -36,7 +36,7 @@ async function getSideBlockData() {
 // TODO перенести все запросы в класс
 async function getBalanceAndMetriksId() {
     const result = {money: null, total: null, balanceDate: null, metriksId: null}
-    const requestUrl = URL_API_MEDIA + publisherId + "/money";
+    const requestUrl =`https://zen.yandex.ru/editor-api/v2/id/${publisherId}/money`
     const response = await request(requestUrl);
     const data = await response.json();
     if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {

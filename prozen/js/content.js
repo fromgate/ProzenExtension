@@ -212,13 +212,13 @@ function registerObserverBalanceTooltip(ariaDescribedBy) {
 
 // Отображение баланса
 function registerObserverBalance() {
-    const target = document.querySelector("ul.author-studio-info-block__stats");
+    const target = document.querySelector("ul.author-studio-info-block__stats-3t");
     if (target == null) {
         setTimeout(registerObserverBalance, 500);
         return;
     }
 
-    for (const e of target.querySelectorAll("li.author-studio-info-block__stat-item")) {
+    for (const e of target.querySelectorAll("li.author-studio-info-block__statItem-QG")) {
         const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
         if (name === "баланс") {
             updateStudioBalance(e.childNodes[0]);
