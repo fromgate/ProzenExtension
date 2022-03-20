@@ -220,6 +220,9 @@ function registerObserverBalance() {
 
     for (const e of target.querySelectorAll("li.author-studio-info-block__statItem-QG")) {
         const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+        if (name === "подписчики" || name === "аудитория") {
+            updateSubscribersAudience(e.childNodes[0]);
+        }
         if (name === "баланс") {
             updateStudioBalance(e.childNodes[0]);
             return;
@@ -261,6 +264,13 @@ function setBalanceTooltip(tooltip) {
     }
 }
 
+function updateSubscribersAudience(subAudElement) {
+    if (!subAudElement.hasAttribute("data-prozen-sub-audlink")) {
+        subAudElement.addEventListener('click',
+            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat?statType=audience`));
+        subAudElement.setAttribute("data-prozen-sub-audlink", "updated");
+    }
+}
 
 function updateStudioBalance(balanceElement) {
     if (!balanceElement.hasAttribute("aria-describedby")) {
@@ -431,7 +441,7 @@ function backgroundListener(request) {
 }
 
 async function processPublicationsCards(request) {
-    const data = await getPublicationsByFilterAndSubscribers (request.pageSize, request.types, request.publicationIdAfter, request.query);
+    const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.query);
     if (isPublicationGrid()) {
         modifyPublicationGrid(data.publications);
     } else {
@@ -1076,6 +1086,7 @@ class Card {
             return "Просмотры/дочитывания подписчиков, %";
         }
     }
+
     getSubscribersViews(updateValue) {
         if (updateValue != null) {
             this.subscribersViews = updateValue
