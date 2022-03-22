@@ -212,14 +212,13 @@ function registerObserverBalanceTooltip(ariaDescribedBy) {
 
 // Отображение баланса
 function registerObserverBalance() {
-    const target = document.querySelector("ul.author-studio-info-block__stats-3t");
+    const target = document.querySelector("ul[class^=author-studio-info-block__stats]");
     if (target == null) {
         setTimeout(registerObserverBalance, 500);
         return;
     }
-
-    for (const e of target.querySelectorAll("li.author-studio-info-block__statItem-QG")) {
-        const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+    for (const e of target.querySelectorAll("li[class^=author-studio-info-block__statItem]")) {
+        const name = e.querySelector("div.Text_typography_text-12-16").textContent; //"div.author-studio-info-item__stat-item-name"
         if (name === "подписчики" || name === "аудитория") {
             updateSubscribersAudience(e.childNodes[0]);
         }
@@ -237,7 +236,7 @@ function registerObserverBalance() {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                 mutation.addedNodes.forEach(e => {
                     if (e.tagName === "LI") {
-                        const name = e.querySelector("div.author-studio-info-item__stat-item-name").textContent;
+                        const name = e.querySelector("div.Text_typography_text-12-16").textContent; //"div.author-studio-info-item__stat-item-name"
                         if (name === "баланс") {
                             updateStudioBalance(e.childNodes[0]);
                             observerInfoBlockStats.disconnect();
@@ -279,7 +278,7 @@ function updateStudioBalance(balanceElement) {
     balanceElement.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/money/`));
 
     if (moneySaldo != null) {
-        balanceElement.getElementsByClassName("author-studio-info-item__stat-item-value")[0].innerText = moneySaldo;
+        balanceElement.getElementsByClassName("Text_typography_headline-20-24")[0].innerText = moneySaldo; //author-studio-info-item__stat-item-value
     }
     const ariaDescribedBy = balanceElement.getAttribute("aria-describedby");
     registerObserverBalanceTooltip(ariaDescribedBy);
