@@ -16,8 +16,9 @@ class Requester {
 
     // TODO перенести все методы в класс
 }
-
+// https://zen.yandex.ru/editor-api/v2/id/60034fda05966372926b1a79/money
 async function getSideBlockData() {
+    debugger
     const requestUrl = `https://zen.yandex.ru/editor-api/v2/publisher/${publisherId}/side-block`;
     const response = await request(requestUrl);
     const data = await response.json();
@@ -39,26 +40,34 @@ async function getBalanceAndMetriksId() {
     const requestUrl =`https://zen.yandex.ru/editor-api/v2/id/${publisherId}/money`
     const response = await request(requestUrl);
     const data = await response.json();
-    if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
-        const simpleBalance = data.money.simple.balance;
-        const options = {year: 'numeric', month: 'long', day: 'numeric'};
-        result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
-        if (data.money.simple.personalData != null) {
-            const personalDataBalance = data.money.simple.personalData.balance;
-            const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
 
-            let total = money;
-            for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
-                if (data.money.simple.paymentHistory[i]["status"] === "completed") {
-                    total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+    try{
+        if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
+            const simpleBalance = data.money.simple.balance;
+            const options = {year: 'numeric', month: 'long', day: 'numeric'};
+            result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
+            if (data.money.simple.personalData != null) {
+                const personalDataBalance = data.money.simple.personalData.balance;
+                const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
+    
+                let total = money;
+                for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
+                    if (data.money.simple.paymentHistory[i]["status"] === "completed") {
+                        total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
+                    }
                 }
+                result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
+                result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
             }
-            result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
-            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
         }
+        
+        result.metriksId = data.publisher.privateData.metrikaCounterId;
+        return result;
+    }catch(e){
+        console.error('PROZEN getBalanceAndMetriksId() error: ', e);
+        return result;
     }
-    result.metriksId = data.publisher.privateData.metrikaCounterId;
-    return result;
+        
 }
 
 async function getStrikesInfo() {
@@ -83,6 +92,7 @@ function getStatsInfoAndCounter() {
                         resolve(counter);
                     })
                 })
+                .catch(e => console.error('PROZEN getStatsInfoAndCounter error: ', e))
         }));
     }
     return Promise.all(promises);

@@ -34,6 +34,7 @@ main();
 async function main() {
     picker.setDateRange("30-05-2017", Date());
     document.getElementById("range-filter").onclick = showStatsByRange;
+    document.getElementById("excel-export").onclick = excelExport;
     showSpinner();
     token = await getToken();
     publisherId = await getPublisherId();
@@ -41,6 +42,7 @@ async function main() {
     const stats = countStats();
     showStats(stats);
     hideSpinner();
+
 }
 
 function getToken() {
@@ -176,6 +178,161 @@ function countStats() {
     stats.set("total", total);
     return stats;
 }
+
+/**
+ * returns HH:MM:SS
+ */
+function getStrTime(secondsTot){
+    if(isNaN(parseInt(secondsTot))){
+        return 0;
+    }
+    let res = 'HH:MM:SS';
+    let minutesTot = parseInt( secondsTot / 60);
+    let _roundSec = minutesTot * 60;
+    let sec = secondsTot  - _roundSec;
+    let strSec =  String(sec).padStart(2,'0');
+
+    let hours = parseInt(minutesTot / 60);
+    let _roundMin = hours * 60;
+    let min = minutesTot - _roundMin;
+    let strMin = String(min).padStart(2,'0');
+    let strHours = String(hours).padStart(2,'0');
+
+    res = res.replace('SS', strSec).replace('MM',strMin).replace('HH', strHours);
+    return res;
+}
+
+function getExcelData(type){
+
+    if(!publications){        
+        return ['no result'];
+    }
+
+    let pubs = publications.filter(pub => !!pub.content && pub.content.type == type);
+    let arResult = [];
+
+    
+    switch(type){
+        case 'article': case 'gif':
+
+        let firstCol = type == 'article' ? 'Статья' : 'Видео';
+        arResult.push([firstCol,'Показы','Просмотры','Дочитывания','Время']);
+        
+        pubs.map(function(article){
+            let arRow = [];
+            arRow.push(article.content.title);
+
+            if(!!article.privateData && !!article.privateData.statistics){
+                arRow.push(article.privateData.statistics.shows);
+                arRow.push(article.privateData.statistics.views);
+                arRow.push(article.privateData.statistics.viewsTillEnd);
+                arRow.push(getStrTime(article.privateData.statistics.sumViewTimeSec));
+            }
+            
+            arResult.push(arRow);
+        });
+            
+        break;
+        case 'brief':
+            arResult.push(['Пост','Показы','Просмотры','Дочитывания']);
+           
+            pubs.map(function(article){
+                let arRow = [];
+                arRow.push(article.content.title);
+                if(!!article.privateData && !!article.privateData.statistics){
+                    arRow.push(article.privateData.statistics.shows);
+                    arRow.push(article.privateData.statistics.views);
+                    arRow.push(article.privateData.statistics.viewsTillEnd);
+                }
+                
+                arResult.push(arRow);
+            })
+
+        break;
+            
+        default:
+        break;
+    }
+
+    return arResult;
+
+}
+
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+}
+
+function excelExport(){
+    document.getElementById('excel-msg').innerText="Waiting excel generation...";
+
+
+    generateExcelExport().then(function(res){
+        document.getElementById('excel-msg').innerText="";
+        let ts = new Date().getTime();
+        saveAs(new Blob([s2ab(res)],{type:"application/octet-stream"}), 'prozen-stats-'+ ts +'.xlsx');
+    })
+    .catch(function(e){
+        document.getElementById('excel-msg').innerText=e;
+
+    });
+}
+
+function generateExcelExport(){
+
+    return new Promise(function(resolve, reject){
+
+        try{
+            let fileExcel = XLSX.utils.book_new();
+            const sheets = [
+                'article',
+                'brief',
+                'gif'
+            ];
+            
+            fileExcel.Props = {
+                Title: "PROZEN stats",
+                Subject: "Stats",
+                Author: "PROZEN ext",
+                CreatedDate: new Date()
+            };
+
+            sheets.map(function(sheet){
+
+                fileExcel.SheetNames.push(sheet);
+                let arData = getExcelData(sheet);
+                fileExcel.Sheets[sheet] = XLSX.utils.aoa_to_sheet(arData);
+            });
+        
+        //     fileExcel.SheetNames.push('article');
+        //     fileExcel.SheetNames.push('brief');
+        //     fileExcel.SheetNames.push('video');
+        
+        //     let arDataArticles = getExcelData('article');
+        //     let arDataBriefs = getExcelData('brief');
+        //     let arDataVideos = getExcelData('gif');
+            
+        //    // debugger
+        //     fileExcel.Sheets['article'] = XLSX.utils.aoa_to_sheet(arDataArticles);
+        //     fileExcel.Sheets['brief'] = XLSX.utils.aoa_to_sheet(arDataBriefs);
+        //     fileExcel.Sheets['video'] = XLSX.utils.aoa_to_sheet(arDataVideos);       
+            
+        
+            var fileExcelOutput = XLSX.write(fileExcel, {bookType:'xlsx', type: 'binary'});
+    
+             resolve(fileExcelOutput);
+           
+        }catch(e){
+            reject('ERROR in excel export: ' + e.message)
+        }
+
+    });
+
+    
+}
+
 
 /* Deprecated */
 async function getStats(publicationType) {

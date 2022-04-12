@@ -16,6 +16,7 @@
                 <div class="section dark">
                     <h4>ПРОДЗЕН<small>Расширенный редактор для Яндекс.Дзен</small></h4>
                 </div>
+
                 <div class="section">
                     <fieldset>
                         <legend id="totalstats_legend">Итоговая статистика</legend>
@@ -26,6 +27,8 @@
                         </div>
                         <div id="stats">
                             <fieldset>
+                                <div id="excel-msg"></div>
+
                                 <div>
                                     <label>Период статистики</label>
                                     <span>с</span><input type="text" id="start-date"><span>по</span>
@@ -33,7 +36,9 @@
                                     <button id="range-filter" type="button"
                                             title="Показать статистику по публикациям за заданный период">Показать
                                     </button>
-                                </div>
+                                    <button id="excel-export">Export excel</button> 
+                                </div>                               
+
                             </fieldset>
                             <fieldset id="total-fieldset">
                                 <legend>Общая статистика</legend>
@@ -102,6 +107,8 @@
     · <a href="https://zen.yandex.ru/prodzn/" target="_blank">Дзен</a>
     · <a href="https://sobe.ru/na/prozen/" target="_blank">Поддержать разработчика</a><br>
 </footer>
+<script type="text/javascript" src="js/excel/xlsx.full.min.js"></script>
+<script type="text/javascript" src="js/excel/FileSaver.js"></script>
 <script type="text/javascript" src="js/requester.js"></script>
 <script type="text/javascript" src="js/tools.js"></script>
 <script type="text/javascript" src="js/litepicker.js"></script>
