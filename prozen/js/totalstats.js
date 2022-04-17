@@ -180,13 +180,17 @@ function countStats() {
 }
 
 /**
- * returns HH:MM:SS
+ * returns HH:MM:SS / MM:SS
+ * see withHours boolean parameter
  */
-function getStrTime(secondsTot){
+function getStrTime(secondsTot, withHours){
     if(isNaN(parseInt(secondsTot))){
         return 0;
     }
-    let res = 'HH:MM:SS';
+
+    secondsTot = parseInt(secondsTot);
+
+    let res = !!withHours ? 'HH:MM:SS' : 'MM:SS';
     let minutesTot = parseInt( secondsTot / 60);
     let _roundSec = minutesTot * 60;
     let sec = secondsTot  - _roundSec;
@@ -202,6 +206,7 @@ function getStrTime(secondsTot){
     return res;
 }
 
+
 function getExcelData(type){
 
     if(!publications){        
@@ -209,24 +214,24 @@ function getExcelData(type){
     }
 
     let pubs = publications.filter(pub => !!pub.content && pub.content.type == type);
+    
     let arResult = [];
-
     
     switch(type){
         case 'article': case 'gif':
 
         let firstCol = type == 'article' ? 'Статья' : 'Видео';
-        arResult.push([firstCol,'Показы','Просмотры','Дочитывания','Время']);
+        arResult.push([firstCol,'Показы','Просмотры','Дочитывания','Время (среднее)']);
         
         pubs.map(function(article){
             let arRow = [];
             arRow.push(article.content.title);
 
             if(!!article.privateData && !!article.privateData.statistics){
-                arRow.push(article.privateData.statistics.shows);
+                arRow.push(article.privateData.statistics.feedShows);
                 arRow.push(article.privateData.statistics.views);
                 arRow.push(article.privateData.statistics.viewsTillEnd);
-                arRow.push(getStrTime(article.privateData.statistics.sumViewTimeSec));
+                arRow.push(getStrTime(article.privateData.statistics.sumViewTimeSec / article.privateData.statistics.viewsTillEnd, false));
             }
             
             arResult.push(arRow);
@@ -240,7 +245,7 @@ function getExcelData(type){
                 let arRow = [];
                 arRow.push(article.content.title);
                 if(!!article.privateData && !!article.privateData.statistics){
-                    arRow.push(article.privateData.statistics.shows);
+                    arRow.push(article.privateData.statistics.feedShows);
                     arRow.push(article.privateData.statistics.views);
                     arRow.push(article.privateData.statistics.viewsTillEnd);
                 }
@@ -269,13 +274,11 @@ function excelExport(){
     document.getElementById('excel-msg').innerText="Waiting excel generation...";
 
 
-    generateExcelExport().then(function(res){
-        document.getElementById('excel-msg').innerText="";
-        let ts = new Date().getTime();
-        saveAs(new Blob([s2ab(res)],{type:"application/octet-stream"}), 'prozen-stats-'+ ts +'.xlsx');
+    generateExcelExport().then(function(){
+        document.getElementById('excel-msg').innerText = "";        
     })
     .catch(function(e){
-        document.getElementById('excel-msg').innerText=e;
+        document.getElementById('excel-msg').innerText = e;
 
     });
 }
@@ -286,11 +289,12 @@ function generateExcelExport(){
 
         try{
             let fileExcel = XLSX.utils.book_new();
-            const sheets = [
-                'article',
-                'brief',
-                'gif'
-            ];
+
+            const cfgSheets = {
+                article: "Статьи",
+                brief: "Посты",
+                gif: "Видео" 
+            };
             
             fileExcel.Props = {
                 Title: "PROZEN stats",
@@ -299,30 +303,26 @@ function generateExcelExport(){
                 CreatedDate: new Date()
             };
 
-            sheets.map(function(sheet){
-
-                fileExcel.SheetNames.push(sheet);
+            Object.keys(cfgSheets).map(function(sheet){
+                fileExcel.SheetNames.push(cfgSheets[sheet]);
                 let arData = getExcelData(sheet);
-                fileExcel.Sheets[sheet] = XLSX.utils.aoa_to_sheet(arData);
+                fileExcel.Sheets[cfgSheets[sheet]] = XLSX.utils.aoa_to_sheet(arData);
             });
-        
-        //     fileExcel.SheetNames.push('article');
-        //     fileExcel.SheetNames.push('brief');
-        //     fileExcel.SheetNames.push('video');
-        
-        //     let arDataArticles = getExcelData('article');
-        //     let arDataBriefs = getExcelData('brief');
-        //     let arDataVideos = getExcelData('gif');
-            
-        //    // debugger
-        //     fileExcel.Sheets['article'] = XLSX.utils.aoa_to_sheet(arDataArticles);
-        //     fileExcel.Sheets['brief'] = XLSX.utils.aoa_to_sheet(arDataBriefs);
-        //     fileExcel.Sheets['video'] = XLSX.utils.aoa_to_sheet(arDataVideos);       
-            
-        
+
             var fileExcelOutput = XLSX.write(fileExcel, {bookType:'xlsx', type: 'binary'});
-    
-             resolve(fileExcelOutput);
+            let now = new Date();
+
+            // YYYYMMDDTHHMMSS
+            let strTimestamp =  now.getFullYear()            
+            + String(now.getMonth()+1).padStart(2,'0') 
+            + String(now.getDate()).padStart(2,'0')  
+            + 'T'
+            + String(now.getHours()).padStart(2,'0')
+            + String(now.getMinutes()).padStart(2,'0')
+            + String(now.getSeconds()).padStart(2,'0')
+            ;
+            saveAs(new Blob([s2ab(fileExcelOutput)],{type:"application/octet-stream"}), 'prozen-stats-'+ strTimestamp +'.xlsx');
+            resolve(true);
            
         }catch(e){
             reject('ERROR in excel export: ' + e.message)
