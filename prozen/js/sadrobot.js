@@ -3,6 +3,7 @@ const NOINDEX_KEY = "prozen-noindex-agree-";
 const ROBOTS_NOINDEX = "noindex"
 const ROBOTS_OK = "ok"
 const ROBOTS_FAIL = "fail"
+const NO_ADV = "no_adv"
 
 let AGREE = false;
 
@@ -125,9 +126,9 @@ async function executeSearch(pubs, limitCount = -1) {
             count++;
             progress(count);
             const checkState = await checkRobotNoNoIndex(card);
-            if (checkState !== ROBOTS_OK) {
+            if (checkState.size > 0 && !checkState.has(ROBOTS_OK)) {
                 addSearchResult(card, checkState);
-                if (checkState === ROBOTS_NOINDEX) {
+                if (checkState.has (ROBOTS_NOINDEX)) {
                     links += `${card.url}\n`;
                 }
                 scrollToBottom();
@@ -162,20 +163,28 @@ function loadPublicationsAndSearch() {
 async function checkRobotNoNoIndex(card) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            const metas = xhr.responseXML.head.getElementsByTagName('meta');
+        xhr.onload = () => {
+            const document = xhr.responseXML
+            const checks = new Set()
+            const metas = document.head.getElementsByTagName('meta');
             for (let i = 0; i < metas.length; i++) {
                 const meta = metas[i];
                 if (meta.getAttribute('name') === "robots") {
                     if (meta.getAttribute('content') === "noindex") {
-                        resolve(ROBOTS_NOINDEX);
+                        checks.add(ROBOTS_NOINDEX);
                     }
                 } else if (meta.getAttribute("property") === "robots"
                     && meta.getAttribute("content") === "none") {
-                    resolve(ROBOTS_NOINDEX);
+                    checks.add(ROBOTS_NOINDEX);
                 }
             }
-            resolve(ROBOTS_OK);
+            const scriptData = document.getElementById("all-data")
+            // checkNoAdv (scriptData.innerText)
+
+            if (checks.size === 0) {
+                checks.add(ROBOTS_NOINDEX)
+            }
+            resolve(checks);
         };
         xhr.onerror = () => {
             resolve(ROBOTS_FAIL)
@@ -186,11 +195,25 @@ async function checkRobotNoNoIndex(card) {
     });
 }
 
-function addSearchResult(card, state = ROBOTS_NOINDEX) {
+function checkNoAdv (scriptLines) {
+    const prefix = "  w._data = ";
+    let wData = ""
+    const lines = scriptLines.split("\n");
+
+    for (let i = 0; i< lines.length; i++) {
+        const line = lines[i];
+        if (line.startsWith(prefix)) {
+            wData = line.slice(prefix.length, -1);
+            break;
+        }
+    }
+}
+
+function addSearchResult(card, state = new Set([ROBOTS_OK])) {
     const a = document.createElement("a");
     a.setAttribute("href", card.url);
     a.setAttribute("target", "_blank");
-    const div = cardToDiv(card, state === ROBOTS_FAIL);
+    const div = cardToDiv(card, state.has (ROBOTS_FAIL));
     a.appendChild(div);
     const searchResult = document.getElementById("search_result");
     searchResult.appendChild(a);
@@ -300,4 +323,17 @@ function loadData() {
             }
         });
     });
+}
+
+class PublicationData {
+    constructor(wData) {
+        const jsonData = JSON.parse(wData);
+        this.type = this.jsonData.publication.content.type;
+        this.hasAdvBlocks = true; // только для статей?
+        if (this.type === "article") {
+            if (jsonData.adData.length >0) {
+                this.hasAdvBlocks = jsonData.adData.params.hasOwnProperty("articleMobileTopBlockParams");
+            }
+        }
+    }
 }

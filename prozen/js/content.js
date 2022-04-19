@@ -449,13 +449,13 @@ async function processPublicationsCards(request) {
 }
 
 function getPublicationCellById(publicationId) {
-    const table = document.querySelector("table.publications-list");
-    const a = table.querySelector(`a.publication-preview[href*='${publicationId}'`);
+    const table = document.querySelector("table[class^=publications-list]"); //publications-list__publicationsList-3U
+    const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`); //a.publication-preview[href*='${publicationId}  //publication-preview__publicationPreview-1w
     return a != null ? a.parentNode : null;
 }
 
 function getPublicationGridCellById(publicationId) {
-    const a = document.querySelector(`a.publication-card__link-2q[href*='${publicationId}'`);
+    const a = document.querySelector(`a.publication-card__link-3k[href*='${publicationId}'`);
     return a != null ? a.parentNode : null;
 }
 
@@ -475,16 +475,16 @@ function modifyPublicationsCell(cell, card) {
         return;
     }
     cell.setAttribute("data-prozen-publication-id", card.id);
-    const snippet = cell.querySelector("p.publication-preview__snippet");
-    if (snippet != null && snippet.style != null && !["post", "gallery"].includes(card.type)) {
+
+    const snippet = cell.querySelector("p.publication-preview__snippet-IX");
+    if (snippet != null && snippet.style != null && !["post", "gallery", "brief"].includes(card.type)) {
         snippet.style.setProperty("-webkit-line-clamp", "2");
     }
 
     const timeCell = cell.parentNode.cells[1];
     timeCell.querySelector("span").innerText = card.timeStr;
 
-    const previewContainer = cell.querySelector("div.publication-preview__preview-container");
-    //const publicationItemStats = createElement("div", "author-studio-publication-item__stats");
+    const previewContainer = cell.querySelector("div.publication-preview__previewContainer-1j");  //publication-preview__preview-container
     const publicationItemStats = createElement("div", "prozen-card-container");
 
     previewContainer.appendChild(publicationItemStats);
@@ -504,7 +504,7 @@ function modifyPublicationTable(requestData) {
                 waitList.push(publicationData);
             }
         } else {
-            const card = jsonToCardData(publicationData, cell.querySelector("a.publication-preview").href);
+            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-preview]").href);
             modifyPublicationsCell(cell, card);
             /*
             if (card.subscribersViews == null || card.subscribersViews === 0) {
@@ -531,7 +531,7 @@ function modifyPublicationGrid(requestData) {
                 waitList.push(publicationData);
             }
         } else {
-            const card = jsonToCardData(publicationData, cell.querySelector("a.publication-card__link-2q").href);
+            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q
             modifyPublicationsGridCell(cell, card);
         }
     }
@@ -567,7 +567,7 @@ async function processDashboardCards(pageSize) {
    карточек в виде стеки. false — если в виде таблицы.
  */
 function isPublicationGrid() {
-    const div = document.querySelector("table.publications-list");
+    const div = document.querySelector("table[class^=publications-list]"); //publications-list__publicationsList-3U
     return div == null;
 }
 
@@ -578,12 +578,15 @@ function modifyGridCellStats(cell, card) {
     // Дочитывания           |    Вовлечённость
     // Просмотры подписчиков |    Время дочитывания /Ссылка / Теги
 
-    const statsBlock = cell.querySelector("div.stats__block-gu");
+    const statsBlock = cell.querySelector("div[class^=stats__block]");  //stats__block-39
     removeChilds(statsBlock);
 
+
+
     // Первый ряд
-    const col1 = createElement("div", "stats__item-HO");
+    const col1 = createElement("div", "stats__item-3m");
     statsBlock.appendChild(col1);
+
 
     // Показы
     const c1r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
@@ -610,7 +613,7 @@ function modifyGridCellStats(cell, card) {
     c1r2.style.cursor = "default";
 
     // Второй ряд
-    const col2 = createElement("div", "stats__item-HO");
+    const col2 = createElement("div", "stats__item-3m");
     statsBlock.appendChild(col2);
 
     // Просмотры
@@ -638,7 +641,7 @@ function modifyGridCellStats(cell, card) {
     c2r2.style.cursor = "default";
 
     // Третий ряд
-    const col3 = createElement("div", "stats__item-HO");
+    const col3 = createElement("div", "stats__item-3m");
     statsBlock.appendChild(col3);
 
     // Дочитывания
@@ -666,7 +669,7 @@ function modifyGridCellStats(cell, card) {
     c3r2.style.cursor = "default";
 
     // Четвёртый ряд
-    const col4 = createElement("div", "stats__item-HO");
+    const col4 = createElement("div", "stats__item-3m");
     statsBlock.appendChild(col4);
 
     // Просмотры подписчиков
