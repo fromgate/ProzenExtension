@@ -22,7 +22,7 @@ class Channel {
     }
 
     getUrl() {
-        return "https://zen.yandex.ru/"+( useShortname ? id : "id/"+id);
+        return `https://zen.yandex.ru/${this.useShortname ? id : "id/"+this.id}`;
     }
 
     stripHtml(str) {
@@ -55,6 +55,7 @@ class Channel {
         }
 
         const lastPost = {};
+
         if (item.type === "post") {
             lastPost.image = item.image.link !== undefined ? item.image.link.replace("post_crop_big_360", imgSize === undefined ? "smart_crop_336x116" : imgSize) : "";
             lastPost.title = this.stripHtml(item.rich_text.html);
@@ -64,11 +65,11 @@ class Channel {
             lastPost.title = item.title;
             lastPost.text = item.text;
             lastPost.link = item.link.split("\?")[0];
-            lastPost.image = item.image.replace("smart_crop_344x194", imgSize === undefined ? "smart_crop_336x116" : imgSize);
+            lastPost.image = item.image != null ? item.image.replace("smart_crop_344x194", imgSize === undefined ? "smart_crop_336x116" : imgSize) : null;
         }
-        if (!lastPost.image.endsWith("smart_crop_336x116")) {
+        if (lastPost.image != null && !lastPost.image.endsWith("smart_crop_336x116")) {
             const newImage = await this.getCorrectImage(lastPost.link);
-            if (newImage !== undefined && newImage !== null ) {
+            if (newImage != null ) {
                 lastPost.image = newImage;
             }
         }

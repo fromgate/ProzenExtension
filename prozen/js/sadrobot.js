@@ -182,7 +182,7 @@ async function checkRobotNoNoIndex(card) {
             // checkNoAdv (scriptData.innerText)
 
             if (checks.size === 0) {
-                checks.add(ROBOTS_NOINDEX)
+                checks.add(ROBOTS_OK)
             }
             resolve(checks);
         };

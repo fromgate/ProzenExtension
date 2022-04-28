@@ -48,7 +48,7 @@ async function showLastPost() {
         const a = document.getElementById("prozen-post-url");
         a.setAttribute("href", lastPost.link + "?utm_source=extension_popup");
         const img = document.getElementById("prozen-post-image");
-        if (lastPost.image !== undefined && lastPost.image !== '') {
+        if (lastPost.image != null && lastPost.image !== "") {
             img.setAttribute("src", lastPost.image);
         }
         const title = document.getElementById("prozen-post-title");
