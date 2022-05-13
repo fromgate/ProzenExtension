@@ -297,6 +297,9 @@ function checkHasNoneUrl(url) {
             }
             resolve(hasNone);
         };
+        xhr.onerror = () => {
+            resolve (false);
+        }
         xhr.open("GET", url);
         xhr.responseType = "document";
         xhr.send();

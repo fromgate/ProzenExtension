@@ -917,7 +917,6 @@ function getData() {
 }
 
 async function addInformerBlock() {
-
     if (!await getOption(OPTIONS.informer)) {
         return;
     }
@@ -930,13 +929,15 @@ async function addInformerBlock() {
     if (column == null) {
         return;
     }
+
     const informer = createElement("div", "author-studio-block__block-1a");
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
+    const channelUrl = mediaUrl.replace("/media/","/");
 
     const result = await Promise.all([
-        checkHasNone(publisherId),
+        checkHasNone(mediaUrl),
         getStatsActuality(), // getStatsInfo(), // getStatsInfoAndCounter()
         getStrikesInfo(),
         getBannedUsers()
