@@ -1,6 +1,6 @@
 isProzenEnabled().then(enabled => {
     if (enabled) {
-        registerWebrequestListener();
+        registerWebRequestListener();
     }
 });
 
@@ -17,7 +17,7 @@ function isProzenEnabled() {
 }
 
 
-function registerWebrequestListener() {
+function registerWebRequestListener() {
     chrome.webRequest.onBeforeSendHeaders.addListener(details => {
             let token = null;
             let prozenRequest = false;
