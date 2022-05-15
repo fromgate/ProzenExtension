@@ -997,8 +997,24 @@ async function addInformerBlock() {
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);
     }
+
+    // ZenReader Subscribe link
+    const zenReaderLink = createElement("a");
+    zenReaderLink.setAttribute("href",zenReaderUrl());
+    const zenReaderSpan = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+    zenReaderSpan.innerText = "🔗 Подписка в ZenReader";
+    zenReaderSpan.setAttribute("title", "Ссылка для подписки на канал\nв телеграм-боте ZenReader");
+    zenReaderLink.appendChild(zenReaderSpan);
+    informerContent.appendChild(zenReaderLink);
 }
 
+function zenReaderUrl() {
+    if (data.publisher.nickname === undefined) {
+        return `https://t.me/zenreaderbot?start=id-${publisherId}`;
+    } else {
+        return `https://t.me/zenreaderbot?start=${data.publisher.nickname.raw.replace(".","-")}`;
+    }
+}
 class Card {
     constructor(publicationData, publicationUrl) {
         this.title = publicationData.content.title;
