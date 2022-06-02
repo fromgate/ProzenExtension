@@ -701,9 +701,11 @@ function modifyGridCellStats(cell, card) {
     const c4r2Link = createElement("span", "prozen_studio_card_icon_link");
     c4r2Link.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
 
-    const shortUrl = mediaUrl != null ?
+    /* const shortUrl = mediaUrl != null ?
         (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
-        : card.shortUrl;
+        : card.shortUrl; */
+    const shortUrl = `https://zen.yandex.ru/media/id/${publisherId}/${card.id}`
+
     c4r2Link.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
@@ -843,9 +845,12 @@ function modifyPublicationsCard(publicationItemStats, card) {
     // Ссылка
     const c3r3IconLink = createElement("span", "prozen_studio_card_icon_link");
     c3r3.appendChild(c3r3IconLink);
-    const shortUrl = mediaUrl != null ?
+
+    const shortUrl = `https://zen.yandex.ru/media/id/${publisherId}/${card.id}`
+
+    /* const shortUrl = mediaUrl != null ?
         (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
-        : card.shortUrl;
+        : card.shortUrl; */
     c3r3IconLink.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
@@ -1087,7 +1092,8 @@ class Card {
 
         // Ссылка на статью (сокращённая)
         this.shortUrl = `https://zen.yandex.ru/media/id/${this.publisherId}/${this.id}`
-        if (publicationUrl != null) {
+
+        /* if (publicationUrl != null) {
             this.url = publicationUrl.startsWith("https://zen.yandex") ? publicationUrl : `https://zen.yandex.ru${publicationUrl}`;
             const publicationPath = this.url.split("/");
             this.shortUrl = publicationPath[4] === "id" ?
@@ -1095,7 +1101,7 @@ class Card {
                 : `https://zen.yandex.ru/media/${publicationPath[4]}/${this.id}`;
         } else {
             this.url = this.shortUrl;
-        }
+        } */
     }
 
     getSubscribersViewsHint() {

@@ -168,9 +168,14 @@ function checkNone() {
     return none;
 }
 
-function shortUrl() {
-    const url = window.location.href.split("\?")[0].split("#")[0];
-    return url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
+function shortUrl(publisherId) {
+    let url = window.location.href.split("\?")[0].split("#")[0];
+    url = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
+    if (publisherId != null) {
+        const urlParts = url.split("/")
+        url = `https://zen.yandex.ru/media/id/${publisherId}/${urlParts[urlParts.length - 1]}`
+    }
+    return url
 }
 
 function dateFormat(unixTime) {

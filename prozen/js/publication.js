@@ -39,16 +39,16 @@ function ReceiveProzenData(event) {
 function showPublicationStats(pageType, data, publisherId) {
     switch (pageType) {
         case "article":
-            showStatsArticle(data);
+            showStatsArticle(data, publisherId);
             break;
         case "brief":
-            showStatsBrief(data);
+            showStatsBrief(data, publisherId);
             break;
         case "video_old":
-            showStatsVideoOld(data);
+            showStatsVideoOld(data, publisherId);
             break;
         case "gallery":
-            showStatsGallery(data);
+            showStatsGallery(data, publisherId);
             break;
     }
 }
@@ -92,7 +92,7 @@ function addHeaderClicks() {
                         const clickIcon = createElement("span", "publication_header_icon_url");
                         clickIcon.setAttribute("title", "Ссылка на заголовок.\n" +
                             "Кликните, чтобы скопировать её в буфер обмена");
-                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl() + "#" + ancorId));
+                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId) + "#" + ancorId));
                         header.insertBefore(clickIcon, header.firstChild);
                     }
                 }
@@ -101,7 +101,7 @@ function addHeaderClicks() {
     });
 }
 
-async function showStatsBrief(data) {
+async function showStatsBrief(data, publisherId) {
     if (data === null) {
         return;
     }
@@ -147,7 +147,7 @@ async function showStatsBrief(data) {
         const spanLink = createElement("span");
         spanLink.innerText = "  🔗 ";
         spanLink.setAttribute("title", "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -167,7 +167,7 @@ async function showStatsBrief(data) {
 }
 
 
-async function showStatsGallery(data) {
+async function showStatsGallery(data, publisherId) {
     if (data === null) {
         return;
     }
@@ -228,7 +228,7 @@ async function showStatsGallery(data) {
         const spanLink = createElement("span");
         spanLink.innerText = " 🔗";
         spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -250,7 +250,7 @@ async function showStatsGallery(data) {
     divSeparator.insertAdjacentElement("afterend", divStat);
 }
 
-async function showStatsVideoOld(data) {
+async function showStatsVideoOld(data, publisherId) {
     if (data === null) {
         return;
     }
@@ -288,13 +288,13 @@ async function showStatsVideoOld(data) {
         const spanIcon4 = createElement("span", "article__date-video");
         spanIcon4.innerText = "🔗";
         spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanIcon4.style.cursor = "pointer";
         container.appendChild(spanIcon4);
     }
 }
 
-async function showStatsArticle(data) {
+async function showStatsArticle(data, publisherId) {
     if (data === null) {
         return;
     }
@@ -367,7 +367,7 @@ async function showStatsArticle(data) {
     const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
     shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
     const shortLinkIcon = createElement("span", "publication_icon_short_url");
-    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl()));
+    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
     shortLinkIcon.style.cursor = "pointer";
     shortLinkContainer.appendChild(shortLinkIcon);
 
