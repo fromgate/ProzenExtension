@@ -309,7 +309,7 @@ function generateExcelExport(){
                 fileExcel.Sheets[cfgSheets[sheet]] = XLSX.utils.aoa_to_sheet(arData);
             });
 
-            var fileExcelOutput = XLSX.write(fileExcel, {bookType:'xlsx', type: 'binary'});
+            const fileExcelOutput = XLSX.write(fileExcel, {bookType: 'xlsx', type: 'binary'});
             let now = new Date();
 
             // YYYYMMDDTHHMMSS
