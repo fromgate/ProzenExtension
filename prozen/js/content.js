@@ -988,7 +988,7 @@ async function addInformerBlock() {
         informerContent.appendChild(allNone);
     }
 
-    if (bannedUsers) {
+    if (!!bannedUsers && !!bannedUsers.bannedUsers) {
         const banCount = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         banCount.innerText = `Заблокировано читателей: ${bannedUsers.bannedUsers.length}`;
         banCount.setAttribute("title", "Количество заблокированных комментаторов");

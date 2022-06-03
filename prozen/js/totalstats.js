@@ -34,6 +34,7 @@ main();
 async function main() {
     picker.setDateRange("30-05-2017", Date());
     document.getElementById("range-filter").onclick = showStatsByRange;
+    document.getElementById("excel-export").onclick = excelExport;
     showSpinner();
     token = await getToken();
     publisherId = await getPublisherId();
@@ -41,6 +42,7 @@ async function main() {
     const stats = countStats();
     showStats(stats);
     hideSpinner();
+
 }
 
 function getToken() {
@@ -176,6 +178,161 @@ function countStats() {
     stats.set("total", total);
     return stats;
 }
+
+/**
+ * returns HH:MM:SS / MM:SS
+ * see withHours boolean parameter
+ */
+function getStrTime(secondsTot, withHours){
+    if(isNaN(parseInt(secondsTot))){
+        return 0;
+    }
+
+    secondsTot = parseInt(secondsTot);
+
+    let res = !!withHours ? 'HH:MM:SS' : 'MM:SS';
+    let minutesTot = parseInt( secondsTot / 60);
+    let _roundSec = minutesTot * 60;
+    let sec = secondsTot  - _roundSec;
+    let strSec =  String(sec).padStart(2,'0');
+
+    let hours = parseInt(minutesTot / 60);
+    let _roundMin = hours * 60;
+    let min = minutesTot - _roundMin;
+    let strMin = String(min).padStart(2,'0');
+    let strHours = String(hours).padStart(2,'0');
+
+    res = res.replace('SS', strSec).replace('MM',strMin).replace('HH', strHours);
+    return res;
+}
+
+
+function getExcelData(type){
+
+    if(!publications){        
+        return ['no result'];
+    }
+
+    let pubs = publications.filter(pub => !!pub.content && pub.content.type == type);
+    
+    let arResult = [];
+    
+    switch(type){
+        case 'article': case 'gif':
+
+        let firstCol = type == 'article' ? 'Статья' : 'Видео';
+        arResult.push([firstCol,'Показы','Просмотры','Дочитывания','Время (среднее)']);
+        
+        pubs.map(function(article){
+            let arRow = [];
+            arRow.push(article.content.title);
+
+            if(!!article.privateData && !!article.privateData.statistics){
+                arRow.push(article.privateData.statistics.feedShows);
+                arRow.push(article.privateData.statistics.views);
+                arRow.push(article.privateData.statistics.viewsTillEnd);
+                arRow.push(getStrTime(article.privateData.statistics.sumViewTimeSec / article.privateData.statistics.viewsTillEnd, false));
+            }
+            
+            arResult.push(arRow);
+        });
+            
+        break;
+        case 'brief':
+            arResult.push(['Пост','Показы','Просмотры','Дочитывания']);
+           
+            pubs.map(function(article){
+                let arRow = [];
+                arRow.push(article.content.title);
+                if(!!article.privateData && !!article.privateData.statistics){
+                    arRow.push(article.privateData.statistics.feedShows);
+                    arRow.push(article.privateData.statistics.views);
+                    arRow.push(article.privateData.statistics.viewsTillEnd);
+                }
+                
+                arResult.push(arRow);
+            })
+
+        break;
+            
+        default:
+        break;
+    }
+
+    return arResult;
+
+}
+
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+}
+
+function excelExport(){
+    document.getElementById('excel-msg').innerText="Waiting excel generation...";
+
+
+    generateExcelExport().then(function(){
+        document.getElementById('excel-msg').innerText = "";        
+    })
+    .catch(function(e){
+        document.getElementById('excel-msg').innerText = e;
+
+    });
+}
+
+function generateExcelExport(){
+
+    return new Promise(function(resolve, reject){
+
+        try{
+            let fileExcel = XLSX.utils.book_new();
+
+            const cfgSheets = {
+                article: "Статьи",
+                brief: "Посты",
+                gif: "Видео" 
+            };
+            
+            fileExcel.Props = {
+                Title: "PROZEN stats",
+                Subject: "Stats",
+                Author: "PROZEN ext",
+                CreatedDate: new Date()
+            };
+
+            Object.keys(cfgSheets).map(function(sheet){
+                fileExcel.SheetNames.push(cfgSheets[sheet]);
+                let arData = getExcelData(sheet);
+                fileExcel.Sheets[cfgSheets[sheet]] = XLSX.utils.aoa_to_sheet(arData);
+            });
+
+            var fileExcelOutput = XLSX.write(fileExcel, {bookType:'xlsx', type: 'binary'});
+            let now = new Date();
+
+            // YYYYMMDDTHHMMSS
+            let strTimestamp =  now.getFullYear()            
+            + String(now.getMonth()+1).padStart(2,'0') 
+            + String(now.getDate()).padStart(2,'0')  
+            + 'T'
+            + String(now.getHours()).padStart(2,'0')
+            + String(now.getMinutes()).padStart(2,'0')
+            + String(now.getSeconds()).padStart(2,'0')
+            ;
+            saveAs(new Blob([s2ab(fileExcelOutput)],{type:"application/octet-stream"}), 'prozen-stats-'+ strTimestamp +'.xlsx');
+            resolve(true);
+           
+        }catch(e){
+            reject('ERROR in excel export: ' + e.message)
+        }
+
+    });
+
+    
+}
+
 
 /* Deprecated */
 async function getStats(publicationType) {
