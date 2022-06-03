@@ -287,7 +287,7 @@ function updateStudioBalance(balanceElement) {
 
 // Поддержка Студии
 function isStudio() {
-    return document.getElementsByClassName("author-studio-layout__content").length > 0;
+    return document.getElementsByClassName("author-studio-layout__content-3n").length > 0;
 }
 
 async function addStudioMenu() {
@@ -301,63 +301,62 @@ async function addStudioMenu() {
         oldStudioMenu = null;
     }
 
-    const fullSize = document.documentElement.clientHeight > 626;
-    const addition = fullSize ? "" : "\nДобавлено расширением продзен";
-
+    /* const fullSize = document.documentElement.clientHeight > 626;
+    const addition = fullSize ? "" : "\nДобавлено расширением «Продзен»"; */
+    const addition = "\nДобавлено расширением «Продзен»";
     if (oldStudioMenu == null) {
-        const navbars = document.getElementsByClassName("navbar__nav-list");
-        const prozenMenu = createElement("ul", "navbar__nav-list prozen_navbar");
+        const navBarContent = document.querySelector("div.navbar__content-2E");
+        const navBarSpace = navBarContent.querySelector("div.navbar__space-A3");
+
+        const separator = createElement("div", "navbar__div-fx");
+
+        navBarContent.insertBefore(separator, navBarSpace);
+
+        const prozenMenu = createElement("ul", "navbar__ul-3_ prozen_navbar");
         prozenMenu.id = "prozen-main-menu";
         prozenMenu.setAttribute("data-publisherId", publisherId);
-        if (fullSize) {
+        /* if (fullSize) {
             prozenMenu.appendChild(creatProzenMenuElement("Дополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
-        }
+        }*/
         prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
         prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
         prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
         prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots" + addition));
-        if (fullSize) {
-            prozenMenu.appendChild(creatProzenMenuElement("Служба поддержки", "prozen_support_mail", openUrlNewTab.bind(null, "https://yandex.ru/support/zen/troubleshooting/feedback.html"), "Обратиться в службу поддержки Яндекс.Дзена"));
-        }
-        navbars[0].insertAdjacentElement("afterend", prozenMenu);
+        navBarContent.insertBefore(prozenMenu, navBarSpace);
     }
 }
 
 function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
-    const navItem = createElement("li", "nav-item")
+
+    const navItem = createElement("li")
     if (hint !== null) {
         navItem.setAttribute("title", hint);
     }
-    const menuLine = createElement("div", "navbar__nav-item-content");
+    let menuLine = null
     if (url == null) {
-        const a = createElement("div", "navbar__nav-link")
-        navItem.appendChild(a);
-        a.appendChild(menuLine);
+        menuLine = createElement("div", "navbar__item-2e"); //navbar__nav-link
         bold = true;
     } else if (typeof url === "string") {
-        const a = createElement("a", "navbar__nav-link")
-        a.setAttribute("target", "_blank")
-        a.setAttribute("href", url)
-        navItem.appendChild(a);
-        a.appendChild(menuLine);
+        menuLine = createElement("a", "navbar__item-2e"); // navbar__nav-link
+        menuLine.setAttribute("target", "_blank")
+        menuLine.setAttribute("href", url)
     } else {
-        const a = createElement("a", "navbar__nav-link")
-        a.addEventListener('click', url);
-        a.cursor = "pointer";
-        navItem.appendChild(a);
-        a.appendChild(menuLine);
+        menuLine = createElement("a", "navbar__item-2e")
+        menuLine.addEventListener('click', url);
+        menuLine.cursor = "pointer";
     }
+    navItem.appendChild(menuLine);
 
-    const menuIcon = createElement("span", "navbar__icon");
+    const menuIcon = createElement("div", "navbar__icon-1R"); //navbar__icon
     if (iconClass != null) {
-        const icon = createElement("span", "ui-lib-generic-svg");
+        const icon = createElement("div", "navbar__svg-3j"); //ui-lib-generic-svg
         icon.classList.add(iconClass);
         menuIcon.appendChild(icon);
     }
     menuLine.appendChild(menuIcon);
 
-    const menuText = createElement("span", "Text Text_color_full Text_typography_text-14-18 navbar__text");
+    const menuText = createElement("span", "Text Text_typography_text-14-18 navbar__text-3G"); //Text Text_color_full Text_typography_text-14-18 navbar__text
     menuText.innerText = title;
     menuLine.appendChild(menuText);
     if (bold) {
@@ -464,7 +463,7 @@ function modifyPublicationsGridCell(cell, card) {
         return;
     }
     cell.setAttribute("data-prozen-publication-id", card.id);
-    const date = cell.querySelector("span.Text_typography_text-12-16");
+    const date = cell.querySelector("span.Text_typography_text-12-16");  //Text Text_color_low Text_typography_text-12-16
     date.innerText = card.timeStr + " · ";
     modifyGridCellStats(cell, card);
 }
@@ -531,7 +530,7 @@ function modifyPublicationGrid(requestData) {
                 waitList.push(publicationData);
             }
         } else {
-            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q
+            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q publication-card__link-3k
             modifyPublicationsGridCell(cell, card);
         }
     }
