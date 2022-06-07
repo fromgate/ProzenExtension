@@ -219,11 +219,15 @@ function registerObserverBalance() {
     }
     for (const e of target.querySelectorAll("li[class^=author-studio-info-block__statItem]")) {
         const name = e.querySelector("div.Text_typography_text-12-16").textContent; //"div.author-studio-info-item__stat-item-name"
+        const node = e.childNodes[0];
         if (name === "подписчики" || name === "аудитория") {
-            updateSubscribersAudience(e.childNodes[0]);
+            updateSubscribersAudience(node);
+        }
+        if (name === "просмотрыза 30 дней") {
+            updateStudioViews (node)
         }
         if (name === "баланс") {
-            updateStudioBalance(e.childNodes[0]);
+            updateStudioBalance(node);
             return;
         }
     }
@@ -266,8 +270,16 @@ function setBalanceTooltip(tooltip) {
 function updateSubscribersAudience(subAudElement) {
     if (!subAudElement.hasAttribute("data-prozen-sub-audlink")) {
         subAudElement.addEventListener('click',
-            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat?statType=audience`));
+            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat`));
         subAudElement.setAttribute("data-prozen-sub-audlink", "updated");
+    }
+}
+
+function updateStudioViews(viewsElement) {
+    if (!viewsElement.hasAttribute("data-prozen-views-link")) {
+        viewsElement.addEventListener('click',
+            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat?publicationsSelectedField=typeSpecificViews&statType=publications&campaignsCalcByDate=by-start-date`));
+        viewsElement.setAttribute("data-prozen-views-link", "updated");
     }
 }
 
@@ -579,7 +591,6 @@ function modifyGridCellStats(cell, card) {
 
     const statsBlock = cell.querySelector("div[class^=stats__block]");  //stats__block-39
     removeChilds(statsBlock);
-
 
 
     // Первый ряд
@@ -938,7 +949,7 @@ async function addInformerBlock() {
     informer.id = "prozen-informer";
     column.appendChild(informer);
 
-    const channelUrl = mediaUrl.replace("/media/","/");
+    const channelUrl = mediaUrl.replace("/media/", "/");
 
     const result = await Promise.all([
         checkHasNone(mediaUrl),
@@ -1004,7 +1015,7 @@ async function addInformerBlock() {
 
     // ZenReader Subscribe link
     const zenReaderLink = createElement("a");
-    zenReaderLink.setAttribute("href",zenReaderUrl());
+    zenReaderLink.setAttribute("href", zenReaderUrl());
     const zenReaderSpan = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
     zenReaderSpan.innerText = "🔗 Подписка в ZenReader";
     zenReaderSpan.setAttribute("title", "Ссылка для подписки на канал\nв телеграм-боте ZenReader");
@@ -1016,9 +1027,10 @@ function zenReaderUrl() {
     if (data.publisher.nickname === undefined) {
         return `https://t.me/zenreaderbot?start=id-${publisherId}`;
     } else {
-        return `https://t.me/zenreaderbot?start=${data.publisher.nickname.raw.replace(".","-")}`;
+        return `https://t.me/zenreaderbot?start=${data.publisher.nickname.raw.replace(".", "-")}`;
     }
 }
+
 class Card {
     constructor(publicationData, publicationUrl) {
         this.title = publicationData.content.title;
