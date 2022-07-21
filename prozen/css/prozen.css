@@ -387,6 +387,17 @@ html body .ui-lib-header__item._type_left {
     opacity: 70%;
 }
 
+.prozen_studio_card_icon_repost {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='12' height='12'%3E%3Cdefs%3E%3Csymbol xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' id='repost_07ba--inline'%3E%3Cpath d='M13.293 22.707a1 1 0 0 1 0-1.414L16.586 18H12v-2h4.586l-3.293-3.293a1 1 0 0 1 1.414-1.414l4.994 4.994.016.015a.997.997 0 0 1 0 1.396l-.016.015-4.994 4.994a1 1 0 0 1-1.414 0ZM19 4a1 1 0 1 0 0-2h-7v2h7ZM6 10a6 6 0 0 1 6-6V2a8 8 0 1 0 0 16v-2a6 6 0 0 1-6-6Z' fill='currentColor'%3E%3C/path%3E%3C/symbol%3E%3C/defs%3E%3Cg%3E%3Cpath d='M13.293 22.707a1 1 0 0 1 0-1.414L16.586 18H12v-2h4.586l-3.293-3.293a1 1 0 0 1 1.414-1.414l4.994 4.994.016.015a.997.997 0 0 1 0 1.396l-.016.015-4.994 4.994a1 1 0 0 1-1.414 0ZM19 4a1 1 0 1 0 0-2h-7v2h7ZM6 10a6 6 0 0 1 6-6V2a8 8 0 1 0 0 16v-2a6 6 0 0 1-6-6Z' fill='currentColor'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+    top: 1px;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    margin-right: 4px;
+    margin-left: 4px;
+    opacity: 70%;
+}
+
 .prozen_studio_card_icon_clock {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='12px' height='12px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EClock%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-340.000000, -2319.000000)' fill='%23000000'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M302,2169 C302,2164.589 298.411,2161 294,2161 C289.589,2161 286,2164.589 286,2169 C286,2173.411 289.589,2177 294,2177 C298.411,2177 302,2173.411 302,2169 M304,2169 C304,2174.523 299.523,2179 294,2179 C288.477,2179 284,2174.523 284,2169 C284,2163.477 288.477,2159 294,2159 C299.523,2159 304,2163.477 304,2169 M300,2170 C300,2170.552 299.552,2171 299,2171 L295,2171 C293.895,2171 293,2170.105 293,2169 L293,2164 C293,2163.448 293.448,2163 294,2163 C294.552,2163 295,2163.448 295,2164 L295,2168 C295,2168.55 295.45,2169 296,2169 L299,2169 C299.552,2169 300,2169.448 300,2170' id='clock'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     top: 1px;

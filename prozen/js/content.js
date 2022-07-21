@@ -724,16 +724,16 @@ function modifyGridCellStats(cell, card) {
     });
     c4r2.appendChild(c4r2Link);
 
-    const c4r2Tags = createElement("span", "prozen_studio_card_icon_tags");
-    c4r2Tags.style.marginRight = "0px";
-    c4r2Tags.style.marginLeft = "5px";
-    const tagsHint = card.tags.length === 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
-    c4r2Tags.setAttribute("title", tagsHint);
-    c4r2Tags.addEventListener('click', event => {
-        copyTextToClipboard(card.tagsStr);
+    const c4r2Repost = createElement("span", "prozen_studio_card_icon_repost");
+    c4r2Repost.style.marginRight = "0px";
+    c4r2Repost.style.marginLeft = "5px";
+    c4r2Repost.setAttribute("title", "Сделать репост публикации");
+    c4r2Repost.addEventListener('click', event => {
+        openUrl(`https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
         event.preventDefault();
     });
-    c4r2.appendChild(c4r2Tags);
+    c4r2.appendChild(c4r2Repost);
+
 
     col4.appendChild(c4r2);
     c4r2.style.zIndex = "14";
@@ -842,33 +842,26 @@ function modifyPublicationsCard(publicationItemStats, card) {
     const c3r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r3.style.textAlign = "right";
     c3r3.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
-    // Теги
-    const c3r3IconTags = createElement("span", "prozen_studio_card_icon_tags");
-    c3r3IconTags.addEventListener('click', event => {
-        copyTextToClipboard(card.tagsStr);
-        event.preventDefault();
-    });
-    c3r3.appendChild(c3r3IconTags);
-
-    const tagList = card.tags.length === 0 ? "Теги не указаны" : `Теги: ${card.tagsStr}`;
-    c3r3IconTags.setAttribute("title", tagList)
-
 
     // Ссылка
     const c3r3IconLink = createElement("span", "prozen_studio_card_icon_link");
     c3r3.appendChild(c3r3IconLink);
-
     const shortUrl = `https://zen.yandex.ru/media/id/${publisherId}/${card.id}`
-
-    /* const shortUrl = mediaUrl != null ?
-        (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
-        : card.shortUrl; */
     c3r3IconLink.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
     });
-    col3.appendChild(c3r3);
 
+    // Репост
+    const c3r3IconRepost = createElement("span", "prozen_studio_card_icon_repost");
+    c3r3IconRepost.setAttribute("title", "Сделать репост публикации")
+    c3r3IconRepost.addEventListener('click', event => {
+        openUrl(`https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
+        event.preventDefault();
+    });
+    c3r3.appendChild(c3r3IconRepost);
+
+    col3.appendChild(c3r3);
 
 }
 
