@@ -142,6 +142,10 @@ function copyTextToClipboard(text) {
     document.body.removeChild(copyFrom);
 }
 
+function openUrl (url) {
+    window.open(url);
+}
+
 function checkNoIndex() {
     const metas = document.getElementsByTagName('meta');
     let noindex = false;

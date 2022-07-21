@@ -317,14 +317,15 @@ async function addStudioMenu() {
     const addition = fullSize ? "" : "\nДобавлено расширением «Продзен»"; */
     const addition = "\nДобавлено расширением «Продзен»";
     if (oldStudioMenu == null) {
-        const navBarContent = document.querySelector("div.navbar__content-dQ");
-        const navBarSpace = navBarContent.querySelector("div.navbar__space-O1");
+        const navBarContent = document.querySelector("div[class^=navbar__content]");
 
-        const separator = createElement("div", "navbar__div-YS");
+        const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
+
+        const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
 
         navBarContent.insertBefore(separator, navBarSpace);
 
-        const prozenMenu = createElement("ul", "navbar__ul-1l prozen_navbar");
+        const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
         prozenMenu.id = "prozen-main-menu";
         prozenMenu.setAttribute("data-publisherId", publisherId);
         /* if (fullSize) {
@@ -348,28 +349,28 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     }
     let menuLine = null
     if (url == null) {
-        menuLine = createElement("div", "navbar__item-17"); //navbar__nav-link
+        menuLine = createElement("div", "navbar__item-17 navbar__item-2e"); //navbar__item-2e - старая версия
         bold = true;
     } else if (typeof url === "string") {
-        menuLine = createElement("a", "navbar__item-17"); // navbar__nav-link
+        menuLine = createElement("a", "navbar__item-17 navbar__item-2e"); // navbar__nav-link
         menuLine.setAttribute("target", "_blank")
         menuLine.setAttribute("href", url)
     } else {
-        menuLine = createElement("a", "navbar__item-17")
+        menuLine = createElement("a", "navbar__item-17 navbar__item-2e")
         menuLine.addEventListener('click', url);
         menuLine.cursor = "pointer";
     }
     navItem.appendChild(menuLine);
 
-    const menuIcon = createElement("div", "navbar__icon-1d"); //navbar__icon
+    const menuIcon = createElement("div", "navbar__icon-1d navbar__icon-1R"); //navbar__icon
     if (iconClass != null) {
-        const icon = createElement("div", "navbar__svg-2_"); //ui-lib-generic-svg
+        const icon = createElement("div", "navbar__svg-2_ navbar__svg-3j"); //ui-lib-generic-svg
         icon.classList.add(iconClass);
         menuIcon.appendChild(icon);
     }
     menuLine.appendChild(menuIcon);
 
-    const menuText = createElement("span", "Text Text_typography_text-14-18 navbar__text-pc"); //Text Text_color_full Text_typography_text-14-18 navbar__text
+    const menuText = createElement("span", "Text Text_typography_text-14-18 navbar__text-pc navbar__text-3G"); //Text Text_color_full Text_typography_text-14-18 navbar__text
     menuText.innerText = title;
     menuLine.appendChild(menuText);
     if (bold) {

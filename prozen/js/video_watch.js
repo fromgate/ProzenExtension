@@ -11,7 +11,8 @@ function start() {
                 css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
                 document.head.appendChild(css);
             }
-            showStatsVideo();
+            setTimeout (showStatsVideo, 1000)
+
         }
     });
 }
@@ -29,7 +30,7 @@ async function showStatsVideo() {
     const views = videoData.views;
     const viewsTillEnd = videoData.viewsTillEnd;
 
-    const statsDiv = document.querySelector("div.video-viewer-description__info");
+    const statsDiv = document.querySelector("div.card-channel-info__description");
 
     const spanCreateTime = createElement("span");
     spanCreateTime.innerText = statsDiv.innerText;
@@ -45,6 +46,16 @@ async function showStatsVideo() {
     spanTime.innerText = `  • ⌚ ${secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd))}`;
     spanTime.setAttribute("title", "Среднее время просмотра");
     statsDiv.appendChild(spanTime);
+
+    /*
+    const spanRepost = createElement("span");
+    spanRepost.innerText = "  🖇 ";
+    spanRepost.setAttribute("title", "Сделать репост в своём канале");
+    spanRepost.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${videoId}`));
+    spanRepost.style.cursor = "pointer";
+    spanRepost.style.zIndex = "100";
+    statsDiv.appendChild(spanRepost);
+     */
 
     if (checkNone()) {
         const spanSadRobot = createElement("span");

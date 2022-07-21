@@ -150,7 +150,16 @@ async function showStatsBrief(data, publisherId) {
         spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
+
+        const spanRepost = createElement("span");
+
+        spanRepost.innerText = "  🖇 ";
+        spanRepost.setAttribute("title", "Сделать репост в своём канале");
+        spanRepost.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${postId}`));
+        spanRepost.style.cursor = "pointer";
+        divStat.appendChild(spanRepost);
     }
+
     {
         if (checkNoIndex()) {
             const spanRobot = createElement("span");
@@ -372,6 +381,15 @@ async function showStatsArticle(data, publisherId) {
     shortLinkContainer.appendChild(shortLinkIcon);
 
     elArticleStats.appendChild(shortLinkContainer)
+
+    // Ссылка на репост
+    const repostContainer = createElement("div", "article-stats-view__stats-item");
+    repostContainer.setAttribute("title", "Сделать репост в своём канале");
+    const repostIcon = createElement("span", "publication_repost");
+    repostIcon.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${postId}`));
+    repostIcon.style.cursor = "pointer";
+    repostContainer.appendChild(repostIcon);
+    elArticleStats.appendChild(repostContainer)
 
     // Грустный робот
     if (checkNoIndex()) {
