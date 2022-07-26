@@ -50,6 +50,9 @@ async function showLastPost() {
         const img = document.getElementById("prozen-post-image");
         if (lastPost.image != null && lastPost.image !== "") {
             img.setAttribute("src", lastPost.image);
+        } else {
+            const titleTextEl = document.getElementsByClassName("prozen-popup-title")[0];
+            titleTextEl.style["-webkit-line-clamp"] = "4";
         }
         const title = document.getElementById("prozen-post-title");
         title.innerText = lastPost.title;

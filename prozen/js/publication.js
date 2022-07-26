@@ -318,17 +318,15 @@ async function showStatsArticle(data, publisherId) {
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const hasAdv = document.getElementsByClassName("article-stats-view__block-item").length; // 1 - рекламная статья, 0 - обычная
-
     let articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     const elArticleDate = articleStatsViewRedesignItems[hasAdv];
     elArticleDate.innerText = showTime;
     elArticleDate.setAttribute("title", "Время создания (редактирования)");
 
     if (articleStatsViewRedesignItems.length === 1 + hasAdv) {
-        document.getElementsByClassName("article-stats-view article-stats-view_theme_none")[0].appendChild(createElement("div", "article-stats-view__item"));
+        document.getElementsByClassName("article-stats-view article-stats-view_theme_white")[0].appendChild(createElement("div", "article-stats-view__item"));
         articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     }
-
     const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1]
     elArticleStats.classList.remove("article-stats-view__item_no-opacity");
     removeChilds(elArticleStats);

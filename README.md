@@ -1,6 +1,6 @@
-## Расширенная статистика и дополнительные функции для редактора Яндекс.Дзен
+## Расширенная статистика и дополнительные функции для редактора Дзена
 
-Расширение «Расширенный редактор для Яндекс.Дзен» вносит изменения в страницу стандартного редактора Яндекс.Дзен (`https://zen.yandex.ru/profile/editor/*`) и дополняет его следующими возможностями:
+Расширение «Расширенный редактор для Дзена» вносит изменения в страницу стандартного редактора Дзена (`https://zen.yandex.ru/profile/editor/*`) и дополняет его следующими возможностями:
 
 * Расширенная статистика на карточках публикаций. Отображается вместо стандартной информации о показах, просмотрах, просмотрах подписчиков, CTR и т.д.
 * Отображение суммы заработанных денежных средств с точностью до копеек. 
@@ -9,22 +9,26 @@
 * Функция поиска по заголовку и лиду (первые 1000 символов публикации), с возможностью фильтрации по типу и дате публикации.
 * Полная статистика. Отчёт по количеству публикаций в разрезе типов публикации, с возможностью просмотреть публикацию за заданный период.
 * Дополнительное меню расширения, добавляющее кнопки: Поиск, Яндекс.Метрика, Поиск noindex, Полная статистика.
+* Возможность создания репоста публикации из редактора или со страницы публикации (статьи или поста). 
 
 Полное описание расширения доступно [здесь](https://prozen.ru/prozen-extension/?utm_source=github_prozen).
 
 ## Установка расширения
-Установить расширением можно из официальных каталогов Google Chrome и Mozilla Firefox:
+Установить расширением можно из официальных каталогов браузеров:
 
-* [Установить для Google Chrome](https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)
-* [Установить для Mozilla Firefox](https://addons.mozilla.org/ru/firefox/addon/prozen-for-yandex-zen/)
-* [Установить для Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/jllkbelkmfedpblbkegkbijkmcobhlkp)
-* В других браузерах, совместимых с Chrome можно использовать версию для Google Chrome. Браузеру Opera может потребоваться дополнительное расширение [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) и установить расширение из маркета [Chrome]((https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)).
+* [Google Chrome](https://chrome.google.com/webstore/detail/hmkjibbpjalbkmlibggaoafocjoikcji/)
+* [Mozilla Firefox](https://addons.mozilla.org/ru/firefox/addon/prozen-for-yandex-zen/)
+* [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/jllkbelkmfedpblbkegkbijkmcobhlkp)
+
+В других браузерах, совместимых с Chrome, например Vivaldi или Яндекс Браузер, можно использовать версию для Google Chrome.
+
+Браузеру Opera может потребоваться дополнительное расширение [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/).
 
 ## Создано в Intellij IDEA
 ![Intellij IDEA logo](https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.png)
 
-## Расширение не является официальным расширением Яндекс.Дзен
+## Расширение не является официальным расширением Дзена
 
-ДАННОЕ РАСШИРЕНИЕ НЕ ЯВЛЯЕТСЯ ОФИЦИАЛЬНЫМ, НЕ СВЯЗАНО С ЯНДЕКС.ДЗЕН ИЛИ КОМПАНИЕЙ ЯНДЕКС.
+ДАННОЕ РАСШИРЕНИЕ НЕ ЯВЛЯЕТСЯ ОФИЦИАЛЬНЫМ, НЕ СВЯЗАНО С КОМПАНИЕЙ ЯНДЕКС ИЛИ ДЗЕН ПЛАТФОРМОЙ.
  
-ОНО СОЗДАНО АВТОРАМИ ДЗЕН В ПОМОЩЬ ДРУГИМ АВТОРАМ.
+ОНО СОЗДАНО АВТОРОМ ДЗЕНА В ПОМОЩЬ ДРУГИМ АВТОРАМ.
