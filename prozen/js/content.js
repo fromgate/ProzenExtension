@@ -11,7 +11,6 @@ let moneyDate;
 let oldHref = window.location.href;
 let observerWindowLocationHref;
 let observerInfoBlockStats;
-let observerBalanceTooltip;
 
 start();
 
@@ -60,7 +59,7 @@ function main(updatedId = null) {
                 registerObserverWindowsLocation();
                 registerObserverBalance();
                 listenToRequests();
-                addInformerBlock();
+                setTimeout(addInformerBlock, 500);
             }
             break;
         case "publications":
@@ -187,45 +186,16 @@ function registerObserverWindowsLocation() {
     observerWindowLocationHref.observe(bodyList, config);
 }
 
-// Вывод подсказки для баланса
-function registerObserverBalanceTooltip(ariaDescribedBy) {
-    const target = document.querySelector("body");
-    if (observerBalanceTooltip !== undefined) {
-        observerBalanceTooltip.disconnect();
-    }
-    observerBalanceTooltip = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-                mutation.addedNodes.forEach(e => {
-                    if (e.tagName === "DIV" && e.classList.contains("author-studio-info-item-desktop")) {
-                        if (e.childNodes.length > 0 && e.childNodes[0].id === ariaDescribedBy) {
-                            setBalanceTooltip(e.childNodes[0]);
-                            observerBalanceTooltip.disconnect();
-                        }
-                    }
-                });
-            }
-        });
-    });
-    observerBalanceTooltip.observe(target, {childList: true});
-}
-
 // Отображение баланса
 function registerObserverBalance() {
-    const target = document.querySelector("ul[class^=author-studio-info-block__stats]");
+    const target = document.querySelector("div[class^=stats__statsContainer-]");
     if (target == null) {
         setTimeout(registerObserverBalance, 500);
         return;
     }
-    for (const e of target.querySelectorAll("li[class^=author-studio-info-block__statItem]")) {
-        const name = e.querySelector("div.Text_typography_text-12-16").textContent; //"div.author-studio-info-item__stat-item-name"
-        const node = e.childNodes[0];
-        if (name === "подписчики" || name === "аудитория") {
-            updateSubscribersAudience(node);
-        }
-        if (name === "просмотрыза 30 дней") {
-            updateStudioViews (node)
-        }
+    for (const e of target.querySelectorAll("a[class^=item__statItemCompact-]")) {
+        const name = e.querySelector("div.Text_typography_text-13-16").textContent; //"div.author-studio-info-item__stat-item-name"
+        const node = e.querySelector("div.Text_typography_headline-20-24"); // e.childNodes[0];
         if (name === "баланс") {
             updateStudioBalance(node);
             return;
@@ -239,10 +209,11 @@ function registerObserverBalance() {
         mutations.forEach(mutation => {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                 mutation.addedNodes.forEach(e => {
-                    if (e.tagName === "LI") {
-                        const name = e.querySelector("div.Text_typography_text-12-16").textContent; //"div.author-studio-info-item__stat-item-name"
+                    if (e.tagName === "A") {
+                        const name = e.querySelector("div.Text_typography_text-13-16").textContent;
                         if (name === "баланс") {
-                            updateStudioBalance(e.childNodes[0]);
+                            const node = e.querySelector("div.Text_typography_headline-20-24");
+                            updateStudioBalance(node);
                             observerInfoBlockStats.disconnect();
                         }
                     }
@@ -253,47 +224,11 @@ function registerObserverBalance() {
     observerInfoBlockStats.observe(target, {childList: true});
 }
 
-
-function setBalanceTooltip(tooltip) {
-    if (document.getElementById("prozen-money-date") != null || document.getElementById("prozen-money-total")) {
-        return;
-    }
-    const messageDiv = tooltip.getElementsByClassName("author-studio-info-item-hint")[0];
-    if (moneyTotal != null) {
-        const p = createElement("p", "Text Text_typography_text-14-18 author-studio-info-item-hint__text");
-        p.id = "prozen-money-total";
-        p.innerText = `Всего: ${moneyTotal} ₽`;
-        messageDiv.appendChild(p);
-    }
-}
-
-function updateSubscribersAudience(subAudElement) {
-    if (!subAudElement.hasAttribute("data-prozen-sub-audlink")) {
-        subAudElement.addEventListener('click',
-            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat`));
-        subAudElement.setAttribute("data-prozen-sub-audlink", "updated");
-    }
-}
-
-function updateStudioViews(viewsElement) {
-    if (!viewsElement.hasAttribute("data-prozen-views-link")) {
-        viewsElement.addEventListener('click',
-            openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/publications-stat?publicationsSelectedField=typeSpecificViews&statType=publications&campaignsCalcByDate=by-start-date`));
-        viewsElement.setAttribute("data-prozen-views-link", "updated");
-    }
-}
-
 function updateStudioBalance(balanceElement) {
-    if (!balanceElement.hasAttribute("aria-describedby")) {
-        return;
-    }
-    balanceElement.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/profile/editor/id/${publisherId}/money/`));
-
     if (moneySaldo != null) {
-        balanceElement.getElementsByClassName("Text_typography_headline-20-24")[0].innerText = moneySaldo; //author-studio-info-item__stat-item-value
+        balanceElement.innerText = moneySaldo;
+        balanceElement.setAttribute("title",`Всего: ${moneyTotal} ₽`);
     }
-    const ariaDescribedBy = balanceElement.getAttribute("aria-describedby");
-    registerObserverBalanceTooltip(ariaDescribedBy);
 }
 
 
@@ -449,6 +384,13 @@ function backgroundListener(request) {
         } else if (pageType === "publications") {
             processPublicationsCards(request);
         }
+    } else if (request.type === "prozen-mainpage-request") {
+        publisherId = request.publisherId;
+        token = request.token;
+        const pageType = getPageType();
+        if (pageType === "main") {
+            processDashboardCards(request.pageSize);
+        }
     }
 }
 
@@ -557,8 +499,8 @@ function modifyPublicationGrid(requestData) {
 
 async function processDashboardCards(pageSize) {
     const data = await getPublicationsByFilterAndSubscribers(pageSize);
-    const studioPublicationsBlock = document.getElementsByClassName("author-studio-publications-block")[0];
-    const publicationsBlocks = studioPublicationsBlock.getElementsByClassName("author-studio-publication-item");
+    const studioPublicationsBlock = document.querySelector("div[class^=last-publications__lastPublications-] > div")//document.getElementsByClassName("author-studio-publications-block")[0];
+    const publicationsBlocks = studioPublicationsBlock.querySelectorAll("a");
     if (publicationsBlocks.length > 0) {
         for (let i = 0; i < publicationsBlocks.length; i++) {
             const publicationBlock = publicationsBlocks.item(i);
@@ -872,11 +814,10 @@ function modifyDashboardCard(publicationBlock, card) {
        Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
      */
 
-    const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
+    // const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
+    const timeBlock = publicationBlock.querySelector("div[class^=last-publication__titleContainer] > span")
     timeBlock.innerText = card.timeStr;
-    //timeBlock.style.opacity = 1;
-
-    const publicationItemStats = publicationBlock.getElementsByClassName("author-studio-publication-item__stats")[0];
+    const publicationItemStats = publicationBlock.querySelector("div[class^=last-publication__publicationStat-]");
     removeChilds(publicationItemStats);
     modifyPublicationsCard(publicationItemStats, card);
 }
@@ -935,7 +876,7 @@ async function addInformerBlock() {
         return;
     }
 
-    const column = document.getElementsByClassName("author-studio-main__right-column")[0];
+    const column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
     if (column == null) {
         return;
     }
@@ -943,6 +884,7 @@ async function addInformerBlock() {
     const informer = createElement("div", "author-studio-block__block-1a");
     informer.id = "prozen-informer";
     column.appendChild(informer);
+    informer.style.marginTop = "16px";
 
     const channelUrl = mediaUrl.replace("/media/", "/");
 
