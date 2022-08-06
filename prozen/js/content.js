@@ -10,7 +10,6 @@ let moneyDate;
 
 let oldHref = window.location.href;
 let observerWindowLocationHref;
-let observerInfoBlockStats;
 
 start();
 
@@ -57,9 +56,9 @@ function main(updatedId = null) {
                 hideComments();
                 addStudioMenu();
                 registerObserverWindowsLocation();
-                registerObserverBalance();
+                updateBalanceBlock();
                 listenToRequests();
-                setTimeout(addInformerBlock, 500);
+                setTimeout(addInformerBlock, 600);
             }
             break;
         case "publications":
@@ -187,48 +186,27 @@ function registerObserverWindowsLocation() {
 }
 
 // Отображение баланса
-function registerObserverBalance() {
+function updateBalanceBlock(count= 0) {
     const target = document.querySelector("div[class^=stats__statsContainer-]");
-    if (target == null) {
-        setTimeout(registerObserverBalance, 500);
-        return;
-    }
-    for (const e of target.querySelectorAll("a[class^=item__statItemCompact-]")) {
-        const name = e.querySelector("div.Text_typography_text-13-16").textContent; //"div.author-studio-info-item__stat-item-name"
-        const node = e.querySelector("div.Text_typography_headline-20-24"); // e.childNodes[0];
-        if (name === "баланс") {
-            updateStudioBalance(node);
-            return;
+    if (target != null && count < 5) {
+        const a = target.querySelector("a[class^=item__statItemCompact-]");
+        if (a != null) {
+            const nameBlock = a.querySelector("div.Text_typography_text-13-16");
+            if (nameBlock != null) {
+                const name = nameBlock.textContent;
+                const balanceElement = a.querySelector("div.Text_typography_headline-20-24");
+                if (name === "баланс") {
+                    if (moneySaldo != null) {
+                        balanceElement.innerText = `${moneySaldo} ₽`;
+                        balanceElement.setAttribute("title", `Всего: ${moneyTotal} ₽`);
+                        nameBlock.innerText = `баланс на ${moneyDate}`;
+                    }
+                    return;
+                }
+            }
         }
     }
-
-    if (observerInfoBlockStats !== undefined) {
-        observerInfoBlockStats.disconnect();
-    }
-    observerInfoBlockStats = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-                mutation.addedNodes.forEach(e => {
-                    if (e.tagName === "A") {
-                        const name = e.querySelector("div.Text_typography_text-13-16").textContent;
-                        if (name === "баланс") {
-                            const node = e.querySelector("div.Text_typography_headline-20-24");
-                            updateStudioBalance(node);
-                            observerInfoBlockStats.disconnect();
-                        }
-                    }
-                });
-            }
-        });
-    });
-    observerInfoBlockStats.observe(target, {childList: true});
-}
-
-function updateStudioBalance(balanceElement) {
-    if (moneySaldo != null) {
-        balanceElement.innerText = moneySaldo;
-        balanceElement.setAttribute("title",`Всего: ${moneyTotal} ₽`);
-    }
+    setTimeout(updateBalanceBlock.bind(null, count + 1), 1000);
 }
 
 
@@ -247,31 +225,66 @@ async function addStudioMenu() {
         oldStudioMenu.parentNode.removeChild(oldStudioMenu);
         oldStudioMenu = null;
     }
-
-    /* const fullSize = document.documentElement.clientHeight > 626;
-    const addition = fullSize ? "" : "\nДобавлено расширением «Продзен»"; */
-    const addition = "\nДобавлено расширением «Продзен»";
     if (oldStudioMenu == null) {
-        const navBarContent = document.querySelector("div[class^=navbar__content]");
-
-        const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
-
-        const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
-
-        navBarContent.insertBefore(separator, navBarSpace);
-
-        const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
-        prozenMenu.id = "prozen-main-menu";
-        prozenMenu.setAttribute("data-publisherId", publisherId);
-        /* if (fullSize) {
-            prozenMenu.appendChild(creatProzenMenuElement("Дополнительно", null, null, "Добавлено расширением ПРОДЗЕН", true));
-        }*/
-        prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
-        prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
-        prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
-        prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots" + addition));
-        navBarContent.insertBefore(prozenMenu, navBarSpace);
+
+        if (document.documentElement.clientHeight > 777) {
+            const addition = "\nДобавлено расширением «Продзен»";
+            const navBarContent = document.querySelector("div[class^=navbar__content]");
+            const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
+            const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
+            navBarContent.insertBefore(separator, navBarSpace);
+            const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
+            prozenMenu.id = "prozen-main-menu";
+            prozenMenu.setAttribute("data-publisherId", publisherId);
+            prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
+            prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
+            prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
+            prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots" + addition));
+            navBarContent.insertBefore(prozenMenu, navBarSpace);
+        } else {
+            const column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
+            if (column == null) {
+                return;
+            }
+            const menu = createElement("div", "pager__container-Hn");
+            menu.id = "prozen-main-menu";
+            menu.setAttribute("data-publisherId", publisherId);
+            column.appendChild(menu);
+            menu.style.marginTop = "16px";
+
+            const menuContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
+            menu.appendChild(menuContent);
+
+            const menuH3 = createElement("div", "Text Text_align_center Text_weight_medium Text_typography_text-16-20");
+            menuH3.innerText = "Дополнительное меню";
+            menuH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
+            menuContent.appendChild(menuH3);
+
+            const menuStats = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
+            menuStats.innerText = "Полная статистика";
+            menuStats.addEventListener('click', clickTotalStatsButton);
+            menuStats.style.cursor = "pointer";
+            menuContent.appendChild(menuStats);
+
+            const menuMetriks = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
+            menuMetriks.innerText = "Метрика";
+            menuMetriks.style.cursor = "pointer";
+            menuMetriks.addEventListener('click', window.open.bind(null, metriksUrl));
+            menuContent.appendChild(menuMetriks);
+
+            const menuSearch = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
+            menuSearch.innerText = "Поиск";
+            menuSearch.addEventListener('click', clickSearchButton);
+            menuSearch.style.cursor = "pointer";
+            menuContent.appendChild(menuSearch);
+
+            const menuNoindex = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
+            menuNoindex.innerText = "Проверка noindex";
+            menuNoindex.addEventListener('click', clickFindSadRobots);
+            menuNoindex.style.cursor = "pointer";
+            menuContent.appendChild(menuNoindex);
+        }
     }
 }
 
@@ -881,15 +894,14 @@ async function addInformerBlock() {
         return;
     }
 
-    const informer = createElement("div", "author-studio-block__block-1a");
+    const informer = createElement("div", "pager__container-Hn");
     informer.id = "prozen-informer";
     column.appendChild(informer);
     informer.style.marginTop = "16px";
 
     const channelUrl = mediaUrl.replace("/media/", "/");
-
     const result = await Promise.all([
-        checkHasNone(mediaUrl),
+        checkHasNoneUrl(channelUrl),
         getStatsActuality(), // getStatsInfo(), // getStatsInfoAndCounter()
         getStrikesInfo(),
         getBannedUsers()
@@ -899,18 +911,19 @@ async function addInformerBlock() {
     const actuality = result [1]; // const statsInfo = result[1];
     const strikesInfo = result[2];
     const bannedUsers = result[3];
-
-    const informerContent = createElement("div", "author-studio-useful-articles-block");
+    const informerContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
     informer.appendChild(informerContent);
 
-    const informerH3 = createElement("h3", "Text Text_weight_bold Text_color_full Text_typography_text-16-20 author-studio-useful-articles-block__title");
+    const informerH3 = createElement("div", "Text Text_align_center Text_weight_medium Text_typography_text-16-20");
     informerH3.innerText = "ПРОДЗЕН-инфо";
     informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
 
     informerContent.appendChild(informerH3);
 
     if (strikesInfo.limitations != null) {
-        const informerStrikes = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        //Text Text_align_center Text_typography_text-14-18 notification__text-3n
+        //Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title
+        const informerStrikes = createElement("span", "Text Text_typography_text-14-18 notification__text-3n prozen-mb5-block");
         informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerStrikes);
