@@ -403,6 +403,8 @@ function backgroundListener(request) {
         const pageType = getPageType();
         if (pageType === "main") {
             processDashboardCards(request.pageSize);
+        } else if (pageType === "publications") {
+            processPublicationsCards(request);
         }
     }
 }
@@ -828,7 +830,7 @@ function modifyDashboardCard(publicationBlock, card) {
      */
 
     // const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
-    const timeBlock = publicationBlock.querySelector("div[class^=last-publication__titleContainer] > span")
+    const timeBlock = publicationBlock.querySelector("div[class^=last-publication__titleContainer] > span");
     timeBlock.innerText = card.timeStr;
     const publicationItemStats = publicationBlock.querySelector("div[class^=last-publication__publicationStat-]");
     removeChilds(publicationItemStats);

@@ -74,11 +74,14 @@ function registerMainPageRequestListener() {
                     state: urlParams.get("state"),
                     token: token
                 };
+                if (urlParams.has("view")) {
+                    data.view = urlParams.get("view")
+                }
                 chrome.tabs.sendMessage(details.tabId, data);
             }
         }, {
             urls: [
-                "https://zen.yandex.ru/editor-api/v3/publications?publisherId=*"
+                "https://zen.yandex.ru/editor-api/v3/publications?*" //"https://zen.yandex.ru/editor-api/v3/publications?publisherId=*"
             ]
         },
         ["requestHeaders"]);
