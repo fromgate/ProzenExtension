@@ -1,4 +1,4 @@
-const ZEN_API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
+const ZEN_API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&";
 
 class Channel {
     constructor(id, useShortname) {
@@ -24,7 +24,7 @@ class Channel {
     }
 
     getUrl() {
-        return `https://zen.yandex.ru/${this.useShortname ? id : "id/" + this.id}`;
+        return `https://dzen.ru/${this.useShortname ? id : "id/" + this.id}`;
     }
 
     stripHtml(str) {

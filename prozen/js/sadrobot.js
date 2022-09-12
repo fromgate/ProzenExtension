@@ -1,4 +1,4 @@
-const API_URL = "https://zen.yandex.ru/api/v3/launcher/more?country_code=ru&clid=700&";
+const API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&";
 const NOINDEX_KEY = "prozen-noindex-agree-";
 const ROBOTS_NOINDEX = "noindex"
 const ROBOTS_OK = "ok"

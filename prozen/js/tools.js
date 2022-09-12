@@ -177,7 +177,7 @@ function shortUrl(publisherId) {
     url = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
     if (publisherId != null) {
         const urlParts = url.split("/")
-        url = `https://zen.yandex.ru/media/id/${publisherId}/${urlParts[urlParts.length - 1]}`
+        url = `https://dzen.ru/media/id/${publisherId}/${urlParts[urlParts.length - 1]}`
     }
     return url
 }

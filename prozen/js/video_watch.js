@@ -51,7 +51,7 @@ async function showStatsVideo() {
     const spanRepost = createElement("span");
     spanRepost.innerText = "  🖇 ";
     spanRepost.setAttribute("title", "Сделать репост в своём канале");
-    spanRepost.addEventListener('click', openUrl.bind(null, `https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${videoId}`));
+    spanRepost.addEventListener('click', openUrl.bind(null, `https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${videoId}`));
     spanRepost.style.cursor = "pointer";
     spanRepost.style.zIndex = "100";
     statsDiv.appendChild(spanRepost);

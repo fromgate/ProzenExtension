@@ -186,7 +186,7 @@ function registerObserverWindowsLocation() {
 }
 
 // Отображение баланса
-function updateBalanceBlock(count= 0) {
+function updateBalanceBlock(count = 0) {
     const target = document.querySelector("div[class^=stats__statsContainer-]");
     if (target != null && count < 5) {
         const a = target.querySelector("a[class^=item__statItemCompact-]");
@@ -409,12 +409,37 @@ function backgroundListener(request) {
     }
 }
 
+function getDataById(publicationId, dataArray) {
+
+}
+
+function publicationsDataToCards(requestData) {
+    const cards = []
+    const publications = requestData.publications
+    const publicationCounters = requestData.publicationCounters
+    const socialCounters = requestData.socialCounters
+    if (publications.length > 0) {
+        for (let i = 0; i < publications.length; i++) {
+            const merged = {
+                ...publications[i],
+                ...(publicationCounters.find((itmInner) => itmInner.publicationId === publications[i].id)),
+                ...(socialCounters.find((itmInner) => itmInner.publicationId === publications[i].id))
+            }
+            const card = Card.createCardFromPublicationData2(merged);
+            cards.push(card);
+        }
+    }
+    return cards
+}
+
+
 async function processPublicationsCards(request) {
-    const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.query);
+    const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.view);
+    const cards = publicationsDataToCards(data)
     if (isPublicationGrid()) {
-        modifyPublicationGrid(data.publications);
+        modifyPublicationGrid(cards);
     } else {
-        modifyPublicationTable(data.publications);
+        modifyPublicationTable(cards);
     }
 }
 
@@ -461,20 +486,20 @@ function modifyPublicationsCell(cell, card) {
     modifyPublicationsCard(publicationItemStats, card);
 }
 
-function modifyPublicationTable(requestData) {
+function modifyPublicationTable(cards) {
     if (isPublicationGrid()) {
         return;
     }
     const waitList = []
-    for (let i = 0; i < requestData.length; i++) {
-        const publicationData = requestData[i];
-        const cell = getPublicationCellById(publicationData.id);
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const cell = getPublicationCellById(card.id);
         if (cell == null) {
-            if (!["post", "narrative", "story"].includes(publicationData.content.type)) {
-                waitList.push(publicationData);
+            if (!["post", "narrative", "story"].includes(card.type)) {
+                waitList.push(card);
             }
         } else {
-            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-preview]").href);
+            // const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-preview]").href);
             modifyPublicationsCell(cell, card);
             /*
             if (card.subscribersViews == null || card.subscribersViews === 0) {
@@ -487,21 +512,28 @@ function modifyPublicationTable(requestData) {
     }
 }
 
+function publicationsToCards(requestData) {
+    const publicationCounters = requestData.publicationCounters;
+    for (let i = 0; i < publicationCounters; i++) {
+        const publicationStats = publicationCounters[i];
 
-function modifyPublicationGrid(requestData) {
+    }
+}
+
+function modifyPublicationGrid(cards) {
     if (!isPublicationGrid()) {
         return;
     }
     const waitList = []
-    for (let i = 0; i < requestData.length; i++) {
-        const publicationData = requestData[i];
-        const cell = getPublicationGridCellById(publicationData.id);
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const cell = getPublicationGridCellById(card.id);
         if (cell == null) {
-            if (!["post", "narrative", "story"].includes(publicationData.content.type)) {
-                waitList.push(publicationData);
+            if (!["post", "narrative", "story"].includes(card.type)) {
+                waitList.push(card);
             }
         } else {
-            const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q publication-card__link-3k
+            // const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q publication-card__link-3k
             modifyPublicationsGridCell(cell, card);
         }
     }
@@ -514,19 +546,16 @@ function modifyPublicationGrid(requestData) {
 
 async function processDashboardCards(pageSize) {
     const data = await getPublicationsByFilterAndSubscribers(pageSize);
+    const cards = publicationsDataToCards(data);
     const studioPublicationsBlock = document.querySelector("div[class^=last-publications__lastPublications-] > div")//document.getElementsByClassName("author-studio-publications-block")[0];
     const publicationsBlocks = studioPublicationsBlock.querySelectorAll("a");
     if (publicationsBlocks.length > 0) {
         for (let i = 0; i < publicationsBlocks.length; i++) {
             const publicationBlock = publicationsBlocks.item(i);
             const publicationId = getPublicationBlockId(publicationBlock);
-            const publicationUrl = getPublicationBlockUrl(publicationBlock);
-            if (publicationId != null) {
-                const publicationData = getCardData(publicationId, data.publications);
-                if (publicationData != null) {
-                    const card = jsonToCardData(publicationData, publicationUrl);
-                    modifyDashboardCard(publicationBlock, card);
-                }
+            const card = cards.find((itmInner) => itmInner.id === publicationId)
+            if (publicationId != null && card != null) {
+                modifyDashboardCard(publicationBlock, card);
             }
         }
     }
@@ -670,10 +699,7 @@ function modifyGridCellStats(cell, card) {
     const c4r2Link = createElement("span", "prozen_studio_card_icon_link");
     c4r2Link.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
 
-    /* const shortUrl = mediaUrl != null ?
-        (mediaUrl.startsWith("https://zen.yandex") ? `${mediaUrl}/${card.id}` : `https://zen.yandex.ru/${mediaUrl}/${card.id}`)
-        : card.shortUrl; */
-    const shortUrl = `https://zen.yandex.ru/media/id/${publisherId}/${card.id}`
+    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`
 
     c4r2Link.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
@@ -686,7 +712,7 @@ function modifyGridCellStats(cell, card) {
     c4r2Repost.style.marginLeft = "5px";
     c4r2Repost.setAttribute("title", "Сделать репост публикации");
     c4r2Repost.addEventListener('click', event => {
-        openUrl(`https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
+        openUrl(`https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
         event.preventDefault();
     });
     c4r2.appendChild(c4r2Repost);
@@ -803,7 +829,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     // Ссылка
     const c3r3IconLink = createElement("span", "prozen_studio_card_icon_link");
     c3r3.appendChild(c3r3IconLink);
-    const shortUrl = `https://zen.yandex.ru/media/id/${publisherId}/${card.id}`
+    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`
     c3r3IconLink.addEventListener('click', event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
@@ -813,7 +839,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     const c3r3IconRepost = createElement("span", "prozen_studio_card_icon_repost");
     c3r3IconRepost.setAttribute("title", "Сделать репост публикации")
     c3r3IconRepost.addEventListener('click', event => {
-        openUrl(`https://zen.yandex.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
+        openUrl(`https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
         event.preventDefault();
     });
     c3r3.appendChild(c3r3IconRepost);
@@ -904,7 +930,7 @@ async function addInformerBlock() {
     const channelUrl = mediaUrl.replace("/media/", "/");
     const result = await Promise.all([
         checkHasNoneUrl(channelUrl),
-        getStatsActuality(), // getStatsInfo(), // getStatsInfoAndCounter()
+        getStatsActuality(),
         getStrikesInfo(),
         getBannedUsers()
     ]);
@@ -922,7 +948,7 @@ async function addInformerBlock() {
 
     informerContent.appendChild(informerH3);
 
-    if (strikesInfo.limitations != null) {
+    if (strikesInfo != null && strikesInfo.limitations != null) {
         //Text Text_align_center Text_typography_text-14-18 notification__text-3n
         //Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title
         const informerStrikes = createElement("span", "Text Text_typography_text-14-18 notification__text-3n prozen-mb5-block");
@@ -931,7 +957,7 @@ async function addInformerBlock() {
         informerContent.appendChild(informerStrikes);
     }
 
-    if (strikesInfo.channelRestricted != null) {
+    if (strikesInfo != null && strikesInfo.channelRestricted != null) {
         const informerPyos = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
         informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
         informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
@@ -983,24 +1009,105 @@ function zenReaderUrl() {
     }
 }
 
+
+/*
+
+{
+    "id": "6307e38c266c7466847b59d9",
+    "version": 21,
+    "publisherId": "5a3def60e86a9e50b401ab4a",
+    "addTime": 1661461438255,
+    "content": {
+        "type": "article",
+        "articleContent": {},
+        "preview": {
+            "image": {
+            },
+            "imageId": "6307e39cd6e2c90084c47cd5",
+            "title": "Рекламная дезинтеграция — о нативной рекламе в Дзене и изменениях закона о рекламе",
+            "snippet": " Наконец-то я ознакомился с изменениями в законе о рекламе. Мне это интересно в контексте возможной нативной рекламы в Дзене, а также нативных публикаций в различных социальных сетях. Вот несколько тезисов, которые я считаю важным отметить: Блогеры рассматриваются как «рекламораспространители» (ещё есть «рекламодатели» — с ними всё понятно, а также «операторы рекламных систем» — это, например, РСЯ). В соответствии со ст.18.1, ч.3, блогеры-рекламораспространители должны будут «предоставлять информацию или обеспечивать предоставление информации о такой рекламе в федеральный орган исполнительной власти». Данные должны направляться в Единый реестр интернет-рекламы (ЕРИР), а поступать они могут только от Операторов рекламных данных (ОРД). Блогер не сможет напрямую направить данные в ЕРИР. Реклама «должна содержать пометку „реклама“, а также указание на рекламодателя такой рекламы и (или) сайт, страницу сайта в информационно-телекоммуникационной сети „Интернет“, содержащие информацию о рекла",
+            "blurredPreview": "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAASACADAREAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAABQYHAwT/xAAkEAACAQQBAwUBAAAAAAAAAAABAgADBREhBBIxUQYTFDNxkf/EABkBAQADAQEAAAAAAAAAAAAAAAMBAgQABf/EABoRAAMBAQEBAAAAAAAAAAAAAAABAgMREgT/2gAMAwEAAhEDEQA/AKz65qM6np3K3p5NfzwmybmlVPNzg4zMNW6Z6F8mQvw+T8et3kJuQIlUNVmuPunBOpozroesJG19K1CQ0a59AZ35FflUaaBmGMwVmkJW7a4AXLO5YMe8io6dnq0FrfcE4dIM7bz5lonh16ekMt9J6m2YzM4rctmw2z/YTJk4aP1n9kIsB76zCnpiN+YklKP/2Q==",
+            "galleryPreviewImageIds": []
+        },
+        "modTime": 1661497070842,
+        "images": [
+        ]
+    },
+    "titleForUrl": "reklamnaia-dezintegraciia--o-nativnoi-reklame-v-dzene-i-izmeneniiah-zakona-o-reklame",
+    "publishTime": 1661497070867,
+    "itemId": 8824572271787613000,
+    "publisherItemId": -8442370707896417000,
+    "adNative": false,
+    "darkPost": false,
+    "visibilityType": "all",
+    "isPublished": true,
+    "isBanned": false,
+    "status": "published",
+    "subscribersViews": 248,
+    "publicationId": "6307e38c266c7466847b59d9",
+    "impressions": 3479,
+    "clicks": 386,
+    "shares": 3,
+    "views": 545,
+    "deepViews": 435,
+    "typeSpecificViews": 435,
+    "subscriptions": 4,
+    "sumViewTimeSec": 53395,
+    "commentCount": 18,
+    "likeCount": 51
+}
+
+ */
+
+
 class Card {
-    constructor(publicationData, publicationUrl) {
-        this.title = publicationData.content.title;
-        this.id = publicationData.id;
-        this.publisherId = publicationData.publisherId;
-        this.addTime = publicationData.addTime;
-        this.modTime = publicationData.modTime;
-        this.publishTime = publicationData.publishTime;
-        this.feedShows = publicationData.privateData.statistics.feedShows;
-        this.shows = publicationData.privateData.statistics.shows;
-        this.views = publicationData.privateData.statistics.views;
-        this.viewsTillEnd = publicationData.privateData.statistics.viewsTillEnd;
-        this.subscribersViews = publicationData.subscribersViews;
-        this.sumViewTimeSec = publicationData.privateData.statistics.sumViewTimeSec;
-        this.likes = publicationData.privateData.statistics.likes;
-        this.comments = publicationData.privateData.statistics.comments;
-        this.type = publicationData.content.type;
-        this.tags = arraysJoin(publicationData.privateData.tags, publicationData.privateData.embeddedTags)
+
+    static createCardFromPublicationData2(publicationData) {
+        return new Card(
+            publicationData.content.preview.title, publicationData.id,
+            publicationData.publisherId, publicationData.addTime, publicationData.content.modTime,
+            publicationData.publishTime, publicationData.impressions,
+            publicationData.clicks, publicationData.views, publicationData.typeSpecificViews /*deepViews*/,
+            publicationData.subscribersViews, publicationData.sumViewTimeSec,
+            publicationData.likeCount, publicationData.commentCount, publicationData.content.type, [],
+            publicationData.subscriptions, publicationData.shares
+        );
+    }
+
+    static createCardFromPublicationData(publicationData) {
+        return new Card(publicationData.content.title, publicationData.id,
+            publicationData.publisherId, publicationData.addTime, publicationData.modTime,
+            publicationData.publishTime, publicationData.privateData.statistics.feedShows,
+            publicationData.privateData.statistics.shows, publicationData.privateData.statistics.views,
+            publicationData.privateData.statistics.viewsTillEnd, publicationData.subscribersViews,
+            publicationData.privateData.statistics.sumViewTimeSec, publicationData.privateData.statistics.likes,
+            publicationData.privateData.statistics.comments, publicationData.content.type,
+            arraysJoin(publicationData.privateData.tags, publicationData.privateData.embeddedTags)
+        );
+    }
+
+    //constructor(publicationData, publicationUrl) {
+    constructor(title, publicationId, publisherId, addTime, modTime, publishTime,
+                feedShows, shows, views, viewsTillEnd, subscribersViews, sumViewTimeSec,
+                likes, comments, contentType, tags, subscriptions = 0, shares = 0) {
+        this.title = title;
+        this.id = publicationId;
+        this.publisherId = publisherId;
+        this.addTime = addTime;
+        this.modTime = modTime;
+        this.publishTime = publishTime;
+        this.feedShows = feedShows;
+        this.shows = shows;
+        this.views = views;
+        this.viewsTillEnd = viewsTillEnd;
+        this.subscribersViews = subscribersViews;
+        this.sumViewTimeSec = sumViewTimeSec;
+        this.likes = likes;
+        this.comments = comments;
+        this.type = contentType;
+        this.tags = tags;
+        this.subscriptions = subscriptions;
+        this.shares = shares;
 
         // Текстовые представления данных
         // Время модификации
@@ -1047,24 +1154,23 @@ class Card {
         this.commentsEr = infiniteAndNan((this.comments / this.erViews) * 100);
         this.commentsStr = this.comments === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.comments)} (${this.commentsEr.toFixed(2)}%)`;
 
+        // Добавленные подписчики
+        this.subscriptionsEr = infiniteAndNan((this.subscriptions / this.erViews) * 100);
+        this.subscriptionsStr = this.subscriptions === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.subscriptions)} (${this.subscriptionsEr.toFixed(2)}%)`
+
+        // Шеры
+        this.sharesEr = infiniteAndNan((this.shares / this.erViews) * 100);
+        this.sharesStr = this.shares === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.shares)} (${this.sharesEr.toFixed(2)}%)`
+
         // Коэффициент вовлечённости
-        this.erStr = `${infiniteAndNan((((this.comments + this.likes) / this.erViews)) * 100).toFixed(2)}%`;
+        this.erStr = `${infiniteAndNan((((this.comments + this.likes + this.subscriptions + this.shares) / this.erViews)) * 100).toFixed(2)}%`;
 
         // Теги
         this.tagsStr = joinByThree(this.tags);
 
         // Ссылка на статью (сокращённая)
-        this.shortUrl = `https://zen.yandex.ru/media/id/${this.publisherId}/${this.id}`
+        this.shortUrl = `https://dzen.ru/media/id/${this.publisherId}/${this.id}`
 
-        /* if (publicationUrl != null) {
-            this.url = publicationUrl.startsWith("https://zen.yandex") ? publicationUrl : `https://zen.yandex.ru${publicationUrl}`;
-            const publicationPath = this.url.split("/");
-            this.shortUrl = publicationPath[4] === "id" ?
-                `https://zen.yandex.ru/media/id/${publicationPath[5]}/${this.id}`
-                : `https://zen.yandex.ru/media/${publicationPath[4]}/${this.id}`;
-        } else {
-            this.url = this.shortUrl;
-        } */
     }
 
     getSubscribersViewsHint() {

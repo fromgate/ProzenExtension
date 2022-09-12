@@ -39,6 +39,7 @@ function registerWebRequestListener() {
                     publisherId: urlParams.get("publisherId"),
                     pageSize: urlParams.get("pageSize"),
                     types: urlParams.has("types") ? urlParams.get("types") : null,
+                    view: urlParams.has("view") ? urlParams.get("view") : null,
                     query: urlParams.has("query") ? urlParams.get("query") : null,
                     token: token
                 };
@@ -46,7 +47,7 @@ function registerWebRequestListener() {
             }
         }, {
             urls: [
-                "https://zen.yandex.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=*"
+                "https://dzen.ru/editor-api/v2/get-publications-by-filter?group=published&publisherId=*"
             ]
         },
         ["requestHeaders"]);
@@ -66,22 +67,24 @@ function registerMainPageRequestListener() {
                 }
             });
             if (!prozenRequest) {
+
                 data = {
                     type: "prozen-mainpage-request",
                     url: details.url,
                     publisherId: urlParams.get("publisherId"),
                     pageSize: urlParams.get("pageSize"),
+                    types: urlParams.has("types") ? urlParams.get("types") : null,
+                    view: urlParams.has("view") ? urlParams.get("view") : null,
+                    query: urlParams.has("query") ? urlParams.get("query") : null,
+                    publicationIdAfter: urlParams.has("publicationIdAfter") ? urlParams.get("publicationIdAfter") : null,
                     state: urlParams.get("state"),
                     token: token
                 };
-                if (urlParams.has("view")) {
-                    data.view = urlParams.get("view")
-                }
                 chrome.tabs.sendMessage(details.tabId, data);
             }
         }, {
             urls: [
-                "https://zen.yandex.ru/editor-api/v3/publications?*" //"https://zen.yandex.ru/editor-api/v3/publications?publisherId=*"
+                "https://dzen.ru/editor-api/v3/publications?*" //"https://dzen.ru/editor-api/v3/publications?publisherId=*"
             ]
         },
         ["requestHeaders"]);
