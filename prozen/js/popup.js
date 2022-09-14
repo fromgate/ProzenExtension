@@ -12,10 +12,9 @@ initSwitches();
 loadOptions();
 showLastPost();
 
-
 function initSwitches() {
     const switchElements = document.getElementsByClassName("switch-checkbox");
-    for (let i = 0; i<switchElements.length; i++) {
+    for (let i = 0; i < switchElements.length; i++) {
         const el = switchElements[i];
         const switchId = el.id;
         switchIds.push(switchId);
@@ -27,7 +26,7 @@ function loadOptions() {
     chrome.storage.local.get(switchIds, options => {
         switchIds.forEach(switchId => {
             let save = false;
-            if (options.hasOwnProperty (switchId)) {
+            if (options.hasOwnProperty(switchId)) {
                 setCheckbox(switchId, options[switchId])
             } else {
                 setCheckbox(switchId, true);
@@ -62,11 +61,11 @@ async function showLastPost() {
 
 
 function onCheckboxClick(switchId) {
-    setCheckbox (switchId, document.getElementById(switchId).checked, true)
+    setCheckbox(switchId, document.getElementById(switchId).checked, true)
 }
 
-function setCheckbox (switchId, switchState, save = false) {
-    const switchEl = document.getElementById (switchId)
+function setCheckbox(switchId, switchState, save = false) {
+    const switchEl = document.getElementById(switchId)
     switchEl.checked = switchState;
     const switchTextEl = document.getElementById(switchId + "-text");
     if (switchEl.hasAttribute("data-text-switch-on") && switchEl.hasAttribute("data-text-switch-off")) {

@@ -304,6 +304,7 @@ html body .ui-lib-header__item._type_left {
     width: 12px;
     display: inline-block;
     margin-right: 4px;
+    margin-left: 4px;
     opacity: 70%;
 }
 
@@ -389,6 +390,27 @@ html body .ui-lib-header__item._type_left {
 
 .prozen_studio_card_icon_repost {
     background-image: url("data:image/svg+xml,%3Csvg xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='12' height='12'%3E%3Cdefs%3E%3Csymbol xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' id='repost_07ba--inline'%3E%3Cpath d='M13.293 22.707a1 1 0 0 1 0-1.414L16.586 18H12v-2h4.586l-3.293-3.293a1 1 0 0 1 1.414-1.414l4.994 4.994.016.015a.997.997 0 0 1 0 1.396l-.016.015-4.994 4.994a1 1 0 0 1-1.414 0ZM19 4a1 1 0 1 0 0-2h-7v2h7ZM6 10a6 6 0 0 1 6-6V2a8 8 0 1 0 0 16v-2a6 6 0 0 1-6-6Z' fill='currentColor'%3E%3C/path%3E%3C/symbol%3E%3C/defs%3E%3Cg%3E%3Cpath d='M13.293 22.707a1 1 0 0 1 0-1.414L16.586 18H12v-2h4.586l-3.293-3.293a1 1 0 0 1 1.414-1.414l4.994 4.994.016.015a.997.997 0 0 1 0 1.396l-.016.015-4.994 4.994a1 1 0 0 1-1.414 0ZM19 4a1 1 0 1 0 0-2h-7v2h7ZM6 10a6 6 0 0 1 6-6V2a8 8 0 1 0 0 16v-2a6 6 0 0 1-6-6Z' fill='currentColor'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+    top: 1px;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    margin-right: 4px;
+    margin-left: 4px;
+    opacity: 70%;
+}
+
+.prozen_studio_cards_subscribers {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='12' height='12' viewBox='0 0 10 10' version='1.1' id='svg954' sodipodi:docname='subscriber.svg' inkscape:version='1.1 (c68e22c387, 2021-05-23)' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:cc='http://creativecommons.org/ns%23' xmlns:dc='http://purl.org/dc/elements/1.1/'%3E%3Csodipodi:namedview id='namedview956' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageshadow='2' inkscape:pageopacity='0.0' inkscape:pagecheckerboard='0' showgrid='false' inkscape:zoom='37.65' inkscape:cx='10' inkscape:cy='10' inkscape:window-width='1920' inkscape:window-height='1009' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='svg954' /%3E%3C!-- Generator: Sketch 3.8.1 (29687) - http://www.bohemiancoding.com/sketch --%3E%3Ctitle id='title944'%3Eprofile %5B%231335%5D%3C/title%3E%3Cdesc id='desc946'%3ECreated with Sketch.%3C/desc%3E%3Cdefs id='defs948' /%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' transform='scale(0.5)'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-420,-2159)' fill='%23000000'%3E%3Cg id='icons' transform='translate(56,160)'%3E%3Cpath d='m 374,2009 c -2.206,0 -4,-1.794 -4,-4 0,-2.206 1.794,-4 4,-4 2.206,0 4,1.794 4,4 0,2.206 -1.794,4 -4,4 m 3.758,0.673 c 1.366,-1.099 2.242,-2.783 2.242,-4.673 0,-3.314 -2.686,-6 -6,-6 -3.314,0 -6,2.686 -6,6 0,1.89 0.876,3.574 2.242,4.673 -3.659,1.375 -6.242,4.772 -6.242,9.327 h 2 c 0,-5 3.589,-8 8,-8 4.411,0 8,3 8,8 h 2 c 0,-4.555 -2.583,-7.952 -6.242,-9.327' id='profile-%5B%231335%5D' /%3E%3C/g%3E%3C/g%3E%3C/g%3E%3Cmetadata id='metadata1015'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:title%3Eprofile %5B%231335%5D%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3C/svg%3E%0A");
+    top: 0px;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    margin-right: 4px;
+    opacity: 70%;
+}
+
+.prozen_studio_cards_reposts {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg class='card-context-menu-share-icon__socialIcon-3A' viewBox='0 0 12 12' width='12' height='12' version='1.1' id='svg852' sodipodi:docname='reposts.svg' inkscape:version='1.1 (c68e22c387, 2021-05-23)' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Csodipodi:namedview id='namedview854' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageshadow='2' inkscape:pageopacity='0.0' inkscape:pagecheckerboard='0' showgrid='false' inkscape:zoom='31.625' inkscape:cx='12' inkscape:cy='12' inkscape:window-width='1920' inkscape:window-height='1009' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='svg852' /%3E%3Cdefs id='defs848'%3E%3Csymbol fill='none' viewBox='0 0 24 24' id='repost_07ba--inline'%3E%3Cpath d='m 13.293,22.707 a 1,1 0 0 1 0,-1.414 L 16.586,18 H 12 v -2 h 4.586 l -3.293,-3.293 a 1,1 0 0 1 1.414,-1.414 l 4.994,4.994 0.016,0.015 a 0.997,0.997 0 0 1 0,1.396 l -0.016,0.015 -4.994,4.994 a 1,1 0 0 1 -1.414,0 z M 19,4 A 1,1 0 1 0 19,2 H 12 V 4 Z M 6,10 A 6,6 0 0 1 12,4 V 2 a 8,8 0 1 0 0,16 V 16 A 6,6 0 0 1 6,10 Z' fill='currentColor' id='path845' /%3E%3C/symbol%3E%3C/defs%3E%3Cuse xlink:href='%23repost_07ba--inline' id='use850' x='0' y='0' width='100%25' height='100%25' transform='matrix(1.3384558,0,0,1.1238674,-2.297465,-1.0298874)' /%3E%3C/svg%3E%0A");
     top: 1px;
     height: 12px;
     width: 12px;

@@ -409,9 +409,6 @@ function backgroundListener(request) {
     }
 }
 
-function getDataById(publicationId, dataArray) {
-
-}
 
 function publicationsDataToCards(requestData) {
     const cards = []
@@ -446,12 +443,16 @@ async function processPublicationsCards(request) {
 function getPublicationCellById(publicationId) {
     const table = document.querySelector("table[class^=publications-list]"); //publications-list__publicationsList-3U
     const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`); //a.publication-preview[href*='${publicationId}  //publication-preview__publicationPreview-1w
-    return a != null ? a.parentNode : null;
+    if (a != null) return a.parentNode
+    const div = table.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
+    return div.parentNode.parentNode.parentNode
 }
 
 function getPublicationGridCellById(publicationId) {
     const a = document.querySelector(`a.publication-card__link-3k[href*='${publicationId}'`);
-    return a != null ? a.parentNode : null;
+    if (a != null) return a.parentNode
+    const div = document.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
+    return div.parentNode.querySelector("div.publication-card__stats-1k"); //!= null ? div.parentNode : null;
 }
 
 function modifyPublicationsGridCell(cell, card) {
@@ -512,14 +513,6 @@ function modifyPublicationTable(cards) {
     }
 }
 
-function publicationsToCards(requestData) {
-    const publicationCounters = requestData.publicationCounters;
-    for (let i = 0; i < publicationCounters; i++) {
-        const publicationStats = publicationCounters[i];
-
-    }
-}
-
 function modifyPublicationGrid(cards) {
     if (!isPublicationGrid()) {
         return;
@@ -540,8 +533,6 @@ function modifyPublicationGrid(cards) {
     if (waitList.length > 0) {
         setTimeout(modifyPublicationGrid.bind(null, waitList), 300);
     }
-
-
 }
 
 async function processDashboardCards(pageSize) {
@@ -598,14 +589,19 @@ function modifyGridCellStats(cell, card) {
     c1r1.style.zIndex = "14";
     c1r1.style.cursor = "default";
 
-    // Лайки
+    // Лайки / Репосты
     const c1r2 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c1r2.setAttribute("title", "Лайки (%)");
-    const c1r2Icon = createElement("span", "prozen_studio_card_icon_like");
-    const c1r2Text = createElement("span");
-    c1r2Text.innerText = card.likesStr;
-    c1r2.appendChild(c1r2Icon);
-    c1r2.appendChild(c1r2Text);
+    c1r2.setAttribute("title", `Лайки: ${card.likesStr}\nРепосты: ${card.sharesStr}`);
+    const c1r2LikesIcon = createElement("span", "prozen_studio_card_icon_like");
+    const c1r2LikesText = createElement("span");
+    c1r2LikesText.innerText = card.likes;
+    const c1r2RepostsIcon = createElement("span", "prozen_studio_cards_reposts");
+    const c1r2RepostsText = createElement("span");
+    c1r2RepostsText.innerText = card.shares;
+    c1r2.appendChild(c1r2LikesIcon);
+    c1r2.appendChild(c1r2LikesText);
+    c1r2.appendChild(c1r2RepostsIcon);
+    c1r2.appendChild(c1r2RepostsText);
     col1.appendChild(c1r2);
     c1r2.style.zIndex = "14";
     c1r2.style.cursor = "default";
@@ -626,14 +622,19 @@ function modifyGridCellStats(cell, card) {
     c2r1.style.zIndex = "14";
     c2r1.style.cursor = "default";
 
-    // Комментарии
+    // Подписки / Комментарии
     const c2r2 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c2r2.setAttribute("title", "Комментарии");
-    const c2r2Icon = createElement("span", "prozen_studio_card_icon_comments");
-    const c2r2Text = createElement("span");
-    c2r2Text.innerText = card.commentsStr;
-    c2r2.appendChild(c2r2Icon);
-    c2r2.appendChild(c2r2Text);
+    c2r2.setAttribute("title", `Подписки: ${card.subscriptionsStr}\nКомментарии: ${card.commentsStr}`);
+    const c2r2SubscriptionsIcon = createElement("span", "prozen_studio_cards_subscribers");
+    const c2r2SubscriptionsText = createElement("span");
+    c2r2SubscriptionsText.innerText = card.subscriptions;
+    const c2r2CommentsIcon = createElement("span", "prozen_studio_card_icon_comments");
+    const c2r2CommentsText = createElement("span");
+    c2r2CommentsText.innerText = card.comments;
+    c2r2.appendChild(c2r2SubscriptionsIcon);
+    c2r2.appendChild(c2r2SubscriptionsText);
+    c2r2.appendChild(c2r2CommentsIcon);
+    c2r2.appendChild(c2r2CommentsText);
     col2.appendChild(c2r2);
     c2r2.style.zIndex = "14";
     c2r2.style.cursor = "default";
@@ -764,24 +765,38 @@ function modifyPublicationsCard(publicationItemStats, card) {
     const col2 = createElement("div", "prozen-card-container-item");
     publicationItemStats.appendChild(col2);
 
-    // Лайки
+    // Лайки / Шеры
     const c2r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c2r1.setAttribute("title", "Лайки (%)");
-    const c2r1Icon = createElement("span", "prozen_studio_card_icon_like");
-    const c2r1Text = createElement("span");
-    c2r1Text.innerText = card.likesStr;
-    c2r1.appendChild(c2r1Icon);
-    c2r1.appendChild(c2r1Text);
+    c2r1.setAttribute("title", `Лайки: ${card.likesStr}\nРепосты: ${card.sharesStr}`);
+    const c2r1LikesIcon = createElement("span", "prozen_studio_card_icon_like");
+    const c2r1LikesText = createElement("span");
+    c2r1LikesText.innerText = card.likes;
+
+    const c2r1RepostsIcon = createElement("span", "prozen_studio_cards_reposts");
+    const c2r1RepostsText = createElement("span");
+    c2r1RepostsText.innerText = card.shares;
+
+
+    //const c3r3IconRepost = createElement("span", "prozen_studio_card_icon_repost");
+    c2r1.appendChild(c2r1LikesIcon);
+    c2r1.appendChild(c2r1LikesText);
+    c2r1.appendChild(c2r1RepostsIcon);
+    c2r1.appendChild(c2r1RepostsText);
     col2.appendChild(c2r1);
 
-    // Коменты
+    // Подписки / Коменты
     const c2r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c2r2.setAttribute("title", "Комментарии (%)");
-    const c2r2Icon = createElement("span", "prozen_studio_card_icon_comments");
-    const c2r2Text = createElement("span");
-    c2r2Text.innerText = card.commentsStr;
-    c2r2.appendChild(c2r2Icon);
-    c2r2.appendChild(c2r2Text);
+    c2r2.setAttribute("title", `Подписки: ${card.subscriptionsStr}\nКомментарии: ${card.commentsStr}`);
+    const c2r2SubscriptionsIcon = createElement("span", "prozen_studio_cards_subscribers");
+    const c2r2SubscriptionsText = createElement("span");
+    c2r2SubscriptionsText.innerText = card.subscriptions;
+    const c2r2CommentsIcon = createElement("span", "prozen_studio_card_icon_comments");
+    const c2r2CommentsText = createElement("span");
+    c2r2CommentsText.innerText = card.comments;
+    c2r2.appendChild(c2r2SubscriptionsIcon);
+    c2r2.appendChild(c2r2SubscriptionsText);
+    c2r2.appendChild(c2r2CommentsIcon);
+    c2r2.appendChild(c2r2CommentsText);
     col2.appendChild(c2r2);
 
     // Просмотры подписчиков //prozen-subscribers-views
@@ -850,8 +865,8 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
 function modifyDashboardCard(publicationBlock, card) {
     /*
-       Показы         Лайки                       ER
-       Просмотры      Коменты                     Среднее время
+       Показы         Лайки / Репосты                       ER
+       Просмотры      Подписки / Коменты                     Среднее время
        Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
      */
 
@@ -863,22 +878,23 @@ function modifyDashboardCard(publicationBlock, card) {
     modifyPublicationsCard(publicationItemStats, card);
 }
 
-function jsonToCardData(publicationData, publicationUrl) {
-    return new Card(publicationData, publicationUrl);
-}
-
 function getPublicationBlockUrl(publicationBlock) {
     return publicationBlock.hasAttribute("href") ? publicationBlock.getAttribute("href") : null;
 }
 
 function getPublicationBlockId(publicationBlock) {
-    if (publicationBlock.hasAttribute("href")) {
+    const cover = publicationBlock.querySelector("div.publication-cover__image-gr")
+    let id = null
+    if (cover != null) {
+        const url = cover.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+        id = url.split("_")[2];
+    }
+    if (id == null && publicationBlock.hasAttribute("href")) {
         const href = publicationBlock.getAttribute("href");
         const idArray = href.split("-");
-        return idArray[idArray.length - 1];
-    } else {
-        return null;
+        id = idArray[idArray.length - 1];
     }
+    return id
 }
 
 function getCardData(id, dataArray) {
@@ -949,8 +965,6 @@ async function addInformerBlock() {
     informerContent.appendChild(informerH3);
 
     if (strikesInfo != null && strikesInfo.limitations != null) {
-        //Text Text_align_center Text_typography_text-14-18 notification__text-3n
-        //Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title
         const informerStrikes = createElement("span", "Text Text_typography_text-14-18 notification__text-3n prozen-mb5-block");
         informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
@@ -1009,59 +1023,7 @@ function zenReaderUrl() {
     }
 }
 
-
-/*
-
-{
-    "id": "6307e38c266c7466847b59d9",
-    "version": 21,
-    "publisherId": "5a3def60e86a9e50b401ab4a",
-    "addTime": 1661461438255,
-    "content": {
-        "type": "article",
-        "articleContent": {},
-        "preview": {
-            "image": {
-            },
-            "imageId": "6307e39cd6e2c90084c47cd5",
-            "title": "Рекламная дезинтеграция — о нативной рекламе в Дзене и изменениях закона о рекламе",
-            "snippet": " Наконец-то я ознакомился с изменениями в законе о рекламе. Мне это интересно в контексте возможной нативной рекламы в Дзене, а также нативных публикаций в различных социальных сетях. Вот несколько тезисов, которые я считаю важным отметить: Блогеры рассматриваются как «рекламораспространители» (ещё есть «рекламодатели» — с ними всё понятно, а также «операторы рекламных систем» — это, например, РСЯ). В соответствии со ст.18.1, ч.3, блогеры-рекламораспространители должны будут «предоставлять информацию или обеспечивать предоставление информации о такой рекламе в федеральный орган исполнительной власти». Данные должны направляться в Единый реестр интернет-рекламы (ЕРИР), а поступать они могут только от Операторов рекламных данных (ОРД). Блогер не сможет напрямую направить данные в ЕРИР. Реклама «должна содержать пометку „реклама“, а также указание на рекламодателя такой рекламы и (или) сайт, страницу сайта в информационно-телекоммуникационной сети „Интернет“, содержащие информацию о рекла",
-            "blurredPreview": "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAASACADAREAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAABQYHAwT/xAAkEAACAQQBAwUBAAAAAAAAAAABAgADBREhBBIxUQYTFDNxkf/EABkBAQADAQEAAAAAAAAAAAAAAAMBAgQABf/EABoRAAMBAQEBAAAAAAAAAAAAAAABAgMREgT/2gAMAwEAAhEDEQA/AKz65qM6np3K3p5NfzwmybmlVPNzg4zMNW6Z6F8mQvw+T8et3kJuQIlUNVmuPunBOpozroesJG19K1CQ0a59AZ35FflUaaBmGMwVmkJW7a4AXLO5YMe8io6dnq0FrfcE4dIM7bz5lonh16ekMt9J6m2YzM4rctmw2z/YTJk4aP1n9kIsB76zCnpiN+YklKP/2Q==",
-            "galleryPreviewImageIds": []
-        },
-        "modTime": 1661497070842,
-        "images": [
-        ]
-    },
-    "titleForUrl": "reklamnaia-dezintegraciia--o-nativnoi-reklame-v-dzene-i-izmeneniiah-zakona-o-reklame",
-    "publishTime": 1661497070867,
-    "itemId": 8824572271787613000,
-    "publisherItemId": -8442370707896417000,
-    "adNative": false,
-    "darkPost": false,
-    "visibilityType": "all",
-    "isPublished": true,
-    "isBanned": false,
-    "status": "published",
-    "subscribersViews": 248,
-    "publicationId": "6307e38c266c7466847b59d9",
-    "impressions": 3479,
-    "clicks": 386,
-    "shares": 3,
-    "views": 545,
-    "deepViews": 435,
-    "typeSpecificViews": 435,
-    "subscriptions": 4,
-    "sumViewTimeSec": 53395,
-    "commentCount": 18,
-    "likeCount": 51
-}
-
- */
-
-
 class Card {
-
     static createCardFromPublicationData2(publicationData) {
         return new Card(
             publicationData.content.preview.title, publicationData.id,

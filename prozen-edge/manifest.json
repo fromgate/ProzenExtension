@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
   "browser_action": {
@@ -45,7 +45,7 @@
         "js/content.js"
       ],
       "matches": [
-        "https://zen.yandex.ru/profile/editor/*"
+        "https://dzen.ru/profile/editor/*"
       ],
       "run_at": "document_end"
     },
@@ -57,7 +57,7 @@
         "js/publication.js"
       ],
       "matches": [
-        "https://zen.yandex.ru/media/*"
+        "https://dzen.ru/media/*"
       ],
       "run_at": "document_end"
     },
@@ -69,7 +69,7 @@
         "js/video_watch.js"
       ],
       "matches": [
-        "https://zen.yandex.ru/video/watch/*"
+        "https://dzen.ru/video/watch/*"
       ],
       "run_at": "document_end"
     }
@@ -78,6 +78,6 @@
   "permissions": [
     "storage",
     "webRequest",
-    "https://zen.yandex.ru/"
+    "https://dzen.ru/"
   ]
 }
