@@ -187,7 +187,7 @@ function registerObserverWindowsLocation() {
 
 // Отображение баланса
 function updateBalanceBlock(count = 0) {
-    const target = document.querySelector("div[class^=stats__statsContainer-]");
+    const target = document.querySelector("div[class^=dashboard-stats__statsContainer-]");
     if (target != null && count < 5) {
         const a = target.querySelector("a[class^=item__statItemCompact-]");
         if (a != null) {
@@ -195,11 +195,11 @@ function updateBalanceBlock(count = 0) {
             if (nameBlock != null) {
                 const name = nameBlock.textContent;
                 const balanceElement = a.querySelector("div.Text_typography_headline-20-24");
-                if (name === "баланс") {
+                if (name.startsWith("баланс")) {
                     if (moneySaldo != null) {
                         balanceElement.innerText = `${moneySaldo} ₽`;
                         balanceElement.setAttribute("title", `Всего: ${moneyTotal} ₽`);
-                        nameBlock.innerText = `баланс на ${moneyDate}`;
+                        // nameBlock.innerText = `баланс на ${moneyDate}`;
                     }
                     return;
                 }
@@ -1083,7 +1083,7 @@ class Card {
 
         // Просмотры (CTR%)
         this.ctr = (infiniteAndNan(this.shows / this.feedShows) * 100).toFixed(2);
-        if (this.type === "brief") {
+        if (this.type === "brief" || this.type === "gif") {
             this.ctr = (infiniteAndNan(this.views / this.feedShows) * 100).toFixed(2);
         }
         this.viewsStr = `${infiniteAndNanToStr(this.views)} (${this.ctr}%)`;

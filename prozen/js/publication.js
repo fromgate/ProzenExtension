@@ -55,6 +55,9 @@ function showPublicationStats(pageType, data, publisherId) {
 
 function getPageType(data) {
     const path = window.location.pathname;
+    if (path.startsWith("/a/") && data != null && data.isArticle === true) {
+        return "article";
+    }
     if (path.startsWith("/media/")) {
         if (data != null) {
             if (data.isArticle === true) {
@@ -299,7 +302,8 @@ async function showStatsArticle(data, publisherId) {
     if (data === null) {
         return;
     }
-    const postId = getPostIdFromUrl(window.location.pathname);
+    let postId = data.publication.id;
+    if (postId == null) postId = getPostIdFromUrl(window.location.pathname);
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
