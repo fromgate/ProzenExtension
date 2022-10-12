@@ -370,7 +370,7 @@ async function showStatsArticle(data, publisherId) {
     const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
     shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
     const shortLinkIcon = createElement("span", "publication_icon_short_url");
-    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
+    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
     shortLinkIcon.style.cursor = "pointer";
     shortLinkContainer.appendChild(shortLinkIcon);
     elArticleStats.appendChild(shortLinkContainer)

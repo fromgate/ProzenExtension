@@ -172,12 +172,13 @@ function checkNone() {
     return none;
 }
 
-function shortUrl(publisherId) {
+function shortUrl(publisherId, publicationId) {
     let url = window.location.href.split("\?")[0].split("#")[0];
     url = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
     if (publisherId != null) {
         const urlParts = url.split("/")
-        url = `https://dzen.ru/media/id/${publisherId}/${urlParts[urlParts.length - 1]}`
+        const id = publicationId == null ? urlParts[urlParts.length - 1] : publicationId;
+        url = `https://dzen.ru/media/id/${publisherId}/${id}`
     }
     return url
 }
