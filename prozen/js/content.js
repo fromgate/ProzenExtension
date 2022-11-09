@@ -53,7 +53,7 @@ function main(updatedId = null) {
         case "main":
             if (token != null && publisherId != null) {
                 mediaUrl = window.location.href.replace("profile/editor", "media");
-                hideComments();
+                shortenRealtimeWidget();
                 addStudioMenu();
                 registerObserverWindowsLocation();
                 updateBalanceBlock();
@@ -328,12 +328,12 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
 }
 
 
-function hideComments() {
-    getOption(OPTIONS.dashboardComments).then(enable => {
-        if (!enable) {
-            const column = document.getElementsByClassName("author-studio-main__middle-column")[0];
-            column.parentNode.removeChild(column);
-            //column.style.display = "none";
+function shortenRealtimeWidget() {
+    getOption(OPTIONS.shortDashboardRealtime).then(enable => {
+        if (enable) {
+            const sheet = new CSSStyleSheet();
+            sheet.replaceSync (".realtime-publications__list-3o {display: none;}");
+            document.adoptedStyleSheets = [sheet];
         }
     });
 }
@@ -870,10 +870,9 @@ function modifyDashboardCard(publicationBlock, card) {
        Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
      */
 
-    // const timeBlock = publicationBlock.getElementsByClassName("author-studio-publication-item__date")[0];
-    const timeBlock = publicationBlock.querySelector("div[class^=last-publication__titleContainer] > span");
+    const timeBlock = publicationBlock.querySelector("div[class^=dashboard-publication-item__titleContainer-] > span");
     timeBlock.innerText = card.timeStr;
-    const publicationItemStats = publicationBlock.querySelector("div[class^=last-publication__publicationStat-]");
+    const publicationItemStats = publicationBlock.querySelector("div[class^=dashboard-publication-item__publicationStat-]");
     removeChilds(publicationItemStats);
     modifyPublicationsCard(publicationItemStats, card);
 }

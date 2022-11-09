@@ -29,7 +29,7 @@ function loadOptions() {
             if (options.hasOwnProperty(switchId)) {
                 setCheckbox(switchId, options[switchId])
             } else {
-                setCheckbox(switchId, true);
+                setCheckbox(switchId, switchId !== "prozen-realtime-switch");
                 save = true;
             }
             if (save) {

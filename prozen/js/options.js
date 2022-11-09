@@ -1,7 +1,7 @@
 const OPTIONS = {
     prozen: "prozen-switch",
     subtitleLinks: "prozen-article-link-switch",
-    dashboardComments: "prozen-studio-comments-switch",
+    shortDashboardRealtime: "prozen-realtime-switch",
     prozenMenu: "prozen-menu-switch",
     informer: "prozen-informer-switch"
 }
