@@ -612,7 +612,7 @@ function modifyGridCellStats(cell, card) {
 
     // Просмотры
     const c2r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c2r1.setAttribute("title", "Просмотры (CTR)");
+    c2r1.setAttribute("title", "Клики/Просмотры (CTR)");
     const c2r1Icon = createElement("span", "prozen_studio_card_icon_views");
     const c2r1Text = createElement("span");
     c2r1Text.innerText = card.viewsStr;
@@ -742,7 +742,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
     // Просмотры
     const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c1r2.setAttribute("title", "Просмотры (CTR, %)");
+    c1r2.setAttribute("title", "Клики/Просмотры (CTR, %)");
     const c1r2Icon = createElement("span", "prozen_studio_card_icon_views");
     const c1r2Text = createElement("span");
     c1r2Text.innerText = card.viewsStr;
@@ -1049,7 +1049,7 @@ class Card {
 
     //constructor(publicationData, publicationUrl) {
     constructor(title, publicationId, publisherId, addTime, modTime, publishTime,
-                feedShows, shows, views, viewsTillEnd, subscribersViews, sumViewTimeSec,
+                feedShows, clicks, views, viewsTillEnd, subscribersViews, sumViewTimeSec,
                 likes, comments, contentType, tags, subscriptions = 0, shares = 0) {
         this.title = title;
         this.id = publicationId;
@@ -1058,7 +1058,7 @@ class Card {
         this.modTime = modTime;
         this.publishTime = publishTime;
         this.feedShows = feedShows;
-        this.shows = shows;
+        this.clicks = clicks;
         this.views = views;
         this.viewsTillEnd = viewsTillEnd;
         this.subscribersViews = subscribersViews;
@@ -1081,15 +1081,20 @@ class Card {
         this.feedShowStr = infiniteAndNanToStr(this.feedShows);
 
         // Просмотры (CTR%)
-        this.ctr = (infiniteAndNan(this.shows / this.feedShows) * 100).toFixed(2);
-        if (this.type === "brief" || this.type === "gif") {
-            this.ctr = (infiniteAndNan(this.views / this.feedShows) * 100).toFixed(2);
-        }
-        this.viewsStr = `${infiniteAndNanToStr(this.views)} (${this.ctr}%)`;
+        this.ctr = (infiniteAndNan(this.clicks / this.feedShows) * 100).toFixed(2);
+        this.viewsStr = `${infiniteAndNanToStr(this.views == null ? this.clicks : this.views)} (${this.ctr}%)`;
 
         // Дочитывания
-        this.readsPercent = infiniteAndNan((this.viewsTillEnd / this.views) * 100).toFixed(2);
+        this.readsPercent = infiniteAndNan(this.viewsTillEnd / (this.views == null ? this.clicks : this.views) * 100).toFixed(2);
+
         this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
+
+        if (this.type === "brief" || this.type === "gif") {
+            this.ctr = (infiniteAndNan(this.viewsTillEnd / this.feedShows) * 100).toFixed(2);
+            this.viewsStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.ctr}%)`;
+            this.readsPercent = "";
+            this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)}`;
+        }
 
         // Просмотры подписчиков
         this.subscribersViewsPercent = infiniteAndNan((this.subscribersViews / this.viewsTillEnd) * 100).toFixed(2);

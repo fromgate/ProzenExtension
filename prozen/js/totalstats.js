@@ -38,7 +38,7 @@ async function main() {
     showSpinner();
     token = await getToken();
     publisherId = await getPublisherId();
-    publications = await getAllPublications();
+    publications = await loadAllPublications(true);
     const stats = countStats();
     showStats(stats);
     hideSpinner();
@@ -146,16 +146,16 @@ function countStats() {
         if (publication.addTime < dateStart.getTime() || publication.addTime > dateEnd.getTime()) {
             continue;
         }
-        const type = publication.content.type;
+        const type = publication.type; //publication.content.type;
         if (type === "story") {
             continue;
         }
         const stat = stats.get(type);
         stat.count++;
-        stat.feedShows += publication.privateData.statistics.feedShows;
-        stat.views += publication.privateData.statistics.views;
-        stat.shows += publication.privateData.statistics.shows;
-        stat.viewsTillEnd += publication.privateData.statistics.viewsTillEnd;
+        stat.feedShows += publication.feedShows;
+        stat.views += publication.views;
+        stat.shows += publication.shows;
+        stat.viewsTillEnd += publication.viewsTillEnd;
         stat.minAddTime = (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
         stats.set(type, stat);
     }

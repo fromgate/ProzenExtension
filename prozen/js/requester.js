@@ -242,10 +242,26 @@ function loadPublicationsPublisher() {
         });
 }
 
+/* Deprecated - Method not allowed */
 async function countGroupedPublicationsByType() {
     const requestUrl =`https://dzen.ru/editor-api/v2/count-grouped-publications-by-type?publisherId=${publisherId}`;
     const response = await request(requestUrl);
     return await response.json();
+}
+
+async function getPublicationsCount() {
+    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/publications-count?publisherId=${publisherId}`;
+    const response = await request(requestUrl);
+    return await response.json();
+}
+
+async function getPublishedPublicationsCount() {
+    const counters = await getPublicationsCount();
+    const published = {}
+    for (const [key, value] of Object.entries(counters.items)) {
+        published[key] = value.published != null ? value.published : 0;
+    }
+    return published
 }
 
 async function getPublicationsByView (pageSize, types, view, publicationIdAfter) {
@@ -272,6 +288,7 @@ async function getPublicationsByView (pageSize, types, view, publicationIdAfter)
     return data;
 }
 
+/* Deprecate */
 async function getPublicationsByFilter(pageSize, types, publicationIdAfter, query) {
 
     const url = new URL("editor-api/v2/get-publications-by-filter", "https://dzen.ru");
@@ -292,10 +309,11 @@ async function getPublicationsByFilter(pageSize, types, publicationIdAfter, quer
     return data;
 }
 
+/* Deprecated */
 async function getAllPublications() {
-    const counters = await countGroupedPublicationsByType()
+    const counters = await getPublishedPublicationsCount();
     const promises = [];
-    for (const [key, value] of Object.entries(counters.countedPublicationsByType)) {
+    for (const [key, value] of Object.entries(counters)) {
         promises.push(getPublicationsByFilter(value, key));
     }
     const data = await Promise.all(promises);
