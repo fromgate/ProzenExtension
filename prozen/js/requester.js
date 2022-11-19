@@ -1,4 +1,5 @@
 const URL_API_MEDIA = "https://dzen.ru/media-api/id/";
+const TYPES = ["article", "gif", "gallery", "brief"]; // repost?
 
 class Requester {
     constructor(publisherId, token) {
@@ -149,79 +150,51 @@ function loadPublications(publicationType, count) {
     return request(url).then(response => response.json());
 }
 
-async function loadAllPublications22() {
-    const types = ["article", "gif", "gallery", "brief"];
-    const counters = new Map()
-    for (const publicationType of types) {
-        const response = await loadPublicationsCount(publicationType).then(response => {
-            return response;
-        });
-        const count = response.count;
-        if (count != null && count > 0) {
-            counters[publicationType] = count;
-        }
-    }
-    const publications = [];
-    for (const [publicationType, count] of counters.entries()) {
-        const result = await loadPublications(publicationType, count).then(response => {
-            return response.publications;
-        });
-        Array.prototype.push.apply(publications, result);
-    }
-    return publications;
-}
-
-const TYPES = ["article", "gif", "gallery", "brief"]; // repost?
 async function loadAllPublications(sort = false) {
     const publications = [];
-    let recordCount = 0;
-    for (let i = 0; i < TYPES.length; i++) {
-        const publicationType = TYPES[i];
-        const response = await loadPublicationsCount(publicationType).then(response => {
-            return response;
-        });
-        const count = response.count;
-        const result = await loadPublications(publicationType, count).then(response => {
-            const cards = [];
-            if (response !== undefined && response.publications !== undefined) {
-                for (let i = 0, len = response.publications.length; i < len; i++) {
-                    const pubData = {};
-                    const publication = response.publications[i];
-                    pubData.id = publication.id;
-                    pubData.feedShows = publication.privateData.statistics.feedShows;
-                    pubData.shows = publication.privateData.statistics.shows;
-                    pubData.views = publication.privateData.statistics.views;
-                    pubData.viewsTillEnd = publication.privateData.statistics.viewsTillEnd;
-                    pubData.comments = publication.privateData.statistics.comments;
-                    pubData.likes = publication.privateData.statistics.likes;
-                    pubData.sumViewTimeSec = publication.privateData.statistics.sumViewTimeSec;
-                    pubData.addTime = publication.addTime !== undefined ? publication.addTime : 0;
-                    pubData.type = publication.content.type;
-                    pubData.tags = new Set(publication.privateData.tags);
-                    pubData.title = publication.content.preview.title;
-                    pubData.description = publication.content.preview.snippet;
-                    pubData.url = `https://dzen.ru/media/id/${publisherId}/${publication.id}`;
-                    cards.push(pubData);
-                    recordCount++;
-                }
-            }
-            return cards;
-        });
-        publications.push(...result);
-    }
+    const counts = await getPublishedPublicationsCount();
+    for (const [publicationType, count] of Object.entries(counts)) {
+        ////getPublicationsByView (pageSize, types, view, publicationIdAfter)
+        const result = await getPublicationsByView (count, publicationType);
+        const cards = [];
 
+        for (let i = 0, len = result.publications.length; i < len; i++) {
+            const pubData = {};
+            const publication = result.publications[i];
+            const counter = result.publicationCounters[i];
+            const socials = result.socialCounters[i];
+            if (publication.id === counter.publicationId && publication.id === socials.publicationId) {
+                pubData.id = publication.id;
+                pubData.impressions = counter.impressions;
+                pubData.clicks = counter.clicks;
+                pubData.shares = counter.shares;
+                pubData.deepViews = counter.deepViews;
+                pubData.typeSpecificViews = counter.typeSpecificViews;
+                pubData.subscriptions = counter.subscriptions;
+                pubData.sumViewTimeSec = counter.sumViewTimeSec;
+                pubData.commentCount = socials.commentCount;
+                pubData.likeCount = socials.likeCount;
+                pubData.type = publication.content.type;
+                pubData.addTime = publication.addTime;
+                pubData.publishTime = publication.publishTime;
+                pubData.modTime = publication.content.modTime;
+                pubData.title = publication.content.preview.title;
+                pubData.snippet = publication.content.preview.snippet;
+
+                pubData.isBanned = publication.isBanned;
+                pubData.url = `https://dzen.ru/media/id/${publisherId}/${publication.id}`;
+                cards.push(pubData);
+            }
+        }
+        publications.push(...cards);
+    }
     if (sort) {
         publications.sort((a, b) => {
-            const addTimeA = a.addTime;
-            const addTimeB = b.addTime;
-            if (addTimeA < addTimeB) return 1;
-            if (addTimeA > addTimeB) return -1;
-            return 0;
+            return b.addTime - a.addTime;
         });
     }
     return publications;
 }
-
 
 /* не используется */
 function loadPublicationsStat(publicationIds) {
@@ -290,7 +263,6 @@ async function getPublicationsByView (pageSize, types, view, publicationIdAfter)
 
 /* Deprecate */
 async function getPublicationsByFilter(pageSize, types, publicationIdAfter, query) {
-
     const url = new URL("editor-api/v2/get-publications-by-filter", "https://dzen.ru");
     url.searchParams.set("group", "published");
     url.searchParams.append("publisherId", publisherId);
@@ -359,42 +331,6 @@ function checkHasNoneUrl(url) {
     });
 }
 
-/* deprecated???
-async function loadPageData(initUrl, loadAll) {
-    const header = new Headers({
-        "Zen-Client-Experiments": "zen-version:2.32.0",
-        "Zen-Features": "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":241},\"need_background_image\":true,\"color_theme\":\"white-background\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"blocked_suggest\",\"video_recommend\",\"language\",\"comments_counter\"],\"stat_params_with_context\":true,\"native_onboarding\":true,\"card_types\":[\"post\"]}"
-    });
-
-    let url = initUrl;
-    const cards = [];
-    while (true) {
-        const request = await fetch(url, {headers: header, method: "GET"});
-        let json;
-        try {
-            json = await request.json();
-        } catch (e) {
-        }
-        if (!request.ok || json == null || json.items === undefined) {
-            break;
-        }
-        const items = json.items;
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            if (item.link !== undefined && item.link.startsWith("https://dzen.ru")) {
-                cards.push(cardFromItem(item));
-            }
-        }
-        const nextUrl = json.more.link;
-        if (loadAll || nextUrl == null || nextUrl == url) {
-            url = nextUrl;
-        } else {
-            break;
-        }
-    }
-    return cards;
-}
-*/
 
 /* Не используется
 async function monthlySubscribers() {
@@ -409,14 +345,6 @@ async function getBannedUsers() {
     const response = await request(requestUrl);
     return await response.json();
 }
-
-/* Deprecated
-async function getUserKarma() {
-    const requestUrl =`https://dzen.ru/editor-api/v2/get-user-karma?publisherId=${publisherId}`
-    const response = await request(requestUrl);
-    return await response.json();
-} */
-
 
 async function getPublicationsStatsSubscribers(ids) {
     const subscribersViews = [];
@@ -444,7 +372,6 @@ async function getPublicationsStatsSubscribers(ids) {
     }
     return subscribersViews;
 }
-
 
 async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, view) {
     // const data = await getPublicationsByFilter(pageSize, types, publicationIdAfter, query);
@@ -494,7 +421,6 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
     }
     return stats
 }
-
 
 function request(requestUrl) {
     const callerName = request.caller == null ? "FoxCall" : request.caller.name;

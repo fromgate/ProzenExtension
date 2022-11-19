@@ -266,7 +266,7 @@ function cardToDiv(card, fail = false) {
     if (card.type === "article" || card.type === "gif" ) {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
-        span.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
+        span.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet;
         div.appendChild(span);
     }
     return div;

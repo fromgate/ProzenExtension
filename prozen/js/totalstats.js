@@ -86,25 +86,11 @@ function showStats(stats) {
         } else {
             showFieldset(publicationType, true);
             fieldsets++;
-            const viewsPercent = stat.feedShows === 0 || publicationType === "post" ? 0 : stat.shows / stat.feedShows * 100;
-            const viewsPercentStr = viewsPercent === 0 ? "" : " (" + numFormat(viewsPercent, 2) + "%)";
-            const viewsTillEndPercent = stat.viewsTillEnd === 0 ? 0 : stat.viewsTillEnd / stat.views * 100;
-            const viewsTillEndPercentStr = viewsTillEndPercent === 0 ? "" : " (" + numFormat(viewsTillEndPercent, 2) + "%)";
-            let minAddTimeStr = "-";
-            const days = daysSinceDate(stat.minAddTime);
-            if (stat.minAddTime > 0) {
-                minAddTimeStr = dateFormat(stat.minAddTime);
-                if (days > 0) {
-                    minAddTimeStr += "; Прошло: " + paucalDay(days) + " (" + daysReadable(days) + ")";
-                }
-            }
-            const publicationsPerDayStr = stat.count === 0 || days === 0 ? "" : " (" + numFormat(stat.count / days, 2) + " в день)";
-
-            document.getElementById(publicationType + "-count").textContent = numFormat(stat.count) + publicationsPerDayStr;
-            document.getElementById(publicationType + "-feedShows").textContent = numFormat(stat.feedShows);
-            document.getElementById(publicationType + "-views").textContent = numFormat(stat.views) + viewsPercentStr;
-            document.getElementById(publicationType + "-viewstillend").textContent = numFormat(stat.viewsTillEnd) + viewsTillEndPercentStr;
-            document.getElementById(publicationType + "-firstpost").textContent = minAddTimeStr;
+            document.getElementById(publicationType + "-count").textContent = numFormat(stat.count) + stat.publicationsPerDayStr();
+            document.getElementById(publicationType + "-impressions").textContent = numFormat(stat.impressions);
+            document.getElementById(publicationType + "-clicks").textContent = numFormat(stat.clicks) + stat.clicksPercentStr(publicationType);
+            document.getElementById(publicationType + "-typeSpecificViews").textContent = numFormat(stat.typeSpecificViews) + stat.typeSpecificViewsPercentStr(publicationType);
+            document.getElementById(publicationType + "-firstpost").textContent = stat.minAddTimeStr();
         }
     });
     showNotFound (fieldsets === 0);
@@ -125,12 +111,7 @@ function getMedian(arrOfNums) {
 function countStats() {
     const stats = new Map();
     for (let i = 0; i < TYPES.length; i++) {
-        stats.set(TYPES[i], {count: 0,
-            feedShows: 0, feedShowsMed: 0,  feedShowsAvg: 0,
-            shows: 0, showsMed: 0, showsAvg: 0,
-            views: 0, viewsMed: 0, viewsAvg: 0,
-            viewsTillEnd: 0, viewsTillEndMed: 0,viewsTillEndAvg: 0,
-            minAddTime: 0});
+        stats.set(TYPES[i], new Stat());
     }
     if (publications == null) {
         return stats;
@@ -152,28 +133,15 @@ function countStats() {
         }
         const stat = stats.get(type);
         stat.count++;
-        stat.feedShows += publication.feedShows;
-        stat.views += publication.views;
-        stat.shows += publication.shows;
-        stat.viewsTillEnd += publication.viewsTillEnd;
-        stat.minAddTime = (publication.addTime !== undefined) && (publication.addTime < stat.minAddTime || stat.minAddTime === 0) ? publication.addTime : stat.minAddTime;
+        stat.plus(publication);
         stats.set(type, stat);
     }
+
     // Count totals stats
-    const total = {count: 0,
-        feedShows: 0, feedShowsMed: 0,  feedShowsAvg: 0,
-        shows: 0, showsMed: 0, showsAvg: 0,
-        views: 0, viewsMed: 0, viewsAvg: 0,
-        viewsTillEnd: 0, viewsTillEndMed: 0,viewsTillEndAvg: 0,
-        minAddTime: 0};
+    const total = new Stat();
 
     stats.forEach((stat, type) => {
-        total.count += stat.count;
-        total.feedShows += stat.feedShows;
-        total.shows += stat.shows;
-        total.views += stat.views;
-        total.viewsTillEnd += stat.viewsTillEnd;
-        total.minAddTime = (stat.minAddTime < total.minAddTime || total.minAddTime === 0) && stat.minAddTime > 0 ? stat.minAddTime : total.minAddTime;
+        total.plus(stat);
     });
     stats.set("total", total);
     return stats;
@@ -213,43 +181,36 @@ function getExcelData(type){
         return ['no result'];
     }
 
-    let pubs = publications.filter(pub => !!pub.content && pub.content.type == type);
+    let pubs = publications.filter(pub =>  pub.type === type);
     
     let arResult = [];
     
     switch(type){
-        case 'article': case 'gif':
+        case "article": case "gif":
 
-        let firstCol = type == 'article' ? 'Статья' : 'Видео';
-        arResult.push([firstCol,'Показы','Просмотры','Дочитывания','Время (среднее)']);
+        let firstCol = type === "article" ? "Статья" : "Видео";
+        arResult.push([firstCol,"Показы","Клики",type === "article" ? "Дочитывания" : "Просмотры","Время (среднее)"]);
         
         pubs.map(function(article){
             let arRow = [];
-            arRow.push(article.content.title);
-
-            if(!!article.privateData && !!article.privateData.statistics){
-                arRow.push(article.privateData.statistics.feedShows);
-                arRow.push(article.privateData.statistics.views);
-                arRow.push(article.privateData.statistics.viewsTillEnd);
-                arRow.push(getStrTime(article.privateData.statistics.sumViewTimeSec / article.privateData.statistics.viewsTillEnd, false));
-            }
-            
+            arRow.push(article.title);
+            arRow.push(article.impressions);
+            arRow.push(article.clicks);
+            arRow.push(article.typeSpecificViews);
+            arRow.push(getStrTime(article.sumViewTimeSec / article.typeSpecificViews, false));
             arResult.push(arRow);
         });
             
         break;
-        case 'brief':
-            arResult.push(['Пост','Показы','Просмотры','Дочитывания']);
-           
+        case "brief":
+            arResult.push(["Пост","Показы","Клики","Просмотры"]);
+
             pubs.map(function(article){
                 let arRow = [];
-                arRow.push(article.content.title);
-                if(!!article.privateData && !!article.privateData.statistics){
-                    arRow.push(article.privateData.statistics.feedShows);
-                    arRow.push(article.privateData.statistics.views);
-                    arRow.push(article.privateData.statistics.viewsTillEnd);
-                }
-                
+                arRow.push(article.title == null || article.title.length === 0 ? article.url : article.title);
+                arRow.push(article.impressions);
+                arRow.push(article.clicks);
+                arRow.push(article.typeSpecificViews);
                 arResult.push(arRow);
             })
 
@@ -334,32 +295,6 @@ function generateExcelExport(){
 }
 
 
-/* Deprecated */
-async function getStats(publicationType) {
-    const response = await loadPublicationsCount(publicationType).then(response => {
-        return response;
-    });
-    const count = response.count;
-    const result = await loadPublications(publicationType, count).then(response => {
-        let feedShows = 0;
-        let shows = 0;
-        let views = 0;
-        let viewsTillEnd = 0;
-        let minAddTime = 0;
-        for (let i = 0, len = response.publications.length; i < len; i++) {
-            const publication = response.publications[i];
-            feedShows += publication.privateData.statistics.feedShows;
-            shows += publication.privateData.statistics.shows;
-            views += publication.privateData.statistics.views;
-            viewsTillEnd += publication.privateData.statistics.viewsTillEnd;
-            minAddTime = (publication.addTime !== undefined) && (publication.addTime < minAddTime || minAddTime === 0) ? publication.addTime : minAddTime;
-        }
-        return {feedShows: feedShows, shows: shows, views: views, viewsTillEnd: viewsTillEnd, minAddTime: minAddTime};
-    });
-    result.count = count;
-    return result;
-}
-
 function hideSpinner() {
     document.getElementById("spinner").style.display = "none";
     document.getElementById("stats").style.display = "block";
@@ -386,4 +321,71 @@ function showFieldset (type, show) {
 
 function showNotFound(show) {
     document.getElementById("not-found").style.display = show ? "block" : "none";
+}
+
+class Stat {
+    constructor() {
+        this.count = 0;
+        this.impressions = 0;
+        this.impressionsMed = 0;
+        this.impressionsAvg = 0;
+        this.clicks = 0;
+        this.clicksMed = 0;
+        this.clicksAvg = 0;
+        this.typeSpecificViews = 0;
+        this.typeSpecificViewsMed = 0;
+        this.typeSpecificViewsAvg = 0;
+        this.deepViews = 0;
+        this.deepViewsMed = 0;
+        this.deepViewsAvg = 0;
+        this.minAddTime =0
+    }
+    plus (publication) {
+        for (const key of Object.keys(this)) {
+            if (publication.hasOwnProperty(key)) {
+                if (key !== "minAddTime") {
+                    this[key] += publication [key];
+                }
+            }
+        }
+        const pubMinAddTime = publication.hasOwnProperty("addTime") ? publication.addTime : publication.minAddTime;
+        this.minAddTime = (pubMinAddTime != null) && (pubMinAddTime >0) && (pubMinAddTime < this.minAddTime || this.minAddTime === 0) ? pubMinAddTime : this.minAddTime;
+    }
+
+    clicksPercent (publicationType = "article") {
+        return this.impressions === 0 || publicationType !== "article" ? 0 : this.typeSpecificViews / this.impressions * 100;
+        //return this.impressions === 0 ? 0 : this.typeSpecificViews / this.impressions * 100;
+    }
+
+    clicksPercentStr () {
+        const clicksPercent  = this.clicksPercent()
+        return clicksPercent === 0 ? "" : " (" + numFormat(clicksPercent, 2) + "%)";
+    }
+
+    typeSpecificViewsPercent() {
+        return this.typeSpecificViews === 0 ? 0 : this.typeSpecificViews / this.clicks * 100;
+    }
+
+    typeSpecificViewsPercentStr (publicationType = "article") {
+        const typeSpecificViewsPercent = this.typeSpecificViewsPercent();
+        return  publicationType !== "article" || typeSpecificViewsPercent === 0  ? "" : " (" + numFormat(typeSpecificViewsPercent, 2) + "%)";
+    }
+
+    minAddTimeStr() {
+        let minAddTimeStr = "-";
+        const days = daysSinceDate(this.minAddTime);
+        if (this.minAddTime > 0) {
+            minAddTimeStr = dateFormat(this.minAddTime);
+            if (days > 0) {
+                minAddTimeStr += "; Прошло: " + paucalDay(days) + " (" + daysReadable(days) + ")";
+            }
+        }
+        return minAddTimeStr;
+    }
+
+    publicationsPerDayStr() {
+        const days = daysSinceDate(this.minAddTime);
+        return this.count === 0 || days === 0 ? "" : " (" + numFormat(this.count / days, 2) + " в день)";
+    }
+
 }

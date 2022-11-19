@@ -171,7 +171,7 @@ function cardMatch(card, searchString) {
     let foundTitle = true;
     let foundDescription = true;
     const title = card.title.toLocaleLowerCase();
-    const description = card.description === undefined ? "" : card.description.toLocaleLowerCase();
+    const description = card.snippet == null ? "" : card.snippet.toLocaleLowerCase();
     for (let i = 0; i < ln.length; i++) {
         const str = ln[i].toLocaleLowerCase();
         if (!title.includes(str)) {
@@ -211,7 +211,7 @@ function executeSearch() {
 }
 
 function loadPublicationsAndShowByType(pubType) {
-    loadAllPublications().then(cards => {
+    loadAllPublications(true).then(cards => {
         publications = cards;
         updateSearchStats();
         executeShowByType(pubType);
@@ -219,7 +219,7 @@ function loadPublicationsAndShowByType(pubType) {
 }
 
 function loadPublicationsAndSearch() {
-    loadAllPublications().then(cards => {
+    loadAllPublications(true).then(cards => {
         publications = cards;
         updateSearchStats();
         executeSearch();
@@ -278,12 +278,12 @@ function cardToDiv(card) {
     if (card.type === "article" || card.type === "narrative") {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
-        span.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
+        span.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet;
         div.appendChild(span);
     } else if (card.type === "gallery") {
-        strong.innerText = card.title === undefined || card.title.length === 0 ? "Описание не указано" : card.title;
+        strong.innerText = card.title == null || card.title.length === 0 ? "Описание не указано" : card.title;
     } else if (card.type === "post" || card.type === "brief")  {
-        strong.innerText = card.description === undefined || card.description.length === 0 ? "Описание не указано" : card.description;
+        strong.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet;
     }
     return div;
 }
