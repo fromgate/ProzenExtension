@@ -6,6 +6,8 @@ window.browser = (function () {
 const nameVersion = document.getElementById("extver");
 nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
 document.getElementById("prozen-image").style.visibility = "hidden";
+
+const OFF_BY_DEFAULT = ["prozen-realtime-switch","prozen-comments-widget-switch"];
 const switchIds = [];
 
 initSwitches();
@@ -29,7 +31,7 @@ function loadOptions() {
             if (options.hasOwnProperty(switchId)) {
                 setCheckbox(switchId, options[switchId])
             } else {
-                setCheckbox(switchId, switchId !== "prozen-realtime-switch");
+                setCheckbox(switchId, !OFF_BY_DEFAULT.includes(switchId)); //switchId !== "prozen-realtime-switch"
                 save = true;
             }
             if (save) {

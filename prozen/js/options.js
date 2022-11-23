@@ -3,7 +3,8 @@ const OPTIONS = {
     subtitleLinks: "prozen-article-link-switch",
     shortDashboardRealtime: "prozen-realtime-switch",
     prozenMenu: "prozen-menu-switch",
-    informer: "prozen-informer-switch"
+    informer: "prozen-informer-switch",
+    commentsWidget: "prozen-comments-widget-switch"
 }
 
 function getOption(optionId) {

@@ -53,7 +53,7 @@ function main(updatedId = null) {
         case "main":
             if (token != null && publisherId != null) {
                 mediaUrl = window.location.href.replace("profile/editor", "media");
-                shortenRealtimeWidget();
+                modifyStudioStyles();
                 addStudioMenu();
                 registerObserverWindowsLocation();
                 updateBalanceBlock();
@@ -327,15 +327,17 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     return navItem;
 }
 
-
-function shortenRealtimeWidget() {
-    getOption(OPTIONS.shortDashboardRealtime).then(enable => {
-        if (enable) {
-            const sheet = new CSSStyleSheet();
-            sheet.replaceSync (".realtime-publications__list-3o {display: none;}");
-            document.adoptedStyleSheets = [sheet];
-        }
-    });
+async function modifyStudioStyles() {
+    const hideComments = await getOption(OPTIONS.commentsWidget);
+    const hideRealtimeStatsList = await getOption(OPTIONS.shortDashboardRealtime);
+    let sheetStr = "";
+    if (hideComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
+    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
+    if (sheetStr.length > 0) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync (sheetStr);
+        document.adoptedStyleSheets = [sheet];
+    }
 }
 
 function openUrl(url) {
@@ -612,7 +614,7 @@ function modifyGridCellStats(cell, card) {
 
     // Просмотры
     const c2r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c2r1.setAttribute("title", "Клики/Просмотры (CTR)");
+    c2r1.setAttribute("title", card.viewsTitle);
     const c2r1Icon = createElement("span", "prozen_studio_card_icon_views");
     const c2r1Text = createElement("span");
     c2r1Text.innerText = card.viewsStr;
@@ -645,7 +647,7 @@ function modifyGridCellStats(cell, card) {
 
     // Дочитывания
     const c3r1 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
-    c3r1.setAttribute("title", "Дочитывания");
+    c3r1.setAttribute("title", card.viewsTillEndTitle);
     const c3r1Icon = createElement("span", "prozen_studio_card_icon_full_views");
     const c3r1Text = createElement("span");
     c3r1Text.innerText = card.viewsTillEndStr;
@@ -742,7 +744,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
     // Просмотры
     const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c1r2.setAttribute("title", "Клики/Просмотры (CTR, %)");
+    c1r2.setAttribute("title", card.viewsTitle);
     const c1r2Icon = createElement("span", "prozen_studio_card_icon_views");
     const c1r2Text = createElement("span");
     c1r2Text.innerText = card.viewsStr;
@@ -752,7 +754,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
 
     // Дочитывания
     const c1r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
-    c1r3.setAttribute("title", "Дочитывания (%)");
+    c1r3.setAttribute("title", card.viewsTillEndTitle);
     const c1r3Icon = createElement("span", "prozen_studio_card_icon_full_views");
     const c1r3Text = createElement("span");
     c1r3Text.innerText = card.viewsTillEndStr;
@@ -937,10 +939,10 @@ async function addInformerBlock() {
         return;
     }
 
-    const informer = createElement("div", "pager__container-Hn");
+    const informer = createElement("div", "notifications-preview-block-desktop__block-39");
     informer.id = "prozen-informer";
     column.appendChild(informer);
-    informer.style.marginTop = "16px";
+    informer.style.marginTop = "24px";
 
     const channelUrl = mediaUrl.replace("/media/", "/");
     const result = await Promise.all([
@@ -957,28 +959,29 @@ async function addInformerBlock() {
     const informerContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
     informer.appendChild(informerContent);
 
-    const informerH3 = createElement("div", "Text Text_align_center Text_weight_medium Text_typography_text-16-20");
+    const informerH3 = createElement("h3", "author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 author-studio-section-title__text-2P");
     informerH3.innerText = "ПРОДЗЕН-инфо";
     informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
+    informerH3.style.marginBottom = "10px";
 
     informerContent.appendChild(informerH3);
 
     if (strikesInfo != null && strikesInfo.limitations != null) {
-        const informerStrikes = createElement("span", "Text Text_typography_text-14-18 notification__text-3n prozen-mb5-block");
+        const informerStrikes = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerStrikes);
     }
 
     if (strikesInfo != null && strikesInfo.channelRestricted != null) {
-        const informerPyos = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        const informerPyos = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
         informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerPyos);
     }
 
     if (hasNone != null) {
-        const allNone = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        const allNone = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         if (hasNone) {
             allNone.innerText = "Канал не индексируется 🤖";
             allNone.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
@@ -991,14 +994,14 @@ async function addInformerBlock() {
     }
 
     if (!!bannedUsers && !!bannedUsers.bannedUsers) {
-        const banCount = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        const banCount = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         banCount.innerText = `Заблокировано читателей: ${bannedUsers.bannedUsers.length}`;
         banCount.setAttribute("title", "Количество заблокированных комментаторов");
         informerContent.appendChild(banCount);
     }
 
     if (actuality) {
-        const informerActuality = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+        const informerActuality = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         informerActuality.innerText = `Статистика от ${actuality}`;
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);
@@ -1083,11 +1086,13 @@ class Card {
         // Просмотры (CTR%)
         this.ctr = (infiniteAndNan(this.clicks / this.feedShows) * 100).toFixed(2);
         this.viewsStr = `${infiniteAndNanToStr(this.views == null ? this.clicks : this.views)} (${this.ctr}%)`;
+        this.viewsTitle = this.type === "article" ? "Клики (CTR)" : "Просмотры (VTR)";
 
         // Дочитывания
         this.readsPercent = infiniteAndNan(this.viewsTillEnd / (this.views == null ? this.clicks : this.views) * 100).toFixed(2);
 
         this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
+        this.viewsTillEndTitle = this.type === "article" ? "Дочитывания" : "Просмотры";
 
         if (this.type === "brief" || this.type === "gif") {
             this.ctr = (infiniteAndNan(this.viewsTillEnd / this.feedShows) * 100).toFixed(2);
