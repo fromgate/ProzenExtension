@@ -298,6 +298,12 @@ async function showStatsVideoOld(data, publisherId) {
     }
 }
 
+async function getPublicationStats(data) {
+    const localStats = data.publication.publicationStatistics;
+    if (localStats != null) return localStats;
+    return await loadPublicationStat(data.publication.id);
+}
+
 async function showStatsArticle(data, publisherId) {
     if (data === null) {
         return;
@@ -307,7 +313,12 @@ async function showStatsArticle(data, publisherId) {
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
+    const articleData = await getPublicationStats(data); // await loadPublicationStat(postId);
+
+    // console.log(articleData);
+
+
+    console.log(articleData);
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
     const shows = articleData.shows;

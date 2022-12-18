@@ -19,7 +19,7 @@
                 <div class="section" id="start_text">
                     <form>
                         <fieldset>
-                            <legend>Поиск публикаций, исключённых из индексации</legend>
+                            <legend>Поиск публикаций с возможными проблемами</legend>
                             <label for="radio_find_all">
                                 <input type="radio" id="radio_find_all" name="all-or-20"/>Проверить
                                 все публикации канала</label>
@@ -35,18 +35,19 @@
                             <button id="start_button">Начать поиск</button>
                         </fieldset>
                     </form>
-                    <p>Публикации, в исходном коде которых можно найти мета-тег <code>&lt;meta name=&quot;robots&quot;
-                        content=&quot;noindex&quot; /&gt;</code>, нельзя найти через поисковики. Техподдержка
-                        Яндекс.Дзена не подтверждает связь этого тега с ограничениями канала.<br>
-                        Подробнее о таких публикациях можно прочитать <strong><a
-                                href="https://prozen.ru/2021/05/robots-no-index/?utm_source=prozen_noindex_finder"
-                                target="_blank">здесь</a></strong>.</p>
+                    <p>Публикации в Дзене могут иметь различные признаки, по которым можно судить о том, что они ограничены:
+                        наличие мета-тега <code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot; /&gt;</code> (такие публикации нельзя найти через поисковик),
+                        «плашки» о наличии в статье упоминания COVID-19, отсутствие рекламы, признака блокировки и т.д.<br>
+                        Если расширение обнаружило что-то такое, то это не значит, что статья однозначно пессимизирована. Например, рекламу
+                        на статьях может отключить и сам автор.<br>
+                        В таких случаях рекомендуется вручную проверить статью и если обнаружатся какие-то нестандартные признаки, запросить уточнение
+                        статуса публикации в службе поддержки.</p>
                     <p>Не рекомендуется пользоваться этой функцией часто.</p>
                 </div>
                 <div class="section" id="disclaimer">
                     <p>
                         <mark class="secondary inline-block">Отказ от ответственности.</mark>
-                        <br>Поиск неиндескируемых публикаций осуществляется путём их последовательной загрузки и
+                        <br>Поиск проблемных публикаций осуществляется путём их последовательной загрузки и
                         анализа.
                         <br>Многочисленное открытие публикаций — это поведение непредусмотренное редактором Дзена
                         и не является обычным поведение читателя или автора.
@@ -64,8 +65,8 @@
                 </div>
                 <div class="section" id="not_found">
                     <p>
-                        <mark class="tertiary inline-block">Неиндексируемые публикации не обнаружены!</mark>
-                        <br>Поздравляем! На вашем канале не обнаружены публикации, исключённые из поиска.
+                        <mark class="tertiary inline-block">Проблемные публикации не обнаружены!</mark>
+                        <br>Поздравляем! На вашем канале не обнаружены публикации с подозрительными признаками.
                     </p>
                 </div>
                 <div class="section" id="channel_none">
@@ -93,7 +94,7 @@
     · <a href="https://t.me/prodzen" target="_blank">Телеграм</a>
     · <a href="https://vk.com/prodzen" target="_blank">ВК</a>
     · <a href="https://zen.yandex.ru/prodzn/" target="_blank">Дзен</a>
-    · <a href="https://sobe.ru/na/prozen/" target="_blank">Поддержать разработчика</a><br>
+    · <a href="https://donate.stream/prodzen" target="_blank">Поддержать разработчика</a><br>
 </footer>
 <script type="text/javascript" src="js/requester.js"></script>
 <script type="text/javascript" src="js/tools.js"></script>

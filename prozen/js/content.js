@@ -240,7 +240,7 @@ async function addStudioMenu() {
             prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
             prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
             prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
-            prozenMenu.appendChild(creatProzenMenuElement("Проверка noindex", "prozen_menu_robot", clickFindSadRobots, "Поиск публикаций с мета-тегом robots" + addition));
+            prozenMenu.appendChild(creatProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций" + addition));
             navBarContent.insertBefore(prozenMenu, navBarSpace);
         } else {
             const column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
@@ -280,7 +280,7 @@ async function addStudioMenu() {
             menuContent.appendChild(menuSearch);
 
             const menuNoindex = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
-            menuNoindex.innerText = "Проверка noindex";
+            menuNoindex.innerText = "Проверка публикаций";
             menuNoindex.addEventListener('click', clickFindSadRobots);
             menuNoindex.style.cursor = "pointer";
             menuContent.appendChild(menuNoindex);
@@ -328,10 +328,10 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
 }
 
 async function modifyStudioStyles() {
-    const hideComments = await getOption(OPTIONS.commentsWidget);
+    // const hideComments = await getOption(OPTIONS.commentsWidget);
     const hideRealtimeStatsList = await getOption(OPTIONS.shortDashboardRealtime);
     let sheetStr = "";
-    if (hideComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
+    // if (hideComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
     if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();

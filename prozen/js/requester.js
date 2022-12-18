@@ -180,10 +180,11 @@ async function loadAllPublications(sort = false) {
  * @param publicationData
  */
 function publicationDataToArray(publicationData) {
-    const cards = [];
+const cards = [];
     for (let i = 0, len = publicationData.publications.length; i < len; i++) {
         const pubData = {};
         const publication = publicationData.publications[i];
+
         const counter = publicationData.publicationCounters[i];
         const socials = publicationData.socialCounters[i];
         if (publication.id === counter.publicationId && publication.id === socials.publicationId) {
