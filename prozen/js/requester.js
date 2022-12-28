@@ -48,19 +48,17 @@ async function getBalanceAndMetriksId() {
             const simpleBalance = data.money.simple.balance;
             const options = {year: 'numeric', month: 'long', day: 'numeric'};
             result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
-            if (data.money.simple.personalData != null) {
-                const personalDataBalance = data.money.simple.personalData.balance;
-                const money = parseFloat((simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
+            const personalDataBalance = data.money?.simple?.balance;
+            const money = parseFloat((personalDataBalance == null || simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
 
-                let total = money;
-                for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
-                    if (data.money.simple.paymentHistory[i]["status"] === "completed") {
-                        total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
-                    }
+            let total = money;
+            for (let i = 0, len = data.money.simple.paymentHistory.length; i < len; i++) {
+                if (data.money.simple.paymentHistory[i]["status"] === "completed") {
+                    total += parseFloat(data.money.simple.paymentHistory[i]["amount"]);
                 }
-                result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
-                result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
             }
+            result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
+            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
         }
 
         result.metriksId = data.publisher.privateData.metrikaCounterId;
@@ -180,7 +178,7 @@ async function loadAllPublications(sort = false) {
  * @param publicationData
  */
 function publicationDataToArray(publicationData) {
-const cards = [];
+    const cards = [];
     for (let i = 0, len = publicationData.publications.length; i < len; i++) {
         const pubData = {};
         const publication = publicationData.publications[i];

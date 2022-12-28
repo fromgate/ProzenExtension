@@ -335,7 +335,7 @@ async function modifyStudioStyles() {
     if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
-        sheet.replaceSync (sheetStr);
+        sheet.replaceSync(sheetStr);
         document.adoptedStyleSheets = [sheet];
     }
 }

@@ -2,47 +2,50 @@ const API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&"
 
 const NOINDEX_KEY = "prozen-noindex-agree-";
 
-const CHECK_RESULT_NOINDEX = "noindex"
-const CHECK_RESULT_OK = "ok";
-const CHECK_RESULT_FAIL = "fail";
-const CHECK_RESULT_PAGEDATA_FAIL = "fail_page_data";
-const CHECK_RESULT_BANNED = "isBanned";
-const CHECK_RESULT_404 = "404";
-const CHECK_RESULT_PAGEDATA_COVID = "covid19"
-const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "DMCA_Music"
-const CHECK_RESULT_PAGEDATA_NOADV = "no_adv";
+const CHECK_RESULT_NOINDEX = "check-noindex"
+const CHECK_RESULT_OK = "check-ok";
+const CHECK_RESULT_FAIL = "check-fail";
+const CHECK_RESULT_PAGEDATA_FAIL = "check-fail-pagedata";
+const CHECK_RESULT_BANNED = "check-banned";
+const CHECK_RESULT_404 = "check-404";
+const CHECK_RESULT_PAGEDATA_COVID = "check-covid"
+const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "check-music-dmca"
+const CHECK_RESULT_PAGEDATA_NOADV = "check-adblocks";
 
-const CHECK_RESULT_MESSAGES = {}
+const ALL_CHECK_RESULT_MESSAGES = {}
 
-CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
     tag: "❌",
     text: "На публикации стоит отметка о блокировке.\nСкорее всего она не показывается пользователям.\nНайдите её в Студии и если она действительно заблокирована, обратитесь в службу поддержки."
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_NOINDEX] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_NOINDEX] = {
     tag: "🤖", text: `Обнаружен мета-тег <meta name="robots" content="noindex" />
 Публикация не индексируется поисковиками.
 Примечание: связь этого тега с показами,
 пессимизацией и иными ограничениями канала
 официально не подтверждена.`
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_FAIL] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_FAIL] = {
     tag: "❓",
     text: "Расширение не смогло загрузить страницу публикации (возможно ошибка связи).\nНадо проверить статью вручную или, если таких ошибок много,\nповторить проверку позднее."
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_404] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_404] = {
     tag: "⛔",
     text: "Страница публикации вернула 404-ую ошибку.\nЭто может быть признаком блокировки публикации."
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_COVID] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_COVID] = {
     tag: "😷",
     text: "На публикации обнаружена метка об упоминании COVID-19"
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
     tag: "🎹",
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
-CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: "🪙", text: "У статьи отключены рекламные блоки"};
-CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL]= {tag: "⁉️", text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."}
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: "🪙", text: "У статьи отключены рекламные блоки"};
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
+    tag: "⁉️",
+    text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."
+}
 
 let AGREE = false;
 
@@ -51,6 +54,7 @@ let publications = [];
 let newPublications = []
 let publisherId;
 let token;
+const switchIds = [];
 
 const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
 
@@ -58,6 +62,8 @@ showWarning();
 document.getElementById("agree").onclick = clickAgree;
 document.getElementById("start_button").onclick = loadPublicationsAndSearch;
 
+initSwitches();
+loadOptions();
 start();
 
 function start() {
@@ -153,6 +159,16 @@ function clearSearchResults() {
 }
 
 
+function getShowState(checkState) {
+    const showState = new Set()
+    for (let state of checkState) {
+        if (displayCheckResult(state)) {
+            showState.add(state);
+        }
+    }
+    return showState;
+}
+
 async function executeSearch(pubs, limitCount = -1) {
     showElement("search_result");
     let count = 0;
@@ -169,20 +185,24 @@ async function executeSearch(pubs, limitCount = -1) {
             if (card.isBanned) {
                 checkState.add(CHECK_RESULT_BANNED);
             }
-            const loadState = await checkRobotNoNoIndex(card);
-            loadState.forEach(item => checkState.add(item));
+
+            if (fullCheck()) {
+                const loadState = await checkRobotNoNoIndex(card);
+                loadState.forEach(item => checkState.add(item));
+            }
 
             if (checkState.size === 0) {
                 checkState.add(CHECK_RESULT_OK);
             }
 
             if (checkState.size > 0 && !checkState.has(CHECK_RESULT_OK)) {
-                addSearchResult(card, checkState);
-                if (checkState.has(CHECK_RESULT_NOINDEX)) {
+                const showState = getShowState(checkState);
+                if (showState.size > 0) {
+                    addSearchResult(card, showState);
                     links += `${card.url}\n`;
+                    scrollToBottom();
+                    countRobots++;
                 }
-                scrollToBottom();
-                countRobots++;
             }
             if (count >= maxCount) {
                 break;
@@ -265,7 +285,7 @@ async function checkRobotNoNoIndex(card) {
 }
 
 
-function getDataLine (scriptLines, prefix) {
+function getDataLine(scriptLines, prefix) {
     let wData = "";
     const lines = scriptLines.split("\n");
 
@@ -296,9 +316,8 @@ function checkVideoPage(scriptLines) {
         }
 
         if (item?.adBlocks?.DOC2DOC?.rsyaAdData?.blockId == null) {
-            publicationChecks.add (CHECK_RESULT_PAGEDATA_NOADV);
+            publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
-
 
         /*
                 if (serverStateObj.videoViewer?.adBlocks?.DOC2DOC?.rsyaAdData?.blockId == null) {
@@ -310,6 +329,7 @@ function checkVideoPage(scriptLines) {
     }
     return publicationChecks;
 }
+
 function checkPublicationPage(scriptLines) {
     const publicationChecks = new Set();
     const wData = getDataLine(scriptLines, "  w._data = ");
@@ -325,7 +345,7 @@ function checkPublicationPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC)
         }
 
-        if (type === "article" && pageObj.adData?.topAdv?.rsyaAdData?.blockId == null) {
+        if (type === "article" && pageObj.adData?.adBlocks?.["desktop-footer"]?.rsyaAdData?.blockId == null) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
 
@@ -344,6 +364,11 @@ function addSearchResult(card, state = new Set([CHECK_RESULT_OK])) {
     const searchResult = document.getElementById("search_result");
     searchResult.appendChild(a);
     searchResult.appendChild(document.createElement("hr"));
+}
+
+function displayCheckResult(resultId) {
+    const checkbox = document.getElementById(resultId);
+    return checkbox == null || checkbox.checked;
 }
 
 function cardToDiv(card, state) {
@@ -378,15 +403,13 @@ function cardToDiv(card, state) {
     }
     div.appendChild(icon);
 
-
-    for (const [key, value] of Object.entries(CHECK_RESULT_MESSAGES)) {
+    for (const [key, value] of Object.entries(ALL_CHECK_RESULT_MESSAGES)) {
         if (state.has(key)) {
             const marked = document.createElement("mark");
             marked.innerText = value.tag;
             marked.setAttribute("title", value.text);
             div.appendChild(marked);
         }
-
     }
 
     const strong = document.createElement("strong");
@@ -432,6 +455,11 @@ function scrollToBottom() {
     window.scrollTo(0, document.body.scrollHeight);
 }
 
+
+function onCheckboxClick(switchId) {
+    setCheckbox(switchId, document.getElementById(switchId).checked, true)
+}
+
 function loadData() {
     return new Promise(resolve => {
         const data = {id: null, agree: false}
@@ -452,4 +480,62 @@ function loadData() {
             }
         });
     });
+}
+
+function loadOptions() {
+    //const checkboxIds = Object.keys[ALL_CHECK_RESULT_MESSAGES];
+    chrome.storage.local.get(switchIds, options => {
+        switchIds.forEach(switchId => {
+            let save = false;
+            if (options.hasOwnProperty(switchId)) {
+                setCheckbox(switchId, options[switchId])
+            } else {
+                setCheckbox(switchId, true);
+                save = true;
+            }
+            if (save) {
+                saveOptions();
+            }
+        })
+    });
+}
+
+function setCheckbox(switchId, switchState, save = false) {
+    const switchEl = document.getElementById(switchId)
+    switchEl.checked = switchState;
+    if (save) {
+        saveOptions();
+    }
+}
+
+function saveOptions() {
+    // const checkboxIds = Object.keys[ALL_CHECK_RESULT_MESSAGES];
+    const options = {}
+    switchIds.forEach(switchId => {
+        options[switchId] = document.getElementById(switchId).checked;
+    })
+    chrome.storage.local.set(options);
+}
+
+function initSwitches() {
+    const switchElements = document.getElementsByClassName("switch-checkbox");
+    for (let i = 0; i < switchElements.length; i++) {
+        const el = switchElements[i];
+        const switchId = el.id;
+        switchIds.push(switchId);
+        document.getElementById(switchId).addEventListener('click', onCheckboxClick.bind(null, switchId));
+    }
+}
+
+function fullCheck() {
+    let fullCheck = false;
+    for (let state of switchIds) {
+        if (state !== CHECK_RESULT_BANNED) {
+            if (displayCheckResult(state)) {
+                fullCheck = true;
+                break;
+            }
+        }
+    }
+    return fullCheck;
 }

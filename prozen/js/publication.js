@@ -315,10 +315,6 @@ async function showStatsArticle(data, publisherId) {
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
     const articleData = await getPublicationStats(data); // await loadPublicationStat(postId);
 
-    // console.log(articleData);
-
-
-    console.log(articleData);
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
     const shows = articleData.shows;
