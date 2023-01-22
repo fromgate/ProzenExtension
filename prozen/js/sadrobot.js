@@ -12,6 +12,8 @@ const CHECK_RESULT_PAGEDATA_COVID = "check-covid"
 const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "check-music-dmca"
 const CHECK_RESULT_PAGEDATA_NOADV = "check-adblocks";
 
+const COIN_EMOJI = isOldWindows() ? "💰" : "🪙"
+
 const ALL_CHECK_RESULT_MESSAGES = {}
 
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
@@ -41,7 +43,7 @@ ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
     tag: "🎹",
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
-ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: "🪙", text: "У статьи отключены рекламные блоки"};
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: COIN_EMOJI, text: "У статьи отключены рекламные блоки"};
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
     tag: "⁉️",
     text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."
@@ -315,15 +317,13 @@ function checkVideoPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC);
         }
 
-        if (item?.adBlocks?.DOC2DOC?.rsyaAdData?.blockId == null) {
+        const adBlocks = item?.adBlocks
+        if (adBlocks?.TOP_SIDEBAR?.rsyaAdData?.blockId == null
+            && adBlocks?.BOTTOM_PLAYER?.rsyaAdData?.blockId == null
+            && adBlocks?.LIVE_ADS_BANNER?.rsyaAdData?.blockId == null) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
 
-        /*
-                if (serverStateObj.videoViewer?.adBlocks?.DOC2DOC?.rsyaAdData?.blockId == null) {
-            publicationChecks.add (CHECK_RESULT_PAGEDATA_NOADV);
-        }
-         */
     } catch (e) {
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
     }
@@ -539,3 +539,13 @@ function fullCheck() {
     }
     return fullCheck;
 }
+
+
+//'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+function isOldWindows() {
+    const osStr = navigator.userAgent.split(" ")[1]
+    if (!osStr.startsWith("(Windows NT")) return false
+    const version = Number.parseFloat(osStr.split(" ")[2])
+    return version != null && version < 10.0
+}
+
