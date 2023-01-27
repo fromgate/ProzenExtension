@@ -295,7 +295,7 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     if (hint !== null) {
         navItem.setAttribute("title", hint);
     }
-    let menuLine = null
+    let menuLine
     if (url == null) {
         menuLine = createElement("div", "navbar__item-17 navbar__item-2e"); //navbar__item-2e - старая версия
         bold = true;
@@ -443,18 +443,18 @@ async function processPublicationsCards(request) {
 }
 
 function getPublicationCellById(publicationId) {
-    const table = document.querySelector("table[class^=publications-list]"); //publications-list__publicationsList-3U
-    const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`); //a.publication-preview[href*='${publicationId}  //publication-preview__publicationPreview-1w
+    const table = document.querySelector("table[class^=publications-list]");
+    const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`);
     if (a != null) return a.parentNode
     const div = table.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
-    return div.parentNode.parentNode.parentNode
+    return div.parentNode.parentNode.parentNode.parentNode
 }
 
 function getPublicationGridCellById(publicationId) {
     const a = document.querySelector(`a.publication-card__link-3k[href*='${publicationId}'`);
     if (a != null) return a.parentNode
     const div = document.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
-    return div.parentNode.querySelector("div.publication-card__stats-1k"); //!= null ? div.parentNode : null;
+    return div.parentNode.parentNode.querySelector("div.publication-card__stats-1k");
 }
 
 function modifyPublicationsGridCell(cell, card) {
