@@ -3,6 +3,7 @@ const VISIBLE = ["search_msg", "spinner", "search_result", "search_msg_empty", "
 let token;
 let publications = [];
 let publisherId;
+let searchHistoryList = [];
 
 const picker = new Litepicker({
     element: document.getElementById('start-date'),
@@ -33,10 +34,10 @@ function getCustomRanges() {
     const ranges = {};
     const today = new Date()
     const year = today.getFullYear();
-    ranges["Текущий месяц"] = [new Date (new Date().setDate(1)), today]
-    ranges["Прошлый месяц"] = [new Date (today.getFullYear(), today.getMonth()-1), new Date (today.getFullYear(), today.getMonth())]
-    ranges["Последние 30 дней"] = [new Date (new Date().setDate(today.getDate()-30)), today]
-    ranges["Последние 180 дней"] = [new Date (new Date().setDate(today.getDate()-180)), today]
+    ranges["Текущий месяц"] = [new Date(new Date().setDate(1)), today]
+    ranges["Прошлый месяц"] = [new Date(today.getFullYear(), today.getMonth() - 1), new Date(today.getFullYear(), today.getMonth())]
+    ranges["Последние 30 дней"] = [new Date(new Date().setDate(today.getDate() - 30)), today]
+    ranges["Последние 180 дней"] = [new Date(new Date().setDate(today.getDate() - 180)), today]
     ranges[year.toString() + " год"] = [new Date(year, 0), today]
     ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)]
     ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)]
@@ -98,6 +99,50 @@ function getChannelId() {
             searchClick();
         }
     });
+    loadSearchHistory();
+}
+
+function loadSearchHistory() {
+    chrome.storage.local.get(["prozenSearchHistory"], result => {
+        const searchHistoryListStr = result.prozenSearchHistory;
+        console.log(`searchHistoryListStr: ${searchHistoryListStr}`);
+        if (searchHistoryListStr != null) {
+            searchHistoryList = searchHistoryListStr.split(",");
+        }
+        updateSearchHistory();
+    });
+}
+
+function saveSearchHistory() {
+    if (searchHistoryList != null && searchHistoryList.length > 0) {
+        chrome.storage.local.set({prozenSearchHistory: searchHistoryList.join(",")});
+    }
+}
+
+function updateSearchHistory() {
+    const searchListEl = document.getElementById("search-list");
+    searchListEl.replaceChildren();
+    if (searchHistoryList != null && searchHistoryList.length > 0) {
+        for (let history of searchHistoryList) {
+            const option = document.createElement("option");
+            option.value = history;
+            searchListEl.appendChild(option);
+        }
+    }
+    saveSearchHistory();
+}
+
+function addNewSearchHistory(newSearchString) {
+    if (searchHistoryList == null) {
+        searchHistoryList = [];
+    }
+    if (!searchHistoryList.includes(newSearchString)) {
+        searchHistoryList.unshift(newSearchString);
+        if (searchHistoryList.length > 10) {
+            searchHistoryList.pop();
+        }
+        updateSearchHistory();
+    }
 }
 
 function updateSearchStats() {
@@ -154,6 +199,7 @@ function searchClear() {
 
 function searchClick() {
     const searchString = document.getElementById("search").value;
+    addNewSearchHistory(searchString);
     clearSearchResults();
     showElement("spinner");
     if (publications.length === 0) {
@@ -282,7 +328,7 @@ function cardToDiv(card) {
         div.appendChild(span);
     } else if (card.type === "gallery") {
         strong.innerText = card.title == null || card.title.length === 0 ? "Описание не указано" : card.title;
-    } else if (card.type === "post" || card.type === "brief")  {
+    } else if (card.type === "post" || card.type === "brief") {
         strong.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet;
     }
     return div;
