@@ -56,7 +56,7 @@ function main(updatedId = null) {
                 modifyStudioStyles();
                 addStudioMenu();
                 registerObserverWindowsLocation();
-                updateBalanceBlock();
+                // updateBalanceBlock();
                 listenToRequests();
                 setTimeout(addInformerBlock, 600);
             }
@@ -185,25 +185,19 @@ function registerObserverWindowsLocation() {
     observerWindowLocationHref.observe(bodyList, config);
 }
 
-// Отображение баланса
+// @Deprecated
+
 function updateBalanceBlock(count = 0) {
     const target = document.querySelector("div[class^=dashboard-stats__statsContainer-]");
     if (target != null && count < 5) {
-        const a = target.querySelector("a[class^=item__statItemCompact-]");
-        if (a != null) {
-            const nameBlock = a.querySelector("div.Text_typography_text-13-16");
-            if (nameBlock != null) {
-                const name = nameBlock.textContent;
-                const balanceElement = a.querySelector("div.Text_typography_headline-20-24");
-                if (name.startsWith("баланс")) {
-                    if (moneySaldo != null) {
-                        balanceElement.innerText = `${moneySaldo} ₽`;
-                        balanceElement.setAttribute("title", `Всего: ${moneyTotal} ₽`);
-                        // nameBlock.innerText = `баланс на ${moneyDate}`;
-                    }
-                    return;
-                }
+        const nameBlock = target.querySelector("a[class^=item__statItemCompact-] > div[class^=item__accent-] > div.Text.Text_typography_text-13-16");
+        const balanceElement = target.querySelector("a[class^=item__statItemCompact-] > div[class^=item__accent-] > div.Text.Text_typography_headline-20-24");
+        if (nameBlock != null && balanceElement != null && nameBlock.textContent.startsWith("баланс")) {
+            if (moneySaldo != null) {
+                balanceElement.innerText = `${moneySaldo} ₽`;
+                balanceElement.setAttribute("title", `Всего: ${moneyTotal} ₽`);
             }
+            return;
         }
     }
     setTimeout(updateBalanceBlock.bind(null, count + 1), 1000);
