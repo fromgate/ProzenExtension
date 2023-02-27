@@ -136,13 +136,12 @@ function addNewSearchHistory(newSearchString) {
     if (searchHistoryList == null) {
         searchHistoryList = [];
     }
-    if (!searchHistoryList.includes(newSearchString)) {
-        searchHistoryList.unshift(newSearchString);
-        if (searchHistoryList.length > 10) {
-            searchHistoryList.pop();
-        }
-        updateSearchHistory();
+    searchHistoryList = searchHistoryList.filter(e => e !== newSearchString)
+    searchHistoryList.unshift(newSearchString);
+    if (searchHistoryList.length > 10) {
+        searchHistoryList.pop();
     }
+    updateSearchHistory();
 }
 
 function updateSearchStats() {
