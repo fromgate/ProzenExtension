@@ -11,6 +11,9 @@ const CHECK_RESULT_404 = "check-404";
 const CHECK_RESULT_PAGEDATA_COVID = "check-covid"
 const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "check-music-dmca"
 const CHECK_RESULT_PAGEDATA_NOADV = "check-adblocks";
+const CHECK_COMMENTS_OFF = "check-comments-off"
+const CHECK_COMMENTS_SUBSCRIBERS = "check-comments-subscribers"
+const CHECK_COMMENTS_ALL = "check-comments-all"
 
 const COIN_EMOJI = isOldWindows() ? "💰" : "🪙"
 
@@ -48,6 +51,18 @@ ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
     tag: "⁉️",
     text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."
 }
+ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_OFF] = {
+    tag: "🤐",
+    text: "В публикации отключены комментарии"
+}
+ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_SUBSCRIBERS] = {
+    tag: "🗪",
+    text: "Комментарии в публикации открыты только для подписчиков"
+}
+ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
+    tag: "🗫",
+    text: "Комментарии в публикации открыты только для всех"
+}
 
 let AGREE = false;
 
@@ -57,6 +72,7 @@ let newPublications = []
 let publisherId;
 let token;
 const switchIds = [];
+const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF]
 
 const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
 
@@ -349,6 +365,17 @@ function checkPublicationPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
 
+        switch (pageObj.publication.visibleComments) {
+            case "invisible":
+                publicationChecks.add(CHECK_COMMENTS_OFF);
+                break;
+            case "subscribe-visible":
+                publicationChecks.add(CHECK_COMMENTS_SUBSCRIBERS);
+                break;
+            case "visible":
+                publicationChecks.add(CHECK_COMMENTS_ALL);
+                break;
+        }
     } catch (e) {
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
     }
@@ -483,14 +510,14 @@ function loadData() {
 }
 
 function loadOptions() {
-    //const checkboxIds = Object.keys[ALL_CHECK_RESULT_MESSAGES];
     chrome.storage.local.get(switchIds, options => {
         switchIds.forEach(switchId => {
             let save = false;
             if (options.hasOwnProperty(switchId)) {
                 setCheckbox(switchId, options[switchId])
             } else {
-                setCheckbox(switchId, true);
+                const initValue = !disabledByDefault.includes(switchId);
+                setCheckbox(switchId, initValue);
                 save = true;
             }
             if (save) {
@@ -509,7 +536,6 @@ function setCheckbox(switchId, switchState, save = false) {
 }
 
 function saveOptions() {
-    // const checkboxIds = Object.keys[ALL_CHECK_RESULT_MESSAGES];
     const options = {}
     switchIds.forEach(switchId => {
         options[switchId] = document.getElementById(switchId).checked;

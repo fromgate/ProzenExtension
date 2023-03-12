@@ -105,7 +105,6 @@ function getChannelId() {
 function loadSearchHistory() {
     chrome.storage.local.get(["prozenSearchHistory"], result => {
         const searchHistoryListStr = result.prozenSearchHistory;
-        console.log(`searchHistoryListStr: ${searchHistoryListStr}`);
         if (searchHistoryListStr != null) {
             searchHistoryList = searchHistoryListStr.split(",");
         }

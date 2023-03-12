@@ -203,6 +203,10 @@ function publicationDataToArray(publicationData) {
             pubData.title = publication.content.preview.title;
             pubData.snippet = publication.content.preview.snippet;
             pubData.isBanned = publication.isBanned;
+            pubData.commentsState = publication.commentsFlagState;
+            if (pubData.commentsState !== "off") {
+                pubData.commentsState = publication.visibleComments
+            }
             pubData.url = `https://dzen.ru/media/id/${publisherId}/${publication.id}`;
             cards.push(pubData);
         }
