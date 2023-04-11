@@ -361,7 +361,12 @@ function checkPublicationPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC)
         }
 
-        if (type === "article" && pageObj.adData?.adBlocks?.["desktop-footer"]?.rsyaAdData?.blockId == null) {
+        if (type === "article" && (
+            pageObj.adData?.adBlocks?.["desktop-footer"]?.rsyaAdData?.blockId == null
+            && pageObj.adData?.adBlocks?.["desktop-header"]?.rsyaAdData?.blockId == null
+            && pageObj.adData?.adBlocks?.["desktop-right"]?.rsyaAdData?.blockId == null
+            && pageObj.adData?.adBlocks?.["desktop-inside"]?.rsyaAdData?.blockId == null
+        )) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
 
