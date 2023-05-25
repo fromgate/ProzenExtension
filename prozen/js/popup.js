@@ -12,7 +12,7 @@ const switchIds = [];
 
 initSwitches();
 loadOptions();
-showLastPost();
+showLastPost()
 
 function initSwitches() {
     const switchElements = document.getElementsByClassName("switch-checkbox");

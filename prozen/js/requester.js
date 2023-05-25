@@ -322,6 +322,8 @@ function checkHasNone(id) {
     return checkHasNoneUrl(url);
 }
 
+
+//<meta name="robots" content="index, follow" />
 function checkHasNoneUrl(url) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
@@ -330,7 +332,7 @@ function checkHasNoneUrl(url) {
             let hasNone = false;
             for (const meta of metas) {
                 if (meta.getAttribute("property") === "robots"
-                    && meta.getAttribute("content") === "none") {
+                    && meta.getAttribute("content").includes("noindex")) {
                     hasNone = true;
                     break;
                 }

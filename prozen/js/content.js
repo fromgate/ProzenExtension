@@ -206,7 +206,7 @@ function updateBalanceBlock(count = 0) {
 
 // Поддержка Студии
 function isStudio() {
-    return document.getElementsByClassName("author-studio-layout__content-3n").length > 0;
+    return document.getElementsByClassName("author-studio-layout-new__block-1I").length > 0;
 }
 
 async function addStudioMenu() {
@@ -221,64 +221,25 @@ async function addStudioMenu() {
     }
     if (oldStudioMenu == null) {
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
-
-        if (document.documentElement.clientHeight > 777) {
-            const addition = "\nДобавлено расширением «Продзен»";
-            const navBarContent = document.querySelector("div[class^=navbar__content]");
-            const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
-            const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
-            navBarContent.insertBefore(separator, navBarSpace);
-            const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
-            prozenMenu.id = "prozen-main-menu";
-            prozenMenu.setAttribute("data-publisherId", publisherId);
-            prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика" + addition));
-            prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике" + addition));
-            prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска" + addition));
-            prozenMenu.appendChild(creatProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций" + addition));
-            navBarContent.insertBefore(prozenMenu, navBarSpace);
-        } else {
-            const column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
-            if (column == null) {
-                return;
-            }
-            const menu = createElement("div", "pager__container-Hn");
-            menu.id = "prozen-main-menu";
-            menu.setAttribute("data-publisherId", publisherId);
-            column.appendChild(menu);
-            menu.style.marginTop = "16px";
-
-            const menuContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
-            menu.appendChild(menuContent);
-
-            const menuH3 = createElement("div", "Text Text_align_center Text_weight_medium Text_typography_text-16-20");
-            menuH3.innerText = "Дополнительное меню";
-            menuH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
-            menuContent.appendChild(menuH3);
-
-            const menuStats = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
-            menuStats.innerText = "Полная статистика";
-            menuStats.addEventListener('click', clickTotalStatsButton);
-            menuStats.style.cursor = "pointer";
-            menuContent.appendChild(menuStats);
-
-            const menuMetriks = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
-            menuMetriks.innerText = "Метрика";
-            menuMetriks.style.cursor = "pointer";
-            menuMetriks.addEventListener('click', window.open.bind(null, metriksUrl));
-            menuContent.appendChild(menuMetriks);
-
-            const menuSearch = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
-            menuSearch.innerText = "Поиск";
-            menuSearch.addEventListener('click', clickSearchButton);
-            menuSearch.style.cursor = "pointer";
-            menuContent.appendChild(menuSearch);
-
-            const menuNoindex = createElement("div", "Text Text_typography_text-14-18 notification__text-3n");
-            menuNoindex.innerText = "Проверка публикаций";
-            menuNoindex.addEventListener('click', clickFindSadRobots);
-            menuNoindex.style.cursor = "pointer";
-            menuContent.appendChild(menuNoindex);
-        }
+        const navBarContent = document.querySelector("div[class^=navbar__content]");
+        const navbarLabelItem = createElement("div", "navbar__labelItem-32");
+        const navbarLabelLine = createElement("span", "navbar__labelLine-28");
+        const navbarLabelText = createElement("span", "navbar__labelText-3D");
+        navbarLabelText.innerText = "Продзен";
+        navbarLabelItem.setAttribute("title", "Добавлено расширением „Продзен“");
+        navbarLabelItem.appendChild(navbarLabelLine);
+        navbarLabelItem.appendChild(navbarLabelText)
+        const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
+        const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
+        navBarContent.insertBefore(navbarLabelItem, navBarSpace);
+        const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
+        prozenMenu.id = "prozen-main-menu";
+        prozenMenu.setAttribute("data-publisherId", publisherId);
+        prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
+        prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
+        prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
+        prozenMenu.appendChild(creatProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций"));
+        navBarContent.insertBefore(prozenMenu, navBarSpace);
     }
 }
 
@@ -384,6 +345,7 @@ function backgroundListener(request) {
         chrome.runtime.onMessage.removeListener(backgroundListener);
         return;
     }
+
     if (request.type === "prozen-webrequest") {
         publisherId = request.publisherId;
         token = request.token;
@@ -394,6 +356,7 @@ function backgroundListener(request) {
             processPublicationsCards(request);
         }
     } else if (request.type === "prozen-mainpage-request") {
+
         publisherId = request.publisherId;
         token = request.token;
         const pageType = getPageType();
@@ -534,8 +497,12 @@ function modifyPublicationGrid(cards) {
 async function processDashboardCards(pageSize) {
     const data = await getPublicationsByFilterAndSubscribers(pageSize);
     const cards = publicationsDataToCards(data);
-    const studioPublicationsBlock = document.querySelector("div[class^=last-publications__lastPublications-] > div")//document.getElementsByClassName("author-studio-publications-block")[0];
+    const studioPublicationsBlock = document.querySelector("div[class^=last-publications__lastPublications-] > div > div");//document.getElementsByClassName("author-studio-publications-block")[0];
+
+
+
     const publicationsBlocks = studioPublicationsBlock.querySelectorAll("a");
+
     if (publicationsBlocks.length > 0) {
         for (let i = 0; i < publicationsBlocks.length; i++) {
             const publicationBlock = publicationsBlocks.item(i);
@@ -866,7 +833,7 @@ function modifyDashboardCard(publicationBlock, card) {
        Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
      */
 
-    const timeBlock = publicationBlock.querySelector("div[class^=dashboard-publication-item__titleContainer-] > span");
+    const timeBlock = publicationBlock.querySelector ("div[class^=dashboard-publication-item__titleContainer-] > span");
     timeBlock.innerText = card.timeStr;
     const publicationItemStats = publicationBlock.querySelector("div[class^=dashboard-publication-item__publicationStat-]");
     removeChilds(publicationItemStats);
@@ -928,7 +895,7 @@ async function addInformerBlock() {
         return;
     }
 
-    const column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
+    const column = document.querySelector("div[class^=author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
     if (column == null) {
         return;
     }
