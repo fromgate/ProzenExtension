@@ -113,7 +113,7 @@ function getStatsActuality() {
 async function getStatsInfo(getCounter = false) {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
     const counters = {};
-    let actuality;
+    let actuality = null;
     for (const type of publicationTypes) {
         const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
         const response = await request(requestUrl);
@@ -275,8 +275,7 @@ async function getPublicationsByView(pageSize, types, view, query, publicationId
         url.searchParams.append("publicationIdAfter", publicationIdAfter);
     }
     const response = await request(url.href);
-    const data = await response.json();
-    return data;
+    return await response.json();
 }
 
 /* Deprecate */
@@ -295,8 +294,7 @@ async function getPublicationsByFilter(pageSize, types, publicationIdAfter, quer
         url.searchParams.append("query", query);
     }
     const response = await request(url.href);
-    const data = await response.json();
-    return data;
+    return await response.json();
 }
 
 /* Deprecated */
@@ -369,7 +367,7 @@ async function getBannedUsers() {
 async function getPublicationsStatsSubscribers(ids) {
     const subscribersViews = [];
     if (ids != null && ids.length > 0) {
-        let publicationIds = "";
+        let publicationIds;
         if (Array.isArray(ids)) {
             const idsParams = [];
             ids.forEach(id => idsParams.push(`publicationIds=${id}`));
@@ -385,8 +383,7 @@ async function getPublicationsStatsSubscribers(ids) {
         if (pubData != null && pubData.length > 0) {
             pubData.forEach(stat => {
                 const publicationId = stat.publication.publicationId;
-                const typeSpecificViews = stat.stats.typeSpecificViews;
-                subscribersViews [publicationId] = typeSpecificViews;
+                subscribersViews [publicationId] = stat.stats.typeSpecificViews;
             });
         }
     }

@@ -231,7 +231,7 @@ async function addStudioMenu() {
         navbarLabelItem.appendChild(navbarLabelLine);
         navbarLabelItem.appendChild(navbarLabelText)
         const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
-        const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
+        // const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
         navBarContent.insertBefore(navbarLabelItem, navBarSpace);
         const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
         prozenMenu.id = "prozen-main-menu";
