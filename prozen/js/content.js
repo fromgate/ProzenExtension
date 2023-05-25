@@ -206,7 +206,8 @@ function updateBalanceBlock(count = 0) {
 
 // Поддержка Студии
 function isStudio() {
-    return document.getElementsByClassName("author-studio-layout-new__block-1I").length > 0;
+    return document.getElementsByClassName("author-studio-layout-new__block-1I").length > 0
+        || document.getElementsByClassName("author-studio-layout__content-3n").length > 0;
 }
 
 async function addStudioMenu() {
@@ -390,7 +391,7 @@ function publicationsDataToCards(requestData) {
 
 
 async function processPublicationsCards(request) {
-    const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.view);
+    const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.view, request.query);
     const cards = publicationsDataToCards(data)
     if (isPublicationGrid()) {
         modifyPublicationGrid(cards);
@@ -895,7 +896,9 @@ async function addInformerBlock() {
         return;
     }
 
-    const column = document.querySelector("div[class^=author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
+    let column = document.querySelector("div[class^=author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
+    if (column == null) column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
+
     if (column == null) {
         return;
     }

@@ -159,7 +159,7 @@ async function loadAllPublications(sort = false) {
         while (leftPublications > 0) {
             const countToGet = leftPublications > maxPageSize ? maxPageSize : leftPublications;
             leftPublications -= countToGet;
-            const result = await getPublicationsByView(countToGet, publicationType, undefined, publicationIdAfter);
+            const result = await getPublicationsByView(countToGet, publicationType, undefined, undefined, publicationIdAfter);
             const cards = publicationDataToArray(result);
             publicationIdAfter = cards.slice(-1)[0].id;
             publications.push(...cards);
@@ -255,12 +255,15 @@ async function getPublishedPublicationsCount() {
     return published
 }
 
-async function getPublicationsByView(pageSize, types, view, publicationIdAfter) {
+async function getPublicationsByView(pageSize, types, view, query, publicationIdAfter) {
     const url = new URL("editor-api/v3/publications", "https://dzen.ru");
     url.searchParams.set("state", "published");
     url.searchParams.append("pageSize", pageSize != null ? pageSize : 10);
     url.searchParams.append("publisherId", publisherId);
 
+    if (query != null) {
+        url.searchParams.append("query", query);
+    }
     if (types != null) {
         url.searchParams.append("types", types);
     }
@@ -390,8 +393,8 @@ async function getPublicationsStatsSubscribers(ids) {
     return subscribersViews;
 }
 
-async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, view) {
-    const data = await getPublicationsByView(pageSize, types, view, publicationIdAfter);
+async function getPublicationsByFilterAndSubscribers(pageSize, types, publicationIdAfter, view, query) {
+    const data = await getPublicationsByView(pageSize, types, view, query, publicationIdAfter);
 
     const ids = [];
     for (const publication of data.publications) {
