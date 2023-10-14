@@ -281,6 +281,7 @@ async function checkRobotNoNoIndex(card) {
                 } else {
                     const scriptData = document.body.querySelector("script");
                     if (scriptData?.innerText != null) {
+
                         const pageChecks = checkVideoPage(scriptData.innerText);
                         pageChecks.forEach(item => checks.add(item));
                     } else {
@@ -303,13 +304,13 @@ async function checkRobotNoNoIndex(card) {
 }
 
 
-function getDataLine(scriptLines, prefix) {
+function getDataLine(scriptLines, prefix, removePrefix = true) {
     let wData = "";
     const lines = scriptLines.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (line.startsWith(prefix)) {
+        if (removePrefix && line.startsWith(prefix)) {
             wData = line.slice(prefix.length, -1);
             break;
         }
@@ -317,10 +318,24 @@ function getDataLine(scriptLines, prefix) {
     return wData;
 }
 
+
+function getVideoDataLine(scriptLines) {
+    let txtData = ""
+    if (scriptLines.includes("{\"data\":{\"__serverState__")) {
+        const begin = scriptLines.indexOf("{\"__serverState__");
+        if (begin > 0) {
+            txtData = scriptLines.slice(begin, -1*("})}();".length));
+        }
+    }
+    return txtData
+}
+
+
 function checkVideoPage(scriptLines) {
     const publicationChecks = new Set();
-    let vData = getDataLine(scriptLines, "        var data = ");
-    try {
+    let vData = getVideoDataLine(scriptLines);
+
+     try {
         const videoObj = JSON.parse(vData);
         const serverStateObj = videoObj[Object.keys(videoObj)[0]];
         const items = serverStateObj.videoViewer.items;
@@ -332,14 +347,12 @@ function checkVideoPage(scriptLines) {
         if (item.isDmcaMusicCopyright) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC);
         }
-
         const adBlocks = item?.adBlocks
         if (adBlocks?.TOP_SIDEBAR?.rsyaAdData?.blockId == null
             && adBlocks?.BOTTOM_PLAYER?.rsyaAdData?.blockId == null
             && adBlocks?.LIVE_ADS_BANNER?.rsyaAdData?.blockId == null) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
-
     } catch (e) {
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
     }
@@ -579,4 +592,3 @@ function isOldWindows() {
     const version = Number.parseFloat(osStr.split(" ")[2])
     return version != null && version < 10.0
 }
-

@@ -11,7 +11,7 @@ function start() {
                 css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
                 document.head.appendChild(css);
             }
-            setTimeout (showStatsVideo, 1000)
+            setTimeout(showStatsVideo, 1000)
 
         }
     });
@@ -19,10 +19,6 @@ function start() {
 
 
 async function showStatsVideo() {
-    // const zenObjectId = document.head.querySelector("[property~=zen_object_id][content]").content;
-    /*const channelLink = document.querySelector("a.card-channel-info__link");
-    const channelUrl = new URL (channelLink.href); */
-
     const videoId = getPostIdFromUrl(window.location.pathname);
     const videoData = await loadPublicationStat(videoId);
 
@@ -42,20 +38,12 @@ async function showStatsVideo() {
     spanViews.setAttribute("title", "Просмотры");
     statsDiv.appendChild(spanViews);
 
-    const spanTime = createElement("span");
-    spanTime.innerText = `  • ⌚ ${secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd))}`;
-    spanTime.setAttribute("title", "Среднее время просмотра");
-    statsDiv.appendChild(spanTime);
-
-    /*
-    const spanRepost = createElement("span");
-    spanRepost.innerText = "  🖇 ";
-    spanRepost.setAttribute("title", "Сделать репост в своём канале");
-    spanRepost.addEventListener('click', openUrl.bind(null, `https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${videoId}`));
-    spanRepost.style.cursor = "pointer";
-    spanRepost.style.zIndex = "100";
-    statsDiv.appendChild(spanRepost);
-     */
+    if (sumViewTimeSec > 0) {
+        const spanTime = createElement("span");
+        spanTime.innerText = `  • ⌚ ${secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd))}`;
+        spanTime.setAttribute("title", "Среднее время просмотра");
+        statsDiv.appendChild(spanTime);
+    }
 
     if (checkNone()) {
         const spanSadRobot = createElement("span");

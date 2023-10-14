@@ -956,23 +956,31 @@ async function addInformerBlock() {
     informer.style.marginTop = "24px";
 
     const channelUrl = mediaUrl.replace("/media/", "/");
+
+    const date = new Date();
+    const todayStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    date.setDate(date.getDate() - 7);
+    const fromStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
     const result = await Promise.all([
         checkHasNoneUrl(channelUrl),
         getStatsActuality(),
         getStrikesInfo(),
-        getBannedUsers()
+        getBannedUsers(),
+        getTimespenRewards(fromStr, todayStr)
     ]);
 
     const hasNone = result[0];
     const actuality = result [1]; // const statsInfo = result[1];
     const strikesInfo = result[2];
     const bannedUsers = result[3];
+    const rewards = result[4];
     const informerContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
     informer.appendChild(informerContent);
 
     const informerH3 = createElement("h3", "author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 author-studio-section-title__text-2P");
     informerH3.innerText = "ПРОДЗЕН-инфо";
-    informerH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
+    informerH3.setAttribute("title", "Добавлено расширением „Продзен“");
     informerH3.style.marginBottom = "10px";
 
     informerContent.appendChild(informerH3);
@@ -1016,6 +1024,22 @@ async function addInformerBlock() {
         informerActuality.innerText = `Статистика от ${actuality}`;
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);
+    }
+
+    if (rewards?.length > 0) {
+        const lastReward = rewards.at(-1);
+        const previousReward = rewards.at(-2);
+        let change = "";
+        if (lastReward.course > previousReward.course) change = "↑️";
+        if (lastReward.course < previousReward.course) change = "↓️";
+
+        const informerCourse = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        informerCourse.innerText = `Курс минуты ${lastReward.dateStr}: ${change}${lastReward.courseStr}₽`;
+        informerCourse.setAttribute("title", `Стоимость минуты вовлечённого просмотра\nПредыдущий курс (${previousReward.dateStr}): ${previousReward.courseStr} ₽`);
+        informerContent.appendChild(informerCourse);
+
+
+
     }
 
     // ZenReader Subscribe link

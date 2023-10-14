@@ -32,7 +32,7 @@ function ReceiveProzenData(event) {
         const data = event.data.jsonData;
         publisherId = event.data.jsonData.publisher.id;
         const pageType = getPageType(data);
-        setTimeout (showPublicationStats.bind(null, pageType, data, publisherId), 300);
+        setTimeout(showPublicationStats.bind(null, pageType, data, publisherId), 300);
     }
 }
 
@@ -58,6 +58,11 @@ function getPageType(data) {
     if (path.startsWith("/a/") && data != null && data.isArticle === true) {
         return "article";
     }
+
+    if (path.startsWith("/b/") && data != null && data.isBrief === true) {
+        return "brief";
+    }
+
     if (path.startsWith("/media/")) {
         if (data != null) {
             if (data.isArticle === true) {
@@ -108,10 +113,15 @@ async function showStatsBrief(data, publisherId) {
     if (data === null) {
         return;
     }
-    const postId = getPostIdFromUrl(window.location.pathname);
+
+    const zenObject = getZenObject();
+    const postId = zenObject ? zenObject.publicationId : getPostIdFromUrl(window.location.pathname);
+
+
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+
 
     const views = data.publication.publicationStatistics.views;
     const sumTime = data.publication.publicationStatistics.sumViewTimeSec;
@@ -134,23 +144,25 @@ async function showStatsBrief(data, publisherId) {
         viewsContainer.appendChild(createElement("div", "article-stats-view__info-inner article-stats-view__info-inner_with-opacity"));
     }
     const viewsInner = viewsDiv.querySelector("div.article-stats-view__info-inner");
-    viewsInner.innerText = "📃 "+numFormat(views);
+    viewsInner.innerText = "📃 " + numFormat(views);
     viewsInner.setAttribute("title", "Просмотры");
 
     const timeDiv = createElement("div", "article-stats-view__item");
 
-    const timeSpan = createElement("span");
-    timeSpan.innerText = "  ⌚ "+ avgTimeStrHHMMSS;
-    timeSpan.setAttribute("title", "Среднее время просмотра "+ avgTimeStr);
-    timeDiv.appendChild(timeSpan);
-    statsView.appendChild(timeDiv);
+    if (avgTime > 0) {
+        const timeSpan = createElement("span");
+        timeSpan.innerText = "  ⌚ " + avgTimeStrHHMMSS;
+        timeSpan.setAttribute("title", "Среднее время просмотра " + avgTimeStr);
+        timeDiv.appendChild(timeSpan);
+        statsView.appendChild(timeDiv);
+    }
 
     const divStat = createElement("div", "article-stats-view__item");
     {
         const spanLink = createElement("span");
         spanLink.innerText = "  🔗 ";
         spanLink.setAttribute("title", "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
+        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -298,24 +310,45 @@ async function showStatsVideoOld(data, publisherId) {
     }
 }
 
+
 async function getPublicationStats(data) {
-    const localStats = data.publication.publicationStatistics;
-    if (localStats != null) return localStats;
-    return await loadPublicationStat(data.publication.id);
+    const zenObjectId = getZenObject();
+    let postId = zenObjectId != null ? zenObjectId.publicationId : data.publication.id;
+    if (postId == null) postId = getPostIdFromUrl(window.location.pathname);
+    let localStats = data.publication.publicationStatistics;
+    if (postId != null) {
+        const localStatsOld = await loadPublicationStat(postId);
+        if (localStats == null) {
+            localStats = localStatsOld
+        } else {
+            localStats.views = Math.max(localStats.views, localStatsOld.views, 0);
+            localStats.viewsTillEnd = Math.max(localStats.viewsTillEnd, localStatsOld.viewsTillEnd, 0);
+            localStats.sumViewTimeSec = Math.max(localStats.sumViewTimeSec, localStatsOld.sumViewTimeSec, 0);
+            localStats.comments = Math.max(localStats.comments, localStatsOld.comments, 0);
+        }
+    }
+    return localStats;
 }
 
 async function showStatsArticle(data, publisherId) {
     if (data === null) {
         return;
     }
+
     let postId = data.publication.id;
     if (postId == null) postId = getPostIdFromUrl(window.location.pathname);
+    if (postId == null) postId = getZenObject()?.publicationId;
+
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await getPublicationStats(data); // await loadPublicationStat(postId);
 
-    const sumViewTimeSec = articleData.sumViewTimeSec;
+    const articleData = await getPublicationStats(data); // await loadPublicationStat(postId);
+    if (articleData == null) {
+        return;
+    }
+
+    const sumViewTimeSec = articleData.sumViewTimeSec != null ? articleData.sumViewTimeSec : 0;
     const views = articleData.views;
     const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
@@ -363,24 +396,28 @@ async function showStatsArticle(data, publisherId) {
     containerInner.appendChild(fullViewsContainer);
 
     // Среднее время
-    const avgTimeContainer = createElement("div", "article-stats-view__stats-item");
-    avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
-    const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_read_time");
-    avgTimeContainer.appendChild(avgTimeIcon);
-    const avgTimeText = createElement("span", "article-stats-view__stats-item-count");
-    avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-    avgTimeContainer.appendChild(avgTimeText);
+    if (sumViewTimeSec > 0) {
+        const avgTimeContainer = createElement("div", "article-stats-view__stats-item");
+        avgTimeContainer.setAttribute("title", "Среднее время дочитывания");
+        const avgTimeIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_read_time");
+        avgTimeContainer.appendChild(avgTimeIcon);
+        const avgTimeText = createElement("span", "article-stats-view__stats-item-count");
+        avgTimeText.innerText = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+        avgTimeContainer.appendChild(avgTimeText);
 
-    containerInner.appendChild(avgTimeContainer);
+        containerInner.appendChild(avgTimeContainer);
+    }
 
     // Короткая ссылка
-    const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
-    shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-    const shortLinkIcon = createElement("span", "publication_icon_short_url");
-    shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
-    shortLinkIcon.style.cursor = "pointer";
-    shortLinkContainer.appendChild(shortLinkIcon);
-    elArticleStats.appendChild(shortLinkContainer)
+    if (postId != null) {
+        const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
+        shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+        const shortLinkIcon = createElement("span", "publication_icon_short_url");
+        shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
+        shortLinkIcon.style.cursor = "pointer";
+        shortLinkContainer.appendChild(shortLinkIcon);
+        elArticleStats.appendChild(shortLinkContainer)
+    }
 
     // Грустный робот
     if (checkNoIndex()) {
@@ -398,4 +435,15 @@ async function showStatsArticle(data, publisherId) {
 
     // Ссылка на подзаголовок
     addHeaderClicks();
+}
+
+function getZenObject() {
+    const zenObjectIdEl = document.querySelector("meta[property='zen_object_id']");
+    const zenObject = zenObjectIdEl?.getAttribute("content");
+    const zenObjectArray = zenObject?.split(":", 2);
+    if (zenObjectArray == null || zenObjectArray.length !== 2) return null
+    return {
+        publisherId: zenObjectArray[0],
+        publicationId: zenObjectArray[1]
+    }
 }

@@ -183,15 +183,17 @@ function shortUrl(publisherId, publicationId) {
     return url
 }
 
-function dateFormat(unixTime) {
+function dateFormat(unixTime, showTime = true) {
     const date = new Date(unixTime);
     const day = "0" + date.getDate();
     const month = "0" + (date.getMonth() + 1);
     const year = "" + date.getFullYear();
     const hours = "0" + date.getHours();
     const minutes = "0" + date.getMinutes();
-    return day.substr(-2) + "." + month.substr(-2) + "."
-        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
+    let dateStr = day.substr(-2) + "." + month.substr(-2) + "."
+        + year.substr(-2);
+    if (showTime) dateStr = dateStr + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
+    return dateStr;
 }
 
 function daysSinceDate(unixTime) {

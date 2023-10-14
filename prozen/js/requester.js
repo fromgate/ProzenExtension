@@ -36,6 +36,34 @@ async function getSideBlockData() {
     return result;
 }
 
+/**
+ *
+ * @param from начальная дата в формате YYYY-MM-DD
+ * @param to конечная дата в формате YYYY-MM-DD
+ * @returns {Promise<*[]>}
+ */
+async function getTimespenRewards(from, to) {
+    const rewards = []
+    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/income2?from=${from}&to=${to}&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true`
+    const response = await request(requestUrl);
+    const data = await response.json();
+    if (data?.total?.intervals?.length > 0) {
+        for (const rewardData of data.total.intervals) {
+            const reward = {
+                timestamp: rewardData.timestamp,
+                income: rewardData.income["timespent-reward"],
+                viewTimeSec: rewardData.viewTimeSec
+            };
+
+            reward.dateStr = dateFormat(reward.timestamp, false);
+            reward.course = reward.income / (reward.viewTimeSec / 60);
+            reward.courseStr = reward.course.toFixed(3);
+            rewards.push(reward)
+        }
+    }
+    return rewards
+}
+
 // TODO перенести все запросы в класс
 async function getBalanceAndMetriksId() {
     const result = {money: null, total: null, balanceDate: null, metriksId: null}
