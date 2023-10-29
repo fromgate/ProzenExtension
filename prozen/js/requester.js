@@ -42,7 +42,7 @@ async function getSideBlockData() {
  * @param to конечная дата в формате YYYY-MM-DD
  * @returns {Promise<*[]>}
  */
-async function getTimespenRewards(from, to) {
+async function getTimespentRewards(from, to) {
     const rewards = []
     const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/income2?from=${from}&to=${to}&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true`
     const response = await request(requestUrl);
@@ -54,11 +54,12 @@ async function getTimespenRewards(from, to) {
                 income: rewardData.income["timespent-reward"],
                 viewTimeSec: rewardData.viewTimeSec
             };
-
-            reward.dateStr = dateFormat(reward.timestamp, false);
-            reward.course = reward.income / (reward.viewTimeSec / 60);
-            reward.courseStr = reward.course.toFixed(3);
-            rewards.push(reward)
+            if (reward.viewTimeSec != null && reward.viewTimeSec > 0) {
+                reward.dateStr = dateFormat(reward.timestamp, false);
+                reward.course = reward.income / (reward.viewTimeSec / 60);
+                reward.courseStr = reward.course.toFixed(3);
+                rewards.push(reward)
+            }
         }
     }
     return rewards
