@@ -153,6 +153,7 @@ function updateSearchStats() {
         document.getElementById('show-article').innerText = "Статьи: " + count.article;
         document.getElementById('show-brief').innerText = "Посты: " + count.brief;
         document.getElementById('show-gif').innerText = "Видео: " + count.gif;
+        document.getElementById('show-short_video').innerText = "Ролики: " + count.short_video;
         document.getElementById('show-gallery').innerText = "Галереи: " + count.gallery;
     }
 }
@@ -304,7 +305,11 @@ function cardToDiv(card) {
             break;
         case "gif":
             icon.setAttribute("class", "icon_video span_icon");
-            icon.setAttribute("title", "Видео / GIF");
+            icon.setAttribute("title", "Видео");
+            break;
+        case "short_video":
+            icon.setAttribute("class", "icon_video span_icon");
+            icon.setAttribute("title", "Ролик");
             break;
         case "brief":
             icon.setAttribute("class", "icon_post span_icon");

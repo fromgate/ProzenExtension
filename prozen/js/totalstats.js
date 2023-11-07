@@ -186,9 +186,8 @@ function getExcelData(type){
     let arResult = [];
     
     switch(type){
-        case "article": case "gif":
-
-        let firstCol = type === "article" ? "Статья" : "Видео";
+        case "article": case "gif": case "short_video":
+        let firstCol = type === "article" ? "Статья" : (type === "gif" ? "Видео" : "Ролики");
         arResult.push([firstCol,"Показы","Клики",type === "article" ? "Дочитывания" : "Просмотры","Время (среднее)"]);
         
         pubs.map(function(article){
@@ -254,7 +253,8 @@ function generateExcelExport(){
             const cfgSheets = {
                 article: "Статьи",
                 brief: "Посты",
-                gif: "Видео" 
+                gif: "Видео",
+                short_video: "Ролики"
             };
             
             fileExcel.Props = {

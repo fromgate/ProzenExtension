@@ -270,7 +270,7 @@ async function checkRobotNoNoIndex(card) {
                         checks.add(CHECK_RESULT_NOINDEX);
                     }
                 }
-                if (card.type !== "gif") {
+                if (!["gif","short_video"].includes(card.type)) {
                     const scriptData = document.getElementById("all-data");
                     if (scriptData?.innerText != null) {
                         const pageChecks = checkPublicationPage(scriptData.innerText);
@@ -437,6 +437,10 @@ function cardToDiv(card, state) {
             icon.setAttribute("class", "icon_video span_icon");
             icon.setAttribute("title", "Видео");
             break;
+        case "short_video":
+            icon.setAttribute("class", "icon_video span_icon");
+            icon.setAttribute("title", "Ролик");
+            break;
         case "post":
             icon.setAttribute("class", "icon_post span_icon");
             icon.setAttribute("title", "Пост (старый)");
@@ -460,7 +464,7 @@ function cardToDiv(card, state) {
     const strong = document.createElement("strong");
     strong.innerText = card.title;
     div.appendChild(strong);
-    if (card.type === "article" || card.type === "gif") {
+    if (["article", "gif","short_video"].includes(card.type)) {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
         span.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet.slice(0, 100);

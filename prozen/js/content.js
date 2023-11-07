@@ -1129,7 +1129,7 @@ class Card {
         this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
         this.viewsTillEndTitle = this.type === "article" ? "Дочитывания" : "Просмотры";
 
-        if (this.type === "brief" || this.type === "gif") {
+        if (this.type === "brief" || this.type === "gif" || this.type === "short_video") {
             this.ctr = (infiniteAndNan(this.viewsTillEnd / this.feedShows) * 100).toFixed(2);
             this.viewsStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.ctr}%)`;
             this.readsPercent = "";

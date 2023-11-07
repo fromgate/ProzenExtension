@@ -1,5 +1,5 @@
 const URL_API_MEDIA = "https://dzen.ru/media-api/id/";
-const TYPES = ["article", "gif", "gallery", "brief"]; // repost?
+const TYPES = ["article", "gif", "short_video", "gallery", "brief"]; // repost?
 
 class Requester {
     constructor(publisherId, token) {
