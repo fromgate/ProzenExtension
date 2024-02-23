@@ -91,6 +91,9 @@ function getPageType(data) {
 function addHeaderClicks() {
     getOption(OPTIONS.subtitleLinks).then(option => {
         if (option) {
+
+            let shortLink = document.head.querySelector("link[rel=canonical][href]").href;
+
             const headers = document.querySelectorAll("h2, h3");
             if (headers.length > 0) {
                 for (let i = 0; i < headers.length; i++) {
@@ -100,7 +103,7 @@ function addHeaderClicks() {
                         const clickIcon = createElement("span", "publication_header_icon_url");
                         clickIcon.setAttribute("title", "Ссылка на заголовок.\n" +
                             "Кликните, чтобы скопировать её в буфер обмена");
-                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId) + "#" + ancorId));
+                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortLink + "#" + ancorId));
                         header.insertBefore(clickIcon, header.firstChild);
                     }
                 }
@@ -114,9 +117,8 @@ async function showStatsBrief(data, publisherId) {
         return;
     }
 
-    const zenObject = getZenObject();
-    const postId = zenObject ? zenObject.publicationId : getPostIdFromUrl(window.location.pathname);
-
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
 
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
@@ -187,7 +189,10 @@ async function showStatsGallery(data, publisherId) {
     if (data === null) {
         return;
     }
-    const postId = getPostIdFromUrl(window.location.pathname);
+
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
+
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
@@ -270,7 +275,10 @@ async function showStatsVideoOld(data, publisherId) {
     if (data === null) {
         return;
     }
-    const postId = getPostIdFromUrl(window.location.pathname);
+
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
+
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
     const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
@@ -312,9 +320,8 @@ async function showStatsVideoOld(data, publisherId) {
 
 
 async function getPublicationStats(data) {
-    const zenObjectId = getZenObject();
-    let postId = zenObjectId != null ? zenObjectId.publicationId : data.publication.id;
-    if (postId == null) postId = getPostIdFromUrl(window.location.pathname);
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
     let localStats = data.publication.publicationStatistics;
     if (postId != null) {
         const localStatsOld = await loadPublicationStat(postId);
@@ -330,14 +337,16 @@ async function getPublicationStats(data) {
     return localStats;
 }
 
+
 async function showStatsArticle(data, publisherId) {
     if (data === null) {
         return;
     }
 
-    let postId = data.publication.id;
-    if (postId == null) postId = getPostIdFromUrl(window.location.pathname);
-    if (postId == null) postId = getZenObject()?.publicationId;
+    const shortLink = document.head.querySelector("link[rel=canonical][href]").href;
+
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
 
     const dayMod = dateTimeFormat(data.publication.content.modTime);
     const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
@@ -413,7 +422,7 @@ async function showStatsArticle(data, publisherId) {
         const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
         shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
         const shortLinkIcon = createElement("span", "publication_icon_short_url");
-        shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
+        shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortLink !== null ? shortLink : shortUrl(publisherId, postId)));
         shortLinkIcon.style.cursor = "pointer";
         shortLinkContainer.appendChild(shortLinkIcon);
         elArticleStats.appendChild(shortLinkContainer)
@@ -424,6 +433,7 @@ async function showStatsArticle(data, publisherId) {
         const sadRobotContainer = createElement("div", "article-stats-view__stats-item");
         sadRobotContainer.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
+            "Если вы недавно редактировали статью, то это нормально.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
@@ -435,15 +445,4 @@ async function showStatsArticle(data, publisherId) {
 
     // Ссылка на подзаголовок
     addHeaderClicks();
-}
-
-function getZenObject() {
-    const zenObjectIdEl = document.querySelector("meta[property='zen_object_id']");
-    const zenObject = zenObjectIdEl?.getAttribute("content");
-    const zenObjectArray = zenObject?.split(":", 2);
-    if (zenObjectArray == null || zenObjectArray.length !== 2) return null
-    return {
-        publisherId: zenObjectArray[0],
-        publicationId: zenObjectArray[1]
-    }
 }

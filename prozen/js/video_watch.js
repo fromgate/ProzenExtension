@@ -19,7 +19,10 @@ function start() {
 
 
 async function showStatsVideo() {
-    const videoId = getPostIdFromUrl(window.location.pathname);
+
+    const zenIds = getZenObject();
+    const videoId = zenIds.publicationId;
+
     const videoData = await loadPublicationStat(videoId);
 
     const sumViewTimeSec = videoData.sumViewTimeSec;
