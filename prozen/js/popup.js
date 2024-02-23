@@ -26,18 +26,18 @@ function initSwitches() {
 
 function loadOptions() {
     chrome.storage.local.get(switchIds, options => {
+        let save = false;
         switchIds.forEach(switchId => {
-            let save = false;
             if (options.hasOwnProperty(switchId)) {
                 setCheckbox(switchId, options[switchId])
             } else {
                 setCheckbox(switchId, !OFF_BY_DEFAULT.includes(switchId)); //switchId !== "prozen-realtime-switch"
                 save = true;
             }
-            if (save) {
-                saveOptions();
-            }
         })
+        if (save) {
+            saveOptions();
+        }
     });
 }
 
