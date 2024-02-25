@@ -1,5 +1,3 @@
-const ZEN_API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&";
-
 class Channel {
     constructor(id, useShortname) {
         this.id = id;
@@ -20,7 +18,9 @@ class Channel {
     }
 
     getApiUrl() {
-        return ZEN_API_URL + (this.useShortname ? "channel_name=" : "channel_id=") + this.id;
+        const channelId = (this.useShortname ? "channel_name=" : "channel_id=") + this.id;
+        //const ZEN_API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&";
+        return `https://dzen.ru/api/v3/launcher/more?${channelId}&country_code=ru`;
     }
 
     getUrl() {
@@ -122,7 +122,7 @@ class Channel {
             return null;
         }
         const imageData = json.images[imageId];
-        return "https://avatars.mds.yandex.net/get-" + imageData.namespace + "/"
+        return "https://avatars.dzeninfra.ru/get-" + imageData.namespace + "/"
             + imageData.groupId + "/" + imageData.imageName + "/" + "smart_crop_336x116";
     }
 }
