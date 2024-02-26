@@ -361,7 +361,8 @@ function checkHasNoneUrl(url) {
             const metas = xhr.responseXML.head.getElementsByTagName("meta");
             let hasNone = false;
             for (const meta of metas) {
-                if (meta.getAttribute("property") === "robots"
+                if ((meta.getAttribute("name") === "robots"
+                        || meta.getAttribute("property") === "robots")
                     && meta.getAttribute("content").includes("noindex")) {
                     hasNone = true;
                     break;

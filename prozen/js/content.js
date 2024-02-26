@@ -1003,7 +1003,7 @@ async function addInformerBlock() {
         const allNone = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         if (hasNone) {
             allNone.innerText = "Канал не индексируется 🤖";
-            allNone.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
+            allNone.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
                 "Канал не индексируется поисковиками.\n" +
                 "Это нормальная ситуация для новых каналов.");
         } else {

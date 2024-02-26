@@ -1,7 +1,7 @@
 const DEBUG = false;
 
 /**
- * @deprecated Dzen doesn't use publisherId and publicationId in publication URL. Use zenObjectId instead.
+ * @deprecated Dzen doesn't use publisherId and publicationId in publication URL anymore. Use zenObjectId meta instead.
   */
 function getPostIdFromUrl(link) {
     const url = link.endsWith("/") ? link.substring(0, link.length - 1) : link;
@@ -160,19 +160,19 @@ function openUrl (url) {
 }
 
 function checkNoIndex() {
-    const metas = document.getElementsByTagName('meta');
+    const metas = document.querySelectorAll("meta[name=robots]");
     let noindex = false;
     for (const meta of metas) {
-        if (meta.getAttribute("name") === "robots"
-            && meta.getAttribute("content") === "noindex") {
-             noindex = true;
-             break;
+        if (meta.content.includes("noindex")) {
+            noindex = true;
+            break;
         }
     }
     return noindex;
 }
 
-// <meta property="robots" content="all" /> //<meta property="robots" content="none" />
+// Это тег больше не используется
+// <meta property="robots" content="none" />
 function checkNone() {
     const metas = document.getElementsByTagName("meta");
     let none = false;

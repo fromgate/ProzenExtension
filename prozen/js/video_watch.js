@@ -48,10 +48,10 @@ async function showStatsVideo() {
         statsDiv.appendChild(spanTime);
     }
 
-    if (checkNone()) {
+    if (checkNoIndex()) {
         const spanSadRobot = createElement("span");
         spanSadRobot.innerText = " • 🤖";
-        spanSadRobot.setAttribute("title", "Обнаружен мета-тег <meta property=\"robots\" content=\"none\" />\n" +
+        spanSadRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
             "Публикация не индексируется поисковиками.\n" +
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
