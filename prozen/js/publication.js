@@ -32,7 +32,7 @@ function ReceiveProzenData(event) {
         const data = event.data.jsonData;
         publisherId = event.data.jsonData.publisher.id;
         const pageType = getPageType(data);
-        setTimeout(showPublicationStats.bind(null, pageType, data, publisherId), 300);
+        setTimeout(showPublicationStats.bind(null, pageType, data, publisherId), 500);
     }
 }
 
