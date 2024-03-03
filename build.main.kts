@@ -10,13 +10,11 @@ import java.util.zip.ZipOutputStream
 
 println("Building ProzenExtension")
 
-val edgeManifest = File("prozen-edge/manifest.json")
-
 createZip("prozen-chrome.zip")
 println("prozen-chrome.zip")
 createZip("prozen-firefox.zip", true)
 println("prozen-firefox.zip")
-createZip("prozen-edge.zip", false)
+createZip("prozen-edge.zip", false, File("prozen-edge/manifest.json"))
 println("prozen-edge.zip")
 
 fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? = null) {
