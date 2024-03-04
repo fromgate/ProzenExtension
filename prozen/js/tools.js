@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 
 /**
  * @deprecated Dzen doesn't use publisherId and publicationId in publication URL anymore. Use zenObjectId meta instead.

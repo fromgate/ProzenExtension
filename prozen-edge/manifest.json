@@ -1,11 +1,11 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2.7.15",
+  "version": "2.7.17",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
-  "browser_action": {
+  "action": {
     "default_icon": {
       "19": "icons/tab-icon-19.png",
       "38": "icons/tab-icon-38.png"
@@ -19,22 +19,26 @@
     "128": "icons/tab-icon-128.png"
   },
   "web_accessible_resources": [
-    "search.html",
-    "totalstats.html",
-    "sadrobot.html",
-    "js/search.js",
-    "js/totalstats.js",
-    "js/sadrobot.js",
-    "js/page.js",
-    "js/litepicker.sj",
-    "js/ranges.js",
-    "css/prozen.css"
+    {
+      "resources": [
+        "search.html",
+        "totalstats.html",
+        "sadrobot.html",
+        "js/search.js",
+        "js/totalstats.js",
+        "js/sadrobot.js",
+        "js/page.js",
+        "js/litepicker.js",
+        "js/ranges.js",
+        "css/prozen.css"
+      ],
+      "matches": [
+        "https://dzen.ru/*"
+      ]
+    }
   ],
   "background": {
-    "scripts": [
-      "js/background.js"
-    ],
-    "persistent": true
+    "service_worker": "js/service-worker.js"
   },
   "content_scripts": [
     {
@@ -74,11 +78,12 @@
       ],
       "run_at": "document_end"
     }
-
   ],
   "permissions": [
     "storage",
-    "webRequest",
+    "webRequest"
+  ],
+  "host_permissions": [
     "https://dzen.ru/"
   ]
 }

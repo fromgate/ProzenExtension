@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Prozen - Advanced Editor for Yandex.Zen",
+    "message": "Prozen - Advanced Editor for Dzen",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Advanced editor and stats for Yandex.Zen Editor",
+    "message": "Advanced editor and stats for Dzen Blogging Platform",
     "description": "Extension description"
   }
 }
