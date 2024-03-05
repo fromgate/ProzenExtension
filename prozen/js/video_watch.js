@@ -8,7 +8,7 @@ function start() {
                 css.setAttribute("rel", "stylesheet");
                 css.setAttribute("type", "text/css");
                 css.id = "prozen-css";
-                css.setAttribute("href", chrome.runtime.getURL("css/prozen.css"));
+                css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
                 document.head.appendChild(css);
             }
             setTimeout(showStatsVideo, 1000)
