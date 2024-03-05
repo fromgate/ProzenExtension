@@ -30,8 +30,8 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? =
             val zipFileName = "${if (skipSubFolder) "" else "prozen${File.separator}"}${
                 file.absolutePath.removePrefix(sourceDir.absolutePath).removePrefix(File.separator)
             }"
-            if (zipFileName != "") {
-                val entry = ZipEntry("$zipFileName${(if (file.isDirectory) "/" else "")}")
+            if (zipFileName != "" && !file.isDirectory) {
+                val entry = ZipEntry("${zipFileName.replace(File.separator, "/")}${(if (file.isDirectory) "/" else "")}")
                 zos.putNextEntry(entry)
                 if (file.isFile) {
                     if (file.name == "manifest.json" && manifest != null) {
