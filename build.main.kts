@@ -1,17 +1,24 @@
 #!/usr/bin/env kotlin
+@file:Repository ("https://repo.maven.apache.org/maven2")
+@file:DependsOn("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 
 // TODO Manifest builder
 
 println("Building ProzenExtension")
+
 createZip("prozen-chrome.zip")
 println("prozen-chrome.zip")
-createZip("prozen-firefox.zip", true, manifest = File("prozen-firefox/manifest.json"))
+createZip("prozen-firefox.zip", true, manifest = File ("prozen-firefox/manifest.json"))
 println("prozen-firefox.zip")
 createZip("prozen-edge.zip", false, File("prozen-edge/manifest.json"))
 println("prozen-edge.zip")
@@ -42,4 +49,11 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? =
             }
         }
     }
+}
+
+fun setExtensionVersion (version: String, fileName: String) {
+    val file = File (fileName)
+
+
+
 }
