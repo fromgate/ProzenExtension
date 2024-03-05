@@ -32,14 +32,14 @@ function injectCssAndScript() {
         css.setAttribute("rel", "stylesheet");
         css.setAttribute("type", "text/css");
         css.id = "prozen-css";
-        css.setAttribute("href", chrome.runtime.getURL("css/prozen.css"));
+        css.setAttribute("href", chrome.extension.getURL("css/prozen.css"));
         document.head.appendChild(css);
     }
     if (!document.getElementById("prozen-page-script")) {
         const script = createElement("script");
         script.setAttribute("type", "text/javascript");
         script.id = "prozen-page-script";
-        script.setAttribute("src", chrome.runtime.getURL("js/page.js"));
+        script.setAttribute("src", chrome.extension.getURL("js/page.js"));
         document.body.appendChild(script);
     }
     window.addEventListener("message", ReceiveProzenData);
