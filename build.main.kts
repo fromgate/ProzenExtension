@@ -12,7 +12,7 @@ println("Building ProzenExtension")
 
 createZip("prozen-chrome.zip")
 println("prozen-chrome.zip")
-createZip("prozen-firefox.zip", true, manifest = File ("prozen-firefox/manifest.json"))
+createZip("prozen-firefox.zip", true)
 println("prozen-firefox.zip")
 createZip("prozen-edge.zip", false, File("prozen-edge/manifest.json"))
 println("prozen-edge.zip")
@@ -30,8 +30,8 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? =
             val zipFileName = "${if (skipSubFolder) "" else "prozen${File.separator}"}${
                 file.absolutePath.removePrefix(sourceDir.absolutePath).removePrefix(File.separator)
             }"
-            if (zipFileName != "" && !file.isDirectory) {
-                val entry = ZipEntry("$zipFileName${(if (file.isDirectory) "/" else "")}".replace(File.separator, "/"))
+            if (zipFileName != "") {
+                val entry = ZipEntry("$zipFileName${(if (file.isDirectory) "/" else "")}")
                 zos.putNextEntry(entry)
                 if (file.isFile) {
                     if (file.name == "manifest.json" && manifest != null) {
