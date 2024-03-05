@@ -32,7 +32,7 @@ function registerWebRequestListener() {
                 }
             });
             if (!prozenRequest) {
-                data = {
+                chrome.tabs.sendMessage(details.tabId, {
                     type: "prozen-webrequest",
                     url: details.url,
                     publicationIdAfter: urlParams.has("publicationIdAfter") ? urlParams.get("publicationIdAfter") : null,
@@ -42,8 +42,7 @@ function registerWebRequestListener() {
                     view: urlParams.has("view") ? urlParams.get("view") : null,
                     query: urlParams.has("query") ? urlParams.get("query") : null,
                     token: token
-                };
-                chrome.tabs.sendMessage(details.tabId, data);
+                });
             }
         }, {
             urls: [
@@ -67,8 +66,7 @@ function registerMainPageRequestListener() {
                 }
             });
             if (!prozenRequest) {
-
-                data = {
+                chrome.tabs.sendMessage(details.tabId, {
                     type: "prozen-mainpage-request",
                     url: details.url,
                     publisherId: urlParams.get("publisherId"),
@@ -79,8 +77,7 @@ function registerMainPageRequestListener() {
                     publicationIdAfter: urlParams.has("publicationIdAfter") ? urlParams.get("publicationIdAfter") : null,
                     state: urlParams.get("state"),
                     token: token
-                };
-                chrome.tabs.sendMessage(details.tabId, data);
+                });
             }
         }, {
             urls: [
