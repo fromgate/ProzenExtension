@@ -1,14 +1,15 @@
 #!/usr/bin/env kotlin
 
 import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-// TODO Manifest builder
+val version = "2.7.20"
 
-println("Building ProzenExtension")
+println("Building ProzenExtension v$version")
 
 createZip("prozen-chrome.zip")
 println("prozen-chrome.zip")
@@ -19,7 +20,7 @@ println("prozen-firefox.zip")
 createZip("prozen-edge.zip", false /*, File("prozen-edge/manifest.json")*/)
 println("prozen-edge.zip")
 
-fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? = null) {
+fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: String = "prozen/manifest.json") {
     val sourceDir = File("prozen")
     val files = sourceDir.walkTopDown()
     val outputZipFile = File(zipName)
@@ -36,8 +37,9 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? =
                 val entry = ZipEntry("${zipFileName.replace(File.separator, "/")}${(if (file.isDirectory) "/" else "")}")
                 zos.putNextEntry(entry)
                 if (file.isFile) {
-                    if (file.name == "manifest.json" && manifest != null) {
-                        manifest.inputStream().use { it.copyTo(zos) }
+                    if (file.name == "manifest.json") {
+                        updatedManifest(manifest).copyTo(zos)
+                        //manifest.inputStream().use { it.copyTo(zos) }
                     } else {
                         file.inputStream().use { it.copyTo(zos) }
                     }
@@ -45,4 +47,18 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: File? =
             }
         }
     }
+}
+
+fun updatedManifest(filename: String): ByteArrayInputStream {
+    val manifestFile = File (filename)
+    val manifestLines = manifestFile.inputStream().reader().readLines()
+    val newManifest = mutableListOf<String>()
+    manifestLines.forEach {
+        if (it.contains("\"version\": \"a.b.c\",")) {
+            newManifest.add(it.replace("a.b.c", version))
+        } else {
+            newManifest.add(it);
+        }
+    }
+    return newManifest.joinToString(separator = "\n").byteInputStream()
 }
