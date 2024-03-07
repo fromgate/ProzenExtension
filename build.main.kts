@@ -57,7 +57,7 @@ fun updatedManifest(filename: String): ByteArrayInputStream {
         if (it.contains("\"version\": \"a.b.c\",")) {
             newManifest.add(it.replace("a.b.c", version))
         } else {
-            newManifest.add(it);
+            newManifest.add(it)
         }
     }
     return newManifest.joinToString(separator = "\n").byteInputStream()
