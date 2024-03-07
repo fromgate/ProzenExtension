@@ -54,8 +54,8 @@ fun updatedManifest(filename: String): ByteArrayInputStream {
     val manifestLines = manifestFile.inputStream().reader().readLines()
     val newManifest = mutableListOf<String>()
     manifestLines.forEach {
-        if (it.contains("\"version\": \"a.b.c\",")) {
-            newManifest.add(it.replace("a.b.c", version))
+        if (it.contains("\"version\": \"2.7.19\",")) {
+            newManifest.add(it.replace("2.7.19", version))
         } else {
             newManifest.add(it)
         }

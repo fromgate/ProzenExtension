@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "a.b.c",
+  "version": "2.7.19",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
   "browser_action": {
