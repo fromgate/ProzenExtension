@@ -1,5 +1,8 @@
 *.zip
 *.txt
 *.iml
+*.cmd
+*.sh
 .idea/
 .work/
+manifest_v3/
