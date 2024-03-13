@@ -6,5 +6,9 @@
   "extDescription": {
     "message": "Расширенная статистика и дополнительные функции для редактора Яндекс.Дзен",
     "description": "Описание расширения"
+  },
+  "popupPrivacyPolicy": {
+    "message": "Политика безопасности",
+    "description": "The Privacy policy link shown in the popup window"
   }
 }

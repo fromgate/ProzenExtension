@@ -1,18 +1,42 @@
-window.browser = (function () {
-    return window.msBrowser ||
-        window.browser ||
-        window.chrome;
-})();
+
+
+/*
+Попап должен содержать
+какие-то быстрые функции для работы с текущим каналом / публикацией.
+
+1. Последний пост в дзене
+2. Ссылка на подписку в Дзен-ридере
+3.
+
+TODO
+только один переключатель — включить расширение
+кнопка — настройки
+
+
+
+
+ */
+
+
 const nameVersion = document.getElementById("extver");
-nameVersion.innerText = nameVersion.innerText.replace("1.0.0", browser.runtime.getManifest().version);
+nameVersion.innerText = nameVersion.innerText.replace("1.0.0", chrome.runtime.getManifest().version);
 document.getElementById("prozen-image").style.visibility = "hidden";
 
 const OFF_BY_DEFAULT = ["prozen-realtime-switch" , "prozen-article-link-switch2"/*,"prozen-comments-widget-switch"*/];
 const switchIds = [];
 
+updateTranslation();
+// currentTab();
 initSwitches();
 loadOptions();
-showLastPost()
+showLastPost();
+
+function currentTab() {
+    chrome.tabs.query ({ active: true, currentWindow: true }, (tabs) => {
+        console.log(tabs.length);
+        console.log (tabs[0].url);
+    });
+}
 
 function initSwitches() {
     const switchElements = document.getElementsByClassName("switch-checkbox");
@@ -85,4 +109,14 @@ function saveOptions() {
         options[switchId] = document.getElementById(switchId).checked;
     })
     chrome.storage.local.set(options);
+}
+
+function updateTranslation (){
+    const langs = ["popupPrivacyPolicy"]
+    langs.forEach( key => {
+        const element = document.getElementById(key);
+        if (element != null) {
+            element.innerText = chrome.i18n.getMessage(key);
+        }
+    });
 }
