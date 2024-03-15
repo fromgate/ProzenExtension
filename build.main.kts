@@ -7,7 +7,7 @@ import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-val version = "2.7.20"
+val version = getVersion().first
 
 println("Building ProzenExtension v$version")
 
@@ -34,7 +34,8 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: String 
                 file.absolutePath.removePrefix(sourceDir.absolutePath).removePrefix(File.separator)
             }"
             if (zipFileName != "" && !file.isDirectory) {
-                val entry = ZipEntry("${zipFileName.replace(File.separator, "/")}${(if (file.isDirectory) "/" else "")}")
+                val entry =
+                    ZipEntry("${zipFileName.replace(File.separator, "/")}${(if (file.isDirectory) "/" else "")}")
                 zos.putNextEntry(entry)
                 if (file.isFile) {
                     if (file.name == "manifest.json") {
@@ -50,7 +51,7 @@ fun createZip(zipName: String, skipSubFolder: Boolean = false, manifest: String 
 }
 
 fun updatedManifest(filename: String): ByteArrayInputStream {
-    val manifestFile = File (filename)
+    val manifestFile = File(filename)
     val manifestLines = manifestFile.inputStream().reader().readLines()
     val newManifest = mutableListOf<String>()
     manifestLines.forEach {
@@ -61,4 +62,15 @@ fun updatedManifest(filename: String): ByteArrayInputStream {
         }
     }
     return newManifest.joinToString(separator = "\n").byteInputStream()
+}
+
+fun getVersion(): Pair<String, List<String>> {
+    val changelogLines = File("CHANGELOG.md").inputStream().reader().readLines()
+    val version = changelogLines.filter { it.startsWith("### ") }.map { it.drop(4) }.first()
+    val versionChanges = changelogLines.joinToString("{LINEBREAK}")
+        .split("{LINEBREAK}### ")[1]
+        .split("{LINEBREAK}* ")
+        .drop(1).map { it.replace("{LINEBREAK}", "") }
+        .toList()
+    return version to versionChanges
 }
