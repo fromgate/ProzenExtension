@@ -5,4 +5,5 @@
 *.sh
 .idea/
 .work/
+.fleet/
 manifest_v3/
