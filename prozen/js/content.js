@@ -735,6 +735,11 @@ function modifyGridCellStats(cell, card) {
     c4r2.style.cursor = "pointer";
 }
 
+    /*
+       Показы                     Лайки       Репосты
+       Просмотры / дочитывания    Коменты     ER
+       Просм. подписчиков         Подписки    Ссылка / Репост
+     */
 function modifyPublicationsCard(publicationItemStats, card) {
     // Первая колонка
     //const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
@@ -751,7 +756,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     c1r1.appendChild(c1r1Icon);
     c1r1.appendChild(c1r1Text);
 
-    // Просмотры
+    // Просмотры / Дочитывания
     const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c1r2.setAttribute("title", card.viewsTitle);
     const c1r2Icon = createElement("span", "prozen_studio_card_icon_views");
@@ -879,6 +884,12 @@ function modifyDashboardCard(publicationBlock, card) {
        Показы         Лайки / Репосты                       ER
        Просмотры      Подписки / Коменты                     Среднее время
        Дочитывания    Просм. подписчиков          Короткая ссылка/ Теги
+     */
+
+    /*
+       Показы                     Лайки       Репосты
+       Просмотры / дочитывания    Коменты     ER
+       Просм. подписчиков         Подписки    Ссылка / Репост
      */
 
     const timeBlock = publicationBlock.querySelector("div[class^=dashboard-publication-item__titleContainer-] > span");
@@ -1128,6 +1139,10 @@ class Card {
 
         this.viewsTillEndStr = `${infiniteAndNanToStr(this.viewsTillEnd)} (${this.readsPercent}%)`;
         this.viewsTillEndTitle = this.type === "article" ? "Дочитывания" : "Просмотры";
+
+
+        // "Просмотры: ХХХ, Дочитывания: ХХХ"
+        // this.fullViewsTitle = `${}`;
 
         if (this.type === "brief" || this.type === "gif" || this.type === "short_video") {
             this.ctr = (infiniteAndNan(this.viewsTillEnd / this.feedShows) * 100).toFixed(2);

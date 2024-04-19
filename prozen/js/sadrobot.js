@@ -15,7 +15,7 @@ const CHECK_COMMENTS_OFF = "check-comments-off"
 const CHECK_COMMENTS_SUBSCRIBERS = "check-comments-subscribers"
 const CHECK_COMMENTS_ALL = "check-comments-all"
 
-const COIN_EMOJI = isOldWindows() ? "💰" : "🪙"
+const COIN_EMOJI = "🪙"; // isOldWindows() ? "👛" : "🪙";
 
 const ALL_CHECK_RESULT_MESSAGES = {}
 
@@ -66,7 +66,7 @@ ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
 
 let AGREE = false;
 
-var id;
+let id;
 let publications = [];
 let newPublications = []
 let publisherId;
@@ -279,14 +279,24 @@ async function checkRobotNoNoIndex(card) {
                         checks.add(CHECK_RESULT_PAGEDATA_FAIL);
                     }
                 } else {
-                    const scriptData = document.body.querySelector("script");
-                    if (scriptData?.innerText != null) {
+                    const scripts = document.body.getElementsByTagName ("script") //querySelector("script");
+                    let videoScriptData = null;
 
-                        const pageChecks = checkVideoPage(scriptData.innerText);
+                    for (let i =0; i < scripts.length; i++) {
+                        const scriptData = scripts[i];
+                        const content = scriptData?.textContent;
+                        if (content != null && content.includes ("MICRO_APP_SSR_DATA")) {
+                            videoScriptData = content;
+                            break
+                        }
+                    }
+                    if (videoScriptData != null) {
+                        const pageChecks = checkVideoPage(videoScriptData);
                         pageChecks.forEach(item => checks.add(item));
                     } else {
                         checks.add(CHECK_RESULT_PAGEDATA_FAIL);
                     }
+
                 }
             }
             if (checks.size === 0) {
@@ -321,8 +331,8 @@ function getDataLine(scriptLines, prefix, removePrefix = true) {
 
 function getVideoDataLine(scriptLines) {
     let txtData = ""
-    if (scriptLines.includes("{\"data\":{\"__serverState__")) {
-        const begin = scriptLines.indexOf("{\"__serverState__");
+    if (scriptLines.includes("{\"data\":{\"MICRO_APP_SSR_DATA")) {
+        const begin = scriptLines.indexOf("{\"MICRO_APP_SSR_DATA");
         if (begin > 0) {
             txtData = scriptLines.slice(begin, -1*("})}();".length));
         }
@@ -337,16 +347,22 @@ function checkVideoPage(scriptLines) {
 
      try {
         const videoObj = JSON.parse(vData);
-        const serverStateObj = videoObj[Object.keys(videoObj)[0]];
-        const items = serverStateObj.videoViewer.items;
-        const item = items[Object.keys(items)[0]];
+        //const serverStateObj = videoObj[Object.keys(videoObj)[0]];
+        //const items = serverStateObj.videoViewer.items;
+        //const item = items[Object.keys(items)[0]];
+         const item = videoObj.MICRO_APP_SSR_DATA.settings.exportData.video;
+        // /MICRO_APP_SSR_DATA/settings/exportData/video/covid_19
+
         if (item.covid_19 || item.covid19) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_COVID);
         }
 
+        // /MICRO_APP_SSR_DATA/settings/exportData/video/isDmcaMusicCopyright
         if (item.isDmcaMusicCopyright) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC);
         }
+
+        // /MICRO_APP_SSR_DATA/settings/exportData/video/adBlocks/TOP_SIDEBAR/rsyaAdData/blockId
         const adBlocks = item?.adBlocks
         if (adBlocks?.TOP_SIDEBAR?.rsyaAdData?.blockId == null
             && adBlocks?.BOTTOM_PLAYER?.rsyaAdData?.blockId == null
@@ -586,13 +602,4 @@ function fullCheck() {
         }
     }
     return fullCheck;
-}
-
-
-//'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-function isOldWindows() {
-    const osStr = navigator.userAgent.split(" ")[1]
-    if (!osStr.startsWith("(Windows NT")) return false
-    const version = Number.parseFloat(osStr.split(" ")[2])
-    return version != null && version < 10.0
 }
