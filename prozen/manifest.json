@@ -5,7 +5,6 @@
   "version": "2.7.19",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
-  //"options_page": "settings.html",
   "browser_action": {
     "default_icon": {
       "19": "icons/tab-icon-19.png",
@@ -77,7 +76,6 @@
   "permissions": [
     "storage",
     "webRequest",
-    "https://dzen.ru/",
-    "tabs"
+    "https://dzen.ru/"    
   ]
 }

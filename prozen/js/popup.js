@@ -26,17 +26,9 @@ const OFF_BY_DEFAULT = ["prozen-realtime-switch" , "prozen-article-link-switch2"
 const switchIds = [];
 
 updateTranslation();
-// currentTab();
 initSwitches();
 loadOptions();
 showLastPost();
-
-function currentTab() {
-    chrome.tabs.query ({ active: true, currentWindow: true }, (tabs) => {
-        console.log(tabs.length);
-        console.log (tabs[0].url);
-    });
-}
 
 function initSwitches() {
     const switchElements = document.getElementsByClassName("switch-checkbox");
