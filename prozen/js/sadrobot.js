@@ -187,6 +187,13 @@ function getShowState(checkState) {
     return showState;
 }
 
+// article brief short_video gif gallery
+function isContentTypeSelected (type) {
+    const el = document.getElementById (`content-${type}`);
+    if (el == null || el.checked == null) return false
+    return el.checked
+}
+
 async function executeSearch(pubs, limitCount = -1) {
     showElement("search_result");
     let count = 0;
@@ -195,9 +202,11 @@ async function executeSearch(pubs, limitCount = -1) {
     const maxCount = limitCount < 0 ? publications.length : Math.min(limitCount, publications.length);
     showProgress(0, maxCount);
     for (const card of publications) {
-        if (!["post", "narrative"].includes(card.type)) {
+        if (!["post", "narrative", "gallery"].includes(card.type)) {
             count++;
             progress(count);
+
+            if (!isContentTypeSelected (card.type)) continue;
 
             const checkState = new Set()
             if (card.isBanned) {

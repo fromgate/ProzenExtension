@@ -19,38 +19,69 @@
                 <div class="section" id="start_text">
                     <form>
                         <fieldset>
-                            <legend>Параметры проверки</legend>
+                            <legend>Что искать</legend>
                             <div class="input-group" title="Нельзя отключить поиск заблокированных публикаций">
-                                <input type="checkbox" class="switch-checkbox" id="check-banned" disabled="disabled" name="check-banned" checked>
+                                <input type="checkbox" class="switch-checkbox" id="check-banned" disabled="disabled"
+                                       name="check-banned" checked>
                                 <label for="check-banned">❌ Блокировка</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-noindex" name="check-noindex" checked>
+                                <input type="checkbox" class="switch-checkbox" id="check-noindex" name="check-noindex"
+                                       checked>
                                 <label for="check-noindex">🤖 Индексация</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-covid" name="check-covid" checked>
+                                <input type="checkbox" class="switch-checkbox" id="check-covid" name="check-covid"
+                                       checked>
                                 <label for="check-covid">😷 COVID-19</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-adblocks" name="check-adblocks" checked>
+                                <input type="checkbox" class="switch-checkbox" id="check-adblocks" name="check-adblocks"
+                                       checked>
                                 <label for="check-adblocks">🪙 Реклама</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-music-dmca" name="check-music-dmca" checked>
+                                <input type="checkbox" class="switch-checkbox" id="check-music-dmca"
+                                       name="check-music-dmca" checked>
                                 <label for="check-music-dmca">🎹 DMCA</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-comments-off" name="check-comments-off">
+                                <input type="checkbox" class="switch-checkbox" id="check-comments-off"
+                                       name="check-comments-off">
                                 <label for="check-music-dmca">🤐 Комментарии отключены</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-comments-subscribers" name="check-comments-subscribers">
+                                <input type="checkbox" class="switch-checkbox" id="check-comments-subscribers"
+                                       name="check-comments-subscribers">
                                 <label for="check-music-dmca">🗪 Комментарии для подписчиков</label>
                             </div>
                             <div class="input-group">
-                                <input type="checkbox" class="switch-checkbox" id="check-comments-all" name="check-comments-all">
+                                <input type="checkbox" class="switch-checkbox" id="check-comments-all"
+                                       name="check-comments-all">
                                 <label for="check-music-dmca">🗫 Комментарии открыты для всех</label>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Что проверять</legend>
+                            <div class="input-group">
+                                <input type="checkbox" class="switch-checkbox" id="content-article"
+                                       name="content-article">
+                                <label for="check-music-dmca">Статьи</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="checkbox" class="switch-checkbox" id="content-brief"
+                                       name="content-brief">
+                                <label for="check-music-dmca">Посты</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="checkbox" class="switch-checkbox" id="content-gif"
+                                       name="content-gif">
+                                <label for="check-music-dmca">Видео</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="checkbox" class="switch-checkbox" id="content-short_video"
+                                       name="content-short_video">
+                                <label for="check-music-dmca">Ролики</label>
                             </div>
                         </fieldset>
                         <fieldset>
@@ -107,8 +138,10 @@
                 <div class="section" id="channel_none">
                     <p>
                         <mark class="secondary inline-block">Канал не индексируется!</mark>
-                        <br>На главной странице канала обнаружен тег <code>&lt;meta property=&quot;robots&quot; content=&quot;none&quot; /&gt;</code>. Это нормально для новых каналов, но может быть признаком ограничения.
-                        <br>Подробнее об этом можно прочитать <a href="https://prozen.ru/2021/05/robots-no-index/#robots-none" target="_self">здесь</a>.
+                        <br>На главной странице канала обнаружен тег <code>&lt;meta property=&quot;robots&quot; content=&quot;none&quot;
+                        /&gt;</code>. Это нормально для новых каналов, но может быть признаком ограничения.
+                        <br>Подробнее об этом можно прочитать <a
+                            href="https://prozen.ru/2021/05/robots-no-index/#robots-none" target="_self">здесь</a>.
                     </p>
                 </div>
                 <div class="section" id="search_result">
