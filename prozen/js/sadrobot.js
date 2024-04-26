@@ -21,10 +21,13 @@ const ALL_CHECK_RESULT_MESSAGES = {}
 
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
     tag: "❌",
+    name: "Публикация ограничена",
     text: "На публикации стоит отметка о блокировке.\nСкорее всего она не показывается пользователям.\nНайдите её в Студии и если она действительно заблокирована, обратитесь в службу поддержки."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_NOINDEX] = {
-    tag: "🤖", text: `Обнаружен мета-тег <meta name="robots" content="noindex" />
+    tag: "🤖",
+    name: "Снята индексация",
+    text: `Обнаружен мета-тег <meta name="robots" content="noindex" />
 Публикация не индексируется поисковиками.
 Примечание: связь этого тега с показами,
 пессимизацией и иными ограничениями канала
@@ -32,35 +35,45 @@ ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_NOINDEX] = {
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_FAIL] = {
     tag: "❓",
+    name: "Ошибка загрузки (ошибка расширения?)",
     text: "Расширение не смогло загрузить страницу публикации (возможно ошибка связи).\nНадо проверить статью вручную или, если таких ошибок много,\nповторить проверку позднее."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_404] = {
     tag: "⛔",
+    name: "Ошибка 404 (страницы нет)",
     text: "Страница публикации вернула 404-ую ошибку.\nЭто может быть признаком блокировки публикации."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_COVID] = {
     tag: "😷",
+    name: "Коронавирусная метка",
     text: "На публикации обнаружена метка об упоминании COVID-19"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
     tag: "🎹",
+    name: "DMCA (музыка)",
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
-ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: COIN_EMOJI, text: "У статьи отключены рекламные блоки"};
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: COIN_EMOJI,
+    name: "Реклама не обнаружена",
+    text: "У статьи отключены рекламные блоки"};
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
     tag: "⁉️",
+    name: "Сбой обработки (ошибка расширения?)",
     text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."
 }
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_OFF] = {
     tag: "🤐",
+    name: "Комментарии отключены",
     text: "В публикации отключены комментарии"
 }
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_SUBSCRIBERS] = {
     tag: "🗪",
+    name: "Комментарии для подписчиков",
     text: "Комментарии в публикации открыты только для подписчиков"
 }
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
     tag: "🗫",
+    name: "Комментарии для всех",
     text: "Комментарии в публикации открыты только для всех"
 }
 
@@ -199,6 +212,7 @@ async function executeSearch(pubs, limitCount = -1) {
     let count = 0;
     let countRobots = 0;
     let links = ""
+    const checks = new Set()
     const maxCount = limitCount < 0 ? publications.length : Math.min(limitCount, publications.length);
     showProgress(0, maxCount);
     for (const card of publications) {
@@ -224,6 +238,7 @@ async function executeSearch(pubs, limitCount = -1) {
 
             if (checkState.size > 0 && !checkState.has(CHECK_RESULT_OK)) {
                 const showState = getShowState(checkState);
+                showState.forEach(item => checks.add(item));
                 if (showState.size > 0) {
                     addSearchResult(card, showState);
                     links += `${card.url}\n`;
@@ -240,6 +255,7 @@ async function executeSearch(pubs, limitCount = -1) {
     if (countRobots === 0) {
         showElement("not_found");
     } else {
+        addLegend (checks);
         addListFooter(count, countRobots, links);
     }
     hideProgress();
@@ -496,6 +512,36 @@ function cardToDiv(card, state) {
         div.appendChild(span);
     }
     return div;
+}
+
+function addLegend (checks) {
+    const div = document.createElement("div");
+    div.setAttribute("class", "section");
+    const p = document.createElement("p");
+
+    const strong1 = document.createElement("strong");
+    strong1.innerText = "Обозначения";
+    p.append(strong1);
+
+    const br = document.createElement("br");
+    p.append(br);
+
+    // const spans = new Set();
+    checks.forEach(item => {
+        const checkItem = ALL_CHECK_RESULT_MESSAGES[item];
+        const iconSpan = document.createElement("span");
+        iconSpan.innerText = `${checkItem.tag} ${checkItem.name}`;
+        iconSpan.title = checkItem.text;
+        p.append(iconSpan)
+        //spans.add(iconSpan);
+    });
+    const hr = document.createElement("hr");
+    p.append(hr);
+    div.append(p);
+
+    const searchResult = document.getElementById("search_result");
+    searchResult.appendChild(div);
+
 }
 
 function addListFooter(totalCount, robotsCount, links) {
