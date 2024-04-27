@@ -520,20 +520,23 @@ function addLegend (checks) {
     const p = document.createElement("p");
 
     const strong1 = document.createElement("strong");
-    strong1.innerText = "Обозначения";
+    strong1.innerText = "Условные обозначения";
     p.append(strong1);
 
     const br = document.createElement("br");
     p.append(br);
 
-    // const spans = new Set();
-    checks.forEach(item => {
+    Array.from(checks).forEach((item, i) => {
         const checkItem = ALL_CHECK_RESULT_MESSAGES[item];
         const iconSpan = document.createElement("span");
         iconSpan.innerText = `${checkItem.tag} ${checkItem.name}`;
         iconSpan.title = checkItem.text;
-        p.append(iconSpan)
-        //spans.add(iconSpan);
+        if (i > 0) {
+            const dot = document.createElement("span")
+            dot.innerText = ", ";
+            p.append(dot);
+        }
+        p.append(iconSpan);
     });
     const hr = document.createElement("hr");
     p.append(hr);
