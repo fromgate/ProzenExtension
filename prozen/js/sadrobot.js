@@ -263,7 +263,6 @@ async function executeSearch(pubs, limitCount = -1) {
 
 
 function loadPublicationsAndSearch() {
-    let url = API_URL + id;
     showElement("spinner");
     const findAll = document.getElementById("radio_find_all").checked;
     loadAllPublications(true).then(cards => {
