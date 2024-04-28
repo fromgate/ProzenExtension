@@ -142,7 +142,7 @@ function getChannelId() {
     chrome.storage.local.get(["prozenId"], result => {
         id = result.prozenId;
         if (id !== undefined) {
-            chrome.storage.local.get([NOINDEX_KEY + id], function (result) {
+            chrome.storage.local.get([NOINDEX_KEY + id], result => {
                 const agree = result [NOINDEX_KEY + id];
                 if (agree !== undefined) {
                     AGREE = agree;
