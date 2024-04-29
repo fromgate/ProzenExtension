@@ -221,8 +221,9 @@ async function addStudioMenu() {
         oldStudioMenu = null;
     }
     if (oldStudioMenu == null) {
-        const metriksUrl = metriksId !== undefined && metriksId !== null ? `https://metrika.yandex.ru/dashboard?id=${metriksId}` : "https://metrika.yandex.ru/list";
-
+        const metriksUrl = metriksId !== undefined && metriksId !== null
+            ? `https://metrika.yandex.ru/dashboard?id=${metriksId}`
+            : "https://metrika.yandex.ru/list";
 
         if (document.documentElement.clientHeight > 777) {
             const navBarContent = document.querySelector("div[class^=navbar__content]");
@@ -1062,11 +1063,9 @@ async function addInformerBlock() {
 }
 
 function zenReaderUrl() {
-    if (data.publisher.nickname === undefined) {
-        return `https://t.me/zenreaderbot?start=id-${publisherId}`;
-    } else {
-        return `https://t.me/zenreaderbot?start=${data.publisher.nickname.raw.replace(".", "-")}`;
-    }
+    return data.publisher.nickname === undefined
+        ? `https://t.me/zenreaderbot?start=id-${publisherId}`
+        : `https://t.me/zenreaderbot?start=${data.publisher.nickname.raw.replace(".", "-")}`;
 }
 
 class Card {
