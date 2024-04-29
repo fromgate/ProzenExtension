@@ -53,7 +53,7 @@ class Channel {
 
     briefImage(item) {
         const items = item.items;
-        if (items == null || items.size == 0) return null;
+        if (items == null || items.size === 0) return null;
         for (let block of items) {
             if (block.image != null && block.image.link != null) {
                 return block.image.link;
