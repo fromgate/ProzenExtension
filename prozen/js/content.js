@@ -1193,11 +1193,7 @@ class Card {
     }
 
     getSubscribersViewsHint() {
-        if (this.subscribersViews < 0) {
-            return "Не удалось получить данные\nо просмотрах подписчиках.";
-        } else {
-            return "Просмотры/дочитывания подписчиков, %";
-        }
+        return this.subscribersViews < 0 ? "Не удалось получить данные\nо просмотрах подписчиках." : "Просмотры/дочитывания подписчиков, %";
     }
 
     getSubscribersViews(updateValue) {
