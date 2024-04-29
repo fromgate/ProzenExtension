@@ -54,7 +54,7 @@ function initButtons() {
     document.getElementById("search-clear").onclick = searchClear;
     document.getElementById("range-clear").onclick = clickSearchAllTime;
     TYPES.forEach(pubType => {
-        document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
+        document.getElementById(`show-${pubType}`).addEventListener("click", showByType.bind(null, pubType));
     });
 
     const searchField = document.getElementById("search");
@@ -150,11 +150,11 @@ function updateSearchStats() {
         for (let i = 0; i < publications.length; i++) {
             count [publications[i].type]++;
         }
-        document.getElementById("show-article").innerText = "Статьи: " + count.article;
-        document.getElementById("show-brief").innerText = "Посты: " + count.brief;
-        document.getElementById("show-gif").innerText = "Видео: " + count.gif;
-        document.getElementById("show-short_video").innerText = "Ролики: " + count.short_video;
-        document.getElementById("show-gallery").innerText = "Галереи: " + count.gallery;
+        document.getElementById("show-article").innerText = `Статьи: ${count.article}`;
+        document.getElementById("show-brief").innerText = `Посты: ${count.brief}`;
+        document.getElementById("show-gif").innerText = `Видео: ${count.gif}`;
+        document.getElementById("show-short_video").innerText = `Ролики: ${count.short_video}`;
+        document.getElementById("show-gallery").innerText = `Галереи: ${count.gallery}`;
     }
 }
 

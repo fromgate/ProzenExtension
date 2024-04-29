@@ -124,9 +124,9 @@ function clickSearchButton(searchString) {
     let id;
     const textToFind = searchString === undefined ? "" : searchString;
     if (data.publisher.nickname === undefined) {
-        id = "channel_id=" + publisherId;
+        id = `channel_id=${publisherId}`;
     } else {
-        id = "channel_name=" + data.publisher.nickname.raw;
+        id = `channel_name=${data.publisher.nickname.raw}`;
     }
     chrome.storage.local.set({
         prozenId: id,
@@ -141,9 +141,9 @@ function clickSearchButton(searchString) {
 function clickFindSadRobots() {
     let id;
     if (data.publisher.nickname === undefined) {
-        id = "channel_id=" + publisherId;
+        id = `channel_id=${publisherId}`;
     } else {
-        id = "channel_name=" + data.publisher.nickname.raw;
+        id = `channel_name=${data.publisher.nickname.raw}`;
     }
     chrome.storage.local.set({
         prozenId: id,
@@ -221,7 +221,7 @@ async function addStudioMenu() {
         oldStudioMenu = null;
     }
     if (oldStudioMenu == null) {
-        const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
+        const metriksUrl = metriksId !== undefined && metriksId !== null ? `https://metrika.yandex.ru/dashboard?id=${metriksId}` : "https://metrika.yandex.ru/list";
 
 
         if (document.documentElement.clientHeight > 777) {
@@ -698,9 +698,9 @@ function modifyGridCellStats(cell, card) {
     const c4r2 = createElement("span", "Text Text_color_full Text_typography_text-12-16");
 
     const c4r2TimeIcon = createElement("span", "prozen_studio_card_icon_clock");
-    c4r2TimeIcon.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    c4r2TimeIcon.setAttribute("title", `Среднее время просмотра: ${card.readTimeStr}`);
     const c4r2TimeText = createElement("span");
-    c4r2TimeText.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    c4r2TimeText.setAttribute("title", `Среднее время просмотра: ${card.readTimeStr}`);
     c4r2TimeText.innerText = card.readTimeStrHMS;
     c4r2TimeText.style.marginRight = "7px";
     c4r2.appendChild(c4r2TimeIcon);
@@ -843,7 +843,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     // Среднее время просмотра
     const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
     c3r2.style.textAlign = "right";
-    c3r2.setAttribute("title", "Среднее время просмотра: " + card.readTimeStr);
+    c3r2.setAttribute("title", `Среднее время просмотра: ${card.readTimeStr}`);
     const c3r2Icon = createElement("span", "prozen_studio_card_icon_clock");
     const c3r2Text = createElement("span");
     c3r2Text.innerText = card.readTimeStrHMS;
@@ -1121,7 +1121,7 @@ class Card {
         // Время модификации
         this.dayMod = dateTimeFormat(this.modTime);
         this.dayCreate = this.addTime === undefined ? this.dayMod : dateTimeFormat(this.addTime);
-        this.showTime = this.dayMod !== this.dayCreate ? this.dayCreate + " (" + this.dayMod + ")" : this.dayCreate;
+        this.showTime = this.dayMod !== this.dayCreate ? `${this.dayCreate} (${this.dayMod})` : this.dayCreate;
         this.timeStr = this.showTime;
 
         // Показы

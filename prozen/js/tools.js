@@ -26,8 +26,7 @@ function dateTimeFormat(unixTime) {
     const year = "" + date.getFullYear();
     const hours = "0" + date.getHours();
     const minutes = "0" + date.getMinutes();
-    return day.substr(-2) + "." + month.substr(-2) + "."
-        + year.substr(-2) + "\u00A0" + hours.substr(-2) + ":" + minutes.substr(-2);
+    return `${day.substr(-2)}.${month.substr(-2)}.${year.substr(-2)}\u00A0${hours.substr(-2)}:${minutes.substr(-2)}`;
 }
 
 function secToHHMMSS(seconds) {
@@ -38,7 +37,7 @@ function secToHHMMSS(seconds) {
     const sec = ("0" + Math.floor(time % 60)).substr(-2);
 
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "0";
-    return (hours > 0 ? hours + ":" : "") + min + ":" + sec;
+    return `${hours > 0 ? `${hours}:` : ""}${min}:${sec}`;
 }
 
 function secToText(seconds) {
@@ -48,7 +47,7 @@ function secToText(seconds) {
     const min = Math.floor(time / 60);
     const sec = Math.floor(time % 60);
     if (isNaN(hours) || isNaN(min) || isNaN(sec)) return "не определено";
-    return (hours > 0 ? hours + " час " : "") + (min > 0 ? min + " мин " : "") + sec + " сек";
+    return `${hours > 0 ? `${hours} час ` : ""}${min > 0 ? `${min} мин ` : ""}${sec} сек`;
 }
 
 function joinByThree(list) {
@@ -241,4 +240,3 @@ function log(message) {
         console.log(message);
     }
 }
-

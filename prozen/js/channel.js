@@ -24,7 +24,7 @@ class Channel {
     }
 
     getUrl() {
-        return `https://dzen.ru/${this.useShortname ? id : "id/" + this.id}`;
+        return `https://dzen.ru/${this.useShortname ? id : `id/${this.id}`}`;
     }
 
     stripHtml(str) {
@@ -122,7 +122,6 @@ class Channel {
             return null;
         }
         const imageData = json.images[imageId];
-        return "https://avatars.dzeninfra.ru/get-" + imageData.namespace + "/"
-            + imageData.groupId + "/" + imageData.imageName + "/" + "smart_crop_336x116";
+        return `https://avatars.dzeninfra.ru/get-${imageData.namespace}/${imageData.groupId}/${imageData.imageName}/smart_crop_336x116`;
     }
 }
