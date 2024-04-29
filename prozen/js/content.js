@@ -166,7 +166,7 @@ function clickTotalStatsButton() {
 
 // Определяем изменение адреса
 function registerObserverWindowsLocation() {
-    const bodyList = document.querySelector("body")
+    const bodyList = document.querySelector("body");
     if (observerWindowLocationHref !== undefined) {
         observerWindowLocationHref.disconnect();
     }
@@ -224,7 +224,6 @@ async function addStudioMenu() {
         const metriksUrl = metriksId !== undefined && metriksId !== null ? "https://metrika.yandex.ru/dashboard?id=" + metriksId : "https://metrika.yandex.ru/list";
 
 
-
         if (document.documentElement.clientHeight > 777) {
             const navBarContent = document.querySelector("div[class^=navbar__content]");
             const navbarLabelItem = createElement("div", "navbar__labelItem-32");
@@ -233,7 +232,7 @@ async function addStudioMenu() {
             navbarLabelText.innerText = "Продзен";
             navbarLabelItem.setAttribute("title", "Добавлено расширением „Продзен“");
             navbarLabelItem.appendChild(navbarLabelLine);
-            navbarLabelItem.appendChild(navbarLabelText)
+            navbarLabelItem.appendChild(navbarLabelText);
             const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
             // const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
             navBarContent.insertBefore(navbarLabelItem, navBarSpace);
@@ -267,25 +266,25 @@ async function addStudioMenu() {
 
             const menuStats = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
             menuStats.innerText = "Полная статистика";
-            menuStats.addEventListener('click', clickTotalStatsButton);
+            menuStats.addEventListener("click", clickTotalStatsButton);
             menuStats.style.cursor = "pointer";
             menuContent.appendChild(menuStats);
 
             const menuMetriks = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
             menuMetriks.innerText = "Метрика";
             menuMetriks.style.cursor = "pointer";
-            menuMetriks.addEventListener('click', window.open.bind(null, metriksUrl));
+            menuMetriks.addEventListener("click", window.open.bind(null, metriksUrl));
             menuContent.appendChild(menuMetriks);
 
             const menuSearch = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
             menuSearch.innerText = "Поиск";
-            menuSearch.addEventListener('click', clickSearchButton);
+            menuSearch.addEventListener("click", clickSearchButton);
             menuSearch.style.cursor = "pointer";
             menuContent.appendChild(menuSearch);
 
             const menuNoindex = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
             menuNoindex.innerText = "Проверка публикаций";
-            menuNoindex.addEventListener('click', clickFindSadRobots);
+            menuNoindex.addEventListener("click", clickFindSadRobots);
             menuNoindex.style.cursor = "pointer";
             menuContent.appendChild(menuNoindex);
         }
@@ -294,22 +293,22 @@ async function addStudioMenu() {
 
 function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
 
-    const navItem = createElement("li")
+    const navItem = createElement("li");
     navItem.style.cursor = "pointer";
     if (hint !== null) {
         navItem.setAttribute("title", hint);
     }
-    let menuLine
+    let menuLine;
     if (url == null) {
         menuLine = createElement("div", "navbar__item-17 navbar__item-2e"); //navbar__item-2e - старая версия
         bold = true;
     } else if (typeof url === "string") {
         menuLine = createElement("a", "navbar__item-17 navbar__item-2e"); // navbar__nav-link
-        menuLine.setAttribute("target", "_blank")
-        menuLine.setAttribute("href", url)
+        menuLine.setAttribute("target", "_blank");
+        menuLine.setAttribute("href", url);
     } else {
-        menuLine = createElement("a", "navbar__item-17 navbar__item-2e")
-        menuLine.addEventListener('click', url);
+        menuLine = createElement("a", "navbar__item-17 navbar__item-2e");
+        menuLine.addEventListener("click", url);
         menuLine.cursor = "pointer";
     }
     navItem.appendChild(menuLine);
@@ -419,28 +418,28 @@ function backgroundListener(request) {
 
 
 function publicationsDataToCards(requestData) {
-    const cards = []
-    const publications = requestData.publications
-    const publicationCounters = requestData.publicationCounters
-    const socialCounters = requestData.socialCounters
+    const cards = [];
+    const publications = requestData.publications;
+    const publicationCounters = requestData.publicationCounters;
+    const socialCounters = requestData.socialCounters;
     if (publications.length > 0) {
         for (let i = 0; i < publications.length; i++) {
             const merged = {
                 ...publications[i],
                 ...(publicationCounters.find((itmInner) => itmInner.publicationId === publications[i].id)),
                 ...(socialCounters.find((itmInner) => itmInner.publicationId === publications[i].id))
-            }
+            };
             const card = Card.createCardFromPublicationData2(merged);
             cards.push(card);
         }
     }
-    return cards
+    return cards;
 }
 
 
 async function processPublicationsCards(request) {
     const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.view, request.query);
-    const cards = publicationsDataToCards(data)
+    const cards = publicationsDataToCards(data);
     if (isPublicationGrid()) {
         modifyPublicationGrid(cards);
     } else {
@@ -451,14 +450,14 @@ async function processPublicationsCards(request) {
 function getPublicationCellById(publicationId) {
     const table = document.querySelector("table[class^=publications-list]");
     const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`);
-    if (a != null) return a.parentNode
+    if (a != null) return a.parentNode;
     const div = table.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
-    return div.parentNode.parentNode.parentNode.parentNode
+    return div.parentNode.parentNode.parentNode.parentNode;
 }
 
 function getPublicationGridCellById(publicationId) {
     const a = document.querySelector(`a.publication-card__link-3k[href*='${publicationId}'`);
-    if (a != null) return a.parentNode
+    if (a != null) return a.parentNode;
     const div = document.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
     return div.parentNode.parentNode.querySelector("div.publication-card__stats-1k");
 }
@@ -499,7 +498,7 @@ function modifyPublicationTable(cards) {
     if (isPublicationGrid()) {
         return;
     }
-    const waitList = []
+    const waitList = [];
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
         const cell = getPublicationCellById(card.id);
@@ -525,7 +524,7 @@ function modifyPublicationGrid(cards) {
     if (!isPublicationGrid()) {
         return;
     }
-    const waitList = []
+    const waitList = [];
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
         const cell = getPublicationGridCellById(card.id);
@@ -555,7 +554,7 @@ async function processDashboardCards(pageSize) {
         for (let i = 0; i < publicationsBlocks.length; i++) {
             const publicationBlock = publicationsBlocks.item(i);
             const publicationId = getPublicationBlockId(publicationBlock);
-            const card = cards.find((itmInner) => itmInner.id === publicationId)
+            const card = cards.find((itmInner) => itmInner.id === publicationId);
             if (publicationId != null && card != null) {
                 modifyDashboardCard(publicationBlock, card);
             }
@@ -711,9 +710,9 @@ function modifyGridCellStats(cell, card) {
     const c4r2Link = createElement("span", "prozen_studio_card_icon_link");
     c4r2Link.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
 
-    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`
+    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`;
 
-    c4r2Link.addEventListener('click', event => {
+    c4r2Link.addEventListener("click", event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
     });
@@ -723,7 +722,7 @@ function modifyGridCellStats(cell, card) {
     c4r2Repost.style.marginRight = "0px";
     c4r2Repost.style.marginLeft = "5px";
     c4r2Repost.setAttribute("title", "Сделать репост публикации");
-    c4r2Repost.addEventListener('click', event => {
+    c4r2Repost.addEventListener("click", event => {
         openUrl(`https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
         event.preventDefault();
     });
@@ -735,11 +734,11 @@ function modifyGridCellStats(cell, card) {
     c4r2.style.cursor = "pointer";
 }
 
-    /*
-       Показы                     Лайки       Репосты
-       Просмотры / дочитывания    Коменты     ER
-       Просм. подписчиков         Подписки    Ссылка / Репост
-     */
+/*
+   Показы                     Лайки       Репосты
+   Просмотры / дочитывания    Коменты     ER
+   Просм. подписчиков         Подписки    Ссылка / Репост
+ */
 function modifyPublicationsCard(publicationItemStats, card) {
     // Первая колонка
     //const col1 = createElement("div", "author-studio-publication-item__stat-item author-studio-publication-item__stat-item_type_views");
@@ -860,16 +859,16 @@ function modifyPublicationsCard(publicationItemStats, card) {
     // Ссылка
     const c3r3IconLink = createElement("span", "prozen_studio_card_icon_link");
     c3r3.appendChild(c3r3IconLink);
-    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`
-    c3r3IconLink.addEventListener('click', event => {
+    const shortUrl = `https://dzen.ru/media/id/${publisherId}/${card.id}`;
+    c3r3IconLink.addEventListener("click", event => {
         copyTextToClipboard(shortUrl);
         event.preventDefault();
     });
 
     // Репост
     const c3r3IconRepost = createElement("span", "prozen_studio_card_icon_repost");
-    c3r3IconRepost.setAttribute("title", "Сделать репост публикации")
-    c3r3IconRepost.addEventListener('click', event => {
+    c3r3IconRepost.setAttribute("title", "Сделать репост публикации");
+    c3r3IconRepost.addEventListener("click", event => {
         openUrl(`https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${card.id}`);
         event.preventDefault();
     });
@@ -904,8 +903,8 @@ function getPublicationBlockUrl(publicationBlock) {
 }
 
 function getPublicationBlockId(publicationBlock) {
-    const cover = publicationBlock.querySelector("div.publication-cover__image-gr")
-    let id = null
+    const cover = publicationBlock.querySelector("div.publication-cover__image-gr");
+    let id = null;
     if (cover != null) {
         const url = cover.style.backgroundImage.slice(4, -1).replace(/"/g, "");
         id = url.split("_")[2];
@@ -915,7 +914,7 @@ function getPublicationBlockId(publicationBlock) {
         const idArray = href.split("-");
         id = idArray[idArray.length - 1];
     }
-    return id
+    return id;
 }
 
 function getCardData(id, dataArray) {
@@ -942,7 +941,7 @@ function arraysJoin(array1, array2) {
 
 // Информер
 function getData() {
-    return this.data
+    return this.data;
 }
 
 async function addInformerBlock() {
@@ -998,7 +997,7 @@ async function addInformerBlock() {
 
     if (strikesInfo != null && strikesInfo.limitations != null) {
         const informerStrikes = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
-        informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`
+        informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`;
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerStrikes);
     }
@@ -1048,7 +1047,6 @@ async function addInformerBlock() {
         informerCourse.innerText = `Курс минуты ${lastReward.dateStr}: ${change}${lastReward.courseStr}₽`;
         informerCourse.setAttribute("title", `Стоимость минуты вовлечённого просмотра\nПредыдущий курс (${previousReward.dateStr}): ${previousReward.courseStr} ₽`);
         informerContent.appendChild(informerCourse);
-
 
 
     }
@@ -1177,11 +1175,11 @@ class Card {
 
         // Добавленные подписчики
         this.subscriptionsEr = infiniteAndNan((this.subscriptions / this.erViews) * 100);
-        this.subscriptionsStr = this.subscriptions === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.subscriptions)} (${this.subscriptionsEr.toFixed(2)}%)`
+        this.subscriptionsStr = this.subscriptions === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.subscriptions)} (${this.subscriptionsEr.toFixed(2)}%)`;
 
         // Шеры
         this.sharesEr = infiniteAndNan((this.shares / this.erViews) * 100);
-        this.sharesStr = this.shares === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.shares)} (${this.sharesEr.toFixed(2)}%)`
+        this.sharesStr = this.shares === 0 ? "0 (0.00%)" : `${infiniteAndNanToStr(this.shares)} (${this.sharesEr.toFixed(2)}%)`;
 
         // Коэффициент вовлечённости
         this.erStr = `${infiniteAndNan((((this.comments + this.likes + this.subscriptions + this.shares) / this.erViews)) * 100).toFixed(2)}%`;
@@ -1190,7 +1188,7 @@ class Card {
         this.tagsStr = joinByThree(this.tags);
 
         // Ссылка на статью (сокращённая)
-        this.shortUrl = `https://dzen.ru/media/id/${this.publisherId}/${this.id}`
+        this.shortUrl = `https://dzen.ru/media/id/${this.publisherId}/${this.id}`;
 
     }
 
@@ -1204,7 +1202,7 @@ class Card {
 
     getSubscribersViews(updateValue) {
         if (updateValue != null) {
-            this.subscribersViews = updateValue
+            this.subscribersViews = updateValue;
         }
         this.subscribersViewsPercent = infiniteAndNan((this.subscribersViews / this.viewsTillEnd) * 100).toFixed(2);
         if (this.subscribersViews == null || this.subscribersViews === 0) {
@@ -1214,6 +1212,6 @@ class Card {
         } else {
             this.subscribersViewsStr = `${infiniteAndNanToStr(this.subscribersViews)} (${this.subscribersViewsPercent}%)`;
         }
-        return this.subscribersViewsStr
+        return this.subscribersViewsStr;
     }
 }

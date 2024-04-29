@@ -11,7 +11,7 @@ function start() {
                 css.setAttribute("href", chrome.runtime.getURL("css/prozen.css"));
                 document.head.appendChild(css);
             }
-            setTimeout(showStatsVideo, 1000)
+            setTimeout(showStatsVideo, 1000);
 
         }
     });

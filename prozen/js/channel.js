@@ -8,11 +8,11 @@ class Channel {
     async load() {
         const url = this.getApiUrl();
         this.json = await fetch(url, {
-            credentials: 'same-origin',
+            credentials: "same-origin",
             headers: {
-                'User-Agent': "Mozilla/5.0 (Apple-iPhone7C2/1202.466; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3",
-                'Zen-Client-Experiments': "zen-version:2.189.0",
-                'Zen-Features': "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":96},\"need_background_image\":true,\"color_theme\":\"white\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"subscribers\",\"blocked_suggest\",\"video_recommend\",\"language\",\"send_app_link_sms\",\"comments_counter\",\"social_profile\",\"social_activity_feed\",\"social_profile_edit\",\"social_interests_feedback\",\"profile_onboarding_shown\",\"profile_complete_onboarding\",\"profile_deactivate\",\"profile_cancel_deactivate\"],\"stat_params_with_context\":true,\"card_types\":[\"post\"]}"
+                "User-Agent": "Mozilla/5.0 (Apple-iPhone7C2/1202.466; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3",
+                "Zen-Client-Experiments": "zen-version:2.189.0",
+                "Zen-Features": "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":96},\"need_background_image\":true,\"color_theme\":\"white\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"subscribers\",\"blocked_suggest\",\"video_recommend\",\"language\",\"send_app_link_sms\",\"comments_counter\",\"social_profile\",\"social_activity_feed\",\"social_profile_edit\",\"social_interests_feedback\",\"profile_onboarding_shown\",\"profile_complete_onboarding\",\"profile_deactivate\",\"profile_cancel_deactivate\"],\"stat_params_with_context\":true,\"card_types\":[\"post\"]}"
             }
         }).then(response => response.json()).catch(() => undefined);
     }
@@ -28,16 +28,16 @@ class Channel {
     }
 
     stripHtml(str) {
-        if ((str === null) || (str === '')) {
+        if ((str === null) || (str === "")) {
             return "";
         } else {
             str = str.toString();
         }
-        return str.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/, ' ');
+        return str.replace(/<[^>]*>/g, " ").replace(/\s{2,}/, " ");
     }
 
     jsonToText(jsonObj) {
-        let string = ""
+        let string = "";
         for (let block of jsonObj) {
             if (block.type === "text") {
                 string += block.data + " ";
@@ -52,14 +52,14 @@ class Channel {
     }
 
     briefImage(item) {
-        const items = item.items
-        if (items == null || items.size == 0) return null
+        const items = item.items;
+        if (items == null || items.size == 0) return null;
         for (let block of items) {
             if (block.image != null && block.image.link != null) {
                 return block.image.link;
             }
         }
-        return null
+        return null;
     }
 
     async getLastPostCard(imgSize) {

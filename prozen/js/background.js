@@ -22,7 +22,7 @@ function registerWebRequestListener() {
     chrome.webRequest.onBeforeSendHeaders.addListener(details => {
             let token = null;
             let prozenRequest = false;
-            const urlParams = new URL (details.url).searchParams;
+            const urlParams = new URL(details.url).searchParams;
             details.requestHeaders.forEach(header => {
                 if (header.name === "X-Csrf-Token") {
                     token = header.value;
@@ -56,7 +56,7 @@ function registerMainPageRequestListener() {
     chrome.webRequest.onBeforeSendHeaders.addListener(details => {
             let token = null;
             let prozenRequest = false;
-            const urlParams = new URL (details.url).searchParams;
+            const urlParams = new URL(details.url).searchParams;
             details.requestHeaders.forEach(header => {
                 if (header.name === "X-Csrf-Token") {
                     token = header.value;

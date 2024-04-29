@@ -5,9 +5,9 @@ const OPTIONS = {
     informer: "prozen-informer-switch",
     subtitleLinks: "prozen-article-link-switch2",
     commentsWidget: "prozen-comments-switch2"
-}
+};
 
-const DISABLED_BY_DEFAULT = [OPTIONS.subtitleLinks, OPTIONS.commentsWidget]
+const DISABLED_BY_DEFAULT = [OPTIONS.subtitleLinks, OPTIONS.commentsWidget];
 
 function getOption(optionId) {
     const optionsIds = Object.values(OPTIONS);

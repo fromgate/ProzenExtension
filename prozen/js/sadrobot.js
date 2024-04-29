@@ -2,22 +2,22 @@ const API_URL = "https://dzen.ru/api/v3/launcher/more?country_code=ru&clid=700&"
 
 const NOINDEX_KEY = "prozen-noindex-agree-";
 
-const CHECK_RESULT_NOINDEX = "check-noindex"
+const CHECK_RESULT_NOINDEX = "check-noindex";
 const CHECK_RESULT_OK = "check-ok";
 const CHECK_RESULT_FAIL = "check-fail";
 const CHECK_RESULT_PAGEDATA_FAIL = "check-fail-pagedata";
 const CHECK_RESULT_BANNED = "check-banned";
 const CHECK_RESULT_404 = "check-404";
-const CHECK_RESULT_PAGEDATA_COVID = "check-covid"
-const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "check-music-dmca"
+const CHECK_RESULT_PAGEDATA_COVID = "check-covid";
+const CHECK_RESULT_PAGEDATA_DMCAMUSIC = "check-music-dmca";
 const CHECK_RESULT_PAGEDATA_NOADV = "check-adblocks";
-const CHECK_COMMENTS_OFF = "check-comments-off"
-const CHECK_COMMENTS_SUBSCRIBERS = "check-comments-subscribers"
-const CHECK_COMMENTS_ALL = "check-comments-all"
+const CHECK_COMMENTS_OFF = "check-comments-off";
+const CHECK_COMMENTS_SUBSCRIBERS = "check-comments-subscribers";
+const CHECK_COMMENTS_ALL = "check-comments-all";
 
 const COIN_EMOJI = "🪙"; // isOldWindows() ? "👛" : "🪙";
 
-const ALL_CHECK_RESULT_MESSAGES = {}
+const ALL_CHECK_RESULT_MESSAGES = {};
 
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
     tag: "❌",
@@ -53,39 +53,41 @@ ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
     name: "DMCA (музыка)",
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
-ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {tag: COIN_EMOJI,
+ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {
+    tag: COIN_EMOJI,
     name: "Реклама не обнаружена",
-    text: "У статьи отключены рекламные блоки"};
+    text: "У статьи отключены рекламные блоки"
+};
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
     tag: "⁉️",
     name: "Сбой обработки (ошибка расширения?)",
     text: "Сбой обработки данных страницы.\nНе проверено наличие монетизации и метки COVID-19.\nНадо проверить публикацию вручную или, если таких ошибок много,\nповторить проверку позднее."
-}
+};
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_OFF] = {
     tag: "🤐",
     name: "Комментарии отключены",
     text: "В публикации отключены комментарии"
-}
+};
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_SUBSCRIBERS] = {
     tag: "🗪",
     name: "Комментарии для подписчиков",
     text: "Комментарии в публикации открыты только для подписчиков"
-}
+};
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
     tag: "🗫",
     name: "Комментарии для всех",
     text: "Комментарии в публикации открыты только для всех"
-}
+};
 
 let AGREE = false;
 
 let id;
 let publications = [];
-let newPublications = []
+let newPublications = [];
 let publisherId;
 let token;
 const switchIds = [];
-const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF]
+const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF];
 
 const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
 
@@ -191,7 +193,7 @@ function clearSearchResults() {
 
 
 function getShowState(checkState) {
-    const showState = new Set()
+    const showState = new Set();
     for (let state of checkState) {
         if (displayCheckResult(state)) {
             showState.add(state);
@@ -201,18 +203,18 @@ function getShowState(checkState) {
 }
 
 // article brief short_video gif gallery
-function isContentTypeSelected (type) {
-    const el = document.getElementById (`content-${type}`);
-    if (el == null || el.checked == null) return false
-    return el.checked
+function isContentTypeSelected(type) {
+    const el = document.getElementById(`content-${type}`);
+    if (el == null || el.checked == null) return false;
+    return el.checked;
 }
 
 async function executeSearch(pubs, limitCount = -1) {
     showElement("search_result");
     let count = 0;
     let countRobots = 0;
-    let links = ""
-    const checks = new Set()
+    let links = "";
+    const checks = new Set();
     const maxCount = limitCount < 0 ? publications.length : Math.min(limitCount, publications.length);
     showProgress(0, maxCount);
     for (const card of publications) {
@@ -220,9 +222,9 @@ async function executeSearch(pubs, limitCount = -1) {
             count++;
             progress(count);
 
-            if (!isContentTypeSelected (card.type)) continue;
+            if (!isContentTypeSelected(card.type)) continue;
 
-            const checkState = new Set()
+            const checkState = new Set();
             if (card.isBanned) {
                 checkState.add(CHECK_RESULT_BANNED);
             }
@@ -255,7 +257,7 @@ async function executeSearch(pubs, limitCount = -1) {
     if (countRobots === 0) {
         showElement("not_found");
     } else {
-        addLegend (checks);
+        addLegend(checks);
         addListFooter(count, countRobots, links);
     }
     hideProgress();
@@ -276,17 +278,17 @@ async function checkRobotNoNoIndex(card) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.onload = () => {
-            const document = xhr.responseXML
-            const checks = new Set()
+            const document = xhr.responseXML;
+            const checks = new Set();
 
             if (xhr.status === 404) {
                 checks.add(CHECK_RESULT_404);
             } else {
-                const metas = document.head.getElementsByTagName('meta');
+                const metas = document.head.getElementsByTagName("meta");
                 for (let i = 0; i < metas.length; i++) {
                     const meta = metas[i];
-                    if (meta.getAttribute('name') === "robots") {
-                        if (meta.getAttribute('content') === "noindex") {
+                    if (meta.getAttribute("name") === "robots") {
+                        if (meta.getAttribute("content") === "noindex") {
                             checks.add(CHECK_RESULT_NOINDEX);
                         }
                     } else if (meta.getAttribute("property") === "robots"
@@ -294,7 +296,7 @@ async function checkRobotNoNoIndex(card) {
                         checks.add(CHECK_RESULT_NOINDEX);
                     }
                 }
-                if (!["gif","short_video"].includes(card.type)) {
+                if (!["gif", "short_video"].includes(card.type)) {
                     const scriptData = document.getElementById("all-data");
                     if (scriptData?.innerText != null) {
                         const pageChecks = checkPublicationPage(scriptData.innerText);
@@ -303,15 +305,15 @@ async function checkRobotNoNoIndex(card) {
                         checks.add(CHECK_RESULT_PAGEDATA_FAIL);
                     }
                 } else {
-                    const scripts = document.body.getElementsByTagName ("script") //querySelector("script");
+                    const scripts = document.body.getElementsByTagName("script"); //querySelector("script");
                     let videoScriptData = null;
 
-                    for (let i =0; i < scripts.length; i++) {
+                    for (let i = 0; i < scripts.length; i++) {
                         const scriptData = scripts[i];
                         const content = scriptData?.textContent;
-                        if (content != null && content.includes ("MICRO_APP_SSR_DATA")) {
+                        if (content != null && content.includes("MICRO_APP_SSR_DATA")) {
                             videoScriptData = content;
-                            break
+                            break;
                         }
                     }
                     if (videoScriptData != null) {
@@ -324,13 +326,13 @@ async function checkRobotNoNoIndex(card) {
                 }
             }
             if (checks.size === 0) {
-                checks.add(CHECK_RESULT_OK)
+                checks.add(CHECK_RESULT_OK);
             }
             resolve(checks);
         };
         xhr.onerror = () => {
-            resolve(CHECK_RESULT_FAIL)
-        }
+            resolve(CHECK_RESULT_FAIL);
+        };
         xhr.open("GET", card.url);
         xhr.responseType = "document";
         xhr.send();
@@ -354,14 +356,14 @@ function getDataLine(scriptLines, prefix, removePrefix = true) {
 
 
 function getVideoDataLine(scriptLines) {
-    let txtData = ""
+    let txtData = "";
     if (scriptLines.includes("{\"data\":{\"MICRO_APP_SSR_DATA")) {
         const begin = scriptLines.indexOf("{\"MICRO_APP_SSR_DATA");
         if (begin > 0) {
-            txtData = scriptLines.slice(begin, -1*("})}();".length));
+            txtData = scriptLines.slice(begin, -1 * ("})}();".length));
         }
     }
-    return txtData
+    return txtData;
 }
 
 
@@ -369,14 +371,13 @@ function checkVideoPage(scriptLines) {
     const publicationChecks = new Set();
     let vData = getVideoDataLine(scriptLines);
 
-     try {
+    try {
         const videoObj = JSON.parse(vData);
         //const serverStateObj = videoObj[Object.keys(videoObj)[0]];
         //const items = serverStateObj.videoViewer.items;
         //const item = items[Object.keys(items)[0]];
-         const item = videoObj.MICRO_APP_SSR_DATA.settings.exportData.video;
+        const item = videoObj.MICRO_APP_SSR_DATA.settings.exportData.video;
         // /MICRO_APP_SSR_DATA/settings/exportData/video/covid_19
-
         if (item.covid_19 || item.covid19) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_COVID);
         }
@@ -386,8 +387,10 @@ function checkVideoPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC);
         }
 
+        // /MICRO_APP_SSR_DATA/settings/exportData/video/adDisable
+
         // /MICRO_APP_SSR_DATA/settings/exportData/video/adBlocks/TOP_SIDEBAR/rsyaAdData/blockId
-        const adBlocks = item?.adBlocks
+        const adBlocks = item?.adBlocks;
         if (adBlocks?.TOP_SIDEBAR?.rsyaAdData?.blockId == null
             && adBlocks?.BOTTOM_PLAYER?.rsyaAdData?.blockId == null
             && adBlocks?.LIVE_ADS_BANNER?.rsyaAdData?.blockId == null) {
@@ -411,7 +414,7 @@ function checkPublicationPage(scriptLines) {
         }
 
         if (pageObj.publication.dmcaMusicCopyright) {
-            publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC)
+            publicationChecks.add(CHECK_RESULT_PAGEDATA_DMCAMUSIC);
         }
 
         if (type === "article" && (
@@ -504,7 +507,7 @@ function cardToDiv(card, state) {
     const strong = document.createElement("strong");
     strong.innerText = card.title;
     div.appendChild(strong);
-    if (["article", "gif","short_video"].includes(card.type)) {
+    if (["article", "gif", "short_video"].includes(card.type)) {
         div.appendChild(document.createElement("br"));
         const span = document.createElement("span");
         span.innerText = card.snippet == null || card.snippet.length === 0 ? "Описание не указано" : card.snippet.slice(0, 100);
@@ -513,7 +516,7 @@ function cardToDiv(card, state) {
     return div;
 }
 
-function addLegend (checks) {
+function addLegend(checks) {
     const div = document.createElement("div");
     div.setAttribute("class", "section");
     const p = document.createElement("p");
@@ -531,7 +534,7 @@ function addLegend (checks) {
         iconSpan.innerText = `${checkItem.tag} ${checkItem.name}`;
         iconSpan.title = checkItem.text;
         if (i > 0) {
-            const dot = document.createElement("span")
+            const dot = document.createElement("span");
             dot.innerText = ", ";
             p.append(dot);
         }
@@ -579,12 +582,12 @@ function scrollToBottom() {
 
 
 function onCheckboxClick(switchId) {
-    setCheckbox(switchId, document.getElementById(switchId).checked, true)
+    setCheckbox(switchId, document.getElementById(switchId).checked, true);
 }
 
 function loadData() {
     return new Promise(resolve => {
-        const data = {id: null, agree: false}
+        const data = {id: null, agree: false};
         chrome.storage.local.get(["prozenId", "prozenToken", "prozenPublisherId"], result => {
             data.id = result.prozenId;
             data.token = result.prozenToken;
@@ -609,7 +612,7 @@ function loadOptions() {
         switchIds.forEach(switchId => {
             let save = false;
             if (options.hasOwnProperty(switchId)) {
-                setCheckbox(switchId, options[switchId])
+                setCheckbox(switchId, options[switchId]);
             } else {
                 const initValue = !disabledByDefault.includes(switchId);
                 setCheckbox(switchId, initValue);
@@ -618,12 +621,12 @@ function loadOptions() {
             if (save) {
                 saveOptions();
             }
-        })
+        });
     });
 }
 
 function setCheckbox(switchId, switchState, save = false) {
-    const switchEl = document.getElementById(switchId)
+    const switchEl = document.getElementById(switchId);
     switchEl.checked = switchState;
     if (save) {
         saveOptions();
@@ -631,10 +634,10 @@ function setCheckbox(switchId, switchState, save = false) {
 }
 
 function saveOptions() {
-    const options = {}
+    const options = {};
     switchIds.forEach(switchId => {
         options[switchId] = document.getElementById(switchId).checked;
-    })
+    });
     chrome.storage.local.set(options);
 }
 
@@ -644,7 +647,7 @@ function initSwitches() {
         const el = switchElements[i];
         const switchId = el.id;
         switchIds.push(switchId);
-        document.getElementById(switchId).addEventListener('click', onCheckboxClick.bind(null, switchId));
+        document.getElementById(switchId).addEventListener("click", onCheckboxClick.bind(null, switchId));
     }
 }
 

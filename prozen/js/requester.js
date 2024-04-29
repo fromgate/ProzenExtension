@@ -43,8 +43,8 @@ async function getSideBlockData() {
  * @returns {Promise<*[]>}
  */
 async function getTimespentRewards(from, to) {
-    const rewards = []
-    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/income2?from=${from}&to=${to}&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true`
+    const rewards = [];
+    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/income2?from=${from}&to=${to}&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true`;
     const response = await request(requestUrl);
     const data = await response.json();
     if (data?.total?.intervals?.length > 0) {
@@ -58,24 +58,24 @@ async function getTimespentRewards(from, to) {
                 reward.dateStr = dateFormat(reward.timestamp, false);
                 reward.course = reward.income / (reward.viewTimeSec / 60);
                 reward.courseStr = reward.course.toFixed(3);
-                rewards.push(reward)
+                rewards.push(reward);
             }
         }
     }
-    return rewards
+    return rewards;
 }
 
 // TODO перенести все запросы в класс
 async function getBalanceAndMetriksId() {
-    const result = {money: null, total: null, balanceDate: null, metriksId: null}
-    const requestUrl = `https://dzen.ru/editor-api/v2/id/${publisherId}/money`
+    const result = {money: null, total: null, balanceDate: null, metriksId: null};
+    const requestUrl = `https://dzen.ru/editor-api/v2/id/${publisherId}/money`;
     const response = await request(requestUrl);
     const data = await response.json();
 
     try {
         if (data.money && data.money.isMonetizationAvailable && data.money.simple != null && data.money.simple.balance != null) {
             const simpleBalance = data.money.simple.balance;
-            const options = {year: 'numeric', month: 'long', day: 'numeric'};
+            const options = {year: "numeric", month: "long", day: "numeric"};
             result.balanceDate = new Date(data.money.simple.balanceDate).toLocaleString("ru-RU", options);
             const personalDataBalance = data.money?.simple?.balance;
             const money = parseFloat((personalDataBalance == null || simpleBalance > personalDataBalance ? simpleBalance : personalDataBalance));
@@ -87,20 +87,20 @@ async function getBalanceAndMetriksId() {
                 }
             }
             result.money = money.toLocaleString("ru-RU", {maximumFractionDigits: 2});
-            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2})
+            result.total = total.toLocaleString("ru-RU", {maximumFractionDigits: 2});
         }
 
         result.metriksId = data.publisher.privateData.metrikaCounterId;
         return result;
     } catch (e) {
-        console.error('PROZEN getBalanceAndMetriksId() error: ', e);
+        console.error("PROZEN getBalanceAndMetriksId() error: ", e);
         return result;
     }
 
 }
 
 async function getStrikesInfo() {
-    const requestUrl = `https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=${publisherId}&language=ru`
+    const requestUrl = `https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=${publisherId}&language=ru`;
     const response = await request(requestUrl);
     const data = await response.json();
     return {channelRestricted: data.channelRestricted, limitations: data.limitations.length};
@@ -108,20 +108,20 @@ async function getStrikesInfo() {
 
 function getStatsInfoAndCounter() {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
-    const promises = []
+    const promises = [];
     for (const type of publicationTypes) {
         const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=${type}&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
         promises.push(new Promise(resolve => {
             request(requestUrl)
                 .then(response => {
                     response.json().then(data => {
-                        const counter = {}
+                        const counter = {};
                         counter.actuality = dateTimeFormat(data.actuality);
                         counter[type] = data.publicationCount;
                         resolve(counter);
-                    })
+                    });
                 })
-                .catch(e => console.error('PROZEN getStatsInfoAndCounter error: ', e))
+                .catch(e => console.error("PROZEN getStatsInfoAndCounter error: ", e));
         }));
     }
     return Promise.all(promises);
@@ -134,9 +134,9 @@ function getStatsActuality() {
             response.json().then(data => {
                 const actuality = dateTimeFormat(data.actuality);
                 resolve(actuality);
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 async function getStatsInfo(getCounter = false) {
@@ -234,7 +234,7 @@ function publicationDataToArray(publicationData) {
             pubData.isBanned = publication.isBanned;
             pubData.commentsState = publication.commentsFlagState;
             if (pubData.commentsState !== "off") {
-                pubData.commentsState = publication.visibleComments
+                pubData.commentsState = publication.visibleComments;
             }
             pubData.url = `https://dzen.ru/media/id/${publisherId}/${publication.id}`;
             cards.push(pubData);
@@ -253,7 +253,7 @@ function loadPublicationsStat(publicationIds) {
 /* не используется */
 function loadPublicationsPublisher() {
     const countUrl = `https://dzen.ru/media-api/count-publications-by-state?state=published&publisherId=${publisherId}`;
-    return fetch(countUrl, {credentials: 'same-origin', headers: {'X-Csrf-Token': token}})
+    return fetch(countUrl, {credentials: "same-origin", headers: {"X-Csrf-Token": token}})
         .then(response => response.json())
         .then(data => {
             const pageSize = data.count;
@@ -277,11 +277,11 @@ async function getPublicationsCount() {
 
 async function getPublishedPublicationsCount() {
     const counters = await getPublicationsCount();
-    const published = {}
+    const published = {};
     for (const [key, value] of Object.entries(counters.items)) {
         published[key] = value.published != null ? value.published : 0;
     }
-    return published
+    return published;
 }
 
 async function getPublicationsByView(pageSize, types, view, query, publicationIdAfter) {
@@ -372,7 +372,7 @@ function checkHasNoneUrl(url) {
         };
         xhr.onerror = () => {
             resolve(false);
-        }
+        };
         xhr.open("GET", url);
         xhr.responseType = "document";
         xhr.send();
@@ -405,7 +405,7 @@ async function getPublicationsStatsSubscribers(ids) {
         } else {
             publicationIds = `publicationIds=${ids}`;
         }
-        const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&${publicationIds}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true&from=2022-01-25`
+        const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&${publicationIds}&fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true&from=2022-01-25`;
         const response = await request(requestUrl);
         const json = await response.json();
         const pubData = json.publications;
@@ -426,13 +426,13 @@ async function getPublicationsByFilterAndSubscribers(pageSize, types, publicatio
     const ids = [];
     for (const publication of data.publications) {
         if (publication.publishTime >= 1643058000000) { // Запрашивать только по публикациям новее 25.01.2022
-            ids.push(publication.id)
+            ids.push(publication.id);
         }
     }
-    const subscribersViews = await getPublicationsStatsSubscribers(ids)
+    const subscribersViews = await getPublicationsStatsSubscribers(ids);
     for (const publication of data.publications) {
         if (subscribersViews.hasOwnProperty(publication.id)) {
-            publication.subscribersViews = subscribersViews[publication.id]
+            publication.subscribersViews = subscribersViews[publication.id];
         } else {
             publication.subscribersViews = 0;
         }
@@ -442,7 +442,7 @@ async function getPublicationsByFilterAndSubscribers(pageSize, types, publicatio
 
 // Дата в формате: YYYY-MM-DD
 async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 100, page = 0) {
-    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationTypes=${publicationType}&allPublications=true&addTimeFrom=${addTimeFrom}&addTimeTo=${addTimeTo}&fields=shows&fields=views&fields=typeSpecificViews&fields=viewsTillEnd&fields=sumViewTimeSec&fields=viewTillEndAvgTimeSec&fields=viewTillEndRate&fields=ctr&fields=impressions&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=subscribersDeepViews&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&pageSize=${pageSize}&page${page}`
+    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?publisherId=${publisherId}&publicationTypes=${publicationType}&allPublications=true&addTimeFrom=${addTimeFrom}&addTimeTo=${addTimeTo}&fields=shows&fields=views&fields=typeSpecificViews&fields=viewsTillEnd&fields=sumViewTimeSec&fields=viewTillEndAvgTimeSec&fields=viewTillEndRate&fields=ctr&fields=impressions&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=subscribersDeepViews&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&pageSize=${pageSize}&page${page}`;
     const response = await request(requestUrl);
     const json = await response.json();
     const stats = [];
@@ -462,10 +462,10 @@ async function getStatsPage(publicationType, addTimeFrom, addTimeTo, pageSize = 
             stat.subscriptions = it.stats.subscriptions; // Сколько подписалось
             stat.unsubscriptions = it.stats.unsubscriptions; // Сколько отписалось
             stat.sumViewTimeSec = it.stats.sumViewTimeSec;
-            stats.push(stat)
+            stats.push(stat);
         });
     }
-    return stats
+    return stats;
 }
 
 function request(requestUrl) {
@@ -475,9 +475,9 @@ function request(requestUrl) {
         headers: {
             "X-Prozen-Request": callerName
         }
-    }
+    };
     if (typeof token !== "undefined") {
-        headers.headers["X-Csrf-Token"] = token
+        headers.headers["X-Csrf-Token"] = token;
     }
     return fetch(requestUrl, headers);
 }

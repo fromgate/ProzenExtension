@@ -2,7 +2,7 @@ const DEBUG = false;
 
 /**
  * @deprecated Dzen doesn't use publisherId and publicationId in publication URL anymore. Use zenObjectId meta instead.
-  */
+ */
 function getPostIdFromUrl(link) {
     const url = link.endsWith("/") ? link.substring(0, link.length - 1) : link;
     const ln = url.replace("?from=editor", "").split(url.includes("-") ? "-" : "/");
@@ -11,12 +11,12 @@ function getPostIdFromUrl(link) {
 
 function getZenObject() {
     const zenObjectIdStr = document.head.querySelector("meta[property=zen_object_id][content]").content;
-    const zenObjectArray = zenObjectIdStr?.split(":", 2)
-    if (zenObjectArray == null || zenObjectArray.length !== 2) return null
+    const zenObjectArray = zenObjectIdStr?.split(":", 2);
+    if (zenObjectArray == null || zenObjectArray.length !== 2) return null;
     return {
         publisherId: zenObjectArray[0],
         publicationId: zenObjectArray[1]
-    }
+    };
 }
 
 function dateTimeFormat(unixTime) {
@@ -91,7 +91,7 @@ function createElement(elementType, elementClass, childElement) {
 }
 
 function infiniteAndNanToStr(num, digits) {
-    return infiniteAndNan(num).toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits})
+    return infiniteAndNan(num).toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits});
 }
 
 function removeChilds(element) {
@@ -108,7 +108,7 @@ function removeByClass(className) {
 }
 
 function numFormat(num, digits) {
-    return num.toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits})
+    return num.toLocaleString("ru-RU", {maximumFractionDigits: digits === undefined ? 0 : digits});
 }
 
 function paucalYear(num) {
@@ -143,19 +143,19 @@ function paucal(num, p1, p234, p) {
 
 function copyTextToClipboard(text) {
     const copyFrom = document.createElement("textarea");
-    copyFrom.setAttribute('readonly', '');
-    copyFrom.style.position = 'absolute';
-    copyFrom.style.left = '-9999px';
-    copyFrom.style.too = '0px';
+    copyFrom.setAttribute("readonly", "");
+    copyFrom.style.position = "absolute";
+    copyFrom.style.left = "-9999px";
+    copyFrom.style.too = "0px";
     copyFrom.textContent = text;
     document.body.appendChild(copyFrom);
     copyFrom.select();
-    document.execCommand('copy');
+    document.execCommand("copy");
     copyFrom.blur();
     document.body.removeChild(copyFrom);
 }
 
-function openUrl (url) {
+function openUrl(url) {
     window.open(url);
 }
 
@@ -189,11 +189,11 @@ function shortUrl(publisherId, publicationId) {
     let url = window.location.href.split("\?")[0].split("#")[0];
     url = url.substr(0, url.lastIndexOf("/")) + "/" + url.substr(url.lastIndexOf("-") + 1, url.length - 1);
     if (publisherId != null) {
-        const urlParts = url.split("/")
+        const urlParts = url.split("/");
         const id = publicationId == null ? urlParts[urlParts.length - 1] : publicationId;
-        url = `https://dzen.ru/media/id/${publisherId}/${id}`
+        url = `https://dzen.ru/media/id/${publisherId}/${id}`;
     }
-    return url
+    return url;
 }
 
 function dateFormat(unixTime, showTime = true) {
@@ -216,6 +216,7 @@ function daysSinceDate(unixTime) {
     const difference = date2 - date1;
     return Math.round(difference / oneDay);
 }
+
 function daysReadable(daysInterval) {
     let days = daysInterval;
     const years = Math.floor(days / 365);

@@ -6,8 +6,8 @@ let publisherId;
 let searchHistoryList = [];
 
 const picker = new Litepicker({
-    element: document.getElementById('start-date'),
-    elementEnd: document.getElementById('end-date'),
+    element: document.getElementById("start-date"),
+    elementEnd: document.getElementById("end-date"),
     singleMode: false,
     dropdowns: {"minYear": 2017, "months": false, "years": true},
     numberOfColumns: 2,
@@ -17,32 +17,32 @@ const picker = new Litepicker({
     tooltipText: {one: "день", few: "дня", many: "дней"},
     position: "bottom left",
     allowRepick: true,
-    plugins: ['ranges'],
+    plugins: ["ranges"],
     ranges: {
-        position: 'left',
+        position: "left",
         customRanges: getCustomRanges()
     }
-})
+});
 picker.getDayAfterEnd = function () {
     const dateEnd = this.getEndDate();
     dateEnd.setDate(dateEnd.getDate() + 1);
     return dateEnd;
-}
+};
 picker.setDateRange("30-05-2017", Date());
 
 function getCustomRanges() {
     const ranges = {};
-    const today = new Date()
+    const today = new Date();
     const year = today.getFullYear();
-    ranges["Текущий месяц"] = [new Date(new Date().setDate(1)), today]
-    ranges["Прошлый месяц"] = [new Date(today.getFullYear(), today.getMonth() - 1), new Date(today.getFullYear(), today.getMonth())]
-    ranges["Последние 30 дней"] = [new Date(new Date().setDate(today.getDate() - 30)), today]
-    ranges["Последние 180 дней"] = [new Date(new Date().setDate(today.getDate() - 180)), today]
-    ranges[year.toString() + " год"] = [new Date(year, 0), today]
-    ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)]
-    ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)]
-    ranges[(year - 3).toString() + " год"] = [new Date(year - 3, 0), new Date(year - 2, 0)]
-    return ranges
+    ranges["Текущий месяц"] = [new Date(new Date().setDate(1)), today];
+    ranges["Прошлый месяц"] = [new Date(today.getFullYear(), today.getMonth() - 1), new Date(today.getFullYear(), today.getMonth())];
+    ranges["Последние 30 дней"] = [new Date(new Date().setDate(today.getDate() - 30)), today];
+    ranges["Последние 180 дней"] = [new Date(new Date().setDate(today.getDate() - 180)), today];
+    ranges[year.toString() + " год"] = [new Date(year, 0), today];
+    ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)];
+    ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)];
+    ranges[(year - 3).toString() + " год"] = [new Date(year - 3, 0), new Date(year - 2, 0)];
+    return ranges;
 }
 
 showElement("search_msg");
@@ -50,14 +50,14 @@ getChannelId();
 initButtons();
 
 function initButtons() {
-    document.getElementById('search_button').onclick = searchClick;
-    document.getElementById('search-clear').onclick = searchClear;
+    document.getElementById("search_button").onclick = searchClick;
+    document.getElementById("search-clear").onclick = searchClear;
     document.getElementById("range-clear").onclick = clickSearchAllTime;
     TYPES.forEach(pubType => {
         document.getElementById("show-" + pubType).addEventListener("click", showByType.bind(null, pubType));
     });
 
-    const searchField = document.getElementById('search');
+    const searchField = document.getElementById("search");
     searchField.addEventListener("keyup", event => {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -135,7 +135,7 @@ function addNewSearchHistory(newSearchString) {
     if (searchHistoryList == null) {
         searchHistoryList = [];
     }
-    searchHistoryList = searchHistoryList.filter(e => e !== newSearchString)
+    searchHistoryList = searchHistoryList.filter(e => e !== newSearchString);
     searchHistoryList.unshift(newSearchString);
     if (searchHistoryList.length > 10) {
         searchHistoryList.pop();
@@ -150,11 +150,11 @@ function updateSearchStats() {
         for (let i = 0; i < publications.length; i++) {
             count [publications[i].type]++;
         }
-        document.getElementById('show-article').innerText = "Статьи: " + count.article;
-        document.getElementById('show-brief').innerText = "Посты: " + count.brief;
-        document.getElementById('show-gif').innerText = "Видео: " + count.gif;
-        document.getElementById('show-short_video').innerText = "Ролики: " + count.short_video;
-        document.getElementById('show-gallery').innerText = "Галереи: " + count.gallery;
+        document.getElementById("show-article").innerText = "Статьи: " + count.article;
+        document.getElementById("show-brief").innerText = "Посты: " + count.brief;
+        document.getElementById("show-gif").innerText = "Видео: " + count.gif;
+        document.getElementById("show-short_video").innerText = "Ролики: " + count.short_video;
+        document.getElementById("show-gallery").innerText = "Галереи: " + count.gallery;
     }
 }
 
@@ -162,7 +162,7 @@ function showByType(pubType) {
     clearSearchResults();
     showElement("spinner");
     if (publications.length === 0) {
-        loadPublicationsAndShowByType(pubType)
+        loadPublicationsAndShowByType(pubType);
     } else {
         executeShowByType(pubType);
     }

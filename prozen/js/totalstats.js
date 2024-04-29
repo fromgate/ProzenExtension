@@ -3,8 +3,8 @@ let publisherId;
 let publications;
 
 const picker = new Litepicker({
-    element: document.getElementById('start-date'),
-    elementEnd: document.getElementById('end-date'),
+    element: document.getElementById("start-date"),
+    elementEnd: document.getElementById("end-date"),
     singleMode: false,
     dropdowns: {"minYear": 2017, "months": false, "years": true},
     numberOfColumns: 2,
@@ -14,9 +14,9 @@ const picker = new Litepicker({
     tooltipText: {one: "день", few: "дня", many: "дней"},
     position: "bottom left",
     allowRepick: true,
-    plugins: ['ranges'],
+    plugins: ["ranges"],
     ranges: {
-        position: 'left',
+        position: "left",
         customRanges: getCustomRanges()
     }
 });
@@ -25,7 +25,7 @@ picker.getDayAfterEnd = function () {
     const dateEnd = this.getEndDate();
     dateEnd.setDate(dateEnd.getDate() + 1);
     return dateEnd;
-}
+};
 
 main();
 
@@ -63,13 +63,13 @@ function getPublisherId() {
 
 function getCustomRanges() {
     const ranges = {};
-    const today = new Date()
+    const today = new Date();
     const year = today.getFullYear();
 
-    ranges["Текущий месяц"] = [new Date (new Date().setDate(1)), today];
-    ranges["Прошлый месяц"] = [new Date (today.getFullYear(), today.getMonth()-1), new Date (today.getFullYear(), today.getMonth())];
-    ranges["Последние 30 дней"] = [new Date (new Date().setDate(today.getDate()-30)), today];
-    ranges["Последние 180 дней"] = [new Date (new Date().setDate(today.getDate()-180)), today];
+    ranges["Текущий месяц"] = [new Date(new Date().setDate(1)), today];
+    ranges["Прошлый месяц"] = [new Date(today.getFullYear(), today.getMonth() - 1), new Date(today.getFullYear(), today.getMonth())];
+    ranges["Последние 30 дней"] = [new Date(new Date().setDate(today.getDate() - 30)), today];
+    ranges["Последние 180 дней"] = [new Date(new Date().setDate(today.getDate() - 180)), today];
     ranges[year.toString() + " год"] = [new Date(year, 0), today];
     ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)];
     ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)];
@@ -93,7 +93,7 @@ function showStats(stats) {
             document.getElementById(publicationType + "-firstpost").textContent = stat.minAddTimeStr();
         }
     });
-    showNotFound (fieldsets === 0);
+    showNotFound(fieldsets === 0);
 }
 
 function getMedian(arrOfNums) {
@@ -101,7 +101,7 @@ function getMedian(arrOfNums) {
     const sortedArr = arrOfNums.sort((num1, num2) => num1 - num2);
     const medianIndex = Math.floor(sortedArr.length / 2);
     if (arrOfNums.length % 2 === 0) {
-        result = (sortedArr[medianIndex-1] + sortedArr[medianIndex]) / 2;
+        result = (sortedArr[medianIndex - 1] + sortedArr[medianIndex]) / 2;
     } else {
         result = sortedArr[medianIndex];
     }
@@ -151,72 +151,74 @@ function countStats() {
  * returns HH:MM:SS / MM:SS
  * see withHours boolean parameter
  */
-function getStrTime(secondsTot, withHours){
-    if(isNaN(parseInt(secondsTot))){
+function getStrTime(secondsTot, withHours) {
+    if (isNaN(parseInt(secondsTot))) {
         return 0;
     }
 
     secondsTot = parseInt(secondsTot);
 
-    let res = !!withHours ? 'HH:MM:SS' : 'MM:SS';
-    let minutesTot = parseInt( secondsTot / 60);
+    let res = !!withHours ? "HH:MM:SS" : "MM:SS";
+    let minutesTot = parseInt(secondsTot / 60);
     let _roundSec = minutesTot * 60;
-    let sec = secondsTot  - _roundSec;
-    let strSec =  String(sec).padStart(2,'0');
+    let sec = secondsTot - _roundSec;
+    let strSec = String(sec).padStart(2, "0");
 
     let hours = parseInt(minutesTot / 60);
     let _roundMin = hours * 60;
     let min = minutesTot - _roundMin;
-    let strMin = String(min).padStart(2,'0');
-    let strHours = String(hours).padStart(2,'0');
+    let strMin = String(min).padStart(2, "0");
+    let strHours = String(hours).padStart(2, "0");
 
-    res = res.replace('SS', strSec).replace('MM',strMin).replace('HH', strHours);
+    res = res.replace("SS", strSec).replace("MM", strMin).replace("HH", strHours);
     return res;
 }
 
 
-function getExcelData(type){
+function getExcelData(type) {
 
-    if(!publications){        
-        return ['no result'];
+    if (!publications) {
+        return ["no result"];
     }
 
-    let pubs = publications.filter(pub =>  pub.type === type);
-    
-    let arResult = [];
-    
-    switch(type){
-        case "article": case "gif": case "short_video":
-        let firstCol = type === "article" ? "Статья" : (type === "gif" ? "Видео" : "Ролики");
-        arResult.push([firstCol,"Показы","Клики",type === "article" ? "Дочитывания" : "Просмотры","Время (среднее)"]);
-        
-        pubs.map(function(article){
-            let arRow = [];
-            arRow.push(article.title);
-            arRow.push(article.impressions);
-            arRow.push(article.clicks);
-            arRow.push(article.typeSpecificViews);
-            arRow.push(getStrTime(article.sumViewTimeSec / article.typeSpecificViews, false));
-            arResult.push(arRow);
-        });
-            
-        break;
-        case "brief":
-            arResult.push(["Пост","Показы","Клики","Просмотры"]);
+    let pubs = publications.filter(pub => pub.type === type);
 
-            pubs.map(function(article){
+    let arResult = [];
+
+    switch (type) {
+        case "article":
+        case "gif":
+        case "short_video":
+            let firstCol = type === "article" ? "Статья" : (type === "gif" ? "Видео" : "Ролики");
+            arResult.push([firstCol, "Показы", "Клики", type === "article" ? "Дочитывания" : "Просмотры", "Время (среднее)"]);
+
+            pubs.map(function (article) {
+                let arRow = [];
+                arRow.push(article.title);
+                arRow.push(article.impressions);
+                arRow.push(article.clicks);
+                arRow.push(article.typeSpecificViews);
+                arRow.push(getStrTime(article.sumViewTimeSec / article.typeSpecificViews, false));
+                arResult.push(arRow);
+            });
+
+            break;
+        case "brief":
+            arResult.push(["Пост", "Показы", "Клики", "Просмотры"]);
+
+            pubs.map(function (article) {
                 let arRow = [];
                 arRow.push(article.title == null || article.title.length === 0 ? article.url : article.title);
                 arRow.push(article.impressions);
                 arRow.push(article.clicks);
                 arRow.push(article.typeSpecificViews);
                 arResult.push(arRow);
-            })
+            });
 
-        break;
-            
+            break;
+
         default:
-        break;
+            break;
     }
 
     return arResult;
@@ -226,28 +228,28 @@ function getExcelData(type){
 function s2ab(s) {
     var buf = new ArrayBuffer(s.length);
     var view = new Uint8Array(buf);
-    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
     return buf;
 }
 
-function excelExport(){
-    document.getElementById('excel-msg').innerText="Waiting excel generation...";
+function excelExport() {
+    document.getElementById("excel-msg").innerText = "Waiting excel generation...";
 
 
-    generateExcelExport().then(function(){
-        document.getElementById('excel-msg').innerText = "";        
+    generateExcelExport().then(function () {
+        document.getElementById("excel-msg").innerText = "";
     })
-    .catch(function(e){
-        document.getElementById('excel-msg').innerText = e;
+        .catch(function (e) {
+            document.getElementById("excel-msg").innerText = e;
 
-    });
+        });
 }
 
-function generateExcelExport(){
+function generateExcelExport() {
 
-    return new Promise(function(resolve, reject){
+    return new Promise(function (resolve, reject) {
 
-        try{
+        try {
             let fileExcel = XLSX.utils.book_new();
 
             const cfgSheets = {
@@ -256,7 +258,7 @@ function generateExcelExport(){
                 gif: "Видео",
                 short_video: "Ролики"
             };
-            
+
             fileExcel.Props = {
                 Title: "PROZEN stats",
                 Subject: "Stats",
@@ -264,34 +266,34 @@ function generateExcelExport(){
                 CreatedDate: new Date()
             };
 
-            Object.keys(cfgSheets).map(function(sheet){
+            Object.keys(cfgSheets).map(function (sheet) {
                 fileExcel.SheetNames.push(cfgSheets[sheet]);
                 let arData = getExcelData(sheet);
                 fileExcel.Sheets[cfgSheets[sheet]] = XLSX.utils.aoa_to_sheet(arData);
             });
 
-            const fileExcelOutput = XLSX.write(fileExcel, {bookType: 'xlsx', type: 'binary'});
+            const fileExcelOutput = XLSX.write(fileExcel, {bookType: "xlsx", type: "binary"});
             let now = new Date();
 
             // YYYYMMDDTHHMMSS
-            let strTimestamp =  now.getFullYear()            
-            + String(now.getMonth()+1).padStart(2,'0') 
-            + String(now.getDate()).padStart(2,'0')  
-            + 'T'
-            + String(now.getHours()).padStart(2,'0')
-            + String(now.getMinutes()).padStart(2,'0')
-            + String(now.getSeconds()).padStart(2,'0')
+            let strTimestamp = now.getFullYear()
+                + String(now.getMonth() + 1).padStart(2, "0")
+                + String(now.getDate()).padStart(2, "0")
+                + "T"
+                + String(now.getHours()).padStart(2, "0")
+                + String(now.getMinutes()).padStart(2, "0")
+                + String(now.getSeconds()).padStart(2, "0")
             ;
-            saveAs(new Blob([s2ab(fileExcelOutput)],{type:"application/octet-stream"}), 'prozen-stats-'+ strTimestamp +'.xlsx');
+            saveAs(new Blob([s2ab(fileExcelOutput)], {type: "application/octet-stream"}), "prozen-stats-" + strTimestamp + ".xlsx");
             resolve(true);
-           
-        }catch(e){
-            reject('ERROR in excel export: ' + e.message)
+
+        } catch (e) {
+            reject("ERROR in excel export: " + e.message);
         }
 
     });
 
-    
+
 }
 
 
@@ -314,7 +316,7 @@ function showStatsByRange() {
     }
 }
 
-function showFieldset (type, show) {
+function showFieldset(type, show) {
     const fieldset = document.getElementById(`${type}-fieldset`);
     fieldset.style.display = show ? "block" : "none";
 }
@@ -338,9 +340,10 @@ class Stat {
         this.deepViews = 0;
         this.deepViewsMed = 0;
         this.deepViewsAvg = 0;
-        this.minAddTime =0
+        this.minAddTime = 0;
     }
-    plus (publication) {
+
+    plus(publication) {
         for (const key of Object.keys(this)) {
             if (publication.hasOwnProperty(key)) {
                 if (key !== "minAddTime") {
@@ -349,16 +352,16 @@ class Stat {
             }
         }
         const pubMinAddTime = publication.hasOwnProperty("addTime") ? publication.addTime : publication.minAddTime;
-        this.minAddTime = (pubMinAddTime != null) && (pubMinAddTime >0) && (pubMinAddTime < this.minAddTime || this.minAddTime === 0) ? pubMinAddTime : this.minAddTime;
+        this.minAddTime = (pubMinAddTime != null) && (pubMinAddTime > 0) && (pubMinAddTime < this.minAddTime || this.minAddTime === 0) ? pubMinAddTime : this.minAddTime;
     }
 
-    clicksPercent (publicationType = "article") {
+    clicksPercent(publicationType = "article") {
         return this.impressions === 0 || publicationType !== "article" ? 0 : this.typeSpecificViews / this.impressions * 100;
         //return this.impressions === 0 ? 0 : this.typeSpecificViews / this.impressions * 100;
     }
 
-    clicksPercentStr () {
-        const clicksPercent  = this.clicksPercent()
+    clicksPercentStr() {
+        const clicksPercent = this.clicksPercent();
         return clicksPercent === 0 ? "" : " (" + numFormat(clicksPercent, 2) + "%)";
     }
 
@@ -366,9 +369,9 @@ class Stat {
         return this.typeSpecificViews === 0 ? 0 : this.typeSpecificViews / this.clicks * 100;
     }
 
-    typeSpecificViewsPercentStr (publicationType = "article") {
+    typeSpecificViewsPercentStr(publicationType = "article") {
         const typeSpecificViewsPercent = this.typeSpecificViewsPercent();
-        return  publicationType !== "article" || typeSpecificViewsPercent === 0  ? "" : " (" + numFormat(typeSpecificViewsPercent, 2) + "%)";
+        return publicationType !== "article" || typeSpecificViewsPercent === 0 ? "" : " (" + numFormat(typeSpecificViewsPercent, 2) + "%)";
     }
 
     minAddTimeStr() {

@@ -103,7 +103,7 @@ function addHeaderClicks() {
                         const clickIcon = createElement("span", "publication_header_icon_url");
                         clickIcon.setAttribute("title", "Ссылка на заголовок.\n" +
                             "Кликните, чтобы скопировать её в буфер обмена");
-                        clickIcon.addEventListener('click', copyTextToClipboard.bind(null, shortLink + "#" + ancorId));
+                        clickIcon.addEventListener("click", copyTextToClipboard.bind(null, shortLink + "#" + ancorId));
                         header.insertBefore(clickIcon, header.firstChild);
                     }
                 }
@@ -164,7 +164,7 @@ async function showStatsBrief(data, publisherId) {
         const spanLink = createElement("span");
         spanLink.innerText = "  🔗 ";
         spanLink.setAttribute("title", "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
+        spanLink.addEventListener("click", copyTextToClipboard.bind(null, shortUrl(publisherId, postId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -249,7 +249,7 @@ async function showStatsGallery(data, publisherId) {
         const spanLink = createElement("span");
         spanLink.innerText = " 🔗";
         spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
+        spanLink.addEventListener("click", copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanLink.style.cursor = "pointer";
         divStat.appendChild(spanLink);
     }
@@ -312,7 +312,7 @@ async function showStatsVideoOld(data, publisherId) {
         const spanIcon4 = createElement("span", "article__date-video");
         spanIcon4.innerText = "🔗";
         spanIcon4.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanIcon4.addEventListener('click', copyTextToClipboard.bind(null, shortUrl(publisherId)));
+        spanIcon4.addEventListener("click", copyTextToClipboard.bind(null, shortUrl(publisherId)));
         spanIcon4.style.cursor = "pointer";
         container.appendChild(spanIcon4);
     }
@@ -326,7 +326,7 @@ async function getPublicationStats(data) {
     if (postId != null) {
         const localStatsOld = await loadPublicationStat(postId);
         if (localStats == null) {
-            localStats = localStatsOld
+            localStats = localStatsOld;
         } else {
             localStats.views = Math.max(localStats.views, localStatsOld.views, 0);
             localStats.viewsTillEnd = Math.max(localStats.viewsTillEnd, localStatsOld.viewsTillEnd, 0);
@@ -372,7 +372,7 @@ async function showStatsArticle(data, publisherId) {
         document.getElementsByClassName("article-stats-view article-stats-view_theme_white")[0].appendChild(createElement("div", "article-stats-view__item"));
         articleStatsViewRedesignItems = document.getElementsByClassName("article-stats-view__item");
     }
-    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1]
+    const elArticleStats = articleStatsViewRedesignItems[articleStatsViewRedesignItems.length - 1];
     elArticleStats.classList.remove("article-stats-view__item_no-opacity");
     removeChilds(elArticleStats);
 
@@ -387,7 +387,7 @@ async function showStatsArticle(data, publisherId) {
     viewsContainer.setAttribute("title", "Просмотры");
     const viewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_views_2");
     viewsContainer.appendChild(viewsIcon);
-    const viewsText = createElement("span", "article-stats-view__stats-item-count")
+    const viewsText = createElement("span", "article-stats-view__stats-item-count");
     viewsText.innerText = numFormat(views, 0);
     viewsContainer.appendChild(viewsText);
 
@@ -398,8 +398,8 @@ async function showStatsArticle(data, publisherId) {
     fullViewsContainer.setAttribute("title", "Дочитывания");
     const fullViewsIcon = createElement("span", "article-stats-view__stats-item-icon publication_icon_full_views");
     fullViewsContainer.appendChild(fullViewsIcon);
-    const fullViewsText = createElement("span", "article-stats-view__stats-item-count")
-    fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)"
+    const fullViewsText = createElement("span", "article-stats-view__stats-item-count");
+    fullViewsText.innerText = numFormat(viewsTillEnd, 0) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
     fullViewsContainer.appendChild(fullViewsText);
 
     containerInner.appendChild(fullViewsContainer);
@@ -422,10 +422,10 @@ async function showStatsArticle(data, publisherId) {
         const shortLinkContainer = createElement("div", "article-stats-view__stats-item");
         shortLinkContainer.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
         const shortLinkIcon = createElement("span", "publication_icon_short_url");
-        shortLinkIcon.addEventListener('click', copyTextToClipboard.bind(null, shortLink !== null ? shortLink : shortUrl(publisherId, postId)));
+        shortLinkIcon.addEventListener("click", copyTextToClipboard.bind(null, shortLink !== null ? shortLink : shortUrl(publisherId, postId)));
         shortLinkIcon.style.cursor = "pointer";
         shortLinkContainer.appendChild(shortLinkIcon);
-        elArticleStats.appendChild(shortLinkContainer)
+        elArticleStats.appendChild(shortLinkContainer);
     }
 
     // Грустный робот
