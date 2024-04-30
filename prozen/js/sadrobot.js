@@ -215,14 +215,15 @@ async function executeSearch(pubs, limitCount = -1) {
     let countRobots = 0;
     let links = "";
     const checks = new Set();
-    const maxCount = limitCount < 0 ? publications.length : Math.min(limitCount, publications.length);
+
+    const publicationsToCheck = publications.filter((card) => isContentTypeSelected(card.type));
+    const maxCount = limitCount < 0 ? publicationsToCheck.length : Math.min(limitCount, publicationsToCheck.length);
     showProgress(0, maxCount);
-    for (const card of publications) {
+
+    for (const card of publicationsToCheck) {
         if (!["post", "narrative", "gallery"].includes(card.type)) {
             count++;
             progress(count);
-
-            if (!isContentTypeSelected(card.type)) continue;
 
             const checkState = new Set();
             if (card.isBanned) {
