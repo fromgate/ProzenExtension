@@ -129,7 +129,7 @@ ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_SUBSCRIBERS] = {
 ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
     tag: "😬",
     name: "Комментарии для всех",
-    text: "Комментарии в публикации открыты только для всех"
+    text: "Комментарии в публикации открыты для всех"
 };
 
 let AGREE = false;
