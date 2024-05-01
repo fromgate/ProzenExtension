@@ -86,6 +86,13 @@
                         </fieldset>
                         <fieldset>
                             <legend>Проверка публикаций</legend>
+                            <div>
+                                <label>Период поиска</label>
+                                <span>с</span><label for="start-date"></label><input type="text" id="start-date"><span>по</span><label
+                                    for="end-date"></label><input type="text" id="end-date">
+                                <button id="range-clear" type="button" title="Искать за всё время">Всё время</button>
+                            </div>
+                            <!--
                             <label for="radio_find_all">
                                 <input type="radio" id="radio_find_all" name="all-or-20"/>Проверить
                                 все публикации канала</label>
@@ -93,6 +100,7 @@
                             <label for="radio_find_20"><input type="radio" id="radio_find_20" name="all-or-20"
                                                               checked/>Проверить последние 20 публикаций</label>
                             <br>
+                            -->
                             <!--
                             <label for="checkbox_find_no_adv"><input type="checkbox" id="checkbox_find_no_adv" name="find_no_adv"
                                                               />Проверять наличие рекламы</label>
@@ -135,6 +143,13 @@
                         <br>Поздравляем! На вашем канале не обнаружены публикации с подозрительными признаками.
                     </p>
                 </div>
+                <div class="section" id="nothing_to_check">
+                    <p>
+                        <mark class="inline-block">Проверять нечего!</mark>
+                        <br>Не обнаружены публикации, удовлетворяющие выбранным параметрам проверки (период, тип публикаций).
+                        <br>Попробуйте повторить проверку с другими параметрами.
+                    </p>
+                </div>
                 <div class="section" id="channel_none">
                     <p>
                         <mark class="secondary inline-block">Канал не индексируется!</mark>
@@ -164,6 +179,8 @@
     · <a href="https://zen.yandex.ru/prodzn/" target="_blank">Дзен</a>
     · <a href="https://donate.stream/prodzen" target="_blank">Поддержать разработчика</a><br>
 </footer>
+<script type="text/javascript" src="js/litepicker.js"></script>
+<script type="text/javascript" src="js/ranges.js"></script>
 <script type="text/javascript" src="js/requester.js"></script>
 <script type="text/javascript" src="js/tools.js"></script>
 <script type="text/javascript" src="js/sadrobot.js"></script>

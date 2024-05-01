@@ -19,6 +19,59 @@ const COIN_EMOJI = "🪙"; // isOldWindows() ? "👛" : "🪙";
 
 const ALL_CHECK_RESULT_MESSAGES = {};
 
+const picker = new Litepicker({
+    element: document.getElementById("start-date"),
+    elementEnd: document.getElementById("end-date"),
+    singleMode: false,
+    dropdowns: {"minYear": 2017, "months": false, "years": true},
+    numberOfColumns: 2,
+    numberOfMonths: 2,
+    format: "DD-MM-YYYY",
+    lang: "ru-RU",
+    tooltipText: {one: "день", few: "дня", many: "дней"},
+    position: "bottom left",
+    allowRepick: true,
+    plugins: ["ranges"],
+    ranges: {
+        position: "left",
+        customRanges: getCustomRanges()
+    }
+});
+picker.getDayAfterEnd = function () {
+    const dateEnd = this.getEndDate();
+    dateEnd.setDate(dateEnd.getDate() + 1);
+    return dateEnd;
+};
+
+picker.isDateInRage = function (date) {
+    const dateStart = this.getStartDate();
+    const dateEnd = this.getDayAfterEnd();
+    return (date >= dateStart.getTime() && date <= dateEnd.getTime());
+};
+
+function getCustomRanges() {
+    const ranges = {};
+    const today = new Date();
+    const year = today.getFullYear();
+    ranges["Последние 7 дней"] = [new Date(new Date().setDate(today.getDate() - 7)), today];
+    ranges["Последние 30 дней"] = [new Date(new Date().setDate(today.getDate() - 30)), today];
+    ranges["Текущий месяц"] = [new Date(new Date().setDate(1)), today];
+    ranges["Последние 180 дней"] = [new Date(new Date().setDate(today.getDate() - 180)), today];
+    ranges[year.toString() + " год"] = [new Date(year, 0), today];
+    ranges[(year - 1).toString() + " год"] = [new Date(year - 1, 0), new Date(year, 0)];
+    ranges[(year - 2).toString() + " год"] = [new Date(year - 2, 0), new Date(year - 1, 0)];
+    ranges[(year - 3).toString() + " год"] = [new Date(year - 3, 0), new Date(year - 2, 0)];
+    return ranges;
+}
+
+picker.setDateRange(new Date(new Date().setDate(new Date().getDate() - 30)), new Date());
+
+function clearDateRange() {
+    picker.setDateRange("30-05-2017", new Date());
+}
+
+document.getElementById("range-clear").onclick = clearDateRange;
+
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
     tag: "❌",
     name: "Публикация ограничена",
@@ -89,7 +142,7 @@ let token;
 const switchIds = [];
 const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF];
 
-const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "channel_none"];
+const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer", "search_msg_empty", "not_found", "nothing_to_check", "channel_none"];
 
 showWarning();
 document.getElementById("agree").onclick = clickAgree;
@@ -209,68 +262,71 @@ function isContentTypeSelected(type) {
     return el.checked;
 }
 
-async function executeSearch(pubs, limitCount = -1) {
+async function executeSearch(pubs) {
     showElement("search_result");
     let count = 0;
     let countRobots = 0;
     let links = "";
     const checks = new Set();
 
-    const publicationsToCheck = publications.filter((card) => isContentTypeSelected(card.type));
-    const maxCount = limitCount < 0 ? publicationsToCheck.length : Math.min(limitCount, publicationsToCheck.length);
-    showProgress(0, maxCount);
+    const publicationsToCheck = publications.filter((card) => {
+        return isContentTypeSelected(card.type) && picker.isDateInRage(card.addTime);
+    });
 
-    for (const card of publicationsToCheck) {
-        if (!["post", "narrative", "gallery"].includes(card.type)) {
-            count++;
-            progress(count);
+    if (publicationsToCheck.length > 0) {
+        showProgress(0, publicationsToCheck.length);
 
-            const checkState = new Set();
-            if (card.isBanned) {
-                checkState.add(CHECK_RESULT_BANNED);
-            }
+        for (const card of publicationsToCheck) {
+            if (!["post", "narrative", "gallery"].includes(card.type)) {
+                count++;
+                progress(count);
 
-            if (fullCheck()) {
-                const loadState = await checkRobotNoNoIndex(card);
-                loadState.forEach(item => checkState.add(item));
-            }
+                const checkState = new Set();
+                if (card.isBanned) {
+                    checkState.add(CHECK_RESULT_BANNED);
+                }
 
-            if (checkState.size === 0) {
-                checkState.add(CHECK_RESULT_OK);
-            }
+                if (fullCheck()) {
+                    const loadState = await checkRobotNoNoIndex(card);
+                    loadState.forEach(item => checkState.add(item));
+                }
 
-            if (checkState.size > 0 && !checkState.has(CHECK_RESULT_OK)) {
-                const showState = getShowState(checkState);
-                showState.forEach(item => checks.add(item));
-                if (showState.size > 0) {
-                    addSearchResult(card, showState);
-                    links += `${card.url}\n`;
-                    scrollToBottom();
-                    countRobots++;
+                if (checkState.size === 0) {
+                    checkState.add(CHECK_RESULT_OK);
+                }
+
+                if (checkState.size > 0 && !checkState.has(CHECK_RESULT_OK)) {
+                    const showState = getShowState(checkState);
+                    showState.forEach(item => checks.add(item));
+                    if (showState.size > 0) {
+                        addSearchResult(card, showState);
+                        links += `${card.url}\n`;
+                        scrollToBottom();
+                        countRobots++;
+                    }
                 }
             }
-            if (count >= maxCount) {
-                break;
-            }
         }
-    }
 
-    if (countRobots === 0) {
-        showElement("not_found");
+        if (countRobots === 0) {
+            showElement("not_found");
+        } else {
+            addLegend(checks);
+            addListFooter(count, countRobots, links);
+        }
+        hideProgress();
     } else {
-        addLegend(checks);
-        addListFooter(count, countRobots, links);
+        showElement("nothing_to_check");
     }
-    hideProgress();
 }
 
 
 function loadPublicationsAndSearch() {
     showElement("spinner");
-    const findAll = document.getElementById("radio_find_all").checked;
+    //const findAll = document.getElementById("radio_find_all").checked;
     loadAllPublications(true).then(cards => {
         publications = cards;
-        executeSearch(publications, findAll ? -1 : 20);
+        executeSearch(publications);
     });
     return false;
 }
@@ -339,7 +395,6 @@ async function checkRobotNoNoIndex(card) {
         xhr.send();
     });
 }
-
 
 function getDataLine(scriptLines, prefix, removePrefix = true) {
     let wData = "";
