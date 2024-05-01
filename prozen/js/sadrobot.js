@@ -262,7 +262,7 @@ function isContentTypeSelected(type) {
     return el.checked;
 }
 
-async function executeSearch(pubs) {
+async function executeSearch() {
     showElement("search_result");
     let count = 0;
     let countRobots = 0;
@@ -326,7 +326,7 @@ function loadPublicationsAndSearch() {
     //const findAll = document.getElementById("radio_find_all").checked;
     loadAllPublications(true).then(cards => {
         publications = cards;
-        executeSearch(publications);
+        executeSearch();
     });
     return false;
 }
