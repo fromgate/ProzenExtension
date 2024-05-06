@@ -422,7 +422,7 @@ function getVideoDataLine(scriptLines) {
     if (scriptLines.includes("{\"data\":{\"MICRO_APP_SSR_DATA")) {
         const begin = scriptLines.indexOf("{\"MICRO_APP_SSR_DATA");
         if (begin > 0) {
-            txtData = scriptLines.slice(begin, -1 * ("})}();".length));
+            txtData = scriptLines.slice(begin, -1 * ("}})}();".length));
         }
     }
     return txtData;
@@ -451,6 +451,11 @@ function checkVideoPage(scriptLines) {
 
         // /MICRO_APP_SSR_DATA/settings/exportData/video/adDisable
 
+        // /MICRO_APP_SSR_DATA/settings/exportData/video/commentsEnabled
+        if (!item.commentsEnabled) {
+            publicationChecks.add(CHECK_COMMENTS_OFF);
+        }
+
         // /MICRO_APP_SSR_DATA/settings/exportData/video/adBlocks/TOP_SIDEBAR/rsyaAdData/blockId
         const adBlocks = item?.adBlocks;
         if (adBlocks?.TOP_SIDEBAR?.rsyaAdData?.blockId == null
@@ -459,6 +464,7 @@ function checkVideoPage(scriptLines) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
     } catch (e) {
+        console.log(e);
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
     }
     return publicationChecks;
