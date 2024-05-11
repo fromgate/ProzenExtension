@@ -99,7 +99,7 @@ function saveOptions() {
 }
 
 function updateTranslation() {
-    const langs = ["popupPrivacyPolicy"];
+    const langs = ["popupPrivacyPolicy", "popupSettings"];
     langs.forEach(key => {
         const element = document.getElementById(key);
         if (element != null) {

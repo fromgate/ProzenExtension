@@ -10,5 +10,9 @@
   "popupPrivacyPolicy": {
     "message": "Политика безопасности",
     "description": "The Privacy policy link shown in the popup window"
+  },
+  "popupSettings": {
+    "message": "⚙️ Настройки",
+    "description": "Extension settings page"
   }
 }

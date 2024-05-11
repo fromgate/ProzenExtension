@@ -5,6 +5,10 @@
   "version": "2.7.19",
   "author": "fromgate, prozen.ru",
   "default_locale": "en",
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
+  },
   "browser_action": {
     "default_icon": {
       "19": "icons/tab-icon-19.png",
