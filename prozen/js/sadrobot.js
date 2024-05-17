@@ -698,7 +698,7 @@ function addListFooter(totalCount, robotsCount, links) {
     strong1.innerText = totalCount;
     const br = document.createElement("br");
     const text2 = document.createElement("span");
-    text2.innerText = "Требует внимания: ";
+    text2.innerText = "Соответствует критериям: ";
     const strong2 = document.createElement("strong");
     strong2.innerText = robotsCount;
     p.append(text1, strong1, br, text2, strong2);
