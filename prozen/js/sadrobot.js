@@ -31,7 +31,6 @@ const THEMATICS = [CHECK_THEMATIC_BEAUTY, CHECK_THEMATIC_SPORT, CHECK_THEMATIC_T
     CHECK_THEMATIC_FOOD, CHECK_THEMATIC_SCIENCE, CHECK_THEMATIC_CULTURE, CHECK_THEMATIC_ECONOMY,
     CHECK_THEMATIC_IT, CHECK_THEMATIC_AUTO, CHECK_THEMATIC_GAMES];
 
-const COIN_EMOJI = "🪙"; // isOldWindows() ? "👛" : "🪙";
 
 const ALL_CHECK_RESULT_MESSAGES = {};
 
@@ -118,7 +117,7 @@ ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {
-    tag: COIN_EMOJI, name: "Реклама не обнаружена",
+    tag: "🪙", name: "Реклама не обнаружена",
     text: "У статьи отключены рекламные блоки"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
