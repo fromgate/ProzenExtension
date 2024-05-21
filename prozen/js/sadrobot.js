@@ -15,7 +15,21 @@ const CHECK_COMMENTS_OFF = "check-comments-off";
 const CHECK_COMMENTS_SUBSCRIBERS = "check-comments-subscribers";
 const CHECK_COMMENTS_ALL = "check-comments-all";
 
-const COIN_EMOJI = "🪙"; // isOldWindows() ? "👛" : "🪙";
+const CHECK_THEMATIC_BEAUTY = "beauty";
+const CHECK_THEMATIC_SPORT = "sport";
+const CHECK_THEMATIC_TRAVEL = "travel";
+const CHECK_THEMATIC_FOOD = "food";
+const CHECK_THEMATIC_SCIENCE = "science";
+const CHECK_THEMATIC_CULTURE = "culture";
+const CHECK_THEMATIC_ECONOMY = "economy";
+const CHECK_THEMATIC_IT = "it";
+const CHECK_THEMATIC_AUTO = "auto";
+const CHECK_THEMATIC_GAMES = "games";
+const CHECK_THEMATIC_UNKNOWN = "unknown";
+const CHECK_THEMATIC_UNSET = "unset";
+const THEMATICS = [CHECK_THEMATIC_BEAUTY, CHECK_THEMATIC_SPORT, CHECK_THEMATIC_TRAVEL,
+    CHECK_THEMATIC_FOOD, CHECK_THEMATIC_SCIENCE, CHECK_THEMATIC_CULTURE, CHECK_THEMATIC_ECONOMY,
+    CHECK_THEMATIC_IT, CHECK_THEMATIC_AUTO, CHECK_THEMATIC_GAMES];
 
 const ALL_CHECK_RESULT_MESSAGES = {};
 
@@ -73,49 +87,40 @@ function clearDateRange() {
 document.getElementById("range-clear").onclick = clearDateRange;
 
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_BANNED] = {
-    tag: "❌",
-    name: "Публикация ограничена",
+    tag: "❌", name: "Публикация ограничена",
     text: "На публикации стоит отметка о блокировке.\nСкорее всего она не показывается пользователям.\nНайдите её в Студии и если она действительно заблокирована, обратитесь в службу поддержки."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_NOINDEX] = {
-    tag: "🤖",
-    name: "Снята индексация",
-    text: `Обнаружен мета-тег <meta name="robots" content="noindex" />
+    tag: "🤖", name: "Снята индексация", text: `Обнаружен мета-тег <meta name="robots" content="noindex" />
 Публикация не индексируется поисковиками.
 Примечание: связь этого тега с показами,
 пессимизацией и иными ограничениями канала
 официально не подтверждена.`
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_FAIL] = {
-    tag: "❓",
-    name: "Ошибка загрузки (ошибка расширения?)",
-    text: "Расширение не смогло загрузить страницу публикации (возможно ошибка связи).\n" +
-        "Надо проверить статью вручную или, если таких ошибок много,\n" +
-        "повторить проверку позднее."
+    tag: "❓", name: "Ошибка загрузки (ошибка связи?)",
+    text: "Расширение не смогло загрузить страницу публикации (возможно ошибка связи).\n"
+        + "Надо проверить статью вручную или, если таких ошибок много,\n"
+        + "повторить проверку позднее."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_404] = {
-    tag: "⛔",
-    name: "Ошибка 404 (страницы нет)",
+    tag: "⛔", name: "Ошибка 404 (страницы нет)",
     text: "Страница публикации вернула 404-ую ошибку.\nЭто может быть признаком блокировки публикации."
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_COVID] = {
-    tag: "😷",
-    name: "Коронавирусная метка",
+    tag: "😷", name: "Коронавирусная метка",
     text: "На публикации обнаружена метка об упоминании COVID-19"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_DMCAMUSIC] = {
-    tag: "🎹",
-    name: "DMCA (музыка)",
+    tag: "🎹", name: "DMCA (музыка)",
     text: "Материал содержит музыку, нарушающую чьи-то авторские права (Предположительно!)"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_NOADV] = {
-    tag: COIN_EMOJI,
-    name: "Реклама не обнаружена",
+    tag: "🪙", name: "Реклама не обнаружена",
     text: "У статьи отключены рекламные блоки"
 };
 ALL_CHECK_RESULT_MESSAGES [CHECK_RESULT_PAGEDATA_FAIL] = {
-    tag: "⁉️",
-    name: "Сбой обработки (ошибка расширения?)",
+    tag: "⚠️", name: "Сбой обработки (ошибка расширения?)",
     text: "Сбой обработки данных страницы.\n" +
         "Не проверено наличие монетизации и метки COVID-19.\n" +
         "Надо проверить публикацию вручную или, если таких ошибок много,\n" +
@@ -137,6 +142,30 @@ ALL_CHECK_RESULT_MESSAGES[CHECK_COMMENTS_ALL] = {
     text: "Комментарии в публикации открыты для всех"
 };
 
+// thematics: beauty sport travel food science culture economy it auto games
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_BEAUTY] = {
+    tag: "💄", name: "Красота и стиль",
+    text: "Тематика: красота и стиль"
+};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_SPORT] = {tag: "⚽", name: "Спорт", text: "Тематика: спорт"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_TRAVEL] = {
+    tag: "✈️", name: "Путешествия",
+    text: "Тематика: путешествия"
+};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_FOOD] = {tag: "🍰", name: "Еда", text: "Тематика: еда"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_SCIENCE] = {tag: "🔬", name: "Наука", text: "Тематика: наука"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_CULTURE] = {tag: "🖼️", name: "Культура", text: "Тематика: культура"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_ECONOMY] = {tag: "💸", name: "Экономика", text: "Тематика: экономика"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_IT] = {tag: "💻", name: "Технологии", text: "Тематика: технологии"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_AUTO] = {tag: "🚗", name: "Авто", text: "Тематика: авто"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_GAMES] = {tag: "🎮", name: "Игры", text: "Тематика: игры"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_UNKNOWN] = {
+    tag: "🧩", name: "Неизвестная тема",
+    text: "Тематика: неизвестная (новая?)"
+};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_UNSET] = {tag: "🎈", name: "Нет темы", text: "Тематика не указана"};
+
+
 let AGREE = false;
 
 let id;
@@ -145,7 +174,8 @@ let newPublications = [];
 let publisherId;
 let token;
 const switchIds = [];
-const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF];
+const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF,
+    CHECK_THEMATIC_UNSET].concat(THEMATICS);
 
 const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer",
     "search_msg_empty", "not_found", "nothing_to_check", "channel_none"];
@@ -153,6 +183,12 @@ const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaim
 showWarning();
 document.getElementById("agree").onclick = clickAgree;
 document.getElementById("start_button").onclick = loadPublicationsAndSearch;
+document.getElementById("thematic-clear").onclick = () => {
+    setThematics(false);
+};
+document.getElementById("thematic-all").onclick = () => {
+    setThematics(true);
+};
 
 initSwitches();
 loadOptions();
@@ -189,6 +225,15 @@ function clickAgree() {
     showElement("start_text");
     return false;
 }
+
+function setThematics(check) {
+    THEMATICS.forEach(thematic => {
+        setCheckbox(thematic, check);
+    });
+    setCheckbox(CHECK_THEMATIC_UNSET, false);
+    saveOptions();
+}
+
 
 function saveAgree() {
     const object = {};
@@ -385,7 +430,6 @@ async function checkRobotNoNoIndex(card) {
                     } else {
                         checks.add(CHECK_RESULT_PAGEDATA_FAIL);
                     }
-
                 }
             }
             if (checks.size === 0) {
@@ -463,6 +507,11 @@ function checkVideoPage(scriptLines) {
             && adBlocks?.LIVE_ADS_BANNER?.rsyaAdData?.blockId == null) {
             publicationChecks.add(CHECK_RESULT_PAGEDATA_NOADV);
         }
+
+        // /data/MICRO_APP_SSR_DATA/settings/exportData/video/thematicBanners
+        const thematicBanners = item?.thematicBanners;
+        checkThematicBanners(thematicBanners).forEach(checkBanner => publicationChecks.add(checkBanner));
+
     } catch (e) {
         console.log(e);
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
@@ -470,10 +519,31 @@ function checkVideoPage(scriptLines) {
     return publicationChecks;
 }
 
+function checkThematicBanners(thematicBanners) {
+    const checkBanners = new Set();
+    if (thematicBanners?.length > 0) {
+        thematicBanners.forEach(thematicBanner => {
+            if (THEMATICS.includes(thematicBanner.tabId)) {
+                checkBanners.add(thematicBanner.tabId);
+            } else {
+                checkBanners.add(CHECK_THEMATIC_UNKNOWN);
+            }
+        });
+    } else {
+        checkBanners.add(CHECK_THEMATIC_UNSET);
+    }
+    return checkBanners;
+}
+
 function checkPublicationPage(scriptLines) {
     const publicationChecks = new Set();
     const wData = getDataLine(scriptLines, "  w._data = ");
+    const thematicBannerData = getDataLine(scriptLines, "  w._thematicBanners = ");
+
     try {
+        const thematicBanners = JSON.parse(thematicBannerData);
+        checkThematicBanners(thematicBanners).forEach(checkBanner => publicationChecks.add(checkBanner));
+
         const pageObj = JSON.parse(wData);
         const type = pageObj.publication.content.type;
 
@@ -506,6 +576,7 @@ function checkPublicationPage(scriptLines) {
                 break;
         }
     } catch (e) {
+        console.log(e);
         publicationChecks.add(CHECK_RESULT_PAGEDATA_FAIL);
     }
     return publicationChecks;
@@ -627,7 +698,7 @@ function addListFooter(totalCount, robotsCount, links) {
     strong1.innerText = totalCount;
     const br = document.createElement("br");
     const text2 = document.createElement("span");
-    text2.innerText = "Требует внимания: ";
+    text2.innerText = "Соответствует критериям: ";
     const strong2 = document.createElement("strong");
     strong2.innerText = robotsCount;
     p.append(text1, strong1, br, text2, strong2);
