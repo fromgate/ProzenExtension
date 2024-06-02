@@ -25,11 +25,12 @@ const CHECK_THEMATIC_ECONOMY = "economy";
 const CHECK_THEMATIC_IT = "it";
 const CHECK_THEMATIC_AUTO = "auto";
 const CHECK_THEMATIC_GAMES = "games";
+const CHECK_THEMATIC_PETS = "pets";
 const CHECK_THEMATIC_UNKNOWN = "unknown";
 const CHECK_THEMATIC_UNSET = "unset";
 const THEMATICS = [CHECK_THEMATIC_BEAUTY, CHECK_THEMATIC_SPORT, CHECK_THEMATIC_TRAVEL,
     CHECK_THEMATIC_FOOD, CHECK_THEMATIC_SCIENCE, CHECK_THEMATIC_CULTURE, CHECK_THEMATIC_ECONOMY,
-    CHECK_THEMATIC_IT, CHECK_THEMATIC_AUTO, CHECK_THEMATIC_GAMES];
+    CHECK_THEMATIC_IT, CHECK_THEMATIC_AUTO, CHECK_THEMATIC_GAMES, CHECK_THEMATIC_PETS];
 
 const ALL_CHECK_RESULT_MESSAGES = {};
 
@@ -159,6 +160,7 @@ ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_ECONOMY] = {tag: "💸", name: "Эко�
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_IT] = {tag: "💻", name: "Технологии", text: "Тематика: технологии"};
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_AUTO] = {tag: "🚗", name: "Авто", text: "Тематика: авто"};
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_GAMES] = {tag: "🎮", name: "Игры", text: "Тематика: игры"};
+ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_PETS] = {tag: "🐈", name: "Питомцы", text: "Тематика: питомцы"};
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_UNKNOWN] = {
     tag: "🧩", name: "Неизвестная тема",
     text: "Тематика: неизвестная (новая?)"
@@ -296,6 +298,7 @@ function clearSearchResults() {
 }
 
 
+// Фильтр результатов провеки (показывать только нужные)
 function getShowState(checkState) {
     const showState = new Set();
     for (let state of checkState) {
