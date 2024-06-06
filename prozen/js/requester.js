@@ -37,6 +37,29 @@ async function getSideBlockData() {
 }
 
 /**
+ * SCR — Subscribers Coverage Rate
+ *
+ * @param from начальная дата в формате YYYY-MM-DD
+ * @param to конечная дата в формате YYYY-MM-DD
+ * @returns {Promise<number>}
+ */
+async function getSCR(from, to) {
+    const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?allPublications=true&addTimeFrom=${from}&addTimeTo=${to}&fields=typeSpecificViews&fields=deepViewsRate&fields=ctr&fields=vtr&fields=shares&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=viewMap&fields=subscribers&fields=subscribersDiff&fields=impressions&fields=deepViews&fields=sumInvolvedViewTimeSec&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&totalLimitedByIds=false&isSubscriber=true&pageSize=100&page=0&clid=320`;
+    const response = await request(requestUrl);
+    const data = await response.json();
+
+
+    const totalViews = data?.total?.stats?.impressions;
+    const openingSubscribers = data?.openingSubscribers;
+    const count = data?.publicationCount;
+
+    if (totalViews == null || openingSubscribers == null || count == null) return null;
+
+    return numFormat(((totalViews / count) / openingSubscribers) * 100, 2);
+}
+
+//
+/**
  *
  * @param from начальная дата в формате YYYY-MM-DD
  * @param to конечная дата в формате YYYY-MM-DD
@@ -481,3 +504,4 @@ function request(requestUrl) {
     }
     return fetch(requestUrl, headers);
 }
+

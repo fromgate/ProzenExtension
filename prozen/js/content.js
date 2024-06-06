@@ -969,16 +969,19 @@ async function addInformerBlock() {
     const channelUrl = mediaUrl.replace("/media/", "/");
 
     const date = new Date();
-    const todayStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const todayStr = dateToYYYYMMDD(date); //`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
     date.setDate(date.getDate() - 7);
-    const fromStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const fromStr7 = dateToYYYYMMDD(date); //`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    date.setDate(date.getDate() - 23); // назад ещё на 23 дня, в сумме 30 дней
+    const fromStr30 = dateToYYYYMMDD(date);
 
     const result = await Promise.all([
         checkHasNoneUrl(channelUrl),
         getStatsActuality(),
         getStrikesInfo(),
         getBannedUsers(),
-        getTimespentRewards(fromStr, todayStr)
+        getTimespentRewards(fromStr7, todayStr),
+        getSCR(fromStr30, todayStr)
     ]);
 
     const hasNone = result[0];
@@ -986,6 +989,8 @@ async function addInformerBlock() {
     const strikesInfo = result[2];
     const bannedUsers = result[3];
     const rewards = result[4];
+    const scr = result[5];
+
     const informerContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
     informer.appendChild(informerContent);
 
@@ -1023,6 +1028,15 @@ async function addInformerBlock() {
         informerContent.appendChild(allNone);
     }
 
+    if (scr != null) {
+        const scrEl = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        scrEl.innerText = `Эффективность подписок: ${scr}%`;
+        scrEl.setAttribute("title",
+            "Коэффициент охвата подписчиками (Subscribers Coverage Rate).\n" +
+            "Показывает какая доля подписчиков видит карточки публикаций.");
+        informerContent.appendChild(scrEl);
+    }
+
     if (!!bannedUsers && !!bannedUsers.bannedUsers) {
         const banCount = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
         banCount.innerText = `Заблокировано читателей: ${bannedUsers.bannedUsers.length}`;
@@ -1048,8 +1062,6 @@ async function addInformerBlock() {
         informerCourse.innerText = `Курс минуты ${lastReward.dateStr}: ${change}${lastReward.courseStr}₽`;
         informerCourse.setAttribute("title", `Стоимость минуты вовлечённого просмотра\nПредыдущий курс (${previousReward.dateStr}): ${previousReward.courseStr} ₽`);
         informerContent.appendChild(informerCourse);
-
-
     }
 
     // ZenReader Subscribe link

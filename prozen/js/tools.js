@@ -240,3 +240,7 @@ function log(message) {
         console.log(message);
     }
 }
+
+function dateToYYYYMMDD(date) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
