@@ -1030,9 +1030,9 @@ async function addInformerBlock() {
 
     if (scr != null) {
         const scrEl = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
-        scrEl.innerText = `Охват подписчиков: ${scr}%`;
+        scrEl.innerText = `Охват подписчиков (SCR): ${scr}%`;
         scrEl.setAttribute("title",
-            "Коэффициент охвата подписчиками (Subscribers Coverage Rate).\n" +
+            "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
             "Показывает какая доля подписчиков видит карточки публикаций.");
         informerContent.appendChild(scrEl);
     }
