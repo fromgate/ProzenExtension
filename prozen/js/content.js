@@ -981,7 +981,7 @@ async function addInformerBlock() {
         getStrikesInfo(),
         getBannedUsers(),
         getTimespentRewards(fromStr7, todayStr),
-        getSCR(fromStr30, todayStr)
+        null // getSCR(fromStr30, todayStr)
     ]);
 
     const hasNone = result[0];
