@@ -981,7 +981,7 @@ async function addInformerBlock() {
         getStrikesInfo(),
         getBannedUsers(),
         getTimespentRewards(fromStr7, todayStr),
-        null // getSCR(fromStr30, todayStr)
+        getSCR(fromStr30, todayStr)
     ]);
 
     const hasNone = result[0];
@@ -1020,7 +1020,7 @@ async function addInformerBlock() {
         if (hasNone) {
             allNone.innerText = "Канал не индексируется 🤖";
             allNone.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Канал не индексируется поисковиками.\n" +
+                "Главная страница канала не индексируется поисковиками.\n" +
                 "Это нормальная ситуация для новых каналов.");
         } else {
             allNone.innerText = "Канал индексируется";
