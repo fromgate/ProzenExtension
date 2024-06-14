@@ -16,6 +16,69 @@
                 <div class="section dark">
                     <h4>ПРОДЗЕН<small>Проверка публикаций</small></h4>
                 </div>
+                <div class="section" id="disclaimer">
+                    <p>
+                        <mark class="secondary inline-block">Отказ от ответственности.</mark>
+                        <br>Поиск проблемных публикаций осуществляется путём их последовательной загрузки и
+                        анализа.
+                        <br>Многочисленное открытие публикаций — это поведение непредусмотренное редактором Дзена
+                        и не является обычным поведение читателя или автора.
+                        <br>Может ли это привести к каким-то негативным последствиям — неизвестно. Но если вы
+                        решите воспользоваться этой функцией, то делаете это под свою ответственность.
+                    </p>
+                    <button class="inverse" id="agree">Я всё понял и принимаю ответственность</button>
+                </div>
+                <!-- 1 Окно. Здесь пользователь выбирает что проверять (статьи, период) -->
+                <div class="section" id="first_form">
+                    <form>
+                            <fieldset>
+                                <legend>Тип публикаций</legend>
+                                <div class="input-group">
+                                    <label for="content-article" style="float:right">Статьи</label>
+                                    <input type="checkbox" class="switch-checkbox" id="content-article"
+                                           name="content-article">
+                                </div>
+                                <div class="input-group">
+                                    <label for="content-brief" style="float:right">Посты</label>
+                                    <input type="checkbox" class="switch-checkbox" id="content-brief"
+                                           name="content-brief">
+                                </div>
+                                <div class="input-group">
+                                    <label for="content-gif" style="float:right">Видео</label>
+                                    <input type="checkbox" class="switch-checkbox" id="content-gif" name="content-gif">
+                                </div>
+                                <div class="input-group">
+                                    <label for="content-short_video"></label><input type="checkbox"
+                                                                                    class="switch-checkbox"
+                                                                                    id="content-short_video"
+                                                                                    name="content-short_video">
+                                    <label for="check-music-dmca">Ролики</label>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Период проверки</legend>
+                                <div>
+                                    <label for="start-date">с</label><input type="text" id="start-date"><label
+                                        for="end-date">по</label><input type="text" id="end-date">
+                                    <button id="range-clear" type="button" title="Искать за всё время">Всё время
+                                    </button>
+                                </div>
+                                <button id="start_button">Начать поиск</button>
+                            </fieldset>
+
+                    </form>
+                    <p>При нажатии на кнопку «Начать поиск» будут загружены публикации,
+                        удовлетворяющие заданным критериям поиска.
+                        Они будут проверены на соответствие различным критериям, часть которых может служить признаком
+                        того, что публикация ограничена (например, отсутствие рекламы), часть
+                        является исключительно информационной (например, тема публикации).<br>
+                        Если расширение обнаружило что-то «подозрительное», то это не значит, что статья однозначно
+                        пессимизирована. Например, рекламу на статьях может отключить и сам автор, а индексация
+                        может быть отключена на постах, опубликованных только для подписчиков.<br>
+                        В таких случаях рекомендуется вручную проверить статью и если обнаружатся какие-то нестандартные
+                        признаки, запросить уточнение статуса публикации в службе поддержки.</p>
+                    <p>Не рекомендуется пользоваться этой функцией часто.</p>
+                </div>
                 <div class="section" id="start_text">
                     <form>
                         <fieldset>
@@ -132,68 +195,17 @@
                             </div>
                             <br>
                             <div class="input-group">
-                                <button id="thematic-clear" type="button" title="Не искать темы" class="small">Очистить</button>
-                                <button id="thematic-all" type="button" title="Искать публикации с любыми темами" class="small">Все темы</button>
+                                <button id="thematic-clear" type="button" title="Не искать темы" class="small">
+                                    Очистить
+                                </button>
+                                <button id="thematic-all" type="button" title="Искать публикации с любыми темами"
+                                        class="small">Все темы
+                                </button>
                             </div>
                         </fieldset>
                         <fieldset>
-                            <legend>Что проверять</legend>
-                            <div class="input-group">
-                                <label for="content-article" style="float:right">Статьи</label>
-                                <input type="checkbox" class="switch-checkbox" id="content-article"
-                                       name="content-article">
-                            </div>
-                            <div class="input-group">
-                                <label for="content-brief" style="float:right">Посты</label>
-                                <input type="checkbox" class="switch-checkbox" id="content-brief" name="content-brief">
-                            </div>
-                            <div class="input-group">
-                                <label for="content-gif" style="float:right">Видео</label>
-                                <input type="checkbox" class="switch-checkbox" id="content-gif" name="content-gif">
-                            </div>
-                            <div class="input-group">
-                                <label for="content-short_video"></label><input type="checkbox" class="switch-checkbox"
-                                                                                id="content-short_video"
-                                                                                name="content-short_video">
-                                <label for="check-music-dmca">Ролики</label>
-                            </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>Проверка публикаций</legend>
-                            <div>
-                                <label>Период проверки</label>
-                                <label for="start-date">с</label><input type="text" id="start-date"><label
-                                    for="end-date">по</label><input type="text" id="end-date">
-                                <button id="range-clear" type="button" title="Искать за всё время">Всё время</button>
-                            </div>
-                            <button id="start_button">Начать поиск</button>
                         </fieldset>
                     </form>
-                    <p>Публикации в Дзене могут иметь различные признаки, по которым можно судить о том, что они
-                        ограничены:
-                        наличие мета-тега <code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot;
-                            /&gt;</code> (такие публикации нельзя найти через поисковик),
-                        «плашки» о наличии в статье упоминания COVID-19, отсутствие рекламы, признака блокировки и
-                        т.д.<br>
-                        Если расширение обнаружило что-то такое, то это не значит, что статья однозначно
-                        пессимизирована. Например, рекламу
-                        на статьях может отключить и сам автор.<br>
-                        В таких случаях рекомендуется вручную проверить статью и если обнаружатся какие-то нестандартные
-                        признаки, запросить уточнение
-                        статуса публикации в службе поддержки.</p>
-                    <p>Не рекомендуется пользоваться этой функцией часто.</p>
-                </div>
-                <div class="section" id="disclaimer">
-                    <p>
-                        <mark class="secondary inline-block">Отказ от ответственности.</mark>
-                        <br>Поиск проблемных публикаций осуществляется путём их последовательной загрузки и
-                        анализа.
-                        <br>Многочисленное открытие публикаций — это поведение непредусмотренное редактором Дзена
-                        и не является обычным поведение читателя или автора.
-                        <br>Может ли это привести к каким-то негативным последствиям — неизвестно. Но если вы
-                        решите воспользоваться этой функцией, то делаете это под свою ответственность.
-                    </p>
-                    <button class="inverse" id="agree">Я всё понял и принимаю ответственность</button>
                 </div>
                 <div class="section" id="search_msg_empty">
                     <p>
@@ -232,6 +244,17 @@
                 </div>
                 <div class="section" id="progress">
                     <progress value="20" max="100" id="progress-bar"></progress>
+                    <div id="progress_found">
+                        <!-- TODO Сюда буду добавляться найденные элементы в реальном времени-->
+                        <!-- <span id="progress_found_noindex">🤖 Снята индексация: 10</span> -->
+                        <!-- и уже потом будет отображаться окно с результатами -->
+                    </div>
+                </div>
+                <div class="section" id="results">
+                    <!-- TODO Результаты -->
+                    <!-- Набор чекбоксов (☑️ 🤖 Снята индексация: 10) в соответствии с которыми будут формироваться список -->
+                    <!-- Список публикаций -->
+                    <!-- Итог (футер), кнопка для копии списка публикаций в буфер обмена -->
                 </div>
 
             </div>
@@ -249,6 +272,6 @@
 <script type="text/javascript" src="js/ranges.js"></script>
 <script type="text/javascript" src="js/requester.js"></script>
 <script type="text/javascript" src="js/tools.js"></script>
-<script type="text/javascript" src="js/sadrobot.js"></script>
+<script type="text/javascript" src="js/publications-checker.js"></script>
 </body>
 </html>

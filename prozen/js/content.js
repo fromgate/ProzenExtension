@@ -150,7 +150,7 @@ function clickFindSadRobots() {
         prozenToken: token,
         prozenPublisherId: publisherId
     }, () => {
-        window.open(chrome.runtime.getURL("sadrobot.html"));
+        window.open(chrome.runtime.getURL("publications-checker.html"));
     });
 }
 
