@@ -165,7 +165,7 @@ ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_PETS] = {tag: "🐈", name: "Питом
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_SPECPROJECTS] = {tag: "🌟", name: "Спецпроекты", text: "Тематика: cпецпроекты"};
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_UNKNOWN] = {
     tag: "🧩", name: "Неизвестная тема",
-    text: "Тематика: неизвестная (новая?)"
+    text: "Подтема или неизвестная (новая?) тематика"
 };
 ALL_CHECK_RESULT_MESSAGES[CHECK_THEMATIC_UNSET] = {tag: "🎈", name: "Нет темы", text: "Тематика не указана"};
 
