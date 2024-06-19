@@ -55,7 +55,9 @@ async function getSCR(from, to) {
 
     if (totalViews == null || openingSubscribers == null || count == null) return null;
 
-    return numFormat(((totalViews / count) / openingSubscribers) * 100, 2);
+    const scr = ((totalViews / count) / openingSubscribers) * 100;
+    if (isNaN(scr)) return null;
+    return numFormat(scr, 2);
 }
 
 //
