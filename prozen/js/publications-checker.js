@@ -181,7 +181,7 @@ const switchIds = [];
 const disabledByDefault = [CHECK_COMMENTS_ALL, CHECK_COMMENTS_SUBSCRIBERS, CHECK_COMMENTS_OFF,
     CHECK_THEMATIC_UNSET].concat(THEMATICS);
 
-const VISIBLE = ["start_text", "spinner", "progress", "search_result", "disclaimer",
+const VISIBLE = ["init_screen", "start_text", "spinner", "progress", "search_result", "disclaimer",
     "search_msg_empty", "not_found", "nothing_to_check", "channel_none"];
 
 showWarning();
