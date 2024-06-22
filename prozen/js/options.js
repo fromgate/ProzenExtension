@@ -4,10 +4,11 @@ const OPTIONS = {
     prozenMenu: "prozen-menu-switch",
     informer: "prozen-informer-switch",
     subtitleLinks: "prozen-article-link-switch2",
-    commentsWidget: "prozen-comments-switch2"
+    commentsWidget: "prozen-comments-switch2",
+    promoteShow: "prozen-promote-show"
 };
 
-const DISABLED_BY_DEFAULT = [OPTIONS.subtitleLinks, OPTIONS.commentsWidget];
+const DISABLED_BY_DEFAULT = [OPTIONS.subtitleLinks, OPTIONS.commentsWidget, OPTIONS.promoteShow];
 
 function getOption(optionId) {
     const optionsIds = Object.values(OPTIONS);
@@ -16,7 +17,7 @@ function getOption(optionId) {
             if (option.hasOwnProperty(optionId)) {
                 resolve(option[optionId]);
             } else {
-                resolve(true);
+                resolve(!DISABLED_BY_DEFAULT.includes(optionId));
             }
         });
     });

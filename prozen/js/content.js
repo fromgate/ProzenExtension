@@ -334,9 +334,12 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
 async function modifyStudioStyles() {
     // const showComments = await getOption(OPTIONS.commentsWidget);
     const hideRealtimeStatsList = await getOption(OPTIONS.shortDashboardRealtime);
+    const hidePromoteBanner = await getOption(OPTIONS.promoteShow);
     let sheetStr = "";
     // if (!showComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
-    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
+    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;} ";
+    if (hidePromoteBanner) sheetStr +=".author-studio-dashboard__promoBanner-1U{display:none;} "
+    //article-promo-entrency-panel__root-_F author-studio-dashboard__promoBanner-1U article-promo-entrency-panel__shortBanner-23
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(sheetStr);

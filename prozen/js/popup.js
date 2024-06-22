@@ -17,7 +17,7 @@ const nameVersion = document.getElementById("extver");
 nameVersion.innerText = nameVersion.innerText.replace("1.0.0", chrome.runtime.getManifest().version);
 document.getElementById("prozen-image").style.visibility = "hidden";
 
-const OFF_BY_DEFAULT = ["prozen-realtime-switch", "prozen-article-link-switch2"/*,"prozen-comments-widget-switch"*/];
+const OFF_BY_DEFAULT = ["prozen-realtime-switch", "prozen-article-link-switch2", "prozen-promote-show"/*,"prozen-comments-widget-switch"*/];
 const switchIds = [];
 
 updateTranslation();
