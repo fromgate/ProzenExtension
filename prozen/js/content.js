@@ -225,8 +225,9 @@ async function addStudioMenu() {
             ? `https://metrika.yandex.ru/dashboard?id=${metriksId}`
             : "https://metrika.yandex.ru/list";
 
-        if (document.documentElement.clientHeight > 777) {
-            const navBarContent = document.querySelector("div[class^=navbar__content]");
+        const navBarContent = document.querySelector("div[class^=navbar__content]");
+        if (document.documentElement.clientHeight > 777 && navBarContent != null) {
+            // const navBarContent = document.querySelector("div[class^=navbar__content]");
             const navbarLabelItem = createElement("div", "navbar__labelItem-32");
             const navbarLabelLine = createElement("span", "navbar__labelLine-28");
             const navbarLabelText = createElement("span", "navbar__labelText-3D");
@@ -337,8 +338,8 @@ async function modifyStudioStyles() {
     const hidePromoteBanner = await getOption(OPTIONS.promoteShow);
     let sheetStr = "";
     // if (!showComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
-    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;} ";
-    if (hidePromoteBanner) sheetStr +=".author-studio-dashboard__promoBanner-1U{display:none;} "
+    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
+    if (hidePromoteBanner) sheetStr +=".author-studio-dashboard__promoBanner-1U{display:none;}"
     //article-promo-entrency-panel__root-_F author-studio-dashboard__promoBanner-1U article-promo-entrency-panel__shortBanner-23
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
