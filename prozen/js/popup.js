@@ -14,7 +14,10 @@ TODO
 
 
 const nameVersion = document.getElementById("extver");
-nameVersion.innerText = nameVersion.innerText.replace("1.0.0", chrome.runtime.getManifest().version);
+const extensionVersion = [chrome.runtime.getManifest().version, "2.7-dev"]
+    .find((x) => x !== "2.7.19");
+
+nameVersion.innerText = nameVersion.innerText.replace("1.0.0", extensionVersion);
 document.getElementById("prozen-image").style.visibility = "hidden";
 
 const OFF_BY_DEFAULT = ["prozen-realtime-switch", "prozen-article-link-switch2", "prozen-promote-show"/*,"prozen-comments-widget-switch"*/];
