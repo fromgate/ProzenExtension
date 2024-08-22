@@ -206,8 +206,8 @@ function updateBalanceBlock(count = 0) {
 
 // Поддержка Студии
 function isStudio() {
-    return document.getElementsByClassName("author-studio-layout-new__block-1I").length > 0
-        || document.getElementsByClassName("author-studio-layout__content-3n").length > 0;
+    return document.getElementsByClassName("editor--author-studio-layout-new__block-1I").length > 0
+        || document.getElementsByClassName("editor--author-studio-layout__content-3n").length > 0;
 }
 
 async function addStudioMenu() {
@@ -225,66 +225,66 @@ async function addStudioMenu() {
             ? `https://metrika.yandex.ru/dashboard?id=${metriksId}`
             : "https://metrika.yandex.ru/list";
 
-        const navBarContent = document.querySelector("div[class^=navbar__content]");
+        const navBarContent = document.querySelector("div[class^=editor--navbar__content]");
         if (document.documentElement.clientHeight > 777 && navBarContent != null) {
             // const navBarContent = document.querySelector("div[class^=navbar__content]");
-            const navbarLabelItem = createElement("div", "navbar__labelItem-32");
-            const navbarLabelLine = createElement("span", "navbar__labelLine-28");
-            const navbarLabelText = createElement("span", "navbar__labelText-3D");
+            const navbarLabelItem = createElement("div", "editor--navbar__labelItem-32");
+            const navbarLabelLine = createElement("span", "editor--navbar__labelLine-28");
+            const navbarLabelText = createElement("span", "editor--navbar__labelText-3D");
             navbarLabelText.innerText = "Продзен";
             navbarLabelItem.setAttribute("title", "Добавлено расширением „Продзен“");
             navbarLabelItem.appendChild(navbarLabelLine);
             navbarLabelItem.appendChild(navbarLabelText);
-            const navBarSpace = navBarContent.querySelector("div[class^=navbar__space]");
+            const navBarSpace = navBarContent.querySelector("div[class^=editor--navbar__space]");
             // const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
             navBarContent.insertBefore(navbarLabelItem, navBarSpace);
-            const prozenMenu = createElement("ul", "navbar__ul-1l navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
+            const prozenMenu = createElement("ul", "editor--navbar__ul-1l editor--navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
             prozenMenu.id = "prozen-main-menu";
             prozenMenu.setAttribute("data-publisherId", publisherId);
-            prozenMenu.appendChild(creatProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
-            prozenMenu.appendChild(creatProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
-            prozenMenu.appendChild(creatProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
-            prozenMenu.appendChild(creatProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций"));
+            prozenMenu.appendChild(createProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
+            prozenMenu.appendChild(createProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
+            prozenMenu.appendChild(createProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
+            prozenMenu.appendChild(createProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций"));
             navBarContent.insertBefore(prozenMenu, navBarSpace);
         } else {
-            let column = document.querySelector("div[class^=author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
-            if (column == null) column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
+            let column = document.querySelector("div[class^=editor--author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
+            if (column == null) column = document.querySelector("div[class^=editor--author-studio-dashboard__rightContent-]");
             if (column == null) {
                 return;
             }
-            const menu = createElement("div", "pager__container-Hn");
+            const menu = createElement("div", "editor--pager__container-Hn");
             menu.id = "prozen-main-menu";
             menu.setAttribute("data-publisherId", publisherId);
             column.appendChild(menu);
             menu.style.marginTop = "16px";
 
-            const menuContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
+            const menuContent = createElement("div", "editor--loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
             menu.appendChild(menuContent);
 
-            const menuH3 = createElement("div", "author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 author-studio-section-title__text-2P");
+            const menuH3 = createElement("div", "editor--author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 editor--author-studio-section-title__text-2P");
             menuH3.innerText = "Дополнительное меню";
             menuH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
             menuContent.appendChild(menuH3);
 
-            const menuStats = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+            const menuStats = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
             menuStats.innerText = "Полная статистика";
             menuStats.addEventListener("click", clickTotalStatsButton);
             menuStats.style.cursor = "pointer";
             menuContent.appendChild(menuStats);
 
-            const menuMetriks = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+            const menuMetriks = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
             menuMetriks.innerText = "Метрика";
             menuMetriks.style.cursor = "pointer";
             menuMetriks.addEventListener("click", window.open.bind(null, metriksUrl));
             menuContent.appendChild(menuMetriks);
 
-            const menuSearch = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+            const menuSearch = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
             menuSearch.innerText = "Поиск";
             menuSearch.addEventListener("click", clickSearchButton);
             menuSearch.style.cursor = "pointer";
             menuContent.appendChild(menuSearch);
 
-            const menuNoindex = createElement("div", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+            const menuNoindex = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
             menuNoindex.innerText = "Проверка публикаций";
             menuNoindex.addEventListener("click", clickFindSadRobots);
             menuNoindex.style.cursor = "pointer";
@@ -293,8 +293,7 @@ async function addStudioMenu() {
     }
 }
 
-function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
-
+function createProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
     const navItem = createElement("li");
     navItem.style.cursor = "pointer";
     if (hint !== null) {
@@ -302,28 +301,28 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     }
     let menuLine;
     if (url == null) {
-        menuLine = createElement("div", "navbar__item-17 navbar__item-2e"); //navbar__item-2e - старая версия
+        menuLine = createElement("div", "editor--navbar__item-17"); //editor--navbar__item-17 editor--navbar__item-2e
         bold = true;
     } else if (typeof url === "string") {
-        menuLine = createElement("a", "navbar__item-17 navbar__item-2e"); // navbar__nav-link
+        menuLine = createElement("a", "editor--navbar__item-17"); // editor--navbar__item-17 editor--navbar__item-2e
         menuLine.setAttribute("target", "_blank");
         menuLine.setAttribute("href", url);
     } else {
-        menuLine = createElement("a", "navbar__item-17 navbar__item-2e");
+        menuLine = createElement("a", "editor--navbar__item-17"); //editor--navbar__item-17 editor--navbar__item-2e
         menuLine.addEventListener("click", url);
         menuLine.cursor = "pointer";
     }
     navItem.appendChild(menuLine);
 
-    const menuIcon = createElement("div", "navbar__icon-1d navbar__icon-1R"); //navbar__icon
+    const menuIcon = createElement("div", "editor--navbar__icon-1d"); //"editor--navbar__icon-1d editor--navbar__icon-1R"
     if (iconClass != null) {
-        const icon = createElement("div", "navbar__svg-2_ navbar__svg-3j"); //ui-lib-generic-svg
+        const icon = createElement("div", "editor--navbar__svg-2_"); //editor--navbar__svg-2_ editor--navbar__svg-3j
         icon.classList.add(iconClass);
         menuIcon.appendChild(icon);
     }
     menuLine.appendChild(menuIcon);
 
-    const menuText = createElement("span", "Text Text_typography_text-14-18 navbar__text-pc navbar__text-3G"); //Text Text_color_full Text_typography_text-14-18 navbar__text
+    const menuText = createElement("span", "Text Text_typography_text-15-20 editor--navbar__text-pc"); //Text Text_color_full Text_typography_text-14-18 navbar__text
     menuText.innerText = title;
     menuLine.appendChild(menuText);
     if (bold) {
@@ -332,15 +331,15 @@ function creatProzenMenuElement(title, iconClass, url = null, hint = null, bold 
     return navItem;
 }
 
+
 async function modifyStudioStyles() {
     // const showComments = await getOption(OPTIONS.commentsWidget);
     const hideRealtimeStatsList = await getOption(OPTIONS.shortDashboardRealtime);
     const hidePromoteBanner = await getOption(OPTIONS.promoteShow);
     let sheetStr = "";
     // if (!showComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
-    if (hideRealtimeStatsList) sheetStr += ".realtime-publications__list-3o{display:none;}";
-    if (hidePromoteBanner) sheetStr +=".author-studio-dashboard__promoBanner-1U{display:none;}"
-    //article-promo-entrency-panel__root-_F author-studio-dashboard__promoBanner-1U article-promo-entrency-panel__shortBanner-23
+    if (hideRealtimeStatsList) sheetStr += ".editor--realtime-publications__list-3o{display:none;}";
+    if (hidePromoteBanner) sheetStr +=".editor--author-studio-dashboard__promoBanner-1U{display:none;}"
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(sheetStr);
@@ -441,7 +440,7 @@ function publicationsDataToCards(requestData) {
     return cards;
 }
 
-
+// Публикации
 async function processPublicationsCards(request) {
     const data = await getPublicationsByFilterAndSubscribers(request.pageSize, request.types, request.publicationIdAfter, request.view, request.query);
     const cards = publicationsDataToCards(data);
@@ -453,18 +452,18 @@ async function processPublicationsCards(request) {
 }
 
 function getPublicationCellById(publicationId) {
-    const table = document.querySelector("table[class^=publications-list]");
-    const a = table.querySelector(`a[class^=publication-preview][href*='${publicationId}'`);
+    const table = document.querySelector("table[class^=editor--publications-list]");
+    const a = table.querySelector(`a[class^=editor--publication-preview][href*='${publicationId}'`);
     if (a != null) return a.parentNode;
-    const div = table.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
+    const div = table.querySelector(`div.editor--publication-cover__image-gr[style*='${publicationId}'`);
     return div.parentNode.parentNode.parentNode.parentNode;
 }
 
 function getPublicationGridCellById(publicationId) {
-    const a = document.querySelector(`a.publication-card__link-3k[href*='${publicationId}'`);
+    const a = document.querySelector(`a.editor--publication-card__link-3k[href*='${publicationId}'`);
     if (a != null) return a.parentNode;
-    const div = document.querySelector(`div.publication-cover__image-gr[style*='${publicationId}'`);
-    return div.parentNode.parentNode.querySelector("div.publication-card__stats-1k");
+    const div = document.querySelector(`div.editor--publication-cover__image-gr[style*='${publicationId}'`);
+    return div.parentNode.parentNode.querySelector("div.editor--publication-card__stats-1k");
 }
 
 function modifyPublicationsGridCell(cell, card) {
@@ -484,7 +483,7 @@ function modifyPublicationsCell(cell, card) {
     }
     cell.setAttribute("data-prozen-publication-id", card.id);
 
-    const snippet = cell.querySelector("p.publication-preview__snippet-IX");
+    const snippet = cell.querySelector("p.editor--publication-preview__snippet-IX");
     if (snippet != null && snippet.style != null && !["post", "gallery", "brief"].includes(card.type)) {
         snippet.style.setProperty("-webkit-line-clamp", "2");
     }
@@ -492,7 +491,7 @@ function modifyPublicationsCell(cell, card) {
     const timeCell = cell.parentNode.cells[1];
     timeCell.querySelector("span").innerText = card.timeStr;
 
-    const previewContainer = cell.querySelector("div.publication-preview__previewContainer-1j");  //publication-preview__preview-container
+    const previewContainer = cell.querySelector("div.editor--publication-preview__previewContainer-1j");  //publication-preview__preview-container
     const publicationItemStats = createElement("div", "prozen-card-container");
 
     previewContainer.appendChild(publicationItemStats);
@@ -512,12 +511,7 @@ function modifyPublicationTable(cards) {
                 waitList.push(card);
             }
         } else {
-            // const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-preview]").href);
             modifyPublicationsCell(cell, card);
-            /*
-            if (card.subscribersViews == null || card.subscribersViews === 0) {
-                setTimeout(fillupPublicationsCell.bind(null, cell, card), 1);
-            } */
         }
     }
     if (waitList.length > 0) {
@@ -538,7 +532,6 @@ function modifyPublicationGrid(cards) {
                 waitList.push(card);
             }
         } else {
-            // const card = jsonToCardData(publicationData, cell.querySelector("a[class^=publication-card__link]").href); //publication-card__link-2q publication-card__link-3k
             modifyPublicationsGridCell(cell, card);
         }
     }
@@ -550,7 +543,7 @@ function modifyPublicationGrid(cards) {
 async function processDashboardCards(pageSize) {
     const data = await getPublicationsByFilterAndSubscribers(pageSize);
     const cards = publicationsDataToCards(data);
-    const studioPublicationsBlock = document.querySelector("div[class^=last-publications__lastPublications-] > div > div");//document.getElementsByClassName("author-studio-publications-block")[0];
+    const studioPublicationsBlock = document.querySelector("div[class^=editor--last-publications__lastPublications-] > div > div");//document.getElementsByClassName("author-studio-publications-block")[0];
 
 
     const publicationsBlocks = studioPublicationsBlock.querySelectorAll("a");
@@ -572,7 +565,7 @@ async function processDashboardCards(pageSize) {
    карточек в виде стеки. false — если в виде таблицы.
  */
 function isPublicationGrid() {
-    const div = document.querySelector("table[class^=publications-list]"); //publications-list__publicationsList-3U
+    const div = document.querySelector("table[class^=editor--publications-list]"); //publications-list__publicationsList-3U
     return div == null;
 }
 
@@ -583,12 +576,12 @@ function modifyGridCellStats(cell, card) {
     // Дочитывания           |    Вовлечённость
     // Просмотры подписчиков |    Время дочитывания /Ссылка / Теги
 
-    const statsBlock = cell.querySelector("div[class^=stats__block]");  //stats__block-39
+    const statsBlock = cell.querySelector("div[class^=editor--stats__block]");  //stats__block-39
     removeChilds(statsBlock);
 
 
     // Первый ряд
-    const col1 = createElement("div", "stats__item-3m");
+    const col1 = createElement("div", "editor--stats__item-3m");
     statsBlock.appendChild(col1);
 
 
@@ -622,7 +615,7 @@ function modifyGridCellStats(cell, card) {
     c1r2.style.cursor = "default";
 
     // Второй ряд
-    const col2 = createElement("div", "stats__item-3m");
+    const col2 = createElement("div", "editor--stats__item-3m");
     statsBlock.appendChild(col2);
 
     // Просмотры
@@ -655,7 +648,7 @@ function modifyGridCellStats(cell, card) {
     c2r2.style.cursor = "default";
 
     // Третий ряд
-    const col3 = createElement("div", "stats__item-3m");
+    const col3 = createElement("div", "editor--stats__item-3m");
     statsBlock.appendChild(col3);
 
     // Дочитывания
@@ -683,7 +676,7 @@ function modifyGridCellStats(cell, card) {
     c3r2.style.cursor = "default";
 
     // Четвёртый ряд
-    const col4 = createElement("div", "stats__item-3m");
+    const col4 = createElement("div", "editor--stats__item-3m");
     statsBlock.appendChild(col4);
 
     // Просмотры подписчиков
@@ -751,7 +744,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     publicationItemStats.appendChild(col1);
 
     // Показы
-    const c1r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c1r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c1r1.setAttribute("title", "Показы");
     col1.appendChild(c1r1);
     const c1r1Icon = createElement("span", "prozen_studio_card_icon_shows");
@@ -761,7 +754,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     c1r1.appendChild(c1r1Text);
 
     // Просмотры / Дочитывания
-    const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c1r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c1r2.setAttribute("title", card.viewsTitle);
     const c1r2Icon = createElement("span", "prozen_studio_card_icon_views");
     const c1r2Text = createElement("span");
@@ -771,7 +764,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col1.appendChild(c1r2);
 
     // Дочитывания
-    const c1r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c1r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c1r3.setAttribute("title", card.viewsTillEndTitle);
     const c1r3Icon = createElement("span", "prozen_studio_card_icon_full_views");
     const c1r3Text = createElement("span");
@@ -786,7 +779,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     publicationItemStats.appendChild(col2);
 
     // Лайки / Шеры
-    const c2r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c2r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c2r1.setAttribute("title", `Лайки: ${card.likesStr}\nРепосты: ${card.sharesStr}`);
     const c2r1LikesIcon = createElement("span", "prozen_studio_card_icon_like");
     const c2r1LikesText = createElement("span");
@@ -805,7 +798,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col2.appendChild(c2r1);
 
     // Подписки / Коменты
-    const c2r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c2r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c2r2.setAttribute("title", `Подписки: ${card.subscriptionsStr}\nКомментарии: ${card.commentsStr}`);
     const c2r2SubscriptionsIcon = createElement("span", "prozen_studio_cards_subscribers");
     const c2r2SubscriptionsText = createElement("span");
@@ -820,7 +813,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col2.appendChild(c2r2);
 
     // Просмотры подписчиков //prozen-subscribers-views
-    const c2r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c2r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     const c2r3Icon = createElement("span", "prozen_studio_card_icon_subscribers");
     const c2r3Text = createElement("span", "prozen-subscribers-views");
     c2r3Text.innerText = card.getSubscribersViews();
@@ -835,7 +828,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     publicationItemStats.appendChild(col3);
 
     // ER
-    const c3r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c3r1 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c3r1.style.textAlign = "right";
     c3r1.setAttribute("title", "Коэффициент вовлечённости, ER (%)");
     const c3r1Icon = createElement("span", "prozen_studio_card_icon_er");
@@ -846,7 +839,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col3.appendChild(c3r1);
 
     // Среднее время просмотра
-    const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c3r2 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c3r2.style.textAlign = "right";
     c3r2.setAttribute("title", `Среднее время просмотра: ${card.readTimeStr}`);
     const c3r2Icon = createElement("span", "prozen_studio_card_icon_clock");
@@ -857,7 +850,7 @@ function modifyPublicationsCard(publicationItemStats, card) {
     col3.appendChild(c3r2);
 
     // Теги и ссылка
-    const c3r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 author-studio-publication-item__name");
+    const c3r3 = createElement("div", "Text Text_weight_medium Text_color_full Text_typography_text-12-16 editor--author-studio-publication-item__name");
     c3r3.style.textAlign = "right";
     c3r3.setAttribute("title", "Короткая ссылка.\nНажмите, чтобы скопировать в буфер обмена.");
 
@@ -896,9 +889,9 @@ function modifyDashboardCard(publicationBlock, card) {
        Просм. подписчиков         Подписки    Ссылка / Репост
      */
 
-    const timeBlock = publicationBlock.querySelector("div[class^=dashboard-publication-item__titleContainer-] > span");
+    const timeBlock = publicationBlock.querySelector("div[class^=editor--dashboard-publication-item__titleContainer-] > span");
     timeBlock.innerText = card.timeStr;
-    const publicationItemStats = publicationBlock.querySelector("div[class^=dashboard-publication-item__publicationStat-]");
+    const publicationItemStats = publicationBlock.querySelector("div[class^=editor--dashboard-publication-item__publicationStat-]");
     removeChilds(publicationItemStats);
     modifyPublicationsCard(publicationItemStats, card);
 }
@@ -908,7 +901,7 @@ function getPublicationBlockUrl(publicationBlock) {
 }
 
 function getPublicationBlockId(publicationBlock) {
-    const cover = publicationBlock.querySelector("div.publication-cover__image-gr");
+    const cover = publicationBlock.querySelector("div.editor--publication-cover__image-gr");
     let id = null;
     if (cover != null) {
         const url = cover.style.backgroundImage.slice(4, -1).replace(/"/g, "");
@@ -943,12 +936,11 @@ function arraysJoin(array1, array2) {
     return a;
 }
 
-
-// Информер
 function getData() {
     return this.data;
 }
 
+// Информер
 async function addInformerBlock() {
     if (!await getOption(OPTIONS.informer)) {
         return;
@@ -957,15 +949,13 @@ async function addInformerBlock() {
     if (document.getElementById("prozen-informer")) {
         return;
     }
-
-    let column = document.querySelector("div[class^=author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
-    if (column == null) column = document.querySelector("div[class^=author-studio-dashboard__rightContent-]");
+    let column = document.querySelector("div[class^=editor--author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
+    if (column == null) column = document.querySelector("div[class^=editor--author-studio-dashboard__rightContent-]");
 
     if (column == null) {
         return;
     }
-
-    const informer = createElement("div", "notifications-preview-block-desktop__block-39");
+    const informer = createElement("div", "editor--notifications-preview-block-desktop__block-39");
     informer.id = "prozen-informer";
     column.appendChild(informer);
     informer.style.marginTop = "24px";
@@ -995,10 +985,10 @@ async function addInformerBlock() {
     const rewards = result[4];
     const scr = result[5];
 
-    const informerContent = createElement("div", "loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
+    const informerContent = createElement("div", "editor--loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
     informer.appendChild(informerContent);
 
-    const informerH3 = createElement("h3", "author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 author-studio-section-title__text-2P");
+    const informerH3 = createElement("h3", "editor--author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 editor--author-studio-section-title__text-2P");
     informerH3.innerText = "ПРОДЗЕН-инфо";
     informerH3.setAttribute("title", "Добавлено расширением „Продзен“");
     informerH3.style.marginBottom = "10px";
@@ -1006,21 +996,21 @@ async function addInformerBlock() {
     informerContent.appendChild(informerH3);
 
     if (strikesInfo != null && strikesInfo.limitations != null) {
-        const informerStrikes = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const informerStrikes = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`;
         informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerStrikes);
     }
 
     if (strikesInfo != null && strikesInfo.channelRestricted != null) {
-        const informerPyos = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const informerPyos = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
         informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
         informerContent.appendChild(informerPyos);
     }
 
     if (hasNone != null) {
-        const allNone = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const allNone = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         if (hasNone) {
             allNone.innerText = "Канал не индексируется 🤖";
             allNone.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
@@ -1033,7 +1023,7 @@ async function addInformerBlock() {
     }
 
     if (scr != null) {
-        const scrEl = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const scrEl = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         scrEl.innerText = `Охват подписчиков (SCR): ${scr}%`;
         scrEl.setAttribute("title",
             "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
@@ -1042,14 +1032,14 @@ async function addInformerBlock() {
     }
 
     if (!!bannedUsers && !!bannedUsers.bannedUsers) {
-        const banCount = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const banCount = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         banCount.innerText = `Заблокировано читателей: ${bannedUsers.bannedUsers.length}`;
         banCount.setAttribute("title", "Количество заблокированных комментаторов");
         informerContent.appendChild(banCount);
     }
 
     if (actuality) {
-        const informerActuality = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const informerActuality = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         informerActuality.innerText = `Статистика от ${actuality}`;
         informerActuality.setAttribute("title", "Время обновления статистики");
         informerContent.appendChild(informerActuality);
@@ -1062,7 +1052,7 @@ async function addInformerBlock() {
         if (lastReward.course > previousReward.course) change = "↑️";
         if (lastReward.course < previousReward.course) change = "↓️";
 
-        const informerCourse = createElement("span", "Text Text_typography_text-15-20 notification__textWrapper-1- notification__text-3k prozen-mb5-block");
+        const informerCourse = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
         informerCourse.innerText = `Курс минуты ${lastReward.dateStr}: ${change}${lastReward.courseStr}₽`;
         informerCourse.setAttribute("title", `Стоимость минуты вовлечённого просмотра\nПредыдущий курс (${previousReward.dateStr}): ${previousReward.courseStr} ₽`);
         informerContent.appendChild(informerCourse);
@@ -1071,7 +1061,7 @@ async function addInformerBlock() {
     // ZenReader Subscribe link
     const zenReaderLink = createElement("a");
     zenReaderLink.setAttribute("href", zenReaderUrl());
-    const zenReaderSpan = createElement("span", "Text Text_color_full Text_typography_text-14-18 author-studio-article-card__title prozen-mb5-block");
+    const zenReaderSpan = createElement("span", "Text Text_color_full Text_typography_text-14-18 editor--author-studio-article-card__title prozen-mb5-block");
     zenReaderSpan.innerText = "🔗 Подписка в ZenReader";
     zenReaderSpan.setAttribute("title", "Ссылка для подписки на канал\nв телеграм-боте ZenReader");
     zenReaderLink.appendChild(zenReaderSpan);
