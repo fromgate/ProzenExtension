@@ -54,35 +54,34 @@ function registerWebRequestListener() {
 
 function registerMainPageRequestListener() {
     chrome.webRequest.onBeforeSendHeaders.addListener(details => {
-            let token = null;
-            let prozenRequest = false;
-            const urlParams = new URL(details.url).searchParams;
-            details.requestHeaders.forEach(header => {
-                if (header.name === "X-Csrf-Token") {
-                    token = header.value;
-                }
-                if (header.name === "X-Prozen-Request") {
-                    prozenRequest = true;
-                }
-            });
-            if (!prozenRequest) {
-                chrome.tabs.sendMessage(details.tabId, {
-                    type: "prozen-mainpage-request",
-                    url: details.url,
-                    publisherId: urlParams.get("publisherId"),
-                    pageSize: urlParams.get("pageSize"),
-                    types: urlParams.has("types") ? urlParams.get("types") : null,
-                    view: urlParams.has("view") ? urlParams.get("view") : null,
-                    query: urlParams.has("query") ? urlParams.get("query") : null,
-                    publicationIdAfter: urlParams.has("publicationIdAfter") ? urlParams.get("publicationIdAfter") : null,
-                    state: urlParams.get("state"),
-                    token: token
-                });
+        let token = null;
+        let prozenRequest = false;
+        const urlParams = new URL(details.url).searchParams;
+        details.requestHeaders.forEach(header => {
+            if (header.name === "X-Csrf-Token") {
+                token = header.value;
             }
-        }, {
-            urls: [
-                "https://dzen.ru/editor-api/v3/publications?*" //"https://dzen.ru/editor-api/v3/publications?publisherId=*"
-            ]
-        },
-        ["requestHeaders"]);
+            if (header.name === "X-Prozen-Request") {
+                prozenRequest = true;
+            }
+        });
+        if (!prozenRequest) {
+            chrome.tabs.sendMessage(details.tabId, {
+                type: "prozen-mainpage-request",
+                url: details.url,
+                publisherId: urlParams.get("publisherId"),
+                pageSize: urlParams.get("pageSize"),
+                types: urlParams.has("types") ? urlParams.get("types") : null,
+                view: urlParams.has("view") ? urlParams.get("view") : null,
+                query: urlParams.has("query") ? urlParams.get("query") : null,
+                publicationIdAfter: urlParams.has("publicationIdAfter") ? urlParams.get("publicationIdAfter") : null,
+                state: urlParams.get("state"),
+                token: token
+            });
+        }
+    }, {
+        urls: [
+            "https://dzen.ru/editor-api/v3/publications?*" //"https://dzen.ru/editor-api/v3/publications?publisherId=*"
+        ]
+    }, ["requestHeaders"]);
 }
