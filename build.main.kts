@@ -14,7 +14,7 @@ println("Building ProzenExtension v$version")
 createZip("prozen-chrome.zip")
 println("prozen-chrome.zip")
 
-createZip("prozen-firefox.zip", true)
+createZip("prozen-firefox.zip", true, "prozen-firefox/manifest.json")
 println("prozen-firefox.zip")
 
 createZip("prozen-edge.zip", false /*, File("prozen-edge/manifest.json")*/)

@@ -14,7 +14,7 @@ TODO
 
 
 const nameVersion = document.getElementById("extver");
-const extensionVersion = [chrome.runtime.getManifest().version, "2.7-dev"]
+const extensionVersion = [chrome.runtime.getManifest().version, "2.8-dev"]
     .find((x) => x !== "2.7.19");
 
 nameVersion.innerText = nameVersion.innerText.replace("1.0.0", extensionVersion);

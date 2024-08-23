@@ -338,7 +338,92 @@ async function getPublicationStats(data) {
 }
 
 
-async function showStatsArticle(data, publisherId) {
+async function showStatsArticleNew(data, publisherId) {
+    if (data === null) {
+        return;
+    }
+    const shortLink = document.head.querySelector("link[rel=canonical][href]").href;
+
+    const zenIds = getZenObject();
+    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
+
+    const dayMod = dateTimeFormat(data.publication.content.modTime);
+    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
+    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
+
+    const articleData = await getPublicationStats(data); // await loadPublicationStat(postId);
+    if (articleData == null) {
+        return;
+    }
+
+    const sumViewTimeSec = articleData.sumViewTimeSec != null ? articleData.sumViewTimeSec : 0;
+    const views = articleData.views;
+    const shows = articleData.shows;
+    const viewsTillEnd = articleData.viewsTillEnd;
+
+    const infoBlock = document.querySelector("div[class^=article-info-block__articleInfoBlock-]")
+    if (infoBlock == null) return;
+    infoBlock.replaceChildren()
+    const newBlocks = []
+    const dateBlock = createElement("div", "article-info-block__addTimeInfo-25");
+    dateBlock.setAttribute("title", "Время создания (редактирования)");
+    dateBlock.setAttribute("itemprop", "datePublished");
+
+    if (views !== viewsTillEnd) {
+        const viewsBlock = createElement("div", "article-info-block__viewsInfo-1g");
+        viewsBlock.setAttribute("title", "Просмотры");
+        const viewsSpan = createElement("span", "publication_icon_views_2");
+        viewsBlock.appendChild(viewsSpan);
+        const viewsText = document.createTextNode(views);
+        viewsBlock.appendChild(viewsText);
+        infoBlock.appendChild(viewsBlock);
+    }
+
+    const viewsTillEndBlock = createElement("div", "article-info-block__viewsInfo-1g");
+    viewsTillEndBlock.setAttribute("title", "Дочитывания");
+    const viewsTillEndSpan = createElement("span", "publication_icon_views_2");
+    viewsTillEndBlock.appendChild(viewsTillEndSpan);
+    const viewsTillEndText = document.createTextNode(viewsTillEnd);
+    viewsTillEndBlock.appendChild(viewsTillEndText);
+    infoBlock.appendChild(viewsTillEndBlock)
+
+    if (sumViewTimeSec > 0) {
+        const avgTimeBlock = createElement("div", "article-info-block__viewsInfo-1g");
+        avgTimeBlock.setAttribute("title", "Среднее время дочитывания");
+        const avgTimeIcon = createElement("span", "publication_icon_read_time");
+        avgTimeBlock.appendChild(avgTimeIcon);
+        const avgTimeText = document.createTextNode(secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
+        avgTimeBlock.appendChild(avgTimeText);
+        infoBlock.appendChild(avgTimeBlock);
+    }
+
+    if (postId != null) {
+        const shortLinkBlock = createElement("div", "article-info-block__viewsInfo-1g");
+        shortLinkBlock.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
+        const shortLinkIcon = createElement("span", "publication_icon_short_url");
+        shortLinkIcon.addEventListener("click", copyTextToClipboard.bind(null, shortLink !== null ? shortLink : shortUrl(publisherId, postId)));
+        shortLinkIcon.style.cursor = "pointer";
+        shortLinkBlock.appendChild(shortLinkIcon);
+        infoBlock.appendChild(shortLinkBlock);
+    }
+
+    if (checkNoIndex()) {
+        const sadRobotBlock = createElement("div", "article-info-block__viewsInfo-1g");
+        sadRobotBlock.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+            "Публикация не индексируется поисковиками.\n" +
+            "Если вы недавно редактировали статью, то это нормально.\n" +
+            "Примечание: связь этого тега с показами,\n" +
+            "пессимизацией и иными ограничениями канала\n" +
+            "официально не подтверждена.");
+        const sadRobotIcon = createElement("span", "publication_icon_sad_robot");
+        sadRobotBlock.appendChild(sadRobotIcon);
+        infoBlock.appendChild(sadRobotBlock);
+    }
+
+    addHeaderClicks();
+}
+
+async function showStatsArticleOld(data, publisherId) {
     if (data === null) {
         return;
     }
@@ -381,6 +466,7 @@ async function showStatsArticle(data, publisherId) {
 
     const containerInner = createElement("div", "article-stats-view__info-inner");
     container.appendChild(containerInner);
+
 
     // Просмотры
     const viewsContainer = createElement("div", "article-stats-view__stats-item");
@@ -445,4 +531,12 @@ async function showStatsArticle(data, publisherId) {
 
     // Ссылка на подзаголовок
     addHeaderClicks();
+}
+
+async function showStatsArticle(data, publisherId) {
+    if (document.querySelector("div[class^=article-info-block__articleInfoBlock-]") != null) {
+        showStatsArticleNew(data, publisherId);
+    } else {
+        showStatsArticleOld(data, publisherId);
+    }
 }
