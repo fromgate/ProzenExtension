@@ -28,7 +28,7 @@ async function start() {
 }
 
 function keepServiceWorkerAlive() {
-    chrome.runtime.sendMessage({ type: "keepAlive" }, response => {});
+    chrome.runtime.sendMessage({ type: "keepAlive" }, () => {});
 }
 
 function injectCssAndScript() {

@@ -364,8 +364,8 @@ async function showStatsArticleNew(data, publisherId) {
     const infoBlock = document.querySelector("div[class^=article-info-block__articleInfoBlock-]")
     if (infoBlock == null) return;
     infoBlock.replaceChildren()
-    const newBlocks = []
     const dateBlock = createElement("div", "article-info-block__addTimeInfo-25");
+    dateBlock.innerText = showTime;
     dateBlock.setAttribute("title", "Время создания (редактирования)");
     dateBlock.setAttribute("itemprop", "datePublished");
 
