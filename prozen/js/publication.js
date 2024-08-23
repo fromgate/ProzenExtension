@@ -47,9 +47,6 @@ function showPublicationStats(pageType, data, publisherId) {
         case "video_old":
             showStatsVideoOld(data, publisherId);
             break;
-        case "gallery":
-            showStatsGallery(data, publisherId);
-            break;
     }
 }
 
@@ -68,20 +65,11 @@ function getPageType(data) {
             if (data.isArticle === true) {
                 return "article";
             }
-
             if (data.isBrief === true) {
                 return "brief";
             }
-
-            if (data.isNarrative === true) {
-                return "narrative";
-            }
-
             if (data.isGif === true) {
                 return "video_old";
-            }
-            if (data.isGallery === true) {
-                return "gallery";
             }
         }
     }
@@ -185,91 +173,6 @@ async function showStatsBrief(data, publisherId) {
 }
 
 
-async function showStatsGallery(data, publisherId) {
-    if (data === null) {
-        return;
-    }
-
-    const zenIds = getZenObject();
-    const postId = zenIds !== null ? zenIds.publicationId : data.publication.id;
-
-    const dayMod = dateTimeFormat(data.publication.content.modTime);
-    const dayCreate = data.publication.addTime === undefined ? dayMod : dateTimeFormat(data.publication.addTime);
-    const showTime = dayMod !== dayCreate ? dayCreate + " (" + dayMod + ")" : dayCreate;
-    const articleData = await loadPublicationStat(postId);
-
-    const sumViewTimeSec = articleData.sumViewTimeSec;
-    const views = articleData.views;
-    const shows = articleData.shows;
-    const viewsTillEnd = articleData.viewsTillEnd;
-
-    const divStat = createElement("div", "card-gallery-text");
-    divStat.style.paddingLeft = "15px";
-    divStat.style.paddingRight = "15px";
-    divStat.style.paddingBottom = "10px";
-
-
-    {
-        const spanDate = createElement("span");
-        // Время создания / Модификации
-        spanDate.innerText = "◻" + dayCreate;
-        spanDate.setAttribute("title", "Время создания (модификации)");
-        divStat.appendChild(spanDate);
-    }
-
-    {
-        // Среднее время досмотров: ⌚
-        const spanTime = createElement("span");
-        spanTime.innerText = " ⌚ " + secToHHMMSS(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
-        spanTime.setAttribute("title", "Среднее время\nпросмотра: " + secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
-        divStat.appendChild(spanTime);
-    }
-
-    {
-        divStat.appendChild(createElement("br"));
-    }
-
-    {
-        const spanViews = createElement("span");
-        // Просмотры 👀
-        spanViews.innerText = "👀 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
-        spanViews.setAttribute("title", "Просмотры");
-        divStat.appendChild(spanViews);
-    }
-
-    {
-        // Досмотры 🖼️
-        const spanViewsTillEnd = createElement("span");
-        spanViewsTillEnd.innerText = " 🖼️ " + viewsTillEnd.toLocaleString(undefined, {maximumFractionDigits: 0}) + " (" + infiniteAndNan(viewsTillEnd / views * 100).toFixed(2) + "%)";
-        spanViewsTillEnd.setAttribute("title", "Досмотры");
-        divStat.appendChild(spanViewsTillEnd);
-    }
-
-    {
-        const spanLink = createElement("span");
-        spanLink.innerText = " 🔗";
-        spanLink.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        spanLink.addEventListener("click", copyTextToClipboard.bind(null, shortUrl(publisherId)));
-        spanLink.style.cursor = "pointer";
-        divStat.appendChild(spanLink);
-    }
-
-    {
-        if (checkNoIndex()) {
-            const spanRobot = createElement("span");
-            spanRobot.innerText = " 🤖";
-            spanRobot.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Публикация не индексируется поисковиками.\n" +
-                "Примечание: связь этого тега с показами,\n" +
-                "пессимизацией и иными ограничениями канала\n" +
-                "официально не подтверждена.");
-            divStat.appendChild(spanRobot);
-        }
-    }
-
-    const divSeparator = document.getElementsByClassName("ui-lib-desktop-gallery-page__separator")[0];
-    divSeparator.insertAdjacentElement("afterend", divStat);
-}
 
 async function showStatsVideoOld(data, publisherId) {
     if (data === null) {
@@ -286,7 +189,7 @@ async function showStatsVideoOld(data, publisherId) {
 
     const sumViewTimeSec = articleData.sumViewTimeSec;
     const views = articleData.views;
-    const shows = articleData.shows;
+    //const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const elArticleDate = document.getElementsByClassName("article__date-video")[0];
@@ -295,7 +198,7 @@ async function showStatsVideoOld(data, publisherId) {
     const container = document.getElementsByClassName("article__about")[0];
     {
         // Просмотры
-        const spanIcon1 = createElement("span", "article__date-video article-stat__icon article-stat__icon_type_book-black");
+        //const spanIcon1 = createElement("span", "article__date-video article-stat__icon article-stat__icon_type_book-black");
         const spanCount1 = createElement("span", "article__date-video");
         spanCount1.innerText = "📺 " + views.toLocaleString(undefined, {maximumFractionDigits: 0});
         spanCount1.setAttribute("title", "Просмотры");
@@ -358,7 +261,7 @@ async function showStatsArticleNew(data, publisherId) {
 
     const sumViewTimeSec = articleData.sumViewTimeSec != null ? articleData.sumViewTimeSec : 0;
     const views = articleData.views;
-    const shows = articleData.shows;
+    //const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const infoBlock = document.querySelector("div[class^=article-info-block__articleInfoBlock-]")
@@ -444,7 +347,7 @@ async function showStatsArticleOld(data, publisherId) {
 
     const sumViewTimeSec = articleData.sumViewTimeSec != null ? articleData.sumViewTimeSec : 0;
     const views = articleData.views;
-    const shows = articleData.shows;
+    //const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
     const hasAdv = document.getElementsByClassName("article-stats-view__block-item").length; // 1 - рекламная статья, 0 - обычная
