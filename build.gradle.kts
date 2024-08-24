@@ -21,7 +21,10 @@ kotlin {
             dependencies {
             }
             kotlin.srcDir("src/jsMain/kotlin")
-            resources.srcDir("src/jsMain/resources")
+            // Исключаем папку resources, чтобы избежать дублирования manifest.json
+            resources.srcDir("src/jsMain/resources").apply {
+                exclude("**/manifest.json")
+            }
         }
         val jsTest by getting {
             kotlin.srcDir("src/jsTest/kotlin")
@@ -72,45 +75,35 @@ tasks {
     }
 
     val processChromeResources by creating(Copy::class) {
+        dependsOn(updateManifests)
         from("src/jsMain/resources/chrome") {
-            include("**/manifest.json")
-            into("chrome")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            include("**/*")  // Копируем все файлы, включая manifest.json
         }
         into(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
     }
 
     val processFirefoxResources by creating(Copy::class) {
+        dependsOn(updateManifests)
         from("src/jsMain/resources/firefox") {
-            include("**/manifest.json")
-            into("firefox")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            include("**/*")  // Копируем все файлы, включая manifest.json
         }
         into(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
     }
 
     val processEdgeResources by creating(Copy::class) {
+        dependsOn(updateManifests)
         from("src/jsMain/resources/edge") {
-            include("**/manifest.json")
-            into("edge")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            include("**/*")  // Копируем все файлы, включая manifest.json
         }
         into(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
     }
 
-    // Main task to process all resources
-    val processAllResources by creating {
-        dependsOn(processChromeResources, processFirefoxResources, processEdgeResources)
-    }
-
-    // Assemble Chrome extension
     val assembleChrome by creating(Copy::class) {
-        dependsOn(updateManifests, processAllResources)
+        dependsOn(processChromeResources)
         group = "build"
         description = "Assemble Chrome extension"
         from(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
         into(layout.buildDirectory.dir("dist/chrome").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val zipChrome by creating(Zip::class) {
@@ -118,17 +111,14 @@ tasks {
         from(layout.buildDirectory.dir("dist/chrome").get().asFile)
         archiveFileName.set("prozen-chrome.zip")
         destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    // Assemble Firefox extension
     val assembleFirefox by creating(Copy::class) {
-        dependsOn(updateManifests, processAllResources)
+        dependsOn(processFirefoxResources)
         group = "build"
         description = "Assemble Firefox extension"
         from(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
         into(layout.buildDirectory.dir("dist/firefox").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val zipFirefox by creating(Zip::class) {
@@ -136,17 +126,14 @@ tasks {
         from(layout.buildDirectory.dir("dist/firefox").get().asFile)
         archiveFileName.set("prozen-firefox.zip")
         destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    // Assemble Edge extension
     val assembleEdge by creating(Copy::class) {
-        dependsOn(updateManifests, processAllResources)
+        dependsOn(processEdgeResources)
         group = "build"
         description = "Assemble Edge extension"
         from(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
         into(layout.buildDirectory.dir("dist/edge").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val zipEdge by creating(Zip::class) {
@@ -154,7 +141,6 @@ tasks {
         from(layout.buildDirectory.dir("dist/edge").get().asFile)
         archiveFileName.set("prozen-edge.zip")
         destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     assemble {
