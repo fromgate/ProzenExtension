@@ -74,28 +74,42 @@ tasks {
         }
     }
 
+    val processCommonResources by creating(Copy::class) {
+        from("src/jsMain/resources/common") {
+            include("**/*") // Включаем все файлы из common
+        }
+        into(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE // Указываем стратегию для дубликатов
+    }
+
     val processChromeResources by creating(Copy::class) {
-        dependsOn(updateManifests)
+        dependsOn(updateManifests, processCommonResources)
         from("src/jsMain/resources/chrome") {
             include("**/*")  // Копируем все файлы, включая manifest.json
         }
+        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
         into(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     val processFirefoxResources by creating(Copy::class) {
-        dependsOn(updateManifests)
+        dependsOn(updateManifests, processCommonResources)
         from("src/jsMain/resources/firefox") {
             include("**/*")  // Копируем все файлы, включая manifest.json
         }
+        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
         into(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     val processEdgeResources by creating(Copy::class) {
-        dependsOn(updateManifests)
+        dependsOn(updateManifests, processCommonResources)
         from("src/jsMain/resources/edge") {
             include("**/*")  // Копируем все файлы, включая manifest.json
         }
+        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
         into(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     val assembleChrome by creating(Copy::class) {
