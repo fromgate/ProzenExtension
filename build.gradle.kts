@@ -71,55 +71,44 @@ tasks {
         }
     }
 
-    val copyJsFiles by creating(Copy::class) {
-        from("src/jsMain/js")
-        into(layout.buildDirectory.dir("processedResources/js/jsMain").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val processChromeResources by creating(Copy::class) {
+        from("src/jsMain/resources/chrome") {
+            include("**/manifest.json")
+            into("chrome")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+        into(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
     }
 
-    val copyHtmlAndCssFiles by creating(Copy::class) {
-        from("src/jsMain/resources/common")
-        into(layout.buildDirectory.dir("processedResources/resources/common").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val processFirefoxResources by creating(Copy::class) {
+        from("src/jsMain/resources/firefox") {
+            include("**/manifest.json")
+            into("firefox")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+        into(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
     }
 
-    val assemblePopupJs by creating(Sync::class) {
-        dependsOn("jsBrowserProductionWebpack", copyJsFiles)
-        from(layout.buildDirectory.dir("compileSync/js/jsMain/productionExecutable/kotlin/popup").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js/jsMain/popup.js").get().asFile)
-        into(layout.buildDirectory.dir("dist/popup").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val processEdgeResources by creating(Copy::class) {
+        from("src/jsMain/resources/edge") {
+            include("**/manifest.json")
+            into("edge")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+        into(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
     }
 
-    val assembleContentJs by creating(Sync::class) {
-        dependsOn("jsBrowserProductionWebpack", copyJsFiles)
-        from(layout.buildDirectory.dir("compileSync/js/jsMain/productionExecutable/kotlin/content").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js/jsMain/content-script.js").get().asFile)
-        into(layout.buildDirectory.dir("dist/content").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-
-    val assembleOptionsJs by creating(Sync::class) {
-        dependsOn("jsBrowserProductionWebpack", copyJsFiles)
-        from(layout.buildDirectory.dir("compileSync/js/jsMain/productionExecutable/kotlin/options").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js/jsMain/options.js").get().asFile)
-        into(layout.buildDirectory.dir("dist/options").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    // Main task to process all resources
+    val processAllResources by creating {
+        dependsOn(processChromeResources, processFirefoxResources, processEdgeResources)
     }
 
     // Assemble Chrome extension
     val assembleChrome by creating(Copy::class) {
-        dependsOn(updateManifests, assemblePopupJs, assembleContentJs, assembleOptionsJs, copyHtmlAndCssFiles)
+        dependsOn(updateManifests, processAllResources)
         group = "build"
         description = "Assemble Chrome extension"
-        from("src/jsMain/resources/chrome") {
-            into("chrome")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        }
-        from(layout.buildDirectory.dir("processedResources/resources/common").get().asFile)
-        from(layout.buildDirectory.dir("dist/popup").get().asFile) { into("chrome/prozen/popup") }
-        from(layout.buildDirectory.dir("dist/content").get().asFile) { into("chrome/prozen/content") }
-        from(layout.buildDirectory.dir("dist/options").get().asFile) { into("chrome/prozen/options") }
+        from(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
         into(layout.buildDirectory.dir("dist/chrome").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
@@ -134,17 +123,10 @@ tasks {
 
     // Assemble Firefox extension
     val assembleFirefox by creating(Copy::class) {
-        dependsOn(updateManifests, assemblePopupJs, assembleContentJs, assembleOptionsJs, copyHtmlAndCssFiles)
+        dependsOn(updateManifests, processAllResources)
         group = "build"
         description = "Assemble Firefox extension"
-        from("src/jsMain/resources/firefox") {
-            into("firefox")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        }
-        from(layout.buildDirectory.dir("processedResources/resources/common").get().asFile)
-        from(layout.buildDirectory.dir("dist/popup").get().asFile) { into("firefox/prozen/popup") }
-        from(layout.buildDirectory.dir("dist/content").get().asFile) { into("firefox/prozen/content") }
-        from(layout.buildDirectory.dir("dist/options").get().asFile) { into("firefox/prozen/options") }
+        from(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
         into(layout.buildDirectory.dir("dist/firefox").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
@@ -159,17 +141,10 @@ tasks {
 
     // Assemble Edge extension
     val assembleEdge by creating(Copy::class) {
-        dependsOn(updateManifests, assemblePopupJs, assembleContentJs, assembleOptionsJs, copyHtmlAndCssFiles)
+        dependsOn(updateManifests, processAllResources)
         group = "build"
         description = "Assemble Edge extension"
-        from("src/jsMain/resources/edge") {
-            into("edge")
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        }
-        from(layout.buildDirectory.dir("processedResources/resources/common").get().asFile)
-        from(layout.buildDirectory.dir("dist/popup").get().asFile) { into("edge/prozen/popup") }
-        from(layout.buildDirectory.dir("dist/content").get().asFile) { into("edge/prozen/content") }
-        from(layout.buildDirectory.dir("dist/options").get().asFile) { into("edge/prozen/options") }
+        from(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
         into(layout.buildDirectory.dir("dist/edge").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
