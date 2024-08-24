@@ -39,7 +39,7 @@ function ReceiveProzenData(event) {
 function showPublicationStats(pageType, data, publisherId) {
     switch (pageType) {
         case "article":
-            showStatsArticle(data, publisherId);
+            showStatsArticleOld(data, publisherId);
             break;
         case "brief":
             showStatsBrief(data, publisherId);
