@@ -19,11 +19,12 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
+                // Зависимости для jsMain
             }
             kotlin.srcDir("src/jsMain/kotlin")
-            // Исключаем папку resources, чтобы избежать дублирования manifest.json
             resources.srcDir("src/jsMain/resources").apply {
                 exclude("**/manifest.json")
+                exclude("common/**")
             }
         }
         val jsTest by getting {
@@ -75,48 +76,61 @@ tasks {
     }
 
     val processCommonResources by creating(Copy::class) {
-        from("src/jsMain/resources/common") {
-            include("**/*") // Включаем все файлы из common
-        }
-        into(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE // Указываем стратегию для дубликатов
+        from("src/jsMain/resources/common")
+        into(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    val copyJsFiles by creating(Copy::class) {
+        from("src/jsMain/js")
+        into(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    val jsProcessResources = named<Copy>("jsProcessResources") {
+        dependsOn(copyJsFiles)
+    }
+
+    named<Jar>("jsJar") {
+        dependsOn(copyJsFiles)
+    }
+
+    named<Copy>("jsBrowserDistribution") {
+        dependsOn(copyJsFiles)
     }
 
     val processChromeResources by creating(Copy::class) {
-        dependsOn(updateManifests, processCommonResources)
-        from("src/jsMain/resources/chrome") {
-            include("**/*")  // Копируем все файлы, включая manifest.json
-        }
-        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        dependsOn(processCommonResources, updateManifests, jsProcessResources)
+        from("src/jsMain/resources/chrome")
+        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        into(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val processFirefoxResources by creating(Copy::class) {
-        dependsOn(updateManifests, processCommonResources)
-        from("src/jsMain/resources/firefox") {
-            include("**/*")  // Копируем все файлы, включая manifest.json
-        }
-        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        dependsOn(processCommonResources, updateManifests, jsProcessResources)
+        from("src/jsMain/resources/firefox")
+        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        into(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val processEdgeResources by creating(Copy::class) {
-        dependsOn(updateManifests, processCommonResources)
-        from("src/jsMain/resources/edge") {
-            include("**/*")  // Копируем все файлы, включая manifest.json
-        }
-        from(layout.buildDirectory.dir("processedResources/jsMain/common").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        dependsOn(processCommonResources, updateManifests, jsProcessResources)
+        from("src/jsMain/resources/edge")
+        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        into(layout.buildDirectory.dir("processedResources/edge").get().asFile)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val assembleChrome by creating(Copy::class) {
         dependsOn(processChromeResources)
         group = "build"
         description = "Assemble Chrome extension"
-        from(layout.buildDirectory.dir("processedResources/jsMain/chrome").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
         into(layout.buildDirectory.dir("dist/chrome").get().asFile)
     }
 
@@ -131,7 +145,7 @@ tasks {
         dependsOn(processFirefoxResources)
         group = "build"
         description = "Assemble Firefox extension"
-        from(layout.buildDirectory.dir("processedResources/jsMain/firefox").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
         into(layout.buildDirectory.dir("dist/firefox").get().asFile)
     }
 
@@ -146,7 +160,7 @@ tasks {
         dependsOn(processEdgeResources)
         group = "build"
         description = "Assemble Edge extension"
-        from(layout.buildDirectory.dir("processedResources/jsMain/edge").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/edge").get().asFile)
         into(layout.buildDirectory.dir("dist/edge").get().asFile)
     }
 
