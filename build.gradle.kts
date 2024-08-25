@@ -23,7 +23,7 @@ kotlin {
             kotlin.srcDir("src/jsMain/kotlin")
             resources.srcDir("src/jsMain/resources").apply {
                 exclude("**/manifest.json")
-                exclude("common/**")
+                exclude("**")
             }
         }
         val jsTest by getting {
@@ -136,7 +136,7 @@ tasks {
         group = "build"
         description = "Assemble Chrome extension"
         from(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
-        into(layout.buildDirectory.dir("dist/chrome").get().asFile)
+        into(layout.buildDirectory.dir("dist/chrome/prozen").get().asFile) // Добавляем папку "prozen"
     }
 
     val zipChrome by creating(Zip::class) {
@@ -151,7 +151,7 @@ tasks {
         group = "build"
         description = "Assemble Firefox extension"
         from(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
-        into(layout.buildDirectory.dir("dist/firefox").get().asFile)
+        into(layout.buildDirectory.dir("dist/firefox").get().asFile) // Без папки "prozen"
     }
 
     val zipFirefox by creating(Zip::class) {
@@ -166,7 +166,7 @@ tasks {
         group = "build"
         description = "Assemble Edge extension"
         from(layout.buildDirectory.dir("processedResources/edge").get().asFile)
-        into(layout.buildDirectory.dir("dist/edge").get().asFile)
+        into(layout.buildDirectory.dir("dist/edge/prozen").get().asFile) // Добавляем папку "prozen"
     }
 
     val zipEdge by creating(Zip::class) {
