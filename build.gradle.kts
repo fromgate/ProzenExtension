@@ -77,13 +77,13 @@ tasks {
 
     val processCommonResources by creating(Copy::class) {
         from("src/jsMain/resources/common")
-        into(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        into(layout.buildDirectory.dir("processedResources/common"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val copyJsFiles by creating(Copy::class) {
         from("src/jsMain/js")
-        into(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        into(layout.buildDirectory.dir("processedResources/js"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
@@ -91,38 +91,36 @@ tasks {
         dependsOn(copyJsFiles, "compileKotlinJs")
     }
 
-    named<Jar>("jsJar") {
-        dependsOn(copyJsFiles, "compileKotlinJs")
-    }
-
-    named<Copy>("jsBrowserDistribution") {
-        dependsOn(copyJsFiles, "compileKotlinJs")
-    }
-
     val processChromeResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/chrome")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/common"))
+        from(layout.buildDirectory.dir("processedResources/js")) {
+            into("js")
+        }
+        into(layout.buildDirectory.dir("processedResources/chrome"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val processFirefoxResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/firefox")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/common"))
+        from(layout.buildDirectory.dir("processedResources/js")) {
+            into("js")
+        }
+        into(layout.buildDirectory.dir("processedResources/firefox"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     val processEdgeResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/edge")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        into(layout.buildDirectory.dir("processedResources/edge").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/common"))
+        from(layout.buildDirectory.dir("processedResources/js")) {
+            into("js")
+        }
+        into(layout.buildDirectory.dir("processedResources/edge"))
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
@@ -130,45 +128,45 @@ tasks {
         dependsOn(processChromeResources)
         group = "build"
         description = "Assemble Chrome extension"
-        from(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
-        into(layout.buildDirectory.dir("dist/chrome/prozen").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/chrome"))
+        into(layout.buildDirectory.dir("dist/chrome/prozen"))
     }
 
     val zipChrome by creating(Zip::class) {
         dependsOn(assembleChrome)
-        from(layout.buildDirectory.dir("dist/chrome").get().asFile)
+        from(layout.buildDirectory.dir("dist/chrome"))
         archiveFileName.set("prozen-chrome.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
+        destinationDirectory.set(layout.buildDirectory.dir("distributions"))
     }
 
     val assembleFirefox by creating(Copy::class) {
         dependsOn(processFirefoxResources)
         group = "build"
         description = "Assemble Firefox extension"
-        from(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
-        into(layout.buildDirectory.dir("dist/firefox").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/firefox"))
+        into(layout.buildDirectory.dir("dist/firefox"))
     }
 
     val zipFirefox by creating(Zip::class) {
         dependsOn(assembleFirefox)
-        from(layout.buildDirectory.dir("dist/firefox").get().asFile)
+        from(layout.buildDirectory.dir("dist/firefox"))
         archiveFileName.set("prozen-firefox.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
+        destinationDirectory.set(layout.buildDirectory.dir("distributions"))
     }
 
     val assembleEdge by creating(Copy::class) {
         dependsOn(processEdgeResources)
         group = "build"
         description = "Assemble Edge extension"
-        from(layout.buildDirectory.dir("processedResources/edge").get().asFile)
-        into(layout.buildDirectory.dir("dist/edge/prozen").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/edge"))
+        into(layout.buildDirectory.dir("dist/edge/prozen"))
     }
 
     val zipEdge by creating(Zip::class) {
         dependsOn(assembleEdge)
-        from(layout.buildDirectory.dir("dist/edge").get().asFile)
+        from(layout.buildDirectory.dir("dist/edge"))
         archiveFileName.set("prozen-edge.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
+        destinationDirectory.set(layout.buildDirectory.dir("distributions"))
     }
 
     assemble {
