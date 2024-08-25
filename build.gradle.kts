@@ -19,11 +19,12 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
+                // Зависимости для jsMain
             }
-            kotlin.srcDir("src/jsMain/kotlin")
+            kotlin.srcDir("src/jsMain/kotlin") // Здесь находится page.kt
             resources.srcDir("src/jsMain/resources").apply {
                 exclude("**/manifest.json")
-                exclude("**")
+                exclude("common/**")
             }
         }
         val jsTest by getting {
@@ -87,48 +88,42 @@ tasks {
     }
 
     val jsProcessResources = named<Copy>("jsProcessResources") {
-        dependsOn(copyJsFiles)
+        dependsOn(copyJsFiles, "compileKotlinJs")
     }
 
     named<Jar>("jsJar") {
-        dependsOn(copyJsFiles)
+        dependsOn(copyJsFiles, "compileKotlinJs")
     }
 
     named<Copy>("jsBrowserDistribution") {
-        dependsOn(copyJsFiles)
+        dependsOn(copyJsFiles, "compileKotlinJs")
     }
 
     val processChromeResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/chrome")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        into("js") {
-            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        }
     }
 
     val processFirefoxResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/firefox")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        into("js") {
-            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        }
     }
 
     val processEdgeResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/edge")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
+        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/edge").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        into("js") {
-            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        }
     }
 
     val assembleChrome by creating(Copy::class) {
@@ -136,7 +131,7 @@ tasks {
         group = "build"
         description = "Assemble Chrome extension"
         from(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
-        into(layout.buildDirectory.dir("dist/chrome/prozen").get().asFile) // Добавляем папку "prozen"
+        into(layout.buildDirectory.dir("dist/chrome/prozen").get().asFile)
     }
 
     val zipChrome by creating(Zip::class) {
@@ -151,7 +146,7 @@ tasks {
         group = "build"
         description = "Assemble Firefox extension"
         from(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
-        into(layout.buildDirectory.dir("dist/firefox").get().asFile) // Без папки "prozen"
+        into(layout.buildDirectory.dir("dist/firefox").get().asFile)
     }
 
     val zipFirefox by creating(Zip::class) {
@@ -166,7 +161,7 @@ tasks {
         group = "build"
         description = "Assemble Edge extension"
         from(layout.buildDirectory.dir("processedResources/edge").get().asFile)
-        into(layout.buildDirectory.dir("dist/edge/prozen").get().asFile) // Добавляем папку "prozen"
+        into(layout.buildDirectory.dir("dist/edge/prozen").get().asFile)
     }
 
     val zipEdge by creating(Zip::class) {
