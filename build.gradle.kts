@@ -19,7 +19,6 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                // Зависимости для jsMain
             }
             kotlin.srcDir("src/jsMain/kotlin")
             resources.srcDir("src/jsMain/resources").apply {
@@ -103,27 +102,33 @@ tasks {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/chrome")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        into("js") {
+            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        }
     }
 
     val processFirefoxResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/firefox")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        into("js") {
+            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        }
     }
 
     val processEdgeResources by creating(Copy::class) {
         dependsOn(processCommonResources, updateManifests, jsProcessResources)
         from("src/jsMain/resources/edge")
         from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
         into(layout.buildDirectory.dir("processedResources/edge").get().asFile)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        into("js") {
+            from(layout.buildDirectory.dir("processedResources/js").get().asFile)
+        }
     }
 
     val assembleChrome by creating(Copy::class) {
