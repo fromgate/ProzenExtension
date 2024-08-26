@@ -6,6 +6,7 @@ kotlin {
     js(IR) {
         browser {
             commonWebpackConfig {
+                outputFileName = "page.js"
                 cssSupport {
                     enabled = true
                 }
@@ -21,6 +22,7 @@ kotlin {
     }
 }
 
+/*
 tasks.register<Copy>("renamePageJs") {
     group = "build"
     description = "Rename the compiled JS to page.js"
@@ -38,3 +40,4 @@ tasks.register<Copy>("renamePageJs") {
         }
     }
 }
+*/
