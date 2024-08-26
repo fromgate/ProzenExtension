@@ -1,198 +1,95 @@
-import java.io.File
-
 plugins {
-    kotlin("multiplatform") version "2.0.20"
     id("base")
 }
 
-kotlin {
-    js(IR) {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled = true
+allprojects {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.multiplatform")
+
+    tasks {
+        val updateManifests by creating {
+            group = "build"
+            description = "Updates manifest.json for each browser"
+
+            doLast {
+                val browserTypes = listOf("chrome", "firefox", "edge")
+                val version = "2.8.0" // Версию можно извлекать динамически, если нужно
+
+                browserTypes.forEach { browser ->
+                    val manifestFile = file("common/src/jsMain/resources/$browser/manifest.json")
+                    if (manifestFile.exists()) {
+                        val updatedContent = manifestFile.readText().replace(
+                            Regex("\"version\": \"\\d+\\.\\d+\\.\\d+\""),
+                            "\"version\": \"$version\""
+                        )
+                        manifestFile.writeText(updatedContent)
+                    }
                 }
             }
         }
-        binaries.executable()
-    }
-    sourceSets {
-        val jsMain by getting {
-            dependencies {
-                // Зависимости для jsMain
-            }
-            kotlin.srcDir("src/jsMain/kotlin") // Здесь находится page.kt
-            resources.srcDir("src/jsMain/resources").apply {
-                exclude("**/manifest.json")
-                exclude("common/**")
-            }
+
+        val processResourcesForChrome by creating(Copy::class) {
+            group = "build"
+            description = "Process resources for Chrome"
+            from("common/src/jsMain/resources/chrome") // Берём Chrome manifest.json
+            from("common/build/processedResources/js") // Остальные ресурсы
+            into("$buildDir/dist/chrome")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            dependsOn(updateManifests)
         }
-        val jsTest by getting {
-            kotlin.srcDir("src/jsTest/kotlin")
+
+        val processResourcesForFirefox by creating(Copy::class) {
+            group = "build"
+            description = "Process resources for Firefox"
+            from("common/src/jsMain/resources/firefox") // Берём Firefox manifest.json
+            from("common/build/processedResources/js") // Остальные ресурсы
+            into("$buildDir/dist/firefox")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            dependsOn(updateManifests)
         }
-    }
-}
 
-repositories {
-    mavenCentral()
-    gradlePluginPortal()
-}
-
-val changelogFile = file("CHANGELOG.md")
-
-fun extractVersionFromChangelog(file: File): String {
-    val versionRegex = Regex("""^### (\d+\.\d+\.\d+)""")
-    for (line in file.readLines()) {
-        val matchResult = versionRegex.find(line)
-        if (matchResult != null) {
-            return matchResult.groupValues[1]
+        val processResourcesForEdge by creating(Copy::class) {
+            group = "build"
+            description = "Process resources for Edge"
+            from("common/src/jsMain/resources/edge") // Берём Edge manifest.json
+            from("common/build/processedResources/js") // Остальные ресурсы
+            into("$buildDir/dist/edge")
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            dependsOn(updateManifests)
         }
-    }
-    throw GradleException("Version not found in CHANGELOG.md")
-}
 
-val version = extractVersionFromChangelog(changelogFile)
-
-tasks {
-    val updateManifests by creating {
-        group = "build"
-        description = "Updates manifest.json with the version from CHANGELOG.md"
-
-        val chromeManifestFile = file("src/jsMain/resources/chrome/manifest.json")
-        val firefoxManifestFile = file("src/jsMain/resources/firefox/manifest.json")
-        val edgeManifestFile = file("src/jsMain/resources/edge/manifest.json")
-
-        doLast {
-            listOf(chromeManifestFile, firefoxManifestFile, edgeManifestFile).forEach { manifestFile ->
-                val manifestContent = manifestFile.readText()
-                val updatedContent = manifestContent.replace(
-                    Regex("\"version\": \"\\d+\\.\\d+\\.\\d+\""),
-                    "\"version\": \"$version\""
-                )
-                manifestFile.writeText(updatedContent)
-            }
-            println("Manifests updated to version $version")
+        val zipChrome by creating(Zip::class) {
+            group = "build"
+            dependsOn(processResourcesForChrome)
+            from("$buildDir/dist/chrome")
+            archiveFileName.set("prozen-chrome.zip")
+            destinationDirectory.set(file("$buildDir/distributions"))
         }
-    }
 
-    val processCommonResources by creating(Copy::class) {
-        from("src/jsMain/resources/common")
-        into(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-
-    val copyJsFiles by creating(Copy::class) {
-        from("src/jsMain/js")
-        into(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-
-    val renamePageJs by creating {
-        group = "build"
-        description = "Renames the generated JS file to page.js"
-        dependsOn("compileProductionExecutableKotlinJs") // Убедитесь, что компиляция завершена
-        doLast {
-            val outputDir = layout.buildDirectory.dir("dist/js/productionExecutable").get().asFile
-            val outputFile = outputDir.resolve("ProzenExtension.js")
-            val renamedFile = outputDir.resolve("page.js")
-            if (outputFile.exists()) {
-                if (renamedFile.exists()) {
-                    renamedFile.delete()
-                }
-                outputFile.renameTo(renamedFile)
-                println("File renamed to page.js")
-            } else {
-                throw GradleException("Generated JS file not found in $outputDir!")
-            }
+        val zipFirefox by creating(Zip::class) {
+            group = "build"
+            dependsOn(processResourcesForFirefox)
+            from("$buildDir/dist/firefox")
+            archiveFileName.set("prozen-firefox.zip")
+            destinationDirectory.set(file("$buildDir/distributions"))
         }
-    }
 
-    val jsProcessResources = named<Copy>("jsProcessResources") {
-        dependsOn(copyJsFiles, "compileKotlinJs")
-    }
-
-    val processChromeResources by creating(Copy::class) {
-        dependsOn(processCommonResources, updateManifests, jsProcessResources, renamePageJs)
-        from("src/jsMain/resources/chrome")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        from(layout.buildDirectory.dir("dist/js/productionExecutable").get().asFile) {
-            into("js")
+        val zipEdge by creating(Zip::class) {
+            group = "build"
+            dependsOn(processResourcesForEdge)
+            from("$buildDir/dist/edge")
+            archiveFileName.set("prozen-edge.zip")
+            destinationDirectory.set(file("$buildDir/distributions"))
         }
-        into(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
 
-    val processFirefoxResources by creating(Copy::class) {
-        dependsOn(processCommonResources, updateManifests, jsProcessResources, renamePageJs)
-        from("src/jsMain/resources/firefox")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        from(layout.buildDirectory.dir("dist/js/productionExecutable").get().asFile) {
-            into("js")
+        assemble {
+            dependsOn(zipChrome, zipFirefox, zipEdge)
         }
-        into(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-
-    val processEdgeResources by creating(Copy::class) {
-        dependsOn(processCommonResources, updateManifests, jsProcessResources, renamePageJs)
-        from("src/jsMain/resources/edge")
-        from(layout.buildDirectory.dir("processedResources/common").get().asFile)
-        from(layout.buildDirectory.dir("processedResources/js").get().asFile)
-        from(layout.buildDirectory.dir("dist/js/productionExecutable").get().asFile) {
-            into("js")
-        }
-        into(layout.buildDirectory.dir("processedResources/edge").get().asFile)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-
-    val assembleChrome by creating(Copy::class) {
-        dependsOn(processChromeResources)
-        group = "build"
-        description = "Assemble Chrome extension"
-        from(layout.buildDirectory.dir("processedResources/chrome").get().asFile)
-        into(layout.buildDirectory.dir("dist/chrome/prozen").get().asFile)
-    }
-
-    val zipChrome by creating(Zip::class) {
-        dependsOn(assembleChrome)
-        from(layout.buildDirectory.dir("dist/chrome").get().asFile)
-        archiveFileName.set("prozen-chrome.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-    }
-
-    val assembleFirefox by creating(Copy::class) {
-        dependsOn(processFirefoxResources)
-        group = "build"
-        description = "Assemble Firefox extension"
-        from(layout.buildDirectory.dir("processedResources/firefox").get().asFile)
-        into(layout.buildDirectory.dir("dist/firefox").get().asFile)
-    }
-
-    val zipFirefox by creating(Zip::class) {
-        dependsOn(assembleFirefox)
-        from(layout.buildDirectory.dir("dist/firefox").get().asFile)
-        archiveFileName.set("prozen-firefox.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-    }
-
-    val assembleEdge by creating(Copy::class) {
-        dependsOn(processEdgeResources)
-        group = "build"
-        description = "Assemble Edge extension"
-        from(layout.buildDirectory.dir("processedResources/edge").get().asFile)
-        into(layout.buildDirectory.dir("dist/edge/prozen").get().asFile)
-    }
-
-    val zipEdge by creating(Zip::class) {
-        dependsOn(assembleEdge)
-        from(layout.buildDirectory.dir("dist/edge").get().asFile)
-        archiveFileName.set("prozen-edge.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("distributions").get().asFile)
-    }
-
-    assemble {
-        dependsOn(zipChrome, zipFirefox, zipEdge)
     }
 }
