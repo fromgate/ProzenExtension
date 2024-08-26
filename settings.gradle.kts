@@ -1,3 +1,3 @@
 rootProject.name = "ProzenExtension"
-include(":common")
+include(":prozen")
 include(":page")

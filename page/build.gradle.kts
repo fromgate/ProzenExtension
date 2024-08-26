@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.0.20"
+    kotlin("multiplatform")
 }
 
 kotlin {
@@ -21,22 +21,20 @@ kotlin {
     }
 }
 
-tasks {
-    val renamePageJs by creating {
-        group = "build"
-        description = "Rename the compiled JS to page.js"
-        dependsOn("compileProductionExecutableKotlinJs")
+tasks.register<Copy>("renamePageJs") {
+    group = "build"
+    description = "Rename the compiled JS to page.js"
+    dependsOn("compileProductionExecutableKotlinJs")
 
-        doLast {
-            val outputDir = file("$buildDir/distributions")
-            val outputFile = outputDir.resolve("page.js")
-            val compiledFile = outputDir.resolve("ProzenExtension.js")
+    val outputDir = layout.buildDirectory.get().dir("distributions").asFile
+    val outputFile = outputDir.resolve("page.js")
+    val compiledFile = outputDir.resolve("ProzenExtension.js")
 
-            if (compiledFile.exists()) {
-                compiledFile.renameTo(outputFile)
-            } else {
-                throw GradleException("Compiled JS file not found!")
-            }
+    doLast {
+        if (compiledFile.exists()) {
+            compiledFile.renameTo(outputFile)
+        } else {
+            throw GradleException("Compiled JS file not found!")
         }
     }
 }
