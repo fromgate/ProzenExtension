@@ -17,7 +17,7 @@ subprojects {
 
             doLast {
                 val browserTypes = listOf("chrome", "firefox", "edge")
-                val version = "2.8.0" // Версию можно извлекать динамически, если нужно
+                val version = "2.8.0"
 
                 browserTypes.forEach { browser ->
                     val manifestFile = file("common/src/jsMain/resources/$browser/manifest.json")
@@ -35,8 +35,8 @@ subprojects {
         val processResourcesForChrome by creating(Copy::class) {
             group = "build"
             description = "Process resources for Chrome"
-            from("common/src/jsMain/resources/chrome") // Берём Chrome manifest.json
-            from("common/build/processedResources/js") // Остальные ресурсы
+            from("common/src/jsMain/resources/chrome")
+            from("common/build/processedResources/js")
             into("$buildDir/dist/chrome")
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
@@ -45,8 +45,8 @@ subprojects {
         val processResourcesForFirefox by creating(Copy::class) {
             group = "build"
             description = "Process resources for Firefox"
-            from("common/src/jsMain/resources/firefox") // Берём Firefox manifest.json
-            from("common/build/processedResources/js") // Остальные ресурсы
+            from("common/src/jsMain/resources/firefox")
+            from("common/build/processedResources/js")
             into("$buildDir/dist/firefox")
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
@@ -55,8 +55,8 @@ subprojects {
         val processResourcesForEdge by creating(Copy::class) {
             group = "build"
             description = "Process resources for Edge"
-            from("common/src/jsMain/resources/edge") // Берём Edge manifest.json
-            from("common/build/processedResources/js") // Остальные ресурсы
+            from("common/src/jsMain/resources/edge")
+            from("common/build/processedResources/js")
             into("$buildDir/dist/edge")
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
