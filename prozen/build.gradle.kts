@@ -10,6 +10,9 @@ kotlin {
                 cssSupport {
                     enabled = true
                 }
+                distribution {
+                    outputDirectory = File("$rootDir/build/distributions/")
+                }
             }
         }
         binaries.executable()
@@ -30,28 +33,26 @@ tasks.named("jsProcessResources", Copy::class) {
 }
 
 tasks {
-    //val page = ":page:browserDistribution"
-    val page = project(":page").tasks.named("browserDistribution")
+    val page = project(":page").tasks.named("jsBrowserDistribution")
 
-    val extensionFolder = "$projectDir/build/extension"
+    val extensionFolder = "$rootDir/build/extension"
 
     val copyBundleFile = register<Copy>("copyBundleFile") {
         dependsOn(page)
-        from("$projectDir/../build/distributions/page.js")
-        into(extensionFolder)
+        from("$rootDir/build/distributions/page.js")
+        into("$extensionFolder/js")
     }
 
     val copyResources = register<Copy>("copyResources") {
         val resourceFolder = "src/jsMain/resources"
-        from(
-            "$resourceFolder/*.*",
+        from(resourceFolder)
+        into(extensionFolder)
+            /*"$resourceFolder/manifest.json"
             "$resourceFolder/_locales",
             "$resourceFolder/css",
             "$resourceFolder/icons",
             "$resourceFolder/img",
-            "$resourceFolder/js",
-        )
-        into(extensionFolder)
+            "$resourceFolder/js" */
     }
 
     val buildExtension = register("buildExtension") {
@@ -63,20 +64,3 @@ tasks {
         from(extensionFolder)
     }
 }
-
-/* tasks.named("jsProcessResources", Copy::class) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.register<Zip>("buildZip") {
-    archiveFileName.set("prozen-chrome.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
-
-    from(tasks.named("jsBrowserProductionWebpack")) {
-        into("prozen")
-    }
-    from(tasks.named("jsProcessResources")) {
-        into("prozen")
-    }
-} */
-

@@ -10,6 +10,9 @@ kotlin {
                 cssSupport {
                     enabled = true
                 }
+                distribution {
+                    outputDirectory = File("$rootDir/build/distributions/")
+                }
             }
         }
         binaries.executable()
