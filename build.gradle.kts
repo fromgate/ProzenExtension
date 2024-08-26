@@ -17,7 +17,7 @@ subprojects {
 
             doLast {
                 val browserTypes = listOf("chrome", "firefox", "edge")
-                val version = "2.8.0"
+                val version = "2.8.0" // Версия, которую можно обновлять динамически
 
                 browserTypes.forEach { browser ->
                     val manifestFile = file("common/src/jsMain/resources/$browser/manifest.json")
@@ -27,6 +27,7 @@ subprojects {
                             "\"version\": \"$version\""
                         )
                         manifestFile.writeText(updatedContent)
+                        println("Updated manifest for $browser.")
                     }
                 }
             }
@@ -36,8 +37,8 @@ subprojects {
             group = "build"
             description = "Process resources for Chrome"
             from("common/src/jsMain/resources/chrome")
-            from("common/build/processedResources/js")
-            into("$buildDir/dist/chrome")
+            from(layout.buildDirectory.dir("processedResources/js"))
+            into(layout.buildDirectory.dir("dist/chrome"))
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
         }
@@ -46,8 +47,8 @@ subprojects {
             group = "build"
             description = "Process resources for Firefox"
             from("common/src/jsMain/resources/firefox")
-            from("common/build/processedResources/js")
-            into("$buildDir/dist/firefox")
+            from(layout.buildDirectory.dir("processedResources/js"))
+            into(layout.buildDirectory.dir("dist/firefox"))
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
         }
@@ -56,8 +57,8 @@ subprojects {
             group = "build"
             description = "Process resources for Edge"
             from("common/src/jsMain/resources/edge")
-            from("common/build/processedResources/js")
-            into("$buildDir/dist/edge")
+            from(layout.buildDirectory.dir("processedResources/js"))
+            into(layout.buildDirectory.dir("dist/edge"))
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             dependsOn(updateManifests)
         }
@@ -65,25 +66,38 @@ subprojects {
         val zipChrome by creating(Zip::class) {
             group = "build"
             dependsOn(processResourcesForChrome)
-            from("$buildDir/dist/chrome")
+            from(layout.buildDirectory.dir("dist/chrome")) {
+                into("prozen") // Вкладываем файлы в папку "prozen" внутри архива
+            }
             archiveFileName.set("prozen-chrome.zip")
-            destinationDirectory.set(file("$buildDir/distributions"))
+            destinationDirectory.set(rootProject.layout.buildDirectory.dir("distributions"))
+            doLast {
+                println("Created archive: ${archiveFileName.get()} at ${destinationDirectory.get().asFile.absolutePath}")
+            }
         }
 
         val zipFirefox by creating(Zip::class) {
             group = "build"
             dependsOn(processResourcesForFirefox)
-            from("$buildDir/dist/firefox")
+            from(layout.buildDirectory.dir("dist/firefox")) // Все файлы будут на корневом уровне архива
             archiveFileName.set("prozen-firefox.zip")
-            destinationDirectory.set(file("$buildDir/distributions"))
+            destinationDirectory.set(rootProject.layout.buildDirectory.dir("distributions"))
+            doLast {
+                println("Created archive: ${archiveFileName.get()} at ${destinationDirectory.get().asFile.absolutePath}")
+            }
         }
 
         val zipEdge by creating(Zip::class) {
             group = "build"
             dependsOn(processResourcesForEdge)
-            from("$buildDir/dist/edge")
+            from(layout.buildDirectory.dir("dist/edge")) {
+                into("prozen") // Вкладываем файлы в папку "prozen" внутри архива
+            }
             archiveFileName.set("prozen-edge.zip")
-            destinationDirectory.set(file("$buildDir/distributions"))
+            destinationDirectory.set(rootProject.layout.buildDirectory.dir("distributions"))
+            doLast {
+                println("Created archive: ${archiveFileName.get()} at ${destinationDirectory.get().asFile.absolutePath}")
+            }
         }
 
         val buildAll by creating {
