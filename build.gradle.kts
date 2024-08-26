@@ -10,8 +10,6 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "org.jetbrains.kotlin.multiplatform")
-
     tasks {
         val updateManifests by creating {
             group = "build"
@@ -88,7 +86,9 @@ subprojects {
             destinationDirectory.set(file("$buildDir/distributions"))
         }
 
-        assemble {
+        val buildAll by creating {
+            group = "build"
+            description = "Builds all browser extensions"
             dependsOn(zipChrome, zipFirefox, zipEdge)
         }
     }
