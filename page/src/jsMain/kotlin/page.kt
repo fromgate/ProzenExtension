@@ -1,28 +1,26 @@
 import kotlinx.browser.window
-import org.w3c.dom.MessageEvent
-
-fun sendProzenData() {
-    val data = js("({})").unsafeCast<dynamic>()
-    data.type = "prozen-data"
-    data.text = window.asDynamic()._csrfToken
-    data.jsonData = window.asDynamic()._data
-
-    console.log("page.kt -  sednProzenData")
-    window.postMessage(data, "*")
-}
+import org.w3c.dom.Window
+import org.w3c.dom.get
+import kotlin.js.Json
+import kotlin.js.json
 
 fun main() {
-    console.log("page.kt")
     sendProzenData()
-
-    window.addEventListener("message", { event ->
-        console.log("page.kt -  event")
-        val messageEvent = event as MessageEvent
-        if (messageEvent.source != window) return@addEventListener
-
-        val data = messageEvent.data.asDynamic()
-        if (data?.type == "prozen-request") {
-            sendProzenData()
+    window.onmessage = {event ->
+        if (event.source is Window && event.source == window) {
+            val data = event.data.unsafeCast<Json>()
+            if (data["type"] != null && data["type"] == "prozen-request" ) {
+                sendProzenData()
+            }
         }
-    })
+    }
+}
+
+fun sendProzenData() {
+    val data = json (
+        "type" to "prozen-data",
+        "text" to window["_csrfToken"],
+        "jsonData" to window["_data"]
+    )
+    window.postMessage(data, "*")
 }
