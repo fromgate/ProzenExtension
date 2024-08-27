@@ -39,7 +39,7 @@ function ReceiveProzenData(event) {
 function showPublicationStats(pageType, data, publisherId) {
     switch (pageType) {
         case "article":
-            showStatsArticleOld(data, publisherId);
+            showStatsArticle(data, publisherId);
             break;
         case "brief":
             showStatsBrief(data, publisherId);
@@ -264,49 +264,53 @@ async function showStatsArticleNew(data, publisherId) {
     //const shows = articleData.shows;
     const viewsTillEnd = articleData.viewsTillEnd;
 
-    const infoBlock = document.querySelector("div[class^=article-info-block__articleInfoBlock-]")
+    const infoBlock = document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]")
     if (infoBlock == null) return;
     infoBlock.replaceChildren()
     const dateBlock = createElement("div", "article-info-block__addTimeInfo-25");
-    dateBlock.innerText = showTime;
+    dateBlock.innerText = `🕑 ${showTime}`;
     dateBlock.setAttribute("title", "Время создания (редактирования)");
     dateBlock.setAttribute("itemprop", "datePublished");
+    infoBlock.appendChild(dateBlock);
 
     if (views !== viewsTillEnd) {
         const viewsBlock = createElement("div", "article-info-block__viewsInfo-1g");
         viewsBlock.setAttribute("title", "Просмотры");
-        const viewsSpan = createElement("span", "publication_icon_views_2");
-        viewsBlock.appendChild(viewsSpan);
-        const viewsText = document.createTextNode(views);
-        viewsBlock.appendChild(viewsText);
+        /* const viewsSpan = createElement("span", "publication_icon_views_2");
+        viewsBlock.appendChild(viewsSpan);*/
+        // const viewsText = document.createTextNode(views);
+        viewsBlock.innerText = `📃 ${views}`
         infoBlock.appendChild(viewsBlock);
     }
 
     const viewsTillEndBlock = createElement("div", "article-info-block__viewsInfo-1g");
     viewsTillEndBlock.setAttribute("title", "Дочитывания");
-    const viewsTillEndSpan = createElement("span", "publication_icon_views_2");
-    viewsTillEndBlock.appendChild(viewsTillEndSpan);
-    const viewsTillEndText = document.createTextNode(viewsTillEnd);
-    viewsTillEndBlock.appendChild(viewsTillEndText);
-    infoBlock.appendChild(viewsTillEndBlock)
+    /*const viewsTillEndSpan = createElement("span", "publication_icon_views_2");
+    viewsTillEndBlock.appendChild(viewsTillEndSpan); */
+    //const viewsTillEndText = document.createTextNode(viewsTillEnd);
+    viewsTillEndBlock.innerText = `📄 ${viewsTillEnd}`;
+    infoBlock.appendChild(viewsTillEndBlock);
 
     if (sumViewTimeSec > 0) {
         const avgTimeBlock = createElement("div", "article-info-block__viewsInfo-1g");
         avgTimeBlock.setAttribute("title", "Среднее время дочитывания");
-        const avgTimeIcon = createElement("span", "publication_icon_read_time");
-        avgTimeBlock.appendChild(avgTimeIcon);
-        const avgTimeText = document.createTextNode(secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
-        avgTimeBlock.appendChild(avgTimeText);
+        /* const avgTimeIcon = createElement("span", "publication_icon_read_time");
+        avgTimeBlock.appendChild(avgTimeIcon);*/
+        //const avgTimeText = document.createTextNode(secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd)));
+        const avgTime = secToText(infiniteAndNan(sumViewTimeSec / viewsTillEnd));
+        avgTimeBlock.innerText = `⌚ ${avgTime}`;
         infoBlock.appendChild(avgTimeBlock);
     }
 
     if (postId != null) {
         const shortLinkBlock = createElement("div", "article-info-block__viewsInfo-1g");
         shortLinkBlock.setAttribute("title", "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена.");
-        const shortLinkIcon = createElement("span", "publication_icon_short_url");
+        /* const shortLinkIcon = createElement("span", "publication_icon_short_url");
         shortLinkIcon.addEventListener("click", copyTextToClipboard.bind(null, shortLink !== null ? shortLink : shortUrl(publisherId, postId)));
         shortLinkIcon.style.cursor = "pointer";
-        shortLinkBlock.appendChild(shortLinkIcon);
+        shortLinkBlock.appendChild(shortLinkIcon); */
+        shortLinkBlock.style.cursor = "pointer";
+        shortLinkBlock.innerText = "🔗";
         infoBlock.appendChild(shortLinkBlock);
     }
 
@@ -318,8 +322,7 @@ async function showStatsArticleNew(data, publisherId) {
             "Примечание: связь этого тега с показами,\n" +
             "пессимизацией и иными ограничениями канала\n" +
             "официально не подтверждена.");
-        const sadRobotIcon = createElement("span", "publication_icon_sad_robot");
-        sadRobotBlock.appendChild(sadRobotIcon);
+        sadRobotBlock.innerText = "🤖";
         infoBlock.appendChild(sadRobotBlock);
     }
 
@@ -437,9 +440,11 @@ async function showStatsArticleOld(data, publisherId) {
 }
 
 async function showStatsArticle(data, publisherId) {
-    if (document.querySelector("div[class^=article-info-block__articleInfoBlock-]") != null) {
+    if (document.querySelector("div[class^=content--article-item__sideInfoBlock-]") != null) {
+        console.log("New")
         showStatsArticleNew(data, publisherId);
     } else {
+        console.log("Old")
         showStatsArticleOld(data, publisherId);
     }
 }
