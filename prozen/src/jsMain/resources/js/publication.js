@@ -441,10 +441,8 @@ async function showStatsArticleOld(data, publisherId) {
 
 async function showStatsArticle(data, publisherId) {
     if (document.querySelector("div[class^=content--article-item__sideInfoBlock-]") != null) {
-        console.log("New")
         showStatsArticleNew(data, publisherId);
     } else {
-        console.log("Old")
         showStatsArticleOld(data, publisherId);
     }
 }
