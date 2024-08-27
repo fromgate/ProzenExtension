@@ -33,14 +33,11 @@ tasks.named("jsProcessResources", Copy::class) {
 }
 
 tasks {
-    val page = ":page:jsBrowserDistribution"
-
     val extensionFolder = "$rootDir/build/extension"
     val extensionZipFolder = "$rootDir/build/extension-zip"
 
     val copyBundleFile = register<Copy>("copyBundleFile") {
-        mustRunAfter(":prozen:jsBrowserDistribution")
-        dependsOn(page)
+        dependsOn(":page:jsBrowserDistribution", ":prozen:jsBrowserDistribution") // Зависимость от jsBrowserDistribution задачи модуля page
         from("$rootDir/build/distributions/page.js")
         from("$rootDir/build/distributions/page.js.map")
         into("$extensionFolder/js")

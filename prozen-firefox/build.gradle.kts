@@ -47,7 +47,7 @@ tasks {
 
     val replaceManifest = register<Copy>("replaceManifest") {
         dependsOn(copyProzenFiles)
-        from("src/jsMain/resources/manifest.json") // Специфичный манифест для Firefox
+        from("src/jsMain/resources") // /manifest.json
         into(extensionFolder)
     }
 
@@ -57,6 +57,7 @@ tasks {
 
     val packageExtension = register<Zip>("packageExtension") {
         dependsOn(buildExtension)
+        mustRunAfter(":prozen:packageExtension")
         destinationDirectory.set(file(extensionZipFolder))
         from(extensionFolder)
         into("")

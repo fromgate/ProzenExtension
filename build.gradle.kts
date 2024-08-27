@@ -19,6 +19,6 @@ allprojects {
 }
 
 tasks.named("build") {
-    dependsOn(":prozen:packageExtension")
+    //dependsOn(":prozen:packageExtension")
     dependsOn(":prozen-firefox:packageExtension")
 }
