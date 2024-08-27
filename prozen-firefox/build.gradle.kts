@@ -33,6 +33,10 @@ tasks.named("jsProcessResources", Copy::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.named("jsBrowserDistribution") {
+    dependsOn(":prozen:copyBundleFile")
+}
+
 tasks {
     val prozenBuild = ":prozen:packageExtension"
 

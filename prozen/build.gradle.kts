@@ -37,7 +37,7 @@ tasks {
     val extensionZipFolder = "$rootDir/build/extension-zip"
 
     val copyBundleFile = register<Copy>("copyBundleFile") {
-        dependsOn(":page:jsBrowserDistribution", ":prozen:jsBrowserDistribution") // Зависимость от jsBrowserDistribution задачи модуля page
+        dependsOn(":page:jsBrowserDistribution", ":prozen:jsBrowserDistribution")
         from("$rootDir/build/distributions/page.js")
         from("$rootDir/build/distributions/page.js.map")
         into("$extensionFolder/js")
