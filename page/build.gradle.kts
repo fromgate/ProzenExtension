@@ -24,23 +24,3 @@ kotlin {
         }
     }
 }
-
-/*
-tasks.register<Copy>("renamePageJs") {
-    group = "build"
-    description = "Rename the compiled JS to page.js"
-    dependsOn("compileProductionExecutableKotlinJs")
-
-    val outputDir = layout.buildDirectory.get().dir("distributions").asFile
-    val outputFile = outputDir.resolve("page.js")
-    val compiledFile = outputDir.resolve("ProzenExtension.js")
-
-    doLast {
-        if (compiledFile.exists()) {
-            compiledFile.renameTo(outputFile)
-        } else {
-            throw GradleException("Compiled JS file not found!")
-        }
-    }
-}
-*/

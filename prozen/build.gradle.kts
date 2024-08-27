@@ -47,15 +47,8 @@ tasks {
     }
 
     val copyResources = register<Copy>("copyResources") {
-        val resourceFolder = "src/jsMain/resources"
-        from(resourceFolder)
+        from("src/jsMain/resources")
         into(extensionFolder)
-            /*"$resourceFolder/manifest.json"
-            "$resourceFolder/_locales",
-            "$resourceFolder/css",
-            "$resourceFolder/icons",
-            "$resourceFolder/img",
-            "$resourceFolder/js" */
     }
 
     val buildExtension = register("buildExtension") {
