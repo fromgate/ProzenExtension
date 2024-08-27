@@ -49,14 +49,14 @@ tasks {
         into(extensionFolder)
     }
 
-    val replaceManifest = register<Copy>("replaceManifest") {
+    val copyFirefoxResources = register<Copy>("copyFirefoxResources") {
         dependsOn(copyProzenFiles)
         from("src/jsMain/resources") // /manifest.json
         into(extensionFolder)
     }
 
     val buildExtension = register("buildExtension") {
-        dependsOn(replaceManifest)
+        dependsOn(copyFirefoxResources)
     }
 
     val packageExtension = register<Zip>("packageExtension") {
