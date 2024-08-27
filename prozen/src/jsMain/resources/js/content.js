@@ -345,7 +345,11 @@ async function modifyStudioStyles() {
     let sheetStr = "";
     // if (!showComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
     if (hideRealtimeStatsList) sheetStr += ".editor--realtime-publications__list-3o{display:none;}";
-    if (hidePromoteBanner) sheetStr +=".editor--author-studio-dashboard__promoBanner-1U{display:none;}"
+    if (hidePromoteBanner) {
+        sheetStr += ".editor--author-studio-dashboard__promoBanner-1U{display:none;}";
+        sheetStr += ".editor--youtube-entrency-panel__root-2D{display:none;}";
+    }
+
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(sheetStr);
