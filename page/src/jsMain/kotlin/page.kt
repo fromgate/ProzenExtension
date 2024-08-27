@@ -6,10 +6,10 @@ import kotlin.js.json
 
 fun main() {
     sendProzenData()
-    window.onmessage = {event ->
+    window.onmessage = { event ->
         if (event.source is Window && event.source == window) {
             val data = event.data.unsafeCast<Json>()
-            if (data["type"] != null && data["type"] == "prozen-request" ) {
+            if (data["type"] != null && data["type"] == "prozen-request") {
                 sendProzenData()
             }
         }
@@ -17,7 +17,7 @@ fun main() {
 }
 
 fun sendProzenData() {
-    val data = json (
+    val data = json(
         "type" to "prozen-data",
         "text" to window["_csrfToken"],
         "jsonData" to window["_data"]
