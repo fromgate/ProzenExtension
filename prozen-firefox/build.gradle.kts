@@ -40,7 +40,7 @@ tasks {
     val extensionZipFolder = "$rootDir/build/extension-zip"
 
     val copyProzenFiles = register<Copy>("copyProzenFiles") {
-        mustRunAfter(prozenBuild, ":prozen-firefox:jsBrowserDistribution")
+        mustRunAfter(prozenBuild)
         from("$rootDir/build/extension") // Используем файлы из prozen
         into(extensionFolder)
     }

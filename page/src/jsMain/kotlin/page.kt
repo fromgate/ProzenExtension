@@ -7,13 +7,16 @@ fun sendProzenData() {
     data.text = window.asDynamic()._csrfToken
     data.jsonData = window.asDynamic()._data
 
+    console.log("page.kt -  sednProzenData")
     window.postMessage(data, "*")
 }
 
 fun main() {
+    console.log("page.kt")
     sendProzenData()
 
     window.addEventListener("message", { event ->
+        console.log("page.kt -  event")
         val messageEvent = event as MessageEvent
         if (messageEvent.source != window) return@addEventListener
 
