@@ -1,4 +1,6 @@
 rootProject.name = "ProzenExtension"
-include(":prozen")
 include(":page")
+//include(":popup")
+//include(":types-chrome")
+include(":prozen")
 include(":prozen-firefox")

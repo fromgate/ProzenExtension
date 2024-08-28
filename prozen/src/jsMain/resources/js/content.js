@@ -140,7 +140,7 @@ function clickSearchButton(searchString) {
         prozenToken: token,
         prozenPublisherId: publisherId
     }, () => {
-        window.open(chrome.runtime.getURL("html/search.html"));
+        window.open(chrome.runtime.getURL("search.html"));
     });
 }
 
@@ -156,13 +156,13 @@ function clickFindSadRobots() {
         prozenToken: token,
         prozenPublisherId: publisherId
     }, () => {
-        window.open(chrome.runtime.getURL("html/sadrobot.html"));
+        window.open(chrome.runtime.getURL("sadrobot.html"));
     });
 }
 
 function clickTotalStatsButton() {
     chrome.storage.local.set({prozenToken: token, prozenPublisherId: publisherId}, function () {
-        window.open(chrome.runtime.getURL("html/totalstats.html"));
+        window.open(chrome.runtime.getURL("totalstats.html"));
     });
 }
 
