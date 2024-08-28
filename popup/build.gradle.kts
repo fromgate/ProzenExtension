@@ -11,7 +11,7 @@ kotlin {
                     enabled = true
                 }
                 distribution {
-                    outputDirectory = File("$rootDir/build/distributions/")
+                    outputDirectory = File("$rootDir/build/distributions/jsKt")
                 }
             }
         }
@@ -21,6 +21,9 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             kotlin.srcDir("src/jsMain/kotlin")
+            dependencies {
+                implementation(project(":types-chrome"))
+            }
         }
     }
 }
