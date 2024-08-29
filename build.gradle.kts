@@ -18,6 +18,19 @@ allprojects {
     }
 }
 
+
+/*
+
+
+fun extractVersionFromChangelog(file: File): String {
+
+
+    throw GradleException("Version not found in CHANGELOG.md")
+}
+
+val version = extractVersionFromChangelog(changelogFile)
+ */
+
 tasks.named("build") {
     //dependsOn(":prozen:packageExtension")
     dependsOn(":prozen-firefox:packageExtension")
