@@ -45,7 +45,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
         }
     }
 
-    suspend fun getLastPostCard(imgSize: String? = null): ChannelCard? {
+    suspend fun getLastPostCard(imgSize: String? = null): Card? {
         if (json == null) load()
         if (json == null) return null
         val items = json.unsafeCast<Json>().get("items") as? Array<dynamic> ?: return null
@@ -55,7 +55,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
         } ?: return null
         val type = item["type"] as? String
         return when (type) {
-            "card" -> ChannelCard(
+            "card" -> Card(
                 title = item["title"] as? String ?: "",
                 text = item["text"] as? String ?: "",
                 link = (item["link"] as? String)?.split("?")?.firstOrNull() ?: "",
@@ -64,7 +64,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
                     imgSize ?: "smart_crop_336x116"
                 )
             )
-            "brief" -> ChannelCard(
+            "brief" -> Card(
                 title = (item["rich_text"] as? Json)?.let { jsonToText(it) },
                 text = "",
                 link = item["share_link"] as? String ?: "",
@@ -95,4 +95,4 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
     }
 }
 
-data class ChannelCard(val title: String?, val text: String?, val link: String?, val imageUrl: String?)
+data class Card(val title: String?, val text: String?, val link: String?, val imageUrl: String?)
