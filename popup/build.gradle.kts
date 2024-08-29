@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     kotlin("multiplatform")
 }
@@ -23,6 +25,7 @@ kotlin {
             kotlin.srcDir("src/jsMain/kotlin")
             dependencies {
                 implementation(project(":types-chrome"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0-RC.2")
             }
         }
     }
