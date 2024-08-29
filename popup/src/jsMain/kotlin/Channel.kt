@@ -47,22 +47,12 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
     suspend fun getLastPostCard(imgSize: String? = null): ChannelCard? {
         if (json == null) load()
         if (json == null) return null
-
-        console.log("channel loaded")
-
-        // Получаем список элементов
         val items = json.unsafeCast<Json>().get("items") as? Array<dynamic> ?: return null
-        console.log("items: ${items.size}")
-
-        // Поиск подходящего элемента
         val item = items.firstOrNull { item ->
             val type = item["type"] as? String
             type == "card" || type == "brief"
         } ?: return null
-
         val type = item["type"] as? String
-        console.log("Item type: $type")
-
         return when (type) {
             "card" -> ChannelCard(
                 title = item["title"] as? String ?: "",
@@ -73,44 +63,35 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
                     imgSize ?: "smart_crop_336x116"
                 )
             )
-            /*
             "brief" -> ChannelCard(
-                title = jsonToText(item["rich_text"] as? Json),
+                title = (item["rich_text"] as? Json)?.let { jsonToText(it) },
                 text = "",
                 link = item["share_link"] as? String ?: "",
                 imageUrl = briefImage(item)
-            )*/
+            )
             else -> null
         }
     }
 
-
-
-
-    /*
-        suspend fun getLastPostCard(imgSize: String? = null): Card? {
-        if (json == null) {
-            load()
+    fun briefImage(item: Json): String? {
+        val items = item["items"] as? Array<dynamic> ?: return null
+        for (b in items) {
+            val block = b as Json
+            return (block["image"] as? Json)?.get("link") as String?
         }
-        if (json == null) {
-            return null
-        }
-
-        val item = json?.arr("items")?.find { item ->
-            item.jsonObject.string("type").let { it == "card" || it == "brief" }
-        }?.jsonObject ?: return null
-
-        return if (item.string("type") == "brief") Card(
-            title = item.obj("rich_text")?.obj("json")?.let { jsonToText(it) },
-            text = "",
-            link = item.string("share_link"),
-            imageUrl = briefImage(item)
-        ) else Card(
-
-        )
+        return null
     }
-     */
 
+    fun jsonToText (obj: Json): String? {
+        val items = obj as? Array<dynamic>
+        return items?.filter {
+            it["type"]== "text"
+        }?.joinToString { it["data"] ?: "" }
+            ?.replace("\r\n", " ")
+            ?.replace("\n", " ")
+            ?.replace("  ", "")
+            ?.trim()
+    }
 }
 
 data class ChannelCard(val title: String?, val text: String?, val link: String?, val imageUrl: String?)
