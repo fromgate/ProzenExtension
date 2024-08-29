@@ -5,6 +5,7 @@ import org.w3c.fetch.RequestInit
 import org.w3c.fetch.SAME_ORIGIN
 import kotlin.js.Json
 
+@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
 class Channel(private val id: String, private val useShortname: Boolean = false) {
 
     private var json: Json? = null
