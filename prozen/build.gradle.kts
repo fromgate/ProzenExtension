@@ -49,6 +49,7 @@ tasks.named("jsProcessResources", Copy::class) {
 tasks {
     val extensionFolder = "$rootDir/build/extension"
     val extensionZipFolder = "$rootDir/build/extension-zip"
+
     val updateManifest = register("updateManifest") {
         group = "build"
         description = "Updates manifest.json with the version from CHANGELOG.md"
