@@ -349,7 +349,6 @@ async function modifyStudioStyles() {
         sheetStr += ".editor--author-studio-dashboard__promoBanner-1U{display:none;}";
         sheetStr += ".editor--youtube-entrency-panel__root-2D{display:none;}";
     }
-
     if (sheetStr.length > 0) {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(sheetStr);

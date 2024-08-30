@@ -33,9 +33,9 @@ fun main() {
 fun initSwitches() {
     val switchElements = document.getElementsByClassName("switch-checkbox") as HTMLCollection;
     for (i in 0 until switchElements.length) {
-        val el = switchElements[i] as HTMLElement;
-        val switchId = el.id;
-        switchIds.add(switchId);
+        val el = switchElements[i] as HTMLElement
+        val switchId = el.id
+        switchIds.add(switchId)
         document.getElementById(switchId)?.addEventListener("click", {
             onCheckboxClick(switchId)
         });
@@ -43,7 +43,6 @@ fun initSwitches() {
 }
 
 fun onCheckboxClick(switchId: String) {
-    println("on checkbox click $switchId")
     setCheckbox(switchId, (document.getElementById(switchId) as HTMLInputElement).checked, true)
 }
 
