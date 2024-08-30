@@ -7,6 +7,8 @@ import org.w3c.dom.HTMLCollection
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
+import kotlin.js.Json
+import kotlin.js.json
 
 
 val OFF_BY_DEFAULT = listOf(
@@ -43,6 +45,7 @@ fun initSwitches() {
 }
 
 fun onCheckboxClick(switchId: String) {
+    println("on checkbox click $switchId")
     setCheckbox(switchId, (document.getElementById(switchId) as HTMLInputElement).checked, true)
 }
 
@@ -79,7 +82,7 @@ fun loadOptions() {
 }
 
 fun saveOptions() {
-    val options = mutableMapOf<String, Boolean>()
+    val options = json()
     switchIds.forEach { switchId ->
         options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
     }
