@@ -1,4 +1,3 @@
-import chrome.chrome
 import kotlinx.browser.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -7,7 +6,6 @@ import org.w3c.dom.HTMLCollection
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
-import kotlin.js.Json
 import kotlin.js.json
 
 
@@ -68,7 +66,7 @@ fun loadOptions() {
     chrome.storage.local.get(switchIds.toTypedArray()) { options ->
         var save = false
         switchIds.forEach { switchId ->
-            if (options.hasOwnProperty(switchId) as Boolean) {
+            if (options[switchId] as Boolean) {
                 setCheckbox(switchId, options[switchId] as Boolean)
             } else {
                 setCheckbox(switchId, !OFF_BY_DEFAULT.contains(switchId))

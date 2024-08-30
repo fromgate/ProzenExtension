@@ -45,7 +45,7 @@ function injectCssAndScript() {
         const script = createElement("script");
         script.setAttribute("type", "text/javascript");
         script.id = "prozen-page-script";
-        script.setAttribute("src", chrome.runtime.getURL("js/page.js"));
+        script.setAttribute("src", chrome.runtime.getURL("js/pageKt.js"));
         document.body.appendChild(script);
     }
     window.addEventListener("message", ReceiveProzenData);

@@ -69,7 +69,11 @@ tasks {
     }
 
     val copyBundleFile = register<Copy>("copyBundleFile") {
-        dependsOn(":page:jsBrowserDistribution", ":popup:jsBrowserDistribution", ":prozen:jsBrowserDistribution")
+        dependsOn(
+            ":page:jsBrowserDistribution",
+            ":popup:jsBrowserDistribution",
+            ":service-worker:jsBrowserDistribution",
+            ":prozen:jsBrowserDistribution")
         from("$rootDir/build/distributions/jsKt")
         into("$extensionFolder/js")
     }

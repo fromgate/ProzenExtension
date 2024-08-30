@@ -6,7 +6,7 @@ kotlin {
     js(IR) {
         browser {
             commonWebpackConfig {
-                outputFileName = "page.js"
+                outputFileName = "pageKt.js"
                 cssSupport {
                     enabled = true
                 }
