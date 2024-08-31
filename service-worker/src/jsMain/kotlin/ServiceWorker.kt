@@ -35,7 +35,7 @@ fun handleRequest(details: WebRequestHeadersDetails, messageType: String) {
     val urlParams = URLSearchParams(details.url)
     details.requestHeaders?.forEach { header ->
         when (header.name) {
-            "X-Csrf-Token" -> token = header.value as? String
+            "X-Csrf-Token" -> token = header.value
             "X-Prozen-Request" -> prozenRequest = true
         }
     }
