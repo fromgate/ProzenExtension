@@ -1,4 +1,3 @@
-import chrome.webRequest.HttpHeader
 import chrome.webRequest.RequestFilter
 import chrome.webRequest.WebRequestHeadersDetails
 import org.w3c.dom.url.URLSearchParams

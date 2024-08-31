@@ -64,12 +64,14 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
                     imgSize ?: "smart_crop_336x116"
                 )
             )
+
             "brief" -> Card(
                 title = (item["rich_text"] as? Json)?.let { jsonToText(it) },
                 text = "",
                 link = item["share_link"] as? String ?: "",
                 imageUrl = briefImage(item)
             )
+
             else -> null
         }
     }
@@ -83,10 +85,10 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
         return null
     }
 
-    fun jsonToText (obj: Json): String? {
+    fun jsonToText(obj: Json): String? {
         val items = obj as? Array<dynamic>
         return items?.filter {
-            it["type"]== "text"
+            it["type"] == "text"
         }?.joinToString { it["data"] ?: "" }
             ?.replace("\r\n", " ")
             ?.replace("\n", " ")
