@@ -64,7 +64,7 @@ fun main() {
             registerMainPageRequestListener()
         }
     }
-    chrome.runtime.onMessage.addListener { message, sender, sendResponse ->
+    chrome.runtime.onMessage.addListener { message, _, sendResponse ->
         @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
         if ((message as? Json)?.get("type") == "keepAlive") {
             sendResponse(json("status" to "Prozen Service worker is active"))
