@@ -23,22 +23,22 @@ fun main() {
 
     (document.getElementById("prozen-image") as? HTMLElement)?.style?.visibility = "hidden"
 
-    updateTranslation();
-    initSwitches();
-    loadOptions();
-    showLastPost();
+    updateTranslation()
+    initSwitches()
+    loadOptions()
+    showLastPost()
 
 }
 
 fun initSwitches() {
-    val switchElements = document.getElementsByClassName("switch-checkbox") as HTMLCollection;
+    val switchElements = document.getElementsByClassName("switch-checkbox")
     for (i in 0 until switchElements.length) {
         val el = switchElements[i] as HTMLElement
         val switchId = el.id
         switchIds.add(switchId)
         document.getElementById(switchId)?.addEventListener("click", {
             onCheckboxClick(switchId)
-        });
+        })
     }
 }
 
@@ -91,7 +91,7 @@ fun updateTranslation() {
     langs.forEach { key ->
         val element = document.getElementById(key)
         if (element != null) {
-            element.textContent = chrome.i18n.getMessage(key) ?: element.textContent
+            element.textContent = chrome.i18n.getMessage(key)
         }
     }
 }
