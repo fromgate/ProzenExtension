@@ -1,4 +1,5 @@
 rootProject.name = "ProzenExtension"
+include(":common")
 include(":page")
 include(":popup")
 include(":service-worker")

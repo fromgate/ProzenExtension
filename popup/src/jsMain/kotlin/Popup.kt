@@ -107,7 +107,7 @@ fun showLastPost() {
                 a?.setAttribute("href", "${lastPost.link}?utm_source=extension_popup")
                 val img = document.getElementById("prozen-post-image")
                 if (!lastPost.imageUrl.isNullOrEmpty()) {
-                    img?.setAttribute("src", lastPost.imageUrl)
+                    img?.setAttribute("src", lastPost.imageUrl as String)
                 } else {
                     val titleTextEl = document.getElementsByClassName("prozen-popup-title")[0]
                     titleTextEl.asDynamic().style["-webkit-line-clamp"] = "4"

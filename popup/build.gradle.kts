@@ -25,6 +25,7 @@ kotlin {
             kotlin.srcDir("src/jsMain/kotlin")
             dependencies {
                 implementation(project(":chrome"))
+                implementation(project(":common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0-RC.2")
             }
         }
