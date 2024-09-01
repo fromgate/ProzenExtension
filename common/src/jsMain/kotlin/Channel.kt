@@ -48,7 +48,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
     suspend fun getLastPostCard(imgSize: String? = null): Card? {
         if (json == null) load()
         if (json == null) return null
-        val items = json.unsafeCast<Json>().get("items") as? Array<dynamic> ?: return null
+        val items = json.unsafeCast<Json>()["items"] as? Array<dynamic> ?: return null
         val item = items.firstOrNull { item ->
             val type = item["type"] as? String
             type == "card" || type == "brief"
@@ -69,7 +69,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
                 title = (item["rich_text"] as? Json)?.let { jsonToText(it) },
                 text = "",
                 link = item["share_link"] as? String ?: "",
-                imageUrl = briefImage(item)
+                imageUrl = briefImage(item as Json)
             )
 
             else -> null
@@ -89,7 +89,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
         val items = obj as? Array<dynamic>
         return items?.filter {
             it["type"] == "text"
-        }?.joinToString { it["data"] ?: "" }
+        }?.joinToString { it["data"] as? CharSequence ?: "" }
             ?.replace("\r\n", " ")
             ?.replace("\n", " ")
             ?.replace("  ", "")
