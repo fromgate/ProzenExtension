@@ -1,8 +1,8 @@
+import chrome.browser.openTab
 import kotlinx.browser.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.w3c.dom.HTMLCollection
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
@@ -62,7 +62,19 @@ fun setCheckbox(switchId: String, switchState: Boolean, save: Boolean = false) {
 }
 
 fun loadOptions() {
-    chrome.storage.local.get(switchIds.toTypedArray()) { options ->
+    Options.load().then { options ->
+        switchIds.forEach { switchId ->
+            var save = false
+            val value = options[switchId] ?: {
+                save = true
+                OPTIONS.getValueOrDefault(switchId, false)
+            }
+            setCheckbox(switchId, value as Boolean, false)
+            if (save) saveOptions()
+        }
+    }
+
+    /* chrome.storage.local.get(switchIds.toTypedArray()) { options ->
         var save = false
         switchIds.forEach { switchId ->
             if (options[switchId] as Boolean) {
@@ -75,15 +87,20 @@ fun loadOptions() {
         if (save) {
             saveOptions()
         }
-    }
+    } */
 }
 
 fun saveOptions() {
-    val options = json()
+    val options = mutableMapOf<String, Boolean>()
     switchIds.forEach { switchId ->
         options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
     }
-    chrome.storage.local.set(options)
+    Options.save(options)
+    /* val options = json()
+    switchIds.forEach { switchId ->
+        options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
+    }
+    chrome.storage.local.set(options)*/
 }
 
 fun updateTranslation() {
