@@ -1,4 +1,3 @@
-import chrome.browser.openTab
 import kotlinx.browser.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -6,8 +5,6 @@ import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
-import kotlin.js.json
-
 
 val OFF_BY_DEFAULT = listOf(
     "prozen-realtime-switch",
@@ -46,7 +43,6 @@ fun onCheckboxClick(switchId: String) {
     setCheckbox(switchId, (document.getElementById(switchId) as HTMLInputElement).checked, true)
 }
 
-
 fun setCheckbox(switchId: String, switchState: Boolean, save: Boolean = false) {
     val switchEl = document.getElementById(switchId) as HTMLInputElement
     switchEl.checked = switchState
@@ -67,7 +63,7 @@ fun loadOptions() {
             var save = false
             val value = options[switchId] ?: {
                 save = true
-                OPTIONS.getValueOrDefault(switchId, false)
+                OPTIONS.getValueOrDefault(switchId, true)
             }
             setCheckbox(switchId, value as Boolean, false)
             if (save) saveOptions()

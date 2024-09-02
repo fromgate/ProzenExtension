@@ -1,32 +1,31 @@
 import kotlin.js.Promise
 import kotlin.js.json
 
-enum class OPTIONS(val id: String, val disableByDefault: Boolean = true) {
+enum class OPTIONS(val id: String, val defaultValue: Boolean = true) {
     prozen("prozen-switch"),
     shortDashboardRealtime("prozen-realtime-switch"),
     prozenMenu("prozen-menu-switch"),
     informer("prozen-informer-switch"),
-    subtitleLinks("prozen-article-link-switch2", true),
-    commentsWidget("prozen-comments-switch2", true),
-    promoteShow("prozen-promote-show", true);
+    subtitleLinks("prozen-article-link-switch2", false),
+    commentsWidget("prozen-comments-switch2", false),
+    promoteShow("prozen-promote-show", false);
 
-    fun getValueOrDefault(value: Boolean?) = value ?: disableByDefault
+    fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 
     companion object {
         fun getIds(): List<String> = entries.map { it.id }
         fun getById(id: String): OPTIONS? = entries.firstOrNull { it.id == id }
-        fun disabledByDefault(id: String) = getById(id)?.disableByDefault ?: false
+        fun defaultValue(id: String) = getById(id)?.defaultValue ?: true
         fun getValueOrDefault(id: String, value: Boolean?): Boolean {
-            return getById(id)?.getValueOrDefault(value) ?: false
+            return getById(id)?.getValueOrDefault(value) ?: true
         }
-
     }
 }
 
 object Options {
     fun get(optionId: String): Promise<Boolean> = Promise { resolve, _ ->
         chrome.storage.local.get(OPTIONS.getIds().toTypedArray()) { option ->
-            resolve(option[optionId] as Boolean? ?: OPTIONS.disabledByDefault(optionId))
+            resolve(option[optionId] as Boolean? ?: OPTIONS.defaultValue(optionId))
         }
     }
 
@@ -46,7 +45,7 @@ object Options {
             chrome.storage.local.get(OPTIONS.getIds().toTypedArray()) { options ->
                 val result = mutableMapOf<String, Boolean>()
                 OPTIONS.getIds().forEach {
-                    result[it] = options[it] as Boolean? ?: OPTIONS.disabledByDefault(it)
+                    result[it] = options[it] as Boolean? ?: OPTIONS.defaultValue(it)
                 }
                 resolve(result)
             }
