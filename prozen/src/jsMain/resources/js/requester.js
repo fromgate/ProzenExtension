@@ -17,7 +17,7 @@ class Requester {
 
     // TODO перенести все методы в класс
 }
-
+// [x]
 // https://zen.yandex.ru/editor-api/v2/id/60034fda05966372926b1a79/money
 async function getSideBlockData() {
     debugger
@@ -36,6 +36,7 @@ async function getSideBlockData() {
     return result;
 }
 
+// [+]
 /**
  * SCR — Subscribers Coverage Rate
  *
@@ -60,7 +61,7 @@ async function getSCR(from, to) {
     return numFormat(scr, 2);
 }
 
-//
+// [+]
 /**
  *
  * @param from начальная дата в формате YYYY-MM-DD
@@ -90,6 +91,7 @@ async function getTimespentRewards(from, to) {
     return rewards;
 }
 
+// [?]
 // TODO перенести все запросы в класс
 async function getBalanceAndMetriksId() {
     const result = {money: null, total: null, balanceDate: null, metriksId: null};
@@ -124,6 +126,7 @@ async function getBalanceAndMetriksId() {
 
 }
 
+// [+]
 async function getStrikesInfo() {
     const requestUrl = `https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=${publisherId}&language=ru`;
     const response = await request(requestUrl);
@@ -131,6 +134,7 @@ async function getStrikesInfo() {
     return {channelRestricted: data.channelRestricted, limitations: data.limitations.length};
 }
 
+// [-]
 function getStatsInfoAndCounter() {
     const publicationTypes = ["article", "gif", "gallery", "brief", "live"];
     const promises = [];
@@ -152,6 +156,7 @@ function getStatsInfoAndCounter() {
     return Promise.all(promises);
 }
 
+// [+]
 function getStatsActuality() {
     const requestUrl = `https://dzen.ru/editor-api/v2/publisher/${publisherId}/stats2?fields=views&publicationTypes=article&publisherId=${publisherId}&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0`;
     return new Promise(resolve => {

@@ -13,20 +13,6 @@ val OFF_BY_DEFAULT = listOf(
 )
 val switchIds = mutableListOf<String>();
 
-fun main() {
-    val versionElement = document.getElementById("extver")
-    val extensionVersion = chrome.runtime.getManifest().version
-    versionElement?.textContent = versionElement?.textContent?.replace("1.0.0", extensionVersion)
-
-    (document.getElementById("prozen-image") as? HTMLElement)?.style?.visibility = "hidden"
-
-    updateTranslation()
-    initSwitches()
-    loadOptions()
-    showLastPost()
-
-}
-
 fun initSwitches() {
     val switchElements = document.getElementsByClassName("switch-checkbox")
     for (i in 0 until switchElements.length) {
@@ -63,7 +49,7 @@ fun loadOptions() {
             var save = false
             val value = options[switchId] ?: {
                 save = true
-                OPTIONS.getValueOrDefault(switchId, true)
+                Option.getValueOrDefault(switchId, true)
             }
             setCheckbox(switchId, value as Boolean, false)
             if (save) saveOptions()
@@ -131,4 +117,18 @@ fun showLastPost() {
             (document.getElementById("prozen-image") as? HTMLElement)?.style?.visibility = "visible"
         }
     }, 0)
+}
+
+fun main() {
+    val versionElement = document.getElementById("extver")
+    val extensionVersion = chrome.runtime.getManifest().version
+    versionElement?.textContent = versionElement?.textContent?.replace("1.0.0", extensionVersion)
+
+    (document.getElementById("prozen-image") as? HTMLElement)?.style?.visibility = "hidden"
+
+    updateTranslation()
+    initSwitches()
+    loadOptions()
+    showLastPost()
+
 }
