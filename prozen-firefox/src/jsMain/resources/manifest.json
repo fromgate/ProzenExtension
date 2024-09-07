@@ -63,26 +63,13 @@
     },
     {
       "js": [
-        "js/options.js",
-        "js/tools.js",
-        "js/requester.js",
-        "js/publication.js"
+        "js/contentKt.js"
       ],
       "matches": [
-        "https://dzen.ru/media/*",
-        "https://dzen.ru/a/*"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "js": [
-        "js/options.js",
-        "js/tools.js",
-        "js/requester.js",
-        "js/video_watch.js"
-      ],
-      "matches": [
-        "https://dzen.ru/video/watch/*"
+        "https://dzen.ru/a/*",
+        "https://dzen.ru/b/*",
+        "https://dzen.ru/video/*",
+        "https://dzen.ru/shorts/*"
       ],
       "run_at": "document_end"
     }
