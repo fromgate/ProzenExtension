@@ -2,6 +2,7 @@ package publication
 
 import common.Requester
 import common.checkNoIndex
+import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
 import kotlinx.html.dom.create
@@ -11,7 +12,6 @@ import kotlinx.html.title
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLMetaElement
-import org.w3c.dom.HTMLSpanElement
 
 class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
 
@@ -46,7 +46,7 @@ class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester
         infoBlock?.appendChild(dateBlock)
 
         val viewsBlock = document.create.span {
-            +"📺 ${stats.views}"
+            +"📺 ${stats.views?.format()}"
             title = "Просмотры"
             style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
         }

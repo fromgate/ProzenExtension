@@ -65,5 +65,6 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) {
             showStats()
         }
     }
+
     abstract fun showStats()
 }

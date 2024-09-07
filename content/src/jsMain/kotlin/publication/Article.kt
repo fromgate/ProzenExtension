@@ -3,6 +3,7 @@ package publication
 import kotlinx.serialization.json.JsonObject
 import common.Requester
 import common.copyTextToClipboard
+import common.format
 import common.removeChildren
 import kotlinx.browser.document
 import kotlinx.html.dom.create
@@ -21,7 +22,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
             document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]") as? HTMLDivElement
         infoBlock?.removeChildren()
         val dateBlock = document.create.div("article-info-block__addTimeInfo-25") {
-            +"🕑 ${stats!!.showTime()}"
+            +"🕑 ${stats.showTime()}"
             title = "Время создания (редактирования)"
             attributes["itemprop"] = "datePublished"
         }
@@ -29,14 +30,14 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
 
         if (stats.views != stats.viewsTillEnd) {
             val viewsBlock = document.create.div("article-info-block__viewsInfo-1g") {
-                +"📃 ${stats.views}"
+                +"📃 ${stats.views?.format()}"
                 title = "Просмотры"
             }
             infoBlock?.appendChild(viewsBlock)
         }
 
         val viewsTillEndBlock = document.create.div("article-info-block__viewsInfo-1g") {
-            +"📄 ${stats.viewsTillEnd}"
+            +"📄 ${stats.viewsTillEnd?.format()}"
             title = "Дочитывания"
         }
         infoBlock?.appendChild(viewsTillEndBlock)
@@ -45,7 +46,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
             +"🔗"
             title = SHORT_LINK_TITLE
             onClickFunction = {
-                copyTextToClipboard (stats!!.shortLink)
+                copyTextToClipboard(stats.shortLink)
             }
             style = "cursor: pointer;"
         }
@@ -58,6 +59,5 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
             }
             infoBlock?.appendChild(sadRobotBlock)
         }
-
     }
 }

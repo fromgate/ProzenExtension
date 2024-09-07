@@ -1,0 +1,6 @@
+package studio
+
+class Studio () {
+
+
+}

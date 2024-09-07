@@ -9,6 +9,7 @@ import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.Event
 import PageType.*
 import common.Requester
+import common.getZenObject
 import common.obj
 import common.string
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -71,6 +72,10 @@ fun onProzenData(e: Event) {
         publisherId = prozenData.jsonData?.obj("publisher")?.string("id")
     }
 
+    if (publisherId == null) {
+        publisherId = getZenObject()?.first
+    }
+
     requester = Requester(publisherId, token)
 
     val pageType = getPageType()
@@ -87,11 +92,22 @@ fun onProzenData(e: Event) {
             Video(requester!!, data!!).run()
         }
 
-        SHORT -> { Shorts (requester!!, data!!).run() }
+        SHORT -> {
+            Shorts(requester!!, data!!).run()
+        }
 
-        MAIN, PUBLICATIONS -> {}
+        MAIN -> {
+            console.log("Studio -> Main")
+        }
 
-        else -> {console.log("Unused page type $pageType")}
+        PUBLICATIONS -> {
+            console.log("Studio -> Publications")
+        }
+
+        else -> {
+            // DO NOTHING
+            console.log("Unused page type $pageType")
+        }
     }
 
 }

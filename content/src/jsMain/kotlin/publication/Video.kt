@@ -2,6 +2,7 @@ package publication
 
 import common.Requester
 import common.checkNoIndex
+import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
 import kotlinx.html.dom.create
@@ -51,7 +52,7 @@ class Video(requester: Requester, data: JsonObject) : PublicationPage(requester,
         infoBlock?.appendChild(dateBlock)
 
         val viewsBlock = document.create.span("card-channel-info__description-meta") {
-            +"📺 ${stats.views}"
+            +"📺 ${stats.views?.format()}"
             title = "Просмотры"
             style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
         }
