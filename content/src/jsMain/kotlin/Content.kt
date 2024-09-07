@@ -8,6 +8,16 @@ import org.w3c.dom.HTMLScriptElement
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.Event
 import PageType.*
+import common.Requester
+import common.obj
+import common.string
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.decodeFromDynamic
+import org.w3c.dom.Window
+import publication.Article
+import publication.Brief
+import publication.Shorts
+import publication.Video
 
 var token: String? = null
 var data: JsonObject? = null
@@ -40,75 +50,67 @@ fun injectCssAndScript() {
     window.addEventListener("message", ::onProzenData)
 }
 
-/*
-function ReceiveProzenData(event) {
-    if (event.source !== window) {
-        return;
-    }
-    if (event.data.type && (event.data.type === "prozen-data")) {
-        token = event.data.text;
-        data = event.data.jsonData;
-        publisherId = event.data.jsonData.publisher.id;
-        const pageType = getPageType();
-        if (pageType === "main" || pageType === "publications") {
-            getBalanceAndMetriksId().then(result => {
-                metriksId = result.metriksId;
-                moneyTotal = result.total;
-                moneySaldo = result.money;
-                moneyDate = result.balanceDate;
-                main(publisherId);
-            });
-        } else {
-            main(publisherId);
-        }
-    }
-}
- */
-
+@OptIn(ExperimentalSerializationApi::class)
 fun onProzenData(e: Event) {
     val event = e as? MessageEvent ?: return
-    if (event.source != window) return
 
-    try {
-        val prozenData = Json.decodeFromString<ProzenData>(event.data.toString())
-        // Проверяем тип сообщения
-        if (prozenData.type == "prozen-data") {
-            token = prozenData.text
-            data = prozenData.jsonData
-            publisherId = prozenData.jsonData.obj("publisher")?.string("id")
-            if (token != null && publisherId != null) {
-                requester = Requester(publisherId!!, token!!)
-            }
+    if (event.source !is Window || event.source != window) return
 
-            val pageType = getPageType()
-            console.log(pageType)
+    val eventData = event.data.asDynamic()
+    if (eventData.type != "prozen-data") return
 
-            when (pageType) {
-                MAIN, PUBLICATIONS -> {}
-                ARTICLE, BRIEF, VIDEO, SHORT -> {}
-                else -> {}
-            }
-            /*
-            val pageType = getPageType()
-            if (pageType == "main" || pageType == "publications") {
-                getBalanceAndMetriksId().then { result ->
-                    metriksId = result.metriksId
-                    moneyTotal = result.total
-                    moneySaldo = result.money
-                    moneyDate = result.balanceDate
-
-                    main(publisherId)
-                }
-            } else {
-                main(publisherId)
-            } */
-        }
+    val prozenData = try {
+        Json.decodeFromDynamic<ProzenData>(event.data)
     } catch (e: Exception) {
-        console.error("Error parsing message data: ${e.message}")
+        null
     }
 
+    if (prozenData?.type == "prozen-data") {
+        token = prozenData.text
+        data = prozenData.jsonData
+        publisherId = prozenData.jsonData?.obj("publisher")?.string("id")
+    }
+
+    requester = Requester(publisherId, token)
+
+    val pageType = getPageType()
+    when (pageType) {
+        ARTICLE -> {
+            Article(requester!!, data!!).run()
+        }
+
+        BRIEF -> {
+            Brief(requester!!, data!!).run()
+        }
+
+        VIDEO -> {
+            Video(requester!!, data!!).run()
+        }
+
+        SHORT -> { Shorts (requester!!, data!!).run() }
+
+        MAIN, PUBLICATIONS -> {}
+
+        else -> {console.log("Unused page type $pageType")}
+    }
 
 }
+
+
+/*
+val pageType = getPageType()
+if (pageType == "main" || pageType == "publications") {
+    getBalanceAndMetriksId().then { result ->
+        metriksId = result.metriksId
+        moneyTotal = result.total
+        moneySaldo = result.money
+        moneyDate = result.balanceDate
+
+        main(publisherId)
+    }
+} else {
+    main(publisherId)
+} */
 
 fun getPageType(): PageType {
     val path = window.location.pathname
@@ -134,13 +136,12 @@ fun getPageType(): PageType {
 
 
 fun main() {
-
-
+    injectCssAndScript()
 }
 
 @Serializable
 data class ProzenData(
     val type: String,
     val text: String,
-    val jsonData: JsonObject
+    val jsonData: JsonObject?
 )

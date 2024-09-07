@@ -1,3 +1,5 @@
+package common
+
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -6,16 +8,20 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 
-class Requester(private val publisherId: String, private val token: String) {
+class Requester(private val publisherId: String?, private val token: String?) {
 
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
     }
+
+    fun hasToken(): Boolean = this.token != null
+    fun hasPublisherId(): Boolean = this.publisherId != null
 
     val defaultHeaders: HeadersBuilder.() -> Unit = {
         append(
@@ -28,7 +34,9 @@ class Requester(private val publisherId: String, private val token: String) {
             "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":96},\"need_background_image\":true,\"color_theme\":\"white\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"subscribers\",\"blocked_suggest\",\"video_recommend\",\"language\",\"send_app_link_sms\",\"comments_counter\",\"social_profile\",\"social_activity_feed\",\"social_profile_edit\",\"social_interests_feedback\",\"profile_onboarding_shown\",\"profile_complete_onboarding\",\"profile_deactivate\",\"profile_cancel_deactivate\"],\"stat_params_with_context\":true,\"card_types\":[\"post\"]}"
         )
         append("X-Prozen-Request", "kot")
-        append("X-Csrf-Token", token)
+        if (token != null) {
+            append("X-Csrf-Token", token)
+        }
     }
 
 
@@ -107,8 +115,7 @@ class Requester(private val publisherId: String, private val token: String) {
     }
 
 
-
-    suspend fun loadPublicationStat(publicationId: String): Stats? {
+    suspend fun getPublicationStat(publicationId: String): Stats? {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
         return getData(requestUrl)
     }
@@ -174,4 +181,6 @@ class Requester(private val publisherId: String, private val token: String) {
 }
  */
 
+
+@Serializable
 data class Stats(val publicationId: String, val views: Int, val viewsTillEnd: Int)

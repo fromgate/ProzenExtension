@@ -1,3 +1,5 @@
+package common
+
 import kotlin.js.Promise
 import kotlin.js.json
 

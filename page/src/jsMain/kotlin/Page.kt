@@ -19,8 +19,8 @@ fun main() {
 fun sendProzenData() {
     val data = json(
         "type" to "prozen-data",
-        "text" to window["_csrfToken"],
-        "jsonData" to window["_data"]
+        "text" to (window["_csrfToken"] ?: ""),
+        "jsonData" to (window["_data"] ?: "{}")
     )
     window.postMessage(data, "*")
 }

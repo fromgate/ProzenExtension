@@ -1,4 +1,5 @@
 import kotlinx.datetime.Instant
+import common.Requester
 
 class Informer (val requester: Requester) {
 

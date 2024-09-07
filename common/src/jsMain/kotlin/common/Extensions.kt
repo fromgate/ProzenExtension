@@ -1,8 +1,10 @@
+package common
+
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
+import org.w3c.dom.HTMLElement
 import kotlin.js.json
 
 
@@ -38,7 +40,7 @@ fun Instant.toDateString(timeZone: TimeZone = TimeZone.of("Europe/Moscow")): Str
 }
 
 fun Long.toInstant(): Instant {
-    return Instant.fromEpochSeconds(this)
+    return Instant.fromEpochMilliseconds(this)
 }
 
 fun Instant.toStringDDMMYY(): String {
@@ -47,4 +49,18 @@ fun Instant.toStringDDMMYY(): String {
     val month = dateTime.monthNumber.toString().padStart(2, '0')
     val year = dateTime.year.toString().takeLast(2)
     return "$day.$month.$year"
+}
+
+fun Instant.toStringDDMMYYYYHHMM(): String {
+    val dateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
+    val day = dateTime.dayOfMonth.toString().padStart(2, '0')
+    val month = dateTime.monthNumber.toString().padStart(2, '0')
+    val year = dateTime.year.toString()
+    val hours = dateTime.hour.toString().padStart(2, '0')
+    val minutes = dateTime.minute.toString().padStart(2, '0')
+    return "$day.$month.$year $hours:$minutes"
+}
+
+fun HTMLElement.removeChildren() {
+    this.asDynamic().replaceChildren()
 }

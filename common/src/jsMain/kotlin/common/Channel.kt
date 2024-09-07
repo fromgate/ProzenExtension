@@ -1,3 +1,5 @@
+package common
+
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import org.w3c.fetch.RequestCredentials

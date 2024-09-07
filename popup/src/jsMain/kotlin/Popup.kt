@@ -5,6 +5,9 @@ import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
+import common.Channel
+import common.Option
+import common.Options
 
 val OFF_BY_DEFAULT = listOf(
     "prozen-realtime-switch",
