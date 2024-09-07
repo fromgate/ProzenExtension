@@ -1,17 +1,16 @@
 package publication
 
+import common.*
+import common.Option
 import kotlinx.serialization.json.JsonObject
-import common.Requester
-import common.copyTextToClipboard
-import common.format
-import common.removeChildren
 import kotlinx.browser.document
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.js.span
 import kotlinx.html.style
 import kotlinx.html.title
-import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.*
 
 
 class Article(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
@@ -58,6 +57,39 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                 title = NO_INDEX_TITLE
             }
             infoBlock?.appendChild(sadRobotBlock)
+        }
+
+        addSubtitleLinks()
+    }
+
+
+    fun addSubtitleLinks() {
+        Option.SUBTITLE_LINKS.value().then { option ->
+            if (option) {
+                val shortLink = (document.head!!.querySelector("link[rel=canonical][href]") as HTMLLinkElement).href
+                val headers = document.querySelectorAll("h2, h3")
+                headers.asList().forEach {
+                    val header = it as HTMLHeadingElement
+                    val anchorId = header.id
+                    val linkIcon = document.create.span ("publication_header_icon_url"){
+                        title = "Ссылка на заголовок.\n" +
+                                "Кликните, чтобы скопировать её в буфер обмена"
+                        onClickFunction = {
+                            copyTextToClipboard("$shortLink#$anchorId")
+                        }
+                    }
+                    if (header.hasChildNodes()) {
+                        header.insertBefore(linkIcon, header.firstChild)
+                    } else {
+                        val text = header.innerText
+                        header.innerText = ""
+                        header.appendChild(linkIcon)
+                        header.appendChild(document.create.span {
+                            +text
+                        })
+                    }
+                }
+            }
         }
     }
 }

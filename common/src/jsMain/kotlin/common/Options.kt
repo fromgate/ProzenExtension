@@ -14,6 +14,8 @@ enum class Option(val id: String, val defaultValue: Boolean = true) {
 
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 
+    fun value() = Options.get(this.id)
+
     companion object {
         fun getIds(): List<String> = entries.map { it.id }
         fun getById(id: String): Option? = entries.firstOrNull { it.id == id }
@@ -30,6 +32,8 @@ object Options {
             resolve(option[optionId] as Boolean? ?: Option.defaultValue(optionId))
         }
     }
+
+    fun get(option: Option) = get(option.id)
 
     fun set(optionId: String, value: Boolean) {
         load().then { loadedOptions ->
