@@ -1,3 +1,4 @@
+import common.*
 import kotlinx.browser.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -5,9 +6,6 @@ import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.get
-import common.Channel
-import common.Option
-import common.Options
 
 val OFF_BY_DEFAULT = listOf(
     "prozen-realtime-switch",
@@ -58,21 +56,6 @@ fun loadOptions() {
             if (save) saveOptions()
         }
     }
-
-    /* chrome.storage.local.get(switchIds.toTypedArray()) { options ->
-        var save = false
-        switchIds.forEach { switchId ->
-            if (options[switchId] as Boolean) {
-                setCheckbox(switchId, options[switchId] as Boolean)
-            } else {
-                setCheckbox(switchId, !OFF_BY_DEFAULT.contains(switchId))
-                save = true
-            }
-        }
-        if (save) {
-            saveOptions()
-        }
-    } */
 }
 
 fun saveOptions() {
@@ -81,21 +64,6 @@ fun saveOptions() {
         options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
     }
     Options.save(options)
-    /* val options = json()
-    switchIds.forEach { switchId ->
-        options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
-    }
-    chrome.storage.local.set(options)*/
-}
-
-fun updateTranslation() {
-    val langs = listOf("popupPrivacyPolicy")
-    langs.forEach { key ->
-        val element = document.getElementById(key)
-        if (element != null) {
-            element.textContent = chrome.i18n.getMessage(key)
-        }
-    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -126,12 +94,9 @@ fun main() {
     val versionElement = document.getElementById("extver")
     val extensionVersion = chrome.runtime.getManifest().version
     versionElement?.textContent = versionElement?.textContent?.replace("1.0.0", extensionVersion)
-
     (document.getElementById("prozen-image") as? HTMLElement)?.style?.visibility = "hidden"
-
-    updateTranslation()
+    updateTranslations()
     initSwitches()
     loadOptions()
     showLastPost()
-
 }

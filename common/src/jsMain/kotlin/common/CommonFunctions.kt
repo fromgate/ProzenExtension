@@ -5,6 +5,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.promise
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.asList
 import kotlin.js.Promise
@@ -48,4 +49,15 @@ fun <T> runPromise(block: suspend () -> T): Promise<T> = GlobalScope.promise {
 
 fun copyTextToClipboard(text: String) {
     window.navigator.clipboard.writeText(text)
+}
+
+fun updateTranslations() {
+    document.querySelectorAll("[data-i18n]")
+        .asList()
+        .forEach {
+            val element = it as HTMLElement
+            element.getAttribute("data-i18n")?.let { langKey ->
+                element.textContent = chrome.i18n.getMessage(langKey)
+            }
+        }
 }
