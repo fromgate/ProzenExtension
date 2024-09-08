@@ -57,7 +57,7 @@ fun updateTranslations() {
         .forEach {
             val element = it as HTMLElement
             element.getAttribute("data-i18n")?.let { langKey ->
-                element.textContent = chrome.i18n.getMessage(langKey)
+                element.innerText = chrome.i18n.getMessage(langKey)
             }
         }
 }
