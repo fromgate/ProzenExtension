@@ -1,5 +1,6 @@
 package publication
 
+import ContentRunner
 import common.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.coroutines.GlobalScope
@@ -16,7 +17,7 @@ const val NO_INDEX_TITLE = "Обнаружен мета-тег <meta name=\"robo
         "официально не подтверждена."
 const val SHORT_LINK_TITLE = "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена."
 
-abstract class PublicationPage(val requester: Requester, val data: JsonObject) {
+abstract class PublicationPage(val requester: Requester, val data: JsonObject) : ContentRunner {
     val channelId: String
     val publicationId: String
 
@@ -59,7 +60,7 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun run() {
+    override fun run() {
         GlobalScope.launch {
             getStats()
             showStats()

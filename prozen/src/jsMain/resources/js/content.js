@@ -21,14 +21,8 @@ async function start() {
     if (await getOption(OPTIONS.prozen) === false) {
         return;
     }
-    keepServiceWorkerAlive();
-    setInterval(keepServiceWorkerAlive, 25000);
     listenToRequests();
     injectCssAndScript();
-}
-
-function keepServiceWorkerAlive() {
-    chrome.runtime.sendMessage({ type: "keepAlive" }, () => {});
 }
 
 function injectCssAndScript() {

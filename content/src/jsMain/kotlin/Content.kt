@@ -19,6 +19,7 @@ import publication.Article
 import publication.Brief
 import publication.Shorts
 import publication.Video
+import kotlin.js.json
 
 var token: String? = null
 var data: JsonObject? = null
@@ -79,37 +80,37 @@ fun onProzenData(e: Event) {
     requester = Requester(publisherId, token)
 
     val pageType = getPageType()
-    when (pageType) {
+
+    val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {
-            Article(requester!!, data!!).run()
+            Article(requester!!, data!!)
         }
 
         BRIEF -> {
-            Brief(requester!!, data!!).run()
+            Brief(requester!!, data!!)
         }
 
         VIDEO -> {
-            Video(requester!!, data!!).run()
+            Video(requester!!, data!!)
         }
 
         SHORT -> {
-            Shorts(requester!!, data!!).run()
+            Shorts(requester!!, data!!)
         }
 
         MAIN -> {
             console.log("Studio -> Main")
+            null
         }
 
         PUBLICATIONS -> {
             console.log("Studio -> Publications")
+            null
         }
 
-        else -> {
-            // DO NOTHING
-            console.log("Unused page type $pageType")
-        }
+        else -> { null }
     }
-
+    contentRunner?.run()
 }
 
 
@@ -130,7 +131,7 @@ if (pageType == "main" || pageType == "publications") {
 
 fun getPageType(): PageType {
     val path = window.location.pathname
-    return when {
+    val pageType = when {
         path.startsWith("/profile/editor/") -> when {
             path.contains("/money/") -> MONEY
             path.endsWith("/publications") -> PUBLICATIONS
@@ -148,10 +149,20 @@ fun getPageType(): PageType {
 
         else -> UNKNOWN
     }
+    return pageType
+}
+
+fun keepServiceWorkerAlive() {
+    chrome.runtime.sendMessage(json("type" to "keepAlive"))
 }
 
 
 fun main() {
+    keepServiceWorkerAlive()
+    window.setInterval({ keepServiceWorkerAlive() }, 25000)
+
+    // listenToRequests()
+
     injectCssAndScript()
 }
 

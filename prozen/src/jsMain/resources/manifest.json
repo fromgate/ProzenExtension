@@ -46,7 +46,8 @@
         "js/tools.js",
         "js/options.js",
         "js/requester.js",
-        "js/content.js"
+        "js/content.js",
+        "js/contentKt.js"
       ],
       "matches": [
         "https://dzen.ru/profile/editor/*"
