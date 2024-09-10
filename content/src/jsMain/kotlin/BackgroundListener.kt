@@ -13,11 +13,12 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
         if (requestType in serviceRequests) {
             when (pageType) {
                 MAIN -> {
-
                     val pageSize = (request.pageSize as? String)?.toIntOrNull() ?: 0
                     processDashboardCards(pageSize)
                 }
-                PUBLICATIONS -> processPublicationsCards(request)
+                PUBLICATIONS -> {
+                    processPublicationsCards(request)
+                }
                 else -> console.log("Unknown page type")
             }
         }
