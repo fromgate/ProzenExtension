@@ -11,13 +11,24 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
         token = request.token as? String
         val pageType = getPageType()
         if (requestType in serviceRequests) {
+            val serviceMessage = ServiceMessage(
+                type = request.type as? String,
+                url = request.url as? String,
+                publicationIdAfter = request.publicationIdAfter as? String,
+                publisherId = request.publisherId as? String,
+                pageSize = (request.pageSize as? String)?.toIntOrNull(),
+                types = request.types as? String,
+                view = request.view as? String,
+                query = request.query as? String,
+                token = request.token as? String
+            )
+
             when (pageType) {
                 MAIN -> {
-                    val pageSize = (request.pageSize as? String)?.toIntOrNull() ?: 0
-                    processDashboardCards(pageSize)
+                    processDashboardCards(serviceMessage.pageSize ?: 0)
                 }
                 PUBLICATIONS -> {
-                    processPublicationsCards(request)
+                    processPublicationsCards(serviceMessage)
                 }
                 else -> console.log("Unknown page type")
             }
@@ -38,10 +49,9 @@ fun listenToRequests() {
 
 fun processDashboardCards(pageSize: Int) {
     console.log("processDashboardCards")
-
 }
 
-fun processPublicationsCards(request: dynamic) {
-    console.log("processPublicationsCards")
+fun processPublicationsCards(serviceMessage: ServiceMessage) {
+    console.log("processPublicationsCards with message: $serviceMessage")
 }
 
