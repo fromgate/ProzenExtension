@@ -95,4 +95,41 @@ fun updateTranslations() {
         }
 }
 
+fun paucalYear(num: Int): String {
+    return paucal(num, "год", "года", "лет")
+}
 
+fun paucalMonth(num: Int): String {
+    return paucal(num, "месяц", "месяца", "месяцев")
+}
+
+fun paucalDay(num: Int): String {
+    return paucal(num, "день", "дня", "дней")
+}
+
+/**
+ * Возвращает строку, представляющую числительное с правильной формой существительного.
+ *
+ * @param num Число, для которого требуется получить правильную форму существительного.
+ * @param p1 Форма существительного для числа 1 (например, "год").
+ * @param p234 Форма существительного для чисел, оканчивающихся на 2, 3, 4 (например, "года").
+ * @param p Общая форма существительного для всех остальных случаев (например, "лет").
+ * @return Строка в формате "{num} {правильная форма существительного}".
+ *
+ * Пример:
+ * - paucal(1, "год", "года", "лет") -> "1 год"
+ * - paucal(2, "год", "года", "лет") -> "2 года"
+ * - paucal(5, "год", "года", "лет") -> "5 лет"
+ */
+fun paucal(num: Int, p1: String, p234: String, p: String): String {
+    val numStr = num.format()
+    val n = num % 100
+    return when {
+        n in 11..19 -> "$numStr $p"
+        else -> when (num % 10) {
+            1 -> "$numStr $p1"
+            2, 3, 4 -> "$numStr $p234"
+            else -> "$numStr $p"
+        }
+    }
+}

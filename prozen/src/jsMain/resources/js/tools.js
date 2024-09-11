@@ -1,14 +1,5 @@
 const DEBUG = false;
 
-/**
- * @deprecated Dzen doesn't use publisherId and publicationId in publication URL anymore. Use zenObjectId meta instead.
- */
-function getPostIdFromUrl(link) {
-    const url = link.endsWith("/") ? link.substring(0, link.length - 1) : link;
-    const ln = url.replace("?from=editor", "").split(url.includes("-") ? "-" : "/");
-    return ln[ln.length - 1];
-}
-
 function getZenObject() {
     const zenObjectIdStr = document.head.querySelector("meta[property=zen_object_id][content]").content;
     const zenObjectArray = zenObjectIdStr?.split(":", 2);
