@@ -1,6 +1,7 @@
 import chrome.runtime.MessageSender
 import chrome.runtime.ExtensionMessageEvent
 import PageType.*
+import dataclasses.ServiceMessage
 
 val serviceRequests = setOf("prozen-webrequest","prozen-mainpage-request")
 

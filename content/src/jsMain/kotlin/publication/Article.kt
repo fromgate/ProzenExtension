@@ -4,6 +4,7 @@ import common.*
 import common.Option
 import kotlinx.serialization.json.JsonObject
 import kotlinx.browser.document
+import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
@@ -20,45 +21,38 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
         val infoBlock =
             document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]") as? HTMLDivElement
         infoBlock?.removeChildren()
-        val dateBlock = document.create.div("article-info-block__addTimeInfo-25") {
-            +"🕑 ${stats.showTime()}"
-            title = "Время создания (редактирования)"
-            attributes["itemprop"] = "datePublished"
-        }
-        infoBlock?.appendChild(dateBlock)
-
-        if (stats.views != stats.viewsTillEnd) {
-            val viewsBlock = document.create.div("article-info-block__viewsInfo-1g") {
-                +"📃 ${stats.views?.format()}"
-                title = "Просмотры"
+        infoBlock?.append {
+            div("article-info-block__addTimeInfo-25") {
+                title = "Время создания (редактирования)"
+                attributes["itemprop"] = "datePublished"
+                +"🕑 ${stats.showTime()}"
             }
-            infoBlock?.appendChild(viewsBlock)
-        }
+            if (stats.views != stats.viewsTillEnd) {
+                div("article-info-block__viewsInfo-1g") {
+                    title = "Просмотры"
+                    +"📃 ${stats.views?.format()}"
 
-        val viewsTillEndBlock = document.create.div("article-info-block__viewsInfo-1g") {
-            +"📄 ${stats.viewsTillEnd?.format()}"
-            title = "Дочитывания"
-        }
-        infoBlock?.appendChild(viewsTillEndBlock)
-
-        val shortLinkBlock = document.create.div("article-info-block__viewsInfo-1g") {
-            +"🔗"
-            title = SHORT_LINK_TITLE
-            onClickFunction = {
-                copyTextToClipboard(stats.shortLink)
+                }
             }
-            style = "cursor: pointer;"
-        }
-        infoBlock?.appendChild(shortLinkBlock)
-
-        if (stats.notIndexed) {
-            val sadRobotBlock = document.create.div("article-info-block__viewsInfo-1g") {
-                +"🤖"
-                title = NO_INDEX_TITLE
+            div("article-info-block__viewsInfo-1g") {
+                +"📄 ${stats.viewsTillEnd?.format()}"
+                title = "Дочитывания"
             }
-            infoBlock?.appendChild(sadRobotBlock)
+            div("article-info-block__viewsInfo-1g") {
+                +"🔗"
+                title = SHORT_LINK_TITLE
+                onClickFunction = {
+                    copyTextToClipboard(stats.shortLink)
+                }
+                style = "cursor: pointer;"
+            }
+            if (stats.notIndexed) {
+                div("article-info-block__viewsInfo-1g") {
+                    +"🤖"
+                    title = NO_INDEX_TITLE
+                }
+            }
         }
-
         addSubtitleLinks()
     }
 
@@ -71,7 +65,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                 headers.asList().forEach {
                     val header = it as HTMLHeadingElement
                     val anchorId = header.id
-                    val linkIcon = document.create.span ("publication_header_icon_url"){
+                    val linkIcon = document.create.span("publication_header_icon_url") {
                         title = "Ссылка на заголовок.\n" +
                                 "Кликните, чтобы скопировать её в буфер обмена"
                         onClickFunction = {

@@ -1,5 +1,9 @@
 package common
 
+import io.ktor.client.*
+import io.ktor.client.engine.js.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -8,6 +12,7 @@ import kotlinx.coroutines.promise
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.asList
+import org.w3c.dom.parsing.DOMParser
 import kotlin.js.Promise
 
 
@@ -23,6 +28,34 @@ fun checkNoIndex(): Boolean {
         .asList()
         .filterIsInstance<HTMLMetaElement>()
         .any { it.content.contains("noindex") }
+}
+
+fun zenReaderUrl(channelUrl: String): String {
+    val id = channelUrl.removePrefix("https://dzen.ru/")
+        .replace("id/", "id-")
+        .replace(".", "-")
+    return "https://t.me/zenreaderbot?start=$id"
+}
+
+suspend fun checkNoIndexUrl(url: String): Boolean {
+    val client = HttpClient(Js)
+    return try {
+        val response = client.get(url)
+        val responseText = response.bodyAsText()
+        val document = DOMParser().parseFromString(responseText, "text/html")
+        val metas = document.getElementsByTagName("meta")
+        metas.asList()
+            .map { it as HTMLMetaElement }
+            .any { meta ->
+                val propertyAttr = meta.getAttribute("property")
+                (meta.name == "robots" || propertyAttr == "robots") && meta.content.contains("noindex")
+            }
+    } catch (e: Exception) {
+        console.error("Error fetching or processing URL: $e")
+        false
+    } finally {
+        client.close()
+    }
 }
 
 fun shortUrl(publisherId: String?, publicationId: String?): String {
@@ -61,3 +94,5 @@ fun updateTranslations() {
             }
         }
 }
+
+

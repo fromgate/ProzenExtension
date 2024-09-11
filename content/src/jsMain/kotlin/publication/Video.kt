@@ -5,6 +5,7 @@ import common.checkNoIndex
 import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
+import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.span
 import kotlinx.html.style
@@ -42,51 +43,46 @@ class Video(requester: Requester, data: JsonObject) : PublicationPage(requester,
             span?.style?.setProperty("display", "inline-block", "important")
         }
 
-        val dateBlock = document.create.span("card-channel-info__description-meta") {
-            +"🕑 ${stats.showTime()}"
-            title = "Время создания (редактирования)"
-            attributes["itemprop"] = "datePublished"
-            style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
-        }
-
-        infoBlock?.appendChild(dateBlock)
-
-        val viewsBlock = document.create.span("card-channel-info__description-meta") {
-            +"📺 ${stats.views?.format()}"
-            title = "Просмотры"
-            style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
-        }
-        infoBlock?.appendChild(viewsBlock)
-
-
-        /*
-        val viewsTillEndBlock = document.create.span ("card-channel-info__description-meta") {
-            +"📼 ${stats.viewsTillEnd}"
-            title = "Досмотры"
-            style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
-        }
-        infoBlock?.appendChild(viewsTillEndBlock) */
-
-
-        /*
-        val shortLinkBlock = document.create.span ("card-channel-info__description-meta") {
-            +"🔗"
-            title = SHORT_LINK_TITLE
-            onClickFunction = {
-                copyTextToClipboard(stats.shortLink)
-            }
-            style = "cursor: pointer; display: inline-block !important; margin-left: 5px !important; pointer-events:auto; z-index: 10000;"
-        }
-        infoBlock?.appendChild(shortLinkBlock) */
-
-        if (stats.notIndexed) {
-            val sadRobotBlock = document.create.span("card-channel-info__description-meta") {
-                +"🤖"
-                title = NO_INDEX_TITLE
+        infoBlock?.append {
+            span("card-channel-info__description-meta") {
+                title = "Время создания (редактирования)"
+                attributes["itemprop"] = "datePublished"
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
+                +"🕑 ${stats.showTime()}"
             }
-            infoBlock?.appendChild(sadRobotBlock)
-        }
+            span("card-channel-info__description-meta") {
+                title = "Просмотры"
+                style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
+                +"📺 ${stats.views?.format()}"
+            }
+            if (stats.notIndexed) {
+                span("card-channel-info__description-meta") {
+                    title = NO_INDEX_TITLE
+                    style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
+                    +"🤖"
+                }
+            }
 
+        }
     }
+
+    /*
+    val viewsTillEndBlock = document.create.span ("card-channel-info__description-meta") {
+        +"📼 ${stats.viewsTillEnd}"
+        title = "Досмотры"
+        style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
+    }
+    infoBlock?.appendChild(viewsTillEndBlock) */
+
+
+    /*
+    val shortLinkBlock = document.create.span ("card-channel-info__description-meta") {
+        +"🔗"
+        title = SHORT_LINK_TITLE
+        onClickFunction = {
+            copyTextToClipboard(stats.shortLink)
+        }
+        style = "cursor: pointer; display: inline-block !important; margin-left: 5px !important; pointer-events:auto; z-index: 10000;"
+    }
+    infoBlock?.appendChild(shortLinkBlock) */
 }

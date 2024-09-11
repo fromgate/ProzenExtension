@@ -65,7 +65,7 @@ class Requester(private val publisherId: String?, private val token: String?) {
      *
      * @param from начальная дата в формате YYYY-MM-DD
      * @param to конечная дата в формате YYYY-MM-DD
-     * @returns List<Triple<String,Double, Double>> — список из даты в формате YYYY-M-D, дневного дохода и курса
+     * @returns List<Triple<String, Double, Double>> — список из даты в формате YYYY-M-D, дневного дохода и курса
      */
     suspend fun getTimespentRewards(from: String, to: String): List<Triple<String, Double, Double>> {
         val rewards = mutableListOf<Triple<String, Double, Double>>()
@@ -90,7 +90,7 @@ class Requester(private val publisherId: String?, private val token: String?) {
     }
 
     /**
-     * Получить информацию об ограничениях канала
+     * Получение информации об ограничениях канала
      *
      * @returns Pair<Boolean, Int>? — канал ограничен (true/false), количество ограниченных публикаций
      * */
@@ -102,6 +102,17 @@ class Requester(private val publisherId: String?, private val token: String?) {
         return if (channelBlock != null && limitations != null) {
             channelBlock to limitations
         } else null
+    }
+
+    /**
+     * Получение числа заблокированных комментаторов
+     *
+     * @return Int? — число заблокированных пользователей, null — ошибка
+     */
+    suspend fun getBannedUsers(): Int? {
+        val requestUrl = "https://dzen.ru/api/comments/banned-users";
+        val data = getJson(requestUrl)
+        return data?.arr("bannedUsers")?.size
     }
 
     //async function getBalanceAndMetriksId()

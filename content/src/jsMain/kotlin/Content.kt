@@ -1,6 +1,5 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLLinkElement
@@ -12,6 +11,7 @@ import common.Requester
 import common.getZenObject
 import common.obj
 import common.string
+import dataclasses.ProzenData
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
 import org.w3c.dom.Window
@@ -165,10 +165,3 @@ fun main() {
 
     injectCssAndScript()
 }
-
-@Serializable
-data class ProzenData(
-    val type: String,
-    val text: String,
-    val jsonData: JsonObject?
-)

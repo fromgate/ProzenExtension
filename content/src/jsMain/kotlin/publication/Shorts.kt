@@ -5,6 +5,7 @@ import common.checkNoIndex
 import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
+import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.span
 import kotlinx.html.style
@@ -36,31 +37,25 @@ class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester
         val stats = this.stats ?: return
         val infoBlock = document.querySelector("div.video-site--short-meta__wrapper-1u") as? HTMLDivElement
 
-        val dateBlock = document.create.span {
-            +"🕑 ${stats.showTime()}"
-            title = "Время создания (редактирования)"
-            attributes["itemprop"] = "datePublished"
-            style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
-        }
-
-        infoBlock?.appendChild(dateBlock)
-
-        val viewsBlock = document.create.span {
-            +"📺 ${stats.views?.format()}"
-            title = "Просмотры"
-            style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
-        }
-        infoBlock?.appendChild(viewsBlock)
-
-
-        if (stats.notIndexed) {
-            val sadRobotBlock = document.create.span {
-                +"🤖"
-                title = NO_INDEX_TITLE
+        infoBlock?.append {
+            span {
+                title = "Время создания (редактирования)"
+                attributes["itemprop"] = "datePublished"
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
+                +"🕑 ${stats.showTime()}"
             }
-            infoBlock?.appendChild(sadRobotBlock)
+            span {
+                title = "Просмотры"
+                style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
+                +"📺 ${stats.views?.format()}"
+            }
+            if (stats.notIndexed) {
+                span {
+                    title = NO_INDEX_TITLE
+                    style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
+                    +"🤖"
+                }
+            }
         }
-
     }
 }

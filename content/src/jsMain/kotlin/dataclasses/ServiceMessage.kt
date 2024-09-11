@@ -1,3 +1,5 @@
+package dataclasses
+
 data class ServiceMessage(
     val type: String?,
     val url: String?,
