@@ -1,6 +1,6 @@
 package dataclasses
 
-data class ServiceMessage(
+data class ServiceWorkerMessage(
     val type: String?,
     val url: String?,
     val publicationIdAfter: String?,

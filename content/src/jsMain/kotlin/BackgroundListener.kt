@@ -1,7 +1,7 @@
 import chrome.runtime.MessageSender
 import chrome.runtime.ExtensionMessageEvent
 import PageType.*
-import dataclasses.ServiceMessage
+import dataclasses.ServiceWorkerMessage
 
 val serviceRequests = setOf("prozen-webrequest","prozen-mainpage-request")
 
@@ -12,7 +12,7 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
         token = request.token as? String
         val pageType = getPageType()
         if (requestType in serviceRequests) {
-            val serviceMessage = ServiceMessage(
+            val serviceWorkerMessage = ServiceWorkerMessage(
                 type = request.type as? String,
                 url = request.url as? String,
                 publicationIdAfter = request.publicationIdAfter as? String,
@@ -26,10 +26,10 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
 
             when (pageType) {
                 MAIN -> {
-                    processDashboardCards(serviceMessage.pageSize ?: 0)
+                    processDashboardCards(serviceWorkerMessage.pageSize ?: 0)
                 }
                 PUBLICATIONS -> {
-                    processPublicationsCards(serviceMessage)
+                    processPublicationsCards(serviceWorkerMessage)
                 }
                 else -> console.log("Unknown page type")
             }
@@ -52,7 +52,7 @@ fun processDashboardCards(pageSize: Int) {
     console.log("processDashboardCards")
 }
 
-fun processPublicationsCards(serviceMessage: ServiceMessage) {
-    console.log("processPublicationsCards with message: $serviceMessage")
+fun processPublicationsCards(serviceWorkerMessage: ServiceWorkerMessage) {
+    console.log("processPublicationsCards with message: $serviceWorkerMessage")
 }
 
