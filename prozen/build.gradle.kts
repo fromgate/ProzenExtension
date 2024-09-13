@@ -77,8 +77,8 @@ tasks {
                 println("Tag $version already exists, skipping.")
             } else {
                 println("Tagging commit with version $version")
-                "git tag $version".runCommand()
-                "git push origin $version".runCommand()
+                "git tag v$version".runCommand()
+                "git push origin v$version".runCommand()
             }
         }
     }
