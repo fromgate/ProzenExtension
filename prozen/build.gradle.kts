@@ -68,6 +68,21 @@ tasks {
         }
     }
 
+    register("tagVersion") {
+        group = "versioning"
+        description = "Tags the last commit with the version number"
+        doLast {
+            val existingTags = "git tag".runCommand()
+            if (existingTags.contains(version)) {
+                println("Tag $version already exists, skipping.")
+            } else {
+                println("Tagging commit with version $version")
+                "git tag $version".runCommand()
+                "git push origin $version".runCommand()
+            }
+        }
+    }
+
     val copyBundleFile = register<Copy>("copyBundleFile") {
         dependsOn(
             ":page:jsBrowserDistribution",
@@ -95,4 +110,8 @@ tasks {
         from(extensionFolder)
         into("prozen") // для Chrome
     }
+}
+
+fun String.runCommand(): String {
+    return Runtime.getRuntime().exec(this).inputStream.bufferedReader().readText().trim()
 }

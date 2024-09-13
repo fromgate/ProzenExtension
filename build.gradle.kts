@@ -21,3 +21,9 @@ allprojects {
 tasks.named("build") {
     dependsOn(":prozen-firefox:packageExtension")
 }
+
+tasks.register("buildVersion") {
+    group = "build"
+    description = "Build the project and tag the current version"
+    dependsOn("build", ":prozen:tagVersion")
+}
