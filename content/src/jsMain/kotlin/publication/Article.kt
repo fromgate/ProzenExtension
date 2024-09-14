@@ -25,31 +25,32 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
             div("article-info-block__addTimeInfo-25") {
                 title = "Время создания (редактирования)"
                 attributes["itemprop"] = "datePublished"
-                +"🕑 ${stats.showTime()}"
+                +stats.showTime()
             }
             if (stats.views != stats.viewsTillEnd) {
                 div("article-info-block__viewsInfo-1g") {
                     title = "Просмотры"
-                    +"📃 ${stats.views?.format()}"
-
+                    span(Icons.VIEWS.cssClass)
+                    +(stats.views?.format() ?: "")
                 }
             }
             div("article-info-block__viewsInfo-1g") {
-                +"📄 ${stats.viewsTillEnd?.format()}"
                 title = "Дочитывания"
+                span(Icons.FULL_VIEWS.cssClass)
+                +(stats.viewsTillEnd?.format() ?: "")
             }
             div("article-info-block__viewsInfo-1g") {
-                +"🔗"
                 title = SHORT_LINK_TITLE
+                style = "cursor: pointer;"
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
                 }
-                style = "cursor: pointer;"
+                span(Icons.LINK.cssClass)
             }
             if (stats.notIndexed) {
                 div("article-info-block__viewsInfo-1g") {
-                    +"🤖"
                     title = NO_INDEX_TITLE
+                    span(Icons.SAD_ROBOT.cssClass)
                 }
             }
         }
