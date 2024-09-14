@@ -3,6 +3,7 @@ package studio
 import common.*
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.await
 import kotlinx.datetime.Clock
 import kotlinx.html.dom.append
 import kotlinx.html.h3
@@ -38,6 +39,7 @@ class Informer(val requester: Requester) {
     }
 
     suspend fun appendInformer(parent: HTMLElement) {
+        if (!Option.INFORMER.value().await()) return
         if (document.getElementById("prozen-informer") != null) return
 
         val data = getData()

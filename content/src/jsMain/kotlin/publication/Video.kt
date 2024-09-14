@@ -6,6 +6,7 @@ import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
 import kotlinx.html.dom.append
+import kotlinx.html.js.div
 import kotlinx.html.js.span
 import kotlinx.html.style
 import kotlinx.html.title
