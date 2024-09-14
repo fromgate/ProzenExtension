@@ -551,12 +551,15 @@ html body .ui-lib-header__item._type_left {
     right: 20px;
     background-color: #323232;
     color: white;
-    padding: 10px 20px;
+    padding: 10px 20px 10px 10px;
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     font-size: 14px;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .prozen-fade-in {
@@ -565,6 +568,12 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-fade-out {
     animation: prozen-fadeOut 0.5s forwards;
+}
+
+.prozen-logo {
+    width: 24px;
+    height: 24px;
+    filter: invert(100%) brightness(80%);
 }
 
 @keyframes prozen-fadeIn {

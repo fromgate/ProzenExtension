@@ -30,7 +30,8 @@
         "js/pageKt.js",
         "js/litepicker.js",
         "js/ranges.js",
-        "css/prozen.css"
+        "css/prozen.css",
+        "img/toast-logo.png"
       ],
       "matches": [
         "https://dzen.ru/*"

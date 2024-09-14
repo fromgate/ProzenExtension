@@ -7,15 +7,26 @@ import kotlinx.coroutines.launch
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.dom.create
-
+import kotlinx.html.img
 
 val scope = MainScope()
 
-fun showNotification(message: String, timeout: Long = 3000) {
+fun showNotification(message: String, logoUrl: String = chrome.runtime.getURL ("img/toast-logo.png"), timeout: Long = 3000) {
+
+    console.log(logoUrl)
 
     val notification = document.create.div {
         classes = setOf("prozen-notification", "prozen-fade-in")
-        +message
+
+        // Добавляем логотип
+        img(src = logoUrl, alt = "Logo") {
+            classes = setOf("prozen-logo")
+        }
+
+        // Добавляем сообщение
+        div {
+            +message
+        }
     }
 
     document.body?.appendChild(notification)
