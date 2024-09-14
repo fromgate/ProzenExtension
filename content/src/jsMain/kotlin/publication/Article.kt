@@ -44,6 +44,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                 style = "cursor: pointer;"
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
+                    showNotification("Cсылка скопирована в буфер обмена")
                 }
                 span(Icons.LINK.cssClass)
             }

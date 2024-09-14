@@ -543,3 +543,36 @@ html body .ui-lib-header__item._type_left {
     border-radius: 6px;
     margin-right: 16px;
 }
+
+/* Notifications */
+.prozen-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #323232;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.prozen-fade-in {
+    animation: prozen-fadeIn 0.5s forwards;
+}
+
+.prozen-fade-out {
+    animation: prozen-fadeOut 0.5s forwards;
+}
+
+@keyframes prozen-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes prozen-fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

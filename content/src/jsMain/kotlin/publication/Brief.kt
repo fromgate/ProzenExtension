@@ -1,9 +1,6 @@
 package publication
 
-import common.Requester
-import common.copyTextToClipboard
-import common.format
-import common.removeChildren
+import common.*
 import kotlinx.browser.document
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
@@ -44,6 +41,7 @@ class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester,
                 title = SHORT_LINK_TITLE
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
+                    showNotification("Cсылка скопирована в буфер обмена")
                 }
                 style = "cursor: pointer;"
             }
