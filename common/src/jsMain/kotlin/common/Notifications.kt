@@ -16,9 +16,6 @@ fun showNotification(
     logoUrl: String = chrome.runtime.getURL("img/toast-logo.png"),
     timeout: Long = 3000
 ) {
-
-    console.log(logoUrl)
-
     val notification = document.create.div {
         classes = setOf("prozen-notification", "prozen-fade-in")
 
