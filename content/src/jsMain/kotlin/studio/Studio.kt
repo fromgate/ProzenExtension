@@ -1,10 +1,14 @@
 package studio
 
 import ContentRunner
+import common.Requester
 
-class Studio (): ContentRunner {
+class Studio (val requester: Requester): ContentRunner {
     override fun run() {
-        TODO("Not yet implemented")
+        val informer = Informer(requester)
+        informer.create()
+
+
         // 1. Отрисовка меню
         // 2. Отрисовка информера
         // 3. Карточки расширенной статистики

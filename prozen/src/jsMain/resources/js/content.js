@@ -945,6 +945,7 @@ function getData() {
 
 // Информер
 async function addInformerBlock() {
+    return; // Отключаем временно (а может и постоянно).
     if (!await getOption(OPTIONS.informer)) {
         return;
     }

@@ -3,7 +3,10 @@ package studio
 import common.*
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.html.dom.append
 import kotlinx.html.h3
@@ -17,6 +20,20 @@ import org.w3c.dom.HTMLElement
 import kotlin.time.Duration.Companion.days
 
 class Informer(val requester: Requester) {
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun create() {
+        GlobalScope.launch {
+            console.log("InformerKt")
+            if (!Option.INFORMER.value().await()) return@launch
+            val data = getData()
+            if (document.getElementById("prozen-informer") != null) return@launch
+            val rightColumn = document
+                .querySelector("div[class^=editor--author-studio-dashboard__rightContent-]") as? HTMLElement
+            rightColumn?.let { appendStyledInformer(it, data) } ?: console.log("Failed to find place for Prozen Informer")
+        }
+    }
+
     suspend fun getData(): InformerData {
         val date = Clock.System.now()
         val todayStr = date.toDateString()
@@ -38,9 +55,100 @@ class Informer(val requester: Requester) {
         )
     }
 
+    fun appendStyledInformer(parent: HTMLElement, data: InformerData) {
+        with(data) {
+            parent.append {
+                div("prozen-widget") {
+                    div("prozen-widget-header") {
+                        +"ПРОДЗЕН-инфо"
+                    }
+                    div("prozen-widget-content") {
+                        strikes?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Предупреждения: "
+                                }
+                                span {
+                                    +it.toString()
+                                }
+                            }
+                        }
+                        channelLimited?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Канал ограничен: "
+                                }
+                                span(if (it) "prozen-widget-warning" else "prozen-widget-success") {
+                                    +if (it) "Да" else "Нет"
+                                }
+                            }
+                        }
+                        channelUnIndexed?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Индексация канала: "
+                                }
+                                span(if (it) "prozen-widget-error" else "prozen-widget-success") {
+                                    +if (it) "Канал не индексируется 🤖" else "Канал индексируется"
+                                }
+                            }
+                        }
+                        scr?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Охват подписчиков (SCR): "
+                                }
+                                span {
+                                    +"${it.format()}%"
+                                }
+                            }
+                        }
+                        blockedReaders?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Заблокировано читателей: "
+                                }
+                                span {
+                                    +it.toString()
+                                }
+                            }
+                        }
+                        statsTime?.let {
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Статистика от: "
+                                }
+                                span {
+                                    +it
+                                }
+                            }
+                        }
+                        minuteCourse.lastNonZero()?.let { last ->
+                            val previous = minuteCourse.previousToLastNonZero()
+                            div("prozen-widget-item") {
+                                span("prozen-widget-item-title") {
+                                    +"Курс минуты ${last.first}: "
+                                }
+                                span (if (previous?.third != null && previous.third <= last.third) "prozen-widget-success" else "prozen-widget-error") {
+                                    +"${last.third.format(3)}₽"
+                                }
+
+                            }
+                        }
+                        zenReaderUrl?.let {
+                            div("prozen-widget-item") {
+                                a(href = it, classes = "prozen-widget-link") {
+                                    +"🔗 Подписка в ZenReader"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     suspend fun appendInformer(parent: HTMLElement) {
-        if (!Option.INFORMER.value().await()) return
-        if (document.getElementById("prozen-informer") != null) return
 
         val data = getData()
         if (data.isNotNull()) {
@@ -74,7 +182,7 @@ class Informer(val requester: Requester) {
                                             "Это нормальная ситуация для новых каналов."
                                     +"Канал не индексируется 🤖"
                                 } else {
-                                    +"Канал индексируется 🤖"
+                                    +"Канал индексируется"
                                 }
                             }
                         }
@@ -105,7 +213,7 @@ class Informer(val requester: Requester) {
                                 titleText += "\nПредыдущий курс (${previous.first}): ${previous.third} ₽"
                                 span("Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block") {
                                     title = titleText
-                                    +"Курс минуты ${last.first}: ${last.third}₽"
+                                    +"Курс минуты ${last.first}: ${last.third.format(4)}₽"
                                 }
                             }
                         }

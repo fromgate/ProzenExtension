@@ -19,6 +19,7 @@ import publication.Article
 import publication.Brief
 import publication.Shorts
 import publication.Video
+import studio.Studio
 import kotlin.js.json
 
 var token: String? = null
@@ -99,8 +100,7 @@ fun onProzenData(e: Event) {
         }
 
         MAIN -> {
-            console.log("Studio -> Main")
-            null
+            Studio (requester!!)
         }
 
         PUBLICATIONS -> {

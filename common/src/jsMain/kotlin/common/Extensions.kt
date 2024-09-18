@@ -34,7 +34,7 @@ fun Int.format(): String {
 }
 
 // Date Time
-fun Instant.toDateString(timeZone: TimeZone = TimeZone.of("Europe/Moscow")): String {
+fun Instant.toDateString(timeZone: TimeZone = TimeZone.of("UTC+03:00")): String {
     val time = this.toLocalDateTime(timeZone)
     return "${time.year}-${time.monthNumber}-${time.dayOfMonth}"
 }
