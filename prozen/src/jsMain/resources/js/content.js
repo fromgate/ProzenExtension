@@ -58,7 +58,7 @@ function main(updatedId = null) {
                 registerObserverWindowsLocation();
                 // updateBalanceBlock();
                 listenToRequests();
-                setTimeout(addInformerBlock, 600);
+                // setTimeout(addInformerBlock, 600);
             }
             break;
         case "publications":
@@ -943,134 +943,6 @@ function getData() {
     return this.data;
 }
 
-// Информер
-async function addInformerBlock() {
-    return; // Отключаем временно (а может и постоянно).
-    if (!await getOption(OPTIONS.informer)) {
-        return;
-    }
-
-    if (document.getElementById("prozen-informer")) {
-        return;
-    }
-    let column = document.querySelector("div[class^=editor--author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
-    if (column == null) column = document.querySelector("div[class^=editor--author-studio-dashboard__rightContent-]");
-
-    if (column == null) {
-        return;
-    }
-    const informer = createElement("div", "editor--notifications-preview-block-desktop__block-39");
-    informer.id = "prozen-informer";
-    column.appendChild(informer);
-    informer.style.marginTop = "24px";
-
-    const channelUrl = mediaUrl.replace("/media/", "/");
-
-    const date = new Date();
-    const todayStr = dateToYYYYMMDD(date); //`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    date.setDate(date.getDate() - 7);
-    const fromStr7 = dateToYYYYMMDD(date); //`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    date.setDate(date.getDate() - 23); // назад ещё на 23 дня, в сумме 30 дней
-    const fromStr30 = dateToYYYYMMDD(date);
-
-    const result = await Promise.all([
-        checkHasNoneUrl(channelUrl),
-        getStatsActuality(),
-        getStrikesInfo(),
-        getBannedUsers(),
-        getTimespentRewards(fromStr7, todayStr),
-        getSCR(fromStr30, todayStr)
-    ]);
-
-    const hasNone = result[0];
-    const actuality = result [1]; // const statsInfo = result[1];
-    const strikesInfo = result[2];
-    const bannedUsers = result[3];
-    const rewards = result[4];
-    const scr = result[5];
-
-    const informerContent = createElement("div", "editor--loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
-    informer.appendChild(informerContent);
-
-    const informerH3 = createElement("h3", "editor--author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 editor--author-studio-section-title__text-2P");
-    informerH3.innerText = "ПРОДЗЕН-инфо";
-    informerH3.setAttribute("title", "Добавлено расширением „Продзен“");
-    informerH3.style.marginBottom = "10px";
-
-    informerContent.appendChild(informerH3);
-
-    if (strikesInfo != null && strikesInfo.limitations != null) {
-        const informerStrikes = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        informerStrikes.innerText = `Предупреждения: ${strikesInfo.limitations}`;
-        informerStrikes.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
-        informerContent.appendChild(informerStrikes);
-    }
-
-    if (strikesInfo != null && strikesInfo.channelRestricted != null) {
-        const informerPyos = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        informerPyos.innerText = strikesInfo.channelRestricted ? "Канал ограничен" : "Канал не ограничен";
-        informerPyos.setAttribute("title", "Информация получена на основе данных раздела «Предупреждения»");
-        informerContent.appendChild(informerPyos);
-    }
-
-    if (hasNone != null) {
-        const allNone = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        if (hasNone) {
-            allNone.innerText = "Канал не индексируется 🤖";
-            allNone.setAttribute("title", "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                "Главная страница канала не индексируется поисковиками.\n" +
-                "Это нормальная ситуация для новых каналов.");
-        } else {
-            allNone.innerText = "Канал индексируется";
-        }
-        informerContent.appendChild(allNone);
-    }
-
-    if (scr != null) {
-        const scrEl = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        scrEl.innerText = `Охват подписчиков (SCR): ${scr}%`;
-        scrEl.setAttribute("title",
-            "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
-            "Показывает какая доля подписчиков видит карточки публикаций.");
-        informerContent.appendChild(scrEl);
-    }
-
-    if (!!bannedUsers && !!bannedUsers.bannedUsers) {
-        const banCount = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        banCount.innerText = `Заблокировано читателей: ${bannedUsers.bannedUsers.length}`;
-        banCount.setAttribute("title", "Количество заблокированных комментаторов");
-        informerContent.appendChild(banCount);
-    }
-
-    if (actuality) {
-        const informerActuality = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        informerActuality.innerText = `Статистика от ${actuality}`;
-        informerActuality.setAttribute("title", "Время обновления статистики");
-        informerContent.appendChild(informerActuality);
-    }
-
-    if (rewards?.length > 0) {
-        const lastReward = rewards.at(-1);
-        const previousReward = rewards.at(-2);
-        let change = "";
-        if (lastReward.course > previousReward.course) change = "↑️";
-        if (lastReward.course < previousReward.course) change = "↓️";
-
-        const informerCourse = createElement("span", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-        informerCourse.innerText = `Курс минуты ${lastReward.dateStr}: ${change}${lastReward.courseStr}₽`;
-        informerCourse.setAttribute("title", `Стоимость минуты вовлечённого просмотра\nПредыдущий курс (${previousReward.dateStr}): ${previousReward.courseStr} ₽`);
-        informerContent.appendChild(informerCourse);
-    }
-
-    // ZenReader Subscribe link
-    const zenReaderLink = createElement("a");
-    zenReaderLink.setAttribute("href", zenReaderUrl());
-    const zenReaderSpan = createElement("span", "Text Text_color_full Text_typography_text-14-18 editor--author-studio-article-card__title prozen-mb5-block");
-    zenReaderSpan.innerText = "🔗 Подписка в ZenReader";
-    zenReaderSpan.setAttribute("title", "Ссылка для подписки на канал\nв телеграм-боте ZenReader");
-    zenReaderLink.appendChild(zenReaderSpan);
-    informerContent.appendChild(zenReaderLink);
-}
 
 function zenReaderUrl() {
     return data.publisher.nickname === undefined

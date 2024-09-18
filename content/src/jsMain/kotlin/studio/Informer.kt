@@ -37,7 +37,7 @@ class Informer(val requester: Requester) {
         }
     }
 
-    suspend fun getData(): InformerData {
+    suspend fun getData(): InformerData = coroutineScope {
         val date = Clock.System.now()
         val todayStr = date.toYYYYMMDD()
         val before7 = date.minus(7.days)
@@ -45,16 +45,31 @@ class Informer(val requester: Requester) {
         val before30 = date.minus(30.days)
         val before30Str = before30.toYYYYMMDD()
         val channelUrl = window.location.href.replace("profile/editor/", "")
-        val strikes = requester.getStrikesInfo()
-        return InformerData(
+        val zenReaderUrl = zenReaderUrl(channelUrl)
+
+        val strikesDeferred = async { requester.getStrikesInfo() }
+        val scrDeferred = async { requester.getScr(before30Str, todayStr) }
+        val blockedReadersDeferred = async { requester.getBannedUsers() }
+        val statsTimeDeferred = async { requester.getStatsActuality() }
+        val minuteCourseDeferred = async { requester.getTimespentRewards(before7Str, todayStr) }
+        val channelUnIndexedDeferred = async { checkNoIndexUrl(channelUrl) }
+
+        val strikes = strikesDeferred.await()
+        val scr = scrDeferred.await()
+        val blockedReaders = blockedReadersDeferred.await()
+        val statsTime = statsTimeDeferred.await()
+        val minuteCourse = minuteCourseDeferred.await()
+        val channelUnIndexed = channelUnIndexedDeferred.await()
+
+        return@coroutineScope InformerData(
             strikes = strikes?.second,
             channelLimited = strikes?.first,
-            channelUnIndexed = checkNoIndexUrl(channelUrl),
-            scr = requester.getScr(before30Str, todayStr),
-            blockedReaders = requester.getBannedUsers(),
-            statsTime = requester.getStatsActuality(),
-            minuteCourse = requester.getTimespentRewards(before7Str, todayStr),
-            zenReaderUrl = zenReaderUrl(channelUrl),
+            channelUnIndexed = channelUnIndexed,
+            scr = scr,
+            blockedReaders = blockedReaders,
+            statsTime = statsTime,
+            minuteCourse = minuteCourse,
+            zenReaderUrl = zenReaderUrl,
         )
     }
 
@@ -69,7 +84,7 @@ class Informer(val requester: Requester) {
                                 src = chrome.runtime.getURL("img/toast-logo.png")
                             }
                             span {
-                                +"Информер"
+                                +"Состояние канала"
                             }
                         }
                     }

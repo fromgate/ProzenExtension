@@ -596,6 +596,7 @@ html body .ui-lib-header__item._type_left {
     margin-top: 24px;
     font-size: 16px;
     line-height: 1.6;
+    cursor: default;
 }
 
 .prozen-widget-header {
