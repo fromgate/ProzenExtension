@@ -3,16 +3,14 @@ package studio
 import common.*
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlinx.html.dom.append
 import kotlinx.html.h3
 import kotlinx.html.id
 import kotlinx.html.js.a
 import kotlinx.html.js.div
+import kotlinx.html.js.img
 import kotlinx.html.js.span
 import kotlinx.html.style
 import kotlinx.html.title
@@ -22,15 +20,23 @@ import kotlin.time.Duration.Companion.days
 class Informer(val requester: Requester) {
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun create() {
+    fun create(count: Int = 0) {
         GlobalScope.launch {
-            console.log("InformerKt")
             if (!Option.INFORMER.value().await()) return@launch
             val data = getData()
             if (document.getElementById("prozen-informer") != null) return@launch
             val rightColumn = document
                 .querySelector("div[class^=editor--author-studio-dashboard__rightContent-]") as? HTMLElement
-            rightColumn?.let { appendStyledInformer(it, data) } ?: console.log("Failed to find place for Prozen Informer")
+            if (rightColumn != null) {
+                appendStyledInformer(rightColumn, data)
+            } else {
+                if (count <=3) {
+                    delay(500)
+                    create(count + 1)
+                } else {
+                    console.log("Failed to find place for Prozen Informer")
+                }
+            }
         }
     }
 
@@ -59,41 +65,58 @@ class Informer(val requester: Requester) {
         with(data) {
             parent.append {
                 div("prozen-widget") {
-                    div("prozen-widget-header") {
-                        +"ПРОДЗЕН-инфо"
+                      div("prozen-widget-header") {
+                        title = "Добавлено расширением «Продзен»"
+                        div("prozen-header-content") {
+                            img {
+                                src = chrome.runtime.getURL("img/toast-logo.png")
+                            }
+                            span {
+                                +"Информер"
+                            }
+                        }
                     }
                     div("prozen-widget-content") {
                         strikes?.let {
                             div("prozen-widget-item") {
+                                title = "Информация получена на основе данных раздела «Предупреждения»"
                                 span("prozen-widget-item-title") {
                                     +"Предупреждения: "
                                 }
-                                span {
+                                span(if (it > 0) "prozen-widget-warning" else null) {
                                     +it.toString()
                                 }
                             }
                         }
                         channelLimited?.let {
                             div("prozen-widget-item") {
+                                title = "Информация получена на основе данных раздела «Предупреждения»"
                                 span("prozen-widget-item-title") {
                                     +"Канал ограничен: "
                                 }
-                                span(if (it) "prozen-widget-warning" else "prozen-widget-success") {
+                                span(if (it) "prozen-widget-warning" else null) {
                                     +if (it) "Да" else "Нет"
                                 }
                             }
                         }
                         channelUnIndexed?.let {
                             div("prozen-widget-item") {
+                                if (it) {
+                                    title = "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
+                                            "Главная страница канала не индексируется поисковиками.\n" +
+                                            "Это нормальная ситуация для новых каналов."
+                                }
                                 span("prozen-widget-item-title") {
                                     +"Индексация канала: "
                                 }
-                                span(if (it) "prozen-widget-error" else "prozen-widget-success") {
-                                    +if (it) "Канал не индексируется 🤖" else "Канал индексируется"
+                                span {
+                                    +if (it) "Нет 🤖" else "Есть"
                                 }
                             }
                         }
                         scr?.let {
+                            title = "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
+                                    "Показывает какая доля подписчиков видит карточки публикаций."
                             div("prozen-widget-item") {
                                 span("prozen-widget-item-title") {
                                     +"Охват подписчиков (SCR): "
@@ -105,6 +128,7 @@ class Informer(val requester: Requester) {
                         }
                         blockedReaders?.let {
                             div("prozen-widget-item") {
+                                title = "Количество заблокированных комментаторов"
                                 span("prozen-widget-item-title") {
                                     +"Заблокировано читателей: "
                                 }
@@ -115,6 +139,7 @@ class Informer(val requester: Requester) {
                         }
                         statsTime?.let {
                             div("prozen-widget-item") {
+                                title = "Время обновления статистики"
                                 span("prozen-widget-item-title") {
                                     +"Статистика от: "
                                 }
@@ -124,19 +149,29 @@ class Informer(val requester: Requester) {
                             }
                         }
                         minuteCourse.lastNonZero()?.let { last ->
+                            var titleText = "Стоимость минуты вовлечённого просмотра"
                             val previous = minuteCourse.previousToLastNonZero()
+                            if (previous != null) {
+                                titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(4)} ₽"
+                            }
+
                             div("prozen-widget-item") {
+                                title = titleText
                                 span("prozen-widget-item-title") {
                                     +"Курс минуты ${last.first}: "
                                 }
-                                span (if (previous?.third != null && previous.third <= last.third) "prozen-widget-success" else "prozen-widget-error") {
-                                    +"${last.third.format(3)}₽"
+                                span(when {
+                                    previous?.third == null -> null
+                                    previous.third <= last.third -> "prozen-widget-success"
+                                    else -> "prozen-widget-error"
+                                }) {
+                                    +"${last.third.format(4)}₽"
                                 }
-
                             }
                         }
                         zenReaderUrl?.let {
                             div("prozen-widget-item") {
+                                title = "Ссылка для подписки на канал\nв телеграм-боте ZenReader"
                                 a(href = it, classes = "prozen-widget-link") {
                                     +"🔗 Подписка в ZenReader"
                                 }

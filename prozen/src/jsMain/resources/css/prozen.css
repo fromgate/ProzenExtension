@@ -586,51 +586,60 @@ html body .ui-lib-header__item._type_left {
     to { opacity: 0; }
 }
 
-/* Widget container */
+/* Виджет-информер */
 .prozen-widget {
-    background-color: #f9f9f9; /* Светло-серый фон */
+    background-color: #fcfcfc;
     color: #333; /* Тёмный текст */
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     padding: 16px 20px;
     margin-top: 24px;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
-/* Widget header */
 .prozen-widget-header {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px; /* Крупнее заголовок */
+    font-weight: 600; /* Средний между normal и bold */
     color: #323232;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
-/* Widget content */
+.prozen-header-content {
+    display: flex;
+    align-items: center;
+}
+
+.prozen-header-content img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+    margin-right: 8px;
+}
+
 .prozen-widget-content {
-    margin-bottom: 16px;
-}
-
-/* Each data item */
-.prozen-widget-item {
     margin-bottom: 10px;
 }
 
+.prozen-widget-item {
+    margin-bottom: 2px;
+}
+
 .prozen-widget-item span {
-    font-weight: normal;
+    font-weight: 500;
 }
 
 .prozen-widget-item-title {
-    font-weight: normal;
+    font-weight: 500;
     color: #555;
 }
 
 /* Link style */
 .prozen-widget-link {
-    color: #00399f;
+    color: #334;
     text-decoration: none;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .prozen-widget-link:hover {
@@ -639,7 +648,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Additional styling for warnings and indicators */
 .prozen-widget-warning {
-    color: #ff9800;
+    color: #ff6200;
 }
 
 .prozen-widget-success {
