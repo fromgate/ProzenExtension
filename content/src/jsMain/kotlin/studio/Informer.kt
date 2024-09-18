@@ -6,13 +6,10 @@ import kotlinx.browser.window
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlinx.html.dom.append
-import kotlinx.html.h3
-import kotlinx.html.id
 import kotlinx.html.js.a
 import kotlinx.html.js.div
 import kotlinx.html.js.img
 import kotlinx.html.js.span
-import kotlinx.html.style
 import kotlinx.html.title
 import org.w3c.dom.HTMLElement
 import kotlin.time.Duration.Companion.days
@@ -42,11 +39,11 @@ class Informer(val requester: Requester) {
 
     suspend fun getData(): InformerData {
         val date = Clock.System.now()
-        val todayStr = date.toDateString()
+        val todayStr = date.toYYYYMMDD()
         val before7 = date.minus(7.days)
-        val before7Str = before7.toDateString()
+        val before7Str = before7.toYYYYMMDD()
         val before30 = date.minus(30.days)
-        val before30Str = before30.toDateString()
+        val before30Str = before30.toYYYYMMDD()
         val channelUrl = window.location.href.replace("profile/editor/", "")
         val strikes = requester.getStrikesInfo()
         return InformerData(

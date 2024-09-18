@@ -34,7 +34,7 @@ fun Int.format(): String {
 }
 
 // Date Time
-fun Instant.toDateString(timeZone: TimeZone = TimeZone.of("UTC+03:00")): String {
+fun Instant.toYYYYMMDD(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
     val time = this.toLocalDateTime(timeZone)
     return "${time.year}-${time.monthNumber}-${time.dayOfMonth}"
 }
@@ -43,7 +43,7 @@ fun Long.toInstant(): Instant {
     return Instant.fromEpochMilliseconds(this)
 }
 
-fun Instant.toStringDDMMYY(): String {
+fun Instant.toDDMMYY(): String {
     val dateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
     val day = dateTime.dayOfMonth.toString().padStart(2, '0')
     val month = dateTime.monthNumber.toString().padStart(2, '0')
@@ -51,7 +51,7 @@ fun Instant.toStringDDMMYY(): String {
     return "$day.$month.$year"
 }
 
-fun Instant.toStringDDMMYYYYHHMM(): String {
+fun Instant.toDDMMYYYYHHMM(): String {
     val dateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
     val day = dateTime.dayOfMonth.toString().padStart(2, '0')
     val month = dateTime.monthNumber.toString().padStart(2, '0')

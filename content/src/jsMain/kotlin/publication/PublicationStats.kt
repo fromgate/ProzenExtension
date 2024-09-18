@@ -1,6 +1,6 @@
 package publication
 
-import common.toStringDDMMYYYYHHMM
+import common.toDDMMYYYYHHMM
 import kotlinx.datetime.Instant
 
 data class PublicationStats(
@@ -13,6 +13,6 @@ data class PublicationStats(
 )
 
 fun PublicationStats.showTime(): String {
-    val mod = modificationTime?.takeIf { it != createTime }?.toStringDDMMYYYYHHMM()?.let { " ($it)" } ?: ""
-    return createTime.toStringDDMMYYYYHHMM() + mod
+    val mod = modificationTime?.takeIf { it != createTime }?.toDDMMYYYYHHMM()?.let { " ($it)" } ?: ""
+    return createTime.toDDMMYYYYHHMM() + mod
 }

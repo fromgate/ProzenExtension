@@ -77,7 +77,7 @@ class Requester(private val publisherId: String?, private val token: String?) {
             val rewardData = interval.jsonObject
             val timeStamp = rewardData.long("timestamp")
             val time = timeStamp?.let { Instant.fromEpochMilliseconds(it) }
-            val dateStr = time?.toDateString()
+            val dateStr = time?.toDDMMYY()
             val income = rewardData.obj("income")?.double("timespent-reward")
             val viewTimeSec = rewardData.int("viewTimeSec")
 
@@ -122,7 +122,7 @@ class Requester(private val publisherId: String?, private val token: String?) {
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?fields=views&publicationTypes=article&publisherId=$publisherId&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
         val jsonResponse = getJson(requestUrl)
         val actuality = jsonResponse?.long("actuality")?.toInstant()
-        return actuality?.toStringDDMMYY()
+        return actuality?.toDDMMYY()
     }
 
 
