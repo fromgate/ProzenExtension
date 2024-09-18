@@ -588,10 +588,10 @@ html body .ui-lib-header__item._type_left {
 
 /* Виджет-информер */
 .prozen-widget {
-    background-color: #fcfcfc;
-    color: #333; /* Тёмный текст */
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background-color: #eff0f245;
+    color: #333;
+    border-radius: 15px;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
     padding: 16px 20px;
     margin-top: 24px;
     font-size: 16px;
