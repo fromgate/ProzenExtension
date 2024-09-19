@@ -122,7 +122,7 @@ class Requester(val publisherId: String?, val token: String?) {
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?fields=views&publicationTypes=article&publisherId=$publisherId&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
         val jsonResponse = getJson(requestUrl)
         val actuality = jsonResponse?.long("actuality")?.toInstant()
-        return actuality?.toDDMMYY()
+        return actuality?.toDDMMYYYYHHMM(2)
     }
 
 

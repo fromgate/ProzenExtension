@@ -51,11 +51,11 @@ fun Instant.toDDMMYY(): String {
     return "$day.$month.$year"
 }
 
-fun Instant.toDDMMYYYYHHMM(): String {
+fun Instant.toDDMMYYYYHHMM(yearLength: Int = 4): String {
     val dateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
     val day = dateTime.dayOfMonth.toString().padStart(2, '0')
     val month = dateTime.monthNumber.toString().padStart(2, '0')
-    val year = dateTime.year.toString()
+    val year = dateTime.year.toString().takeLast(yearLength)
     val hours = dateTime.hour.toString().padStart(2, '0')
     val minutes = dateTime.minute.toString().padStart(2, '0')
     return "$day.$month.$year $hours:$minutes"
