@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 
-class Requester(private val publisherId: String?, private val token: String?) {
+class Requester(val publisherId: String?, val token: String?) {
 
     private val client = HttpClient {
         install(ContentNegotiation) {

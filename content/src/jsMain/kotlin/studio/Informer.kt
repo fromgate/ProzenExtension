@@ -5,13 +5,18 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
+import kotlinx.html.*
 import kotlinx.html.dom.append
+import kotlinx.html.js.*
 import kotlinx.html.js.a
 import kotlinx.html.js.div
 import kotlinx.html.js.img
+import kotlinx.html.js.li
 import kotlinx.html.js.span
-import kotlinx.html.title
+import kotlinx.html.js.ul
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.EventListener
+import kotlin.js.json
 import kotlin.time.Duration.Companion.days
 
 class Informer(val requester: Requester) {
@@ -77,14 +82,101 @@ class Informer(val requester: Requester) {
         with(data) {
             parent.append {
                 div("prozen-widget") {
-                    div("prozen-widget-header") {
-                        title = "Добавлено расширением «Продзен»"
+                    div("prozen-header-wrapper") {
+                        style = "position: relative;"
                         div("prozen-header-content") {
+                            title = "Добавлено расширением „Продзен“"
                             img {
                                 src = chrome.runtime.getURL("img/toast-logo.png")
                             }
                             span {
                                 +"Состояние канала"
+                            }
+                            // Кнопка для меню
+                            button(classes = "prozen-menu-button") {
+                                +"☰"
+                                onClickFunction = {
+                                    val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
+                                    if (menu.classList.contains("prozen-menu-open")) {
+                                        closeMenu()
+                                    } else {
+                                        menu.classList.toggle("prozen-menu-open")
+                                        if (menu.classList.contains("prozen-menu-open")) {
+                                            document.addEventListener(
+                                                "click",
+                                                createDocumentClickListener(),
+                                                true
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        ul("prozen-dropdown-menu") {
+                            id = "prozen-dropdown-menu"
+                            li {
+                                span("prozen-menu-stats")
+                                +"Полная статистика"
+                                onClickFunction = {
+                                    closeMenu()
+                                    chrome.storage.local.set(
+                                        json(
+                                            "prozenToken" to requester.token,
+                                            "prozenPublisherId" to requester.publisherId
+                                        )
+                                    ) {
+                                        window.open(chrome.runtime.getURL("totalstats.html"))
+                                    }
+                                }
+                            }
+                            li {
+                                span("prozen-menu-metrika")
+                                +"Метрика"
+                                onClickFunction = {
+                                    closeMenu()
+                                    window.open("https://metrika.yandex.ru/list") // TODO — ID метрики
+                                }
+                            }
+                            li {
+                                span("prozen-menu-search")
+                                +"Поиск"
+                                onClickFunction = {
+                                    closeMenu()
+                                    chrome.storage.local.set(
+                                        json(
+                                            "prozenSearch" to "", // неактуально
+                                            "prozenToken" to requester.token,
+                                            "prozenPublisherId" to requester.publisherId
+                                        )
+                                    ) {
+                                        window.open(chrome.runtime.getURL("search.html"))
+                                    }
+                                }
+                            }
+                            li {
+                                span("prozen-menu-robot")
+                                +"Проверка публикаций"
+                                onClickFunction = {
+                                    closeMenu()
+                                    chrome.storage.local.set(
+                                        json(
+                                            "prozenId" to requester.publisherId,
+                                            "prozenToken" to requester.token,
+                                            "prozenPublisherId" to requester.publisherId
+                                        )
+                                    ) {
+                                        window.open(chrome.runtime.getURL("sadrobot.html"))
+                                    }
+                                }
+                            }
+                            li {
+                                span("prozen-menu-telegram")
+                                +"Продзен в Telegram"
+                                onClickFunction = {
+                                    closeMenu()
+                                    window.open("https://t.me/+jgjgYMVg2gY0ODVi", "_blank")
+                                }
                             }
                         }
                     }
@@ -100,7 +192,7 @@ class Informer(val requester: Requester) {
                                 }
                             }
                         }
-                        channelLimited?.let { limited->
+                        channelLimited?.let { limited ->
                             div("prozen-widget-item") {
                                 title = "Информация получена на основе данных раздела «Предупреждения»"
                                 span("prozen-widget-item-title") {
@@ -194,6 +286,30 @@ class Informer(val requester: Requester) {
                     }
                 }
             }
+        }
+    }
+
+    fun createDocumentClickListener(): EventListener {
+        val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
+        val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
+        return EventListener { event ->
+            val target = event.target as? HTMLElement
+            if (target != null && !menu.contains(target) && target != menuButton) {
+                closeMenu()
+            }
+        }
+    }
+
+    fun closeMenu() {
+        val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
+        val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
+        if (menu.classList.contains("prozen-menu-open")) {
+            menu.classList.remove("prozen-menu-open")
+            document.removeEventListener(
+                "click",
+                createDocumentClickListener(),
+                true
+            )
         }
     }
 
