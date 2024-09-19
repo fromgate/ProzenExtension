@@ -27,7 +27,7 @@ class Informer(val requester: Requester) {
             if (rightColumn != null) {
                 appendStyledInformer(rightColumn, data)
             } else {
-                if (count <=3) {
+                if (count <= 3) {
                     delay(500)
                     create(count + 1)
                 } else {
@@ -77,7 +77,7 @@ class Informer(val requester: Requester) {
         with(data) {
             parent.append {
                 div("prozen-widget") {
-                      div("prozen-widget-header") {
+                    div("prozen-widget-header") {
                         title = "Добавлено расширением «Продзен»"
                         div("prozen-header-content") {
                             img {
@@ -89,25 +89,25 @@ class Informer(val requester: Requester) {
                         }
                     }
                     div("prozen-widget-content") {
-                        strikes?.let {
+                        strikes?.let { strikes ->
                             div("prozen-widget-item") {
                                 title = "Информация получена на основе данных раздела «Предупреждения»"
                                 span("prozen-widget-item-title") {
                                     +"Предупреждения: "
                                 }
-                                span(if (it > 0) "prozen-widget-warning" else null) {
-                                    +it.toString()
+                                span("prozen-widget-warning".takeIf { strikes > 0 }) {
+                                    +strikes.toString()
                                 }
                             }
                         }
-                        channelLimited?.let {
+                        channelLimited?.let { limited->
                             div("prozen-widget-item") {
                                 title = "Информация получена на основе данных раздела «Предупреждения»"
                                 span("prozen-widget-item-title") {
                                     +"Канал ограничен: "
                                 }
-                                span(if (it) "prozen-widget-warning" else null) {
-                                    +if (it) "Да" else "Нет"
+                                span("prozen-widget-warning".takeIf { limited }) {
+                                    +if (limited) "Да" else "Нет"
                                 }
                             }
                         }
@@ -172,11 +172,13 @@ class Informer(val requester: Requester) {
                                 span("prozen-widget-item-title") {
                                     +"Курс минуты ${last.first}: "
                                 }
-                                span(when {
-                                    previous?.third == null -> null
-                                    previous.third <= last.third -> "prozen-widget-success"
-                                    else -> "prozen-widget-error"
-                                }) {
+                                span(
+                                    when {
+                                        previous?.third == null -> null
+                                        previous.third <= last.third -> "prozen-widget-success"
+                                        else -> "prozen-widget-error"
+                                    }
+                                ) {
                                     +"${last.third.format(4)}₽"
                                 }
                             }
