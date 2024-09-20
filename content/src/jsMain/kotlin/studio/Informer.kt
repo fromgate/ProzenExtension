@@ -47,6 +47,7 @@ class Informer(val requester: Requester) {
         val channelUrl = window.location.href.replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
+        val channelDataDeferred = async { requester.getChannelData() }
         val strikesDeferred = async { requester.getStrikesInfo() }
         val scrDeferred = async { requester.getScr(before30Str, todayStr) }
         val blockedReadersDeferred = async { requester.getBannedUsers() }
@@ -60,6 +61,7 @@ class Informer(val requester: Requester) {
         val statsTime = statsTimeDeferred.await()
         val minuteCourse = minuteCourseDeferred.await()
         val channelUnIndexed = channelUnIndexedDeferred.await()
+        val channelData = channelDataDeferred.await()
 
         return@coroutineScope InformerData(
             strikes = strikes?.second,
@@ -70,6 +72,9 @@ class Informer(val requester: Requester) {
             statsTime = statsTime,
             minuteCourse = minuteCourse,
             zenReaderUrl = zenReaderUrl,
+            metrikaId = channelData.first,
+            audience = channelData.second,
+            regTime = channelData.third
         )
     }
 
@@ -130,7 +135,11 @@ class Informer(val requester: Requester) {
                                 +"Метрика"
                                 onClickFunction = {
                                     closeMenu()
-                                    window.open("https://metrika.yandex.ru/list") // TODO — ID метрики
+                                    window.open(
+                                        "https://metrika.yandex.ru/list".takeIf {
+                                            metrikaId == null
+                                        } ?: "https://metrika.yandex.ru/dashboard?id=$metrikaId"
+                                    )
                                 }
                             }
                             li {
@@ -213,6 +222,17 @@ class Informer(val requester: Requester) {
                                 }
                             }
                         }
+                        audience?.let {
+                            div("prozen-widget-item") {
+                                title = "Число уникальных пользователей, просмотревших публикации в течение месяца"
+                                span("prozen-widget-item-title") {
+                                    +"Аудитория: "
+                                }
+                                span {
+                                    +it.toString()
+                                }
+                            }
+                        }
                         scr?.let {
                             title = "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
                                     "Показывает какая доля подписчиков видит карточки публикаций."
@@ -233,6 +253,17 @@ class Informer(val requester: Requester) {
                                 }
                                 span {
                                     +it.toString()
+                                }
+                            }
+                        }
+                        regTime?.let {
+                            div("prozen-widget-item") {
+                                title = "Дата создания канала"
+                                span("prozen-widget-item-title") {
+                                    +"Канал создан: "
+                                }
+                                span {
+                                    +it.toInstant().toDDMMYYYYHHMM()
                                 }
                             }
                         }
@@ -318,7 +349,10 @@ data class InformerData(
     val blockedReaders: Int?,
     val statsTime: String?,
     val minuteCourse: List<Triple<String, Double, Double>>,
-    val zenReaderUrl: String?
+    val zenReaderUrl: String?,
+    val metrikaId: Int?,
+    val audience: Int?,
+    val regTime: Long?
 )
 
 fun InformerData.isNotNull(): Boolean {

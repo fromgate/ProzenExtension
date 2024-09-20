@@ -130,6 +130,20 @@ class Requester(val publisherId: String?, val token: String?) {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
         return getData(requestUrl)
     }
+    /**
+     * Получить данные о канале
+     *
+     * @returns Triple<Int?, Int?, Long?> — счётчик метрики, размер аудитории канала, время регистрации
+     */
+    suspend fun getChannelData(): Triple<Int?, Int?, Long?> {
+        val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
+        val jsonResponse = getJson(requestUrl)
+        val publisher = jsonResponse?.obj("publisher")
+        val metrikaCounterId = publisher?.obj("privateData")?.int("metrikaCounterId")
+        val audience = publisher?.int("audience")
+        val regTime = publisher?.long("regTime")
+        return Triple(metrikaCounterId, audience, regTime)
+    }
 
     /**
      * Выполнить GET-запрос по указанному URL и вернуть ответ в виде объекта JSON
