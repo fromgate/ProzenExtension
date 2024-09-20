@@ -683,10 +683,17 @@ html body .ui-lib-header__item._type_left {
     font-size: 14px;
     display: flex;
     align-items: center;
+    margin-left: 6px;
+    margin-right: 6px;
+    border-radius: 8px;
 }
 
 .prozen-dropdown-menu li:hover {
     background-color: #f0f0f0;
+}
+
+.prozen-dropdown-menu span {
+    margin-right: 8px;
 }
 
 .prozen-menu-button {
@@ -708,7 +715,6 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
-    margin-right: 5px;
 }
 
 .prozen-menu-metrika {
@@ -716,7 +722,6 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
-    margin-right: 5px;
 }
 
 .prozen-menu-search {
@@ -724,7 +729,6 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
-    margin-right: 5px;
 }
 
 .prozen-menu-robot {
@@ -732,7 +736,6 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
-    margin-right: 5px;
 }
 
 .prozen-menu-telegram {
@@ -740,5 +743,4 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
-    margin-right: 5px;
 }

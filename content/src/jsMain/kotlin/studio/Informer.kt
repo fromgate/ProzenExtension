@@ -8,12 +8,7 @@ import kotlinx.datetime.Clock
 import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.*
-import kotlinx.html.js.a
 import kotlinx.html.js.div
-import kotlinx.html.js.img
-import kotlinx.html.js.li
-import kotlinx.html.js.span
-import kotlinx.html.js.ul
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventListener
 import kotlin.js.json
