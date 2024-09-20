@@ -229,7 +229,7 @@ class Informer(val requester: Requester) {
                                     +"Аудитория: "
                                 }
                                 span {
-                                    +it.toString()
+                                    +it.format()
                                 }
                             }
                         }
@@ -241,7 +241,7 @@ class Informer(val requester: Requester) {
                                     +"Охват подписчиков (SCR): "
                                 }
                                 span {
-                                    +"${it.format()}%"
+                                    +it.format()
                                 }
                             }
                         }
@@ -252,7 +252,7 @@ class Informer(val requester: Requester) {
                                     +"Заблокировано читателей: "
                                 }
                                 span {
-                                    +it.toString()
+                                    +it.format()
                                 }
                             }
                         }
