@@ -7,10 +7,7 @@ import org.w3c.dom.HTMLScriptElement
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.Event
 import PageType.*
-import common.Requester
-import common.getZenObject
-import common.obj
-import common.string
+import common.*
 import dataclasses.ProzenData
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
@@ -78,7 +75,7 @@ fun onProzenData(e: Event) {
         publisherId = getZenObject()?.first
     }
 
-    requester = Requester(publisherId, token)
+    requester = RequesterCached(publisherId, token)
 
     val pageType = getPageType()
 

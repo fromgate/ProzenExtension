@@ -5,6 +5,7 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.*
@@ -263,7 +264,7 @@ class Informer(val requester: Requester) {
                                     +"Канал создан: "
                                 }
                                 span {
-                                    +it.toInstant().toDDMMYYYYHHMM()
+                                    +it.toDDMMYYYYHHMM()
                                 }
                             }
                         }
@@ -303,9 +304,9 @@ class Informer(val requester: Requester) {
                         }
                         zenReaderUrl?.let {
                             div("prozen-widget-item") {
-                                title = "Ссылка для подписки на канал\nв телеграм-боте ZenReader"
+                                title = "Ссылка для подписки на канал\nв телеграм-боте @ZenReaderBot"
                                 a(href = it, classes = "prozen-widget-link") {
-                                    +"🔗 Подписка в ZenReader"
+                                    +"🔗 Подписка в Дзен-ридере"
                                 }
                             }
                         }
@@ -352,7 +353,7 @@ data class InformerData(
     val zenReaderUrl: String?,
     val metrikaId: Int?,
     val audience: Int?,
-    val regTime: Long?
+    val regTime: Instant?
 )
 
 fun InformerData.isNotNull(): Boolean {

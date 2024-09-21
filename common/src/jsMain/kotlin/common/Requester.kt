@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 
-class Requester(val publisherId: String?, val token: String?) {
+open class Requester(val publisherId: String?, val token: String?) {
 
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -47,7 +47,7 @@ class Requester(val publisherId: String?, val token: String?) {
      * @param to конечная дата в формате YYYY-MM-DD
      * @returns Double - значение SCR
      */
-    suspend fun getScr(from: String, to: String): Double? {
+    open suspend fun getScr(from: String, to: String): Double? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?allPublications=true&addTimeFrom=$from&addTimeTo=$to&fields=typeSpecificViews&fields=deepViewsRate&fields=ctr&fields=vtr&fields=shares&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=viewMap&fields=subscribers&fields=subscribersDiff&fields=impressions&fields=deepViews&fields=sumInvolvedViewTimeSec&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&totalLimitedByIds=false&isSubscriber=true&pageSize=100&page=0&clid=320"
         val data = getJson(requestUrl)
@@ -67,7 +67,7 @@ class Requester(val publisherId: String?, val token: String?) {
      * @param to конечная дата в формате YYYY-MM-DD
      * @returns List<Triple<String, Double, Double>> — список из даты в формате YYYY-M-D, дневного дохода и курса
      */
-    suspend fun getTimespentRewards(from: String, to: String): List<Triple<String, Double, Double>> {
+    open suspend fun getTimespentRewards(from: String, to: String): List<Triple<String, Double, Double>> {
         val rewards = mutableListOf<Triple<String, Double, Double>>()
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/income2?from=$from&to=$to&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true"
@@ -94,7 +94,7 @@ class Requester(val publisherId: String?, val token: String?) {
      *
      * @returns Pair<Boolean, Int>? — канал ограничен (true/false), количество ограниченных публикаций
      * */
-    suspend fun getStrikesInfo(): Pair<Boolean, Int>? {
+    open suspend fun getStrikesInfo(): Pair<Boolean, Int>? {
         val requestUrl = "https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=$publisherId&language=ru"
         val data = getJson(requestUrl)
         val channelBlock = data?.bool("channelRestricted")
@@ -109,15 +109,13 @@ class Requester(val publisherId: String?, val token: String?) {
      *
      * @return Int? — число заблокированных пользователей, null — ошибка
      */
-    suspend fun getBannedUsers(): Int? {
+    open suspend fun getBannedUsers(): Int? {
         val requestUrl = "https://dzen.ru/api/comments/banned-users";
         val data = getJson(requestUrl)
         return data?.arr("bannedUsers")?.size
     }
 
-    //async function getBalanceAndMetriksId()
-
-    suspend fun getStatsActuality(): String? {
+    open suspend fun getStatsActuality(): String? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?fields=views&publicationTypes=article&publisherId=$publisherId&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
         val jsonResponse = getJson(requestUrl)
@@ -135,13 +133,13 @@ class Requester(val publisherId: String?, val token: String?) {
      *
      * @returns Triple<Int?, Int?, Long?> — счётчик метрики, размер аудитории канала, время регистрации
      */
-    suspend fun getChannelData(): Triple<Int?, Int?, Long?> {
+    open suspend fun getChannelData(): Triple<Int?, Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
         val jsonResponse = getJson(requestUrl)
         val publisher = jsonResponse?.obj("publisher")
         val metrikaCounterId = publisher?.obj("privateData")?.int("metrikaCounterId")
         val audience = publisher?.int("audience")
-        val regTime = publisher?.long("regTime")
+        val regTime = publisher?.long("regTime")?.toInstant()
         return Triple(metrikaCounterId, audience, regTime)
     }
 

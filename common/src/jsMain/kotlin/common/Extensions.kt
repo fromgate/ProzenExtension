@@ -43,6 +43,8 @@ fun Long.toInstant(): Instant {
     return Instant.fromEpochMilliseconds(this)
 }
 
+fun String.parseInstant(): Instant = Instant.parse(this)
+
 fun Instant.toDDMMYY(): String {
     val dateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
     val day = dateTime.dayOfMonth.toString().padStart(2, '0')
