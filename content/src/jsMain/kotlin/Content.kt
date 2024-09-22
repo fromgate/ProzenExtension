@@ -2,20 +2,18 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import org.w3c.dom.HTMLLinkElement
-import org.w3c.dom.HTMLScriptElement
-import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.Event
 import PageType.*
 import common.*
 import dataclasses.ProzenData
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
-import org.w3c.dom.Window
+import org.w3c.dom.*
 import publication.Article
 import publication.Brief
 import publication.Shorts
 import publication.Video
+import studio.Menu
 import studio.Studio
 import kotlin.js.json
 
@@ -24,6 +22,8 @@ var data: JsonObject? = null
 var publisherId: String? = null
 var requester: Requester? = null
 
+var oldHref: String = window.location.href
+var observerWindowLocationHref: MutationObserver? = null
 
 fun injectCssAndScript() {
     window.removeEventListener("message", ::onProzenData)
@@ -97,15 +97,24 @@ fun onProzenData(e: Event) {
         }
 
         MAIN -> {
-            Studio (requester!!)
+            registerObserverWindowsLocation()
+            Studio(requester!!) // + Menu
         }
 
         PUBLICATIONS -> {
             console.log("Studio -> Publications")
-            null
+            registerObserverWindowsLocation()
+            Menu(requester!!)
         }
 
-        else -> { null }
+        STATS, CAMPAIGNS, COMMENTS, MONEY -> {
+            registerObserverWindowsLocation()
+            Menu(requester!!)
+        }
+
+        else -> {
+            null
+        }
     }
     contentRunner?.run()
 }
@@ -134,8 +143,8 @@ fun getPageType(): PageType {
             path.endsWith("/publications") -> PUBLICATIONS
             path.endsWith("/edit") -> EDIT
             path.endsWith("/publications-stat") -> STATS
-            path.endsWith("/campaigns") -> CAMPAIGNS
-            path.endsWith("/comments") -> COMMENTS
+            path.endsWith("/campaigns/") -> CAMPAIGNS
+            path.endsWith("/comments/") -> COMMENTS
             else -> MAIN
         }
 
@@ -161,4 +170,35 @@ fun main() {
     // listenToRequests()
 
     injectCssAndScript()
+}
+
+fun registerObserverWindowsLocation() {
+    val body = document.querySelector("body")
+    observerWindowLocationHref?.disconnect()
+
+    observerWindowLocationHref = MutationObserver { mutations, _ ->
+        mutations.forEach {
+            if (oldHref != document.location?.href) {
+                oldHref = document.location?.href ?: ""
+                sendProzenRequest()
+            }
+        }
+    }
+
+    val config = MutationObserverInit(
+        childList = true,
+        subtree = true
+    )
+
+    body?.let {
+        observerWindowLocationHref?.observe(it, config)
+    }
+}
+
+fun sendProzenRequest() {
+    window.postMessage(
+        json(
+            "type" to "prozen-request"
+        ), "*"
+    )
 }

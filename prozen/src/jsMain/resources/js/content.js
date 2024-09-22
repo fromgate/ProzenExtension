@@ -1,4 +1,4 @@
-let observer;
+
 let token;
 let data;
 let publisherId;
@@ -7,9 +7,6 @@ let metriksId;
 let moneySaldo;
 let moneyTotal;
 let moneyDate;
-
-let oldHref = window.location.href;
-let observerWindowLocationHref;
 
 start();
 
@@ -53,9 +50,9 @@ function main(updatedId = null) {
         case "main":
             if (token != null && publisherId != null) {
                 mediaUrl = window.location.href.replace("profile/editor", "media");
-                modifyStudioStyles();
-                addStudioMenu();
-                registerObserverWindowsLocation();
+                // modifyStudioStyles();
+                // addStudioMenu();
+                // registerObserverWindowsLocation();
                 // updateBalanceBlock();
                 listenToRequests();
                 // setTimeout(addInformerBlock, 600);
@@ -67,11 +64,6 @@ function main(updatedId = null) {
         case "music":
         case "stats":
         case "campaigns":
-            if (token != null && publisherId != null) {
-                addStudioMenu();
-                registerObserverWindowsLocation();
-            }
-            break;
         case "unknown":
             break;
     }
@@ -164,190 +156,11 @@ function clickTotalStatsButton() {
 /*                 СТУДИЯ!                      */
 /************************************************/
 
-// Определяем изменение адреса
-function registerObserverWindowsLocation() {
-    const bodyList = document.querySelector("body");
-    if (observerWindowLocationHref !== undefined) {
-        observerWindowLocationHref.disconnect();
-    }
-    observerWindowLocationHref = new MutationObserver(mutations => {
-        mutations.forEach(() => {
-            if (oldHref !== document.location.href) {
-                oldHref = document.location.href;
-                sendProzenRequest();
-            }
-        });
-    });
-    const config = {
-        childList: true,
-        subtree: true
-    };
-    observerWindowLocationHref.observe(bodyList, config);
-}
-
-// @Deprecated
-
-function updateBalanceBlock(count = 0) {
-    const target = document.querySelector("div[class^=dashboard-stats__statsContainer-]");
-    if (target != null && count < 5) {
-        const nameBlock = target.querySelector("a[class^=item__statItemCompact-] > div[class^=item__accent-] > div.Text.Text_typography_text-13-16");
-        const balanceElement = target.querySelector("a[class^=item__statItemCompact-] > div[class^=item__accent-] > div.Text.Text_typography_headline-20-24");
-        if (nameBlock != null && balanceElement != null && nameBlock.textContent.startsWith("баланс")) {
-            if (moneySaldo != null) {
-                balanceElement.innerText = `${moneySaldo} ₽`;
-                balanceElement.setAttribute("title", `Всего: ${moneyTotal} ₽`);
-            }
-            return;
-        }
-    }
-    setTimeout(updateBalanceBlock.bind(null, count + 1), 1000);
-}
-
 
 // Поддержка Студии
 function isStudio() {
     return document.getElementsByClassName("editor--author-studio-layout-new__block-1I").length > 0
         || document.getElementsByClassName("editor--author-studio-layout__content-3n").length > 0;
-}
-
-async function addStudioMenu() {
-    if (!await getOption(OPTIONS.prozenMenu)) {
-        return;
-    }
-
-    let oldStudioMenu = document.getElementById("prozen-main-menu");
-    if (oldStudioMenu != null && oldStudioMenu.getAttribute("data-publisherId") !== publisherId) {
-        oldStudioMenu.parentNode.removeChild(oldStudioMenu);
-        oldStudioMenu = null;
-    }
-    if (oldStudioMenu == null) {
-        const metriksUrl = metriksId !== undefined && metriksId !== null
-            ? `https://metrika.yandex.ru/dashboard?id=${metriksId}`
-            : "https://metrika.yandex.ru/list";
-
-        const navBarContent = document.querySelector("div[class^=editor--navbar__content]");
-        if (document.documentElement.clientHeight > 777 && navBarContent != null) {
-            // const navBarContent = document.querySelector("div[class^=navbar__content]");
-            const navbarLabelItem = createElement("div", "editor--navbar__labelItem-32");
-            const navbarLabelLine = createElement("span", "editor--navbar__labelLine-28");
-            const navbarLabelText = createElement("span", "editor--navbar__labelText-3D");
-            navbarLabelText.innerText = "Продзен";
-            navbarLabelItem.setAttribute("title", "Добавлено расширением „Продзен“");
-            navbarLabelItem.appendChild(navbarLabelLine);
-            navbarLabelItem.appendChild(navbarLabelText);
-            const navBarSpace = navBarContent.querySelector("div[class^=editor--navbar__space]");
-            // const separator = createElement("div", "navbar__div-YS navbar__div-fx"); // navbar__div-fx - старая версия
-            navBarContent.insertBefore(navbarLabelItem, navBarSpace);
-            const prozenMenu = createElement("ul", "editor--navbar__ul-1l editor--navbar__ul-3_ prozen_navbar"); // navbar__ul-3_ - старая версия
-            prozenMenu.id = "prozen-main-menu";
-            prozenMenu.setAttribute("data-publisherId", publisherId);
-            prozenMenu.appendChild(createProzenMenuElement("Полная статистика", "prozen_menu_stats", clickTotalStatsButton, "Сводная статистика"));
-            prozenMenu.appendChild(createProzenMenuElement("Метрика", "prozen_menu_metrika", metriksUrl, "Просмотр статистики в Яндекс.Метрике"));
-            prozenMenu.appendChild(createProzenMenuElement("Поиск", "prozen_menu_search", clickSearchButton, "Альтернативная функция поиска"));
-            prozenMenu.appendChild(createProzenMenuElement("Проверка публикаций", "prozen_menu_robot", clickFindSadRobots, "Поиск проблемных публикаций"));
-            navBarContent.insertBefore(prozenMenu, navBarSpace);
-        } else {
-            let column = document.querySelector("div[class^=editor--author-studio-dashboard__stickyWrapper-]"); //"div[class^=author-studio-dashboard__rightContent-]"
-            if (column == null) column = document.querySelector("div[class^=editor--author-studio-dashboard__rightContent-]");
-            if (column == null) {
-                return;
-            }
-            const menu = createElement("div", "editor--pager__container-Hn");
-            menu.id = "prozen-main-menu";
-            menu.setAttribute("data-publisherId", publisherId);
-            column.appendChild(menu);
-            menu.style.marginTop = "16px";
-
-            const menuContent = createElement("div", "editor--loading-boundary-stacked-layout__content-15"); //author-studio-useful-articles-block
-            menu.appendChild(menuContent);
-
-            const menuH3 = createElement("div", "editor--author-studio-section-title__title-uh Text Text_weight_medium Text_color_full Text_typography_headline-18-22 editor--author-studio-section-title__text-2P");
-            menuH3.innerText = "Дополнительное меню";
-            menuH3.setAttribute("title", "Добавлено расширением ПРОДЗЕН");
-            menuContent.appendChild(menuH3);
-
-            const menuStats = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-            menuStats.innerText = "Полная статистика";
-            menuStats.addEventListener("click", clickTotalStatsButton);
-            menuStats.style.cursor = "pointer";
-            menuContent.appendChild(menuStats);
-
-            const menuMetriks = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-            menuMetriks.innerText = "Метрика";
-            menuMetriks.style.cursor = "pointer";
-            menuMetriks.addEventListener("click", window.open.bind(null, metriksUrl));
-            menuContent.appendChild(menuMetriks);
-
-            const menuSearch = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-            menuSearch.innerText = "Поиск";
-            menuSearch.addEventListener("click", clickSearchButton);
-            menuSearch.style.cursor = "pointer";
-            menuContent.appendChild(menuSearch);
-
-            const menuNoindex = createElement("div", "Text Text_typography_text-15-20 editor--notification__textWrapper-1- editor--notification__text-3k prozen-mb5-block");
-            menuNoindex.innerText = "Проверка публикаций";
-            menuNoindex.addEventListener("click", clickFindSadRobots);
-            menuNoindex.style.cursor = "pointer";
-            menuContent.appendChild(menuNoindex);
-        }
-    }
-}
-
-function createProzenMenuElement(title, iconClass, url = null, hint = null, bold = false) {
-    const navItem = createElement("li");
-    navItem.style.cursor = "pointer";
-    if (hint !== null) {
-        navItem.setAttribute("title", hint);
-    }
-    let menuLine;
-    if (url == null) {
-        menuLine = createElement("div", "editor--navbar__item-17"); //editor--navbar__item-17 editor--navbar__item-2e
-        bold = true;
-    } else if (typeof url === "string") {
-        menuLine = createElement("a", "editor--navbar__item-17"); // editor--navbar__item-17 editor--navbar__item-2e
-        menuLine.setAttribute("target", "_blank");
-        menuLine.setAttribute("href", url);
-    } else {
-        menuLine = createElement("a", "editor--navbar__item-17"); //editor--navbar__item-17 editor--navbar__item-2e
-        menuLine.addEventListener("click", url);
-        menuLine.cursor = "pointer";
-    }
-    navItem.appendChild(menuLine);
-
-    const menuIcon = createElement("div", "editor--navbar__icon-1d"); //"editor--navbar__icon-1d editor--navbar__icon-1R"
-    if (iconClass != null) {
-        const icon = createElement("div", "editor--navbar__svg-2_"); //editor--navbar__svg-2_ editor--navbar__svg-3j
-        icon.classList.add(iconClass);
-        menuIcon.appendChild(icon);
-    }
-    menuLine.appendChild(menuIcon);
-
-    const menuText = createElement("span", "Text Text_typography_text-15-20 editor--navbar__text-pc"); //Text Text_color_full Text_typography_text-14-18 navbar__text
-    menuText.innerText = title;
-    menuLine.appendChild(menuText);
-    if (bold) {
-        menuText.style.fontWeight = "bold";
-    }
-    return navItem;
-}
-
-
-async function modifyStudioStyles() {
-    // const showComments = await getOption(OPTIONS.commentsWidget);
-    const hideRealtimeStatsList = await getOption(OPTIONS.shortDashboardRealtime);
-    const hidePromoteBanner = await getOption(OPTIONS.promoteShow);
-    let sheetStr = "";
-    // if (!showComments) sheetStr +=  ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}";
-    if (hideRealtimeStatsList) sheetStr += ".editor--realtime-publications__list-3o{display:none;}";
-    if (hidePromoteBanner) {
-        sheetStr += ".editor--author-studio-dashboard__promoBanner-1U{display:none;}";
-        sheetStr += ".editor--youtube-entrency-panel__root-2D{display:none;}";
-    }
-    if (sheetStr.length > 0) {
-        const sheet = new CSSStyleSheet();
-        sheet.replaceSync(sheetStr);
-        document.adoptedStyleSheets = [sheet];
-    }
 }
 
 function openUrl(url) {
@@ -356,13 +169,6 @@ function openUrl(url) {
 
 function openUrlNewTab(url) {
     window.open(url, "_blank");
-}
-
-function sendProzenRequest() {
-    const data = {
-        type: "prozen-request"
-    };
-    window.postMessage(data, "*");
 }
 
 function ReceiveProzenData(event) {
