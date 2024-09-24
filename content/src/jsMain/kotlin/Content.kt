@@ -119,22 +119,6 @@ fun onProzenData(e: Event) {
     contentRunner?.run()
 }
 
-
-/*
-val pageType = getPageType()
-if (pageType == "main" || pageType == "publications") {
-    getBalanceAndMetriksId().then { result ->
-        metriksId = result.metriksId
-        moneyTotal = result.total
-        moneySaldo = result.money
-        moneyDate = result.balanceDate
-
-        main(publisherId)
-    }
-} else {
-    main(publisherId)
-} */
-
 fun getPageType(): PageType {
     val path = window.location.pathname
     val pageType = when {
@@ -166,9 +150,7 @@ fun keepServiceWorkerAlive() {
 fun main() {
     keepServiceWorkerAlive()
     window.setInterval({ keepServiceWorkerAlive() }, 25000)
-
-    // listenToRequests()
-
+    listenToRequests()
     injectCssAndScript()
 }
 

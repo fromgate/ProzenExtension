@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import org.w3c.dom.url.URL
 
 
 open class Requester(val publisherId: String?, val token: String?) {
@@ -128,6 +129,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
         return getData(requestUrl)
     }
+
     /**
      * Получить данные о канале
      *
@@ -161,6 +163,61 @@ open class Requester(val publisherId: String?, val token: String?) {
             null
         }
     }
+
+    suspend fun getPublicationsByView(
+        pageSize: Int? = null,
+        types: String? = null,
+        view: String? = null,
+        query: String? = null,
+        publicationIdAfter: String? = null
+    ): JsonObject? {
+
+        val url = URL("editor-api/v3/publications", "https://dzen.ru")
+        with(url.searchParams) {
+            set("state", "published")
+            append("pageSize", pageSize?.toString() ?: "10")
+            append("publisherId", publisherId!!)
+
+            query?.let { append("query", it) }
+            types?.let { append("types", it) }
+            view?.let { append("view", it) }
+            publicationIdAfter?.let { append("publicationIdAfter", it) }
+        }
+
+        return getJson(url.href)
+    }
+
+    suspend fun getPublicationsStatsSubscribers(ids: List<String>?): Map<String, Int> {
+        val subscribersViews = mutableMapOf<String, Int>()
+        if (!ids.isNullOrEmpty()) {
+            val url = URL("editor-api/v2/publisher/$publisherId/stats2", "https://dzen.ru")
+            with(url.searchParams) {
+                append("publisherId", publisherId!!)
+                ids.forEach {
+                    append("publicationIds", it)
+                }
+                append("fields", "typeSpecificViews")
+                append("groupBy", "ageGender")
+                append("isSubscriber", "true")
+                append("from", "2022-01-25")
+            }
+
+            val jsonObject = getJson(url.href)
+            val pubData = jsonObject?.arr("publications")
+
+            pubData?.forEach {
+                (it as? JsonObject)?.obj("publication")?.let { publication ->
+                    val publicationId = publication.string("publicationId")
+                    val typeSpecificViews = publication.int("typeSpecificViews")
+                    if (publicationId != null && typeSpecificViews != null) {
+                        subscribersViews[publicationId] = typeSpecificViews
+                    }
+                }
+            }
+        }
+        return subscribersViews
+    }
+
 
     suspend inline fun <reified T> getData(
         requestUrl: String,

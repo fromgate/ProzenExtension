@@ -26,7 +26,7 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
 
             when (pageType) {
                 MAIN -> {
-                    processDashboardCards(serviceWorkerMessage.pageSize ?: 0)
+                    processStudioCards(serviceWorkerMessage.pageSize ?: 0)
                 }
                 PUBLICATIONS -> {
                     processPublicationsCards(serviceWorkerMessage)
@@ -48,11 +48,10 @@ fun listenToRequests() {
 }
 
 
-fun processDashboardCards(pageSize: Int) {
+fun processStudioCards(pageSize: Int) {
     console.log("processDashboardCards")
 }
 
 fun processPublicationsCards(serviceWorkerMessage: ServiceWorkerMessage) {
     console.log("processPublicationsCards with message: $serviceWorkerMessage")
 }
-

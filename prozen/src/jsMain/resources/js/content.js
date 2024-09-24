@@ -24,14 +24,14 @@ async function start() {
 
 function injectCssAndScript() {
     window.removeEventListener("message", ReceiveProzenData);
-    if (!document.getElementById("prozen-css")) {
+    /*if (!document.getElementById("prozen-css")) {
         const css = createElement("link");
         css.setAttribute("rel", "stylesheet");
         css.setAttribute("type", "text/css");
         css.id = "prozen-css";
         css.setAttribute("href", chrome.runtime.getURL("css/prozen.css"));
         document.head.appendChild(css);
-    }
+    } */
     if (!document.getElementById("prozen-page-script")) {
         const script = createElement("script");
         script.setAttribute("type", "text/javascript");

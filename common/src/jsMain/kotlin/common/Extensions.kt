@@ -66,3 +66,7 @@ fun Instant.toDDMMYYYYHHMM(yearLength: Int = 4): String {
 fun HTMLElement.removeChildren() {
     this.asDynamic().replaceChildren()
 }
+
+fun Double?.isNanOrNull(): Boolean {
+    return this == null || this.isNaN()
+}

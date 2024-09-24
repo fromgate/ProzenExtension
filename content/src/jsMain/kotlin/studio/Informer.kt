@@ -235,14 +235,18 @@ class Informer(val requester: Requester) {
                             }
                         }
                         scr?.let {
-                            title = "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
-                                    "Показывает какая доля подписчиков видит карточки публикаций."
-                            div("prozen-widget-item") {
-                                span("prozen-widget-item-title") {
-                                    +"Охват подписчиков (SCR): "
-                                }
-                                span {
-                                    +it.format()
+                            if (!scr.isNaN()) {
+                                div("prozen-widget-item") {
+                                    title = "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
+                                            "Показывает какая доля подписчиков видит карточки публикаций."
+                                    div("prozen-widget-item") {
+                                        span("prozen-widget-item-title") {
+                                            +"Охват подписчиков (SCR): "
+                                        }
+                                        span {
+                                            +it.format()
+                                        }
+                                    }
                                 }
                             }
                         }
