@@ -4,17 +4,15 @@ import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.html.classes
-import kotlinx.html.div
+import kotlinx.html.*
 import kotlinx.html.dom.create
-import kotlinx.html.img
 
 val scope = MainScope()
 
 fun showNotification(
     message: String,
     logoUrl: String = chrome.runtime.getURL("img/toast-logo.png"),
-    timeout: Long = 3000
+    timeout: Long = 3000,
 ) {
     val notification = document.create.div {
         classes = setOf("prozen-notification", "prozen-fade-in")
@@ -24,7 +22,12 @@ fun showNotification(
         }
 
         div {
-            +message
+            message.split("\n").forEachIndexed { index, line ->
+                if (index > 0) {
+                    br
+                }
+                span { +line }
+            }
         }
     }
 

@@ -64,6 +64,9 @@ class Informer(val requester: Requester) {
         val channelUnIndexed = channelUnIndexedDeferred.await()
         val channelData = channelDataDeferred.await()
 
+        strikes?.let { Warnings(requester.publisherId!!, it)}
+
+
         return@coroutineScope InformerData(
             strikes = strikes?.second,
             channelLimited = strikes?.first,
