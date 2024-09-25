@@ -154,7 +154,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     suspend fun getJson(
         requestUrl: String,
-        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders
+        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): JsonObject? {
         val response = getHttpResponse(requestUrl, customHeaders)
         return if (response.status == HttpStatusCode.OK) {
@@ -164,14 +164,24 @@ open class Requester(val publisherId: String?, val token: String?) {
         }
     }
 
+    /**
+     * Получение списка публикаций карточек публикаций
+     *
+     * @param pageSize —
+     * @param types —
+     * @param view —
+     * @param query —
+     * @param publicationIdAfter  —
+     *
+     * @return JsonObject? — список публикаций
+     */
     suspend fun getPublicationsByView(
         pageSize: Int? = null,
         types: String? = null,
         view: String? = null,
         query: String? = null,
-        publicationIdAfter: String? = null
-    ): JsonObject? {
-
+        publicationIdAfter: String? = null,
+    ): List<Card> {
         val url = URL("editor-api/v3/publications", "https://dzen.ru")
         with(url.searchParams) {
             set("state", "published")
@@ -183,13 +193,13 @@ open class Requester(val publisherId: String?, val token: String?) {
             view?.let { append("view", it) }
             publicationIdAfter?.let { append("publicationIdAfter", it) }
         }
-
-        return getJson(url.href)
+        val jsonObject = getJson(url.href)
+        return jsonObject?.let (::studioRequestDataToCards) ?: emptyList()
     }
 
-    suspend fun getPublicationsStatsSubscribers(ids: List<String>?): Map<String, Int> {
+    suspend fun getPublicationsStatsSubscribers(ids: List<String>): Map<String, Int> {
         val subscribersViews = mutableMapOf<String, Int>()
-        if (!ids.isNullOrEmpty()) {
+        if (ids.isNotEmpty()) {
             val url = URL("editor-api/v2/publisher/$publisherId/stats2", "https://dzen.ru")
             with(url.searchParams) {
                 append("publisherId", publisherId!!)
@@ -218,10 +228,23 @@ open class Requester(val publisherId: String?, val token: String?) {
         return subscribersViews
     }
 
+    suspend fun getPublicationsByFilterAndSubscribers(
+        pageSize: Int,
+        types: String,
+        publicationIdAfter: String,
+        view: String,
+        query: String,
+    ): List<Card> {
+        val cards = getPublicationsByView(pageSize, types, view, query, publicationIdAfter)
+        val ids = cards.map { it.id }
+        val subscribersViews = getPublicationsStatsSubscribers(ids);
+        cards.forEach { it.subscribersViews = subscribersViews[it.id] ?: 0 }
+        return cards
+    }
 
     suspend inline fun <reified T> getData(
         requestUrl: String,
-        noinline customHeaders: HeadersBuilder.() -> Unit = defaultHeaders
+        noinline customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): T? {
         val response = getHttpResponse(requestUrl, customHeaders)
         return if (response.status == HttpStatusCode.OK) {
@@ -233,7 +256,7 @@ open class Requester(val publisherId: String?, val token: String?) {
 
     suspend fun getHttpResponse(
         requestUrl: String,
-        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders
+        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): HttpResponse {
         return client.get(requestUrl) {
             headers {
@@ -243,24 +266,6 @@ open class Requester(val publisherId: String?, val token: String?) {
     }
 
 }
-
-
-/*
-            localStats.views = Math.max(localStats.views, localStatsOld.views, 0);
-            localStats.viewsTillEnd = Math.max(localStats.viewsTillEnd, localStatsOld.viewsTillEnd, 0);
-            localStats.sumViewTimeSec = Math.max(localStats.sumViewTimeSec, localStatsOld.sumViewTimeSec, 0);
-            localStats.comments = Math.max(localStats.comments, localStatsOld.comments, 0);
- */
-
-
-/*
-{
-"publicationId": "66d80100c04b693827f257e0",
-"views": 49,
-"viewsTillEnd": 30
-}
- */
-
 
 @Serializable
 data class Stats(val publicationId: String, val views: Int, val viewsTillEnd: Int)
