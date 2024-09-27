@@ -146,25 +146,6 @@ open class Requester(val publisherId: String?, val token: String?) {
     }
 
     /**
-     * Выполнить GET-запрос по указанному URL и вернуть ответ в виде объекта JSON
-     *
-     * @param requestUrl: String — адрес для запроса
-     * @param customHeaders: HeadersBuilder —
-     * @return JsonObject —
-     */
-    suspend fun getJson(
-        requestUrl: String,
-        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
-    ): JsonObject? {
-        val response = getHttpResponse(requestUrl, customHeaders)
-        return if (response.status == HttpStatusCode.OK) {
-            response.body()
-        } else {
-            null
-        }
-    }
-
-    /**
      * Получение списка публикаций карточек публикаций
      *
      * @param pageSize —
@@ -194,7 +175,7 @@ open class Requester(val publisherId: String?, val token: String?) {
             publicationIdAfter?.let { append("publicationIdAfter", it) }
         }
         val jsonObject = getJson(url.href)
-        return jsonObject?.let (::studioRequestDataToCards) ?: emptyList()
+        return jsonObject?.let(::studioRequestDataToCards) ?: emptyList()
     }
 
     suspend fun getPublicationsStatsSubscribers(ids: List<String>): Map<String, Int> {
@@ -216,30 +197,55 @@ open class Requester(val publisherId: String?, val token: String?) {
             val pubData = jsonObject?.arr("publications")
 
             pubData?.forEach {
-                (it as? JsonObject)?.obj("publication")?.let { publication ->
-                    val publicationId = publication.string("publicationId")
-                    val typeSpecificViews = publication.int("typeSpecificViews")
+                console.log(it)
+
+                ///publications/0/publication/publicationId
+                ///publications/0/stats/typeSpecificViews
+
+                (it as? JsonObject)?.let {
+                    val publicationId = it.obj("publication")?.string("publicationId")
+                    val typeSpecificViews = it.obj("stats")?.int("typeSpecificViews")
                     if (publicationId != null && typeSpecificViews != null) {
                         subscribersViews[publicationId] = typeSpecificViews
                     }
                 }
+
             }
         }
         return subscribersViews
     }
 
     suspend fun getPublicationsByFilterAndSubscribers(
-        pageSize: Int,
-        types: String,
-        publicationIdAfter: String,
-        view: String,
-        query: String,
+        pageSize: Int? = 10,
+        types: String? = null,
+        publicationIdAfter: String? = null,
+        view: String? = null,
+        query: String? = null,
     ): List<Card> {
         val cards = getPublicationsByView(pageSize, types, view, query, publicationIdAfter)
         val ids = cards.map { it.id }
         val subscribersViews = getPublicationsStatsSubscribers(ids);
         cards.forEach { it.subscribersViews = subscribersViews[it.id] ?: 0 }
         return cards
+    }
+
+    /**
+     * Выполнить GET-запрос по указанному URL и вернуть ответ в виде объекта JSON
+     *
+     * @param requestUrl: String — адрес для запроса
+     * @param customHeaders: HeadersBuilder —
+     * @return JsonObject —
+     */
+    suspend fun getJson(
+        requestUrl: String,
+        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
+    ): JsonObject? {
+        val response = getHttpResponse(requestUrl, customHeaders)
+        return if (response.status == HttpStatusCode.OK) {
+            response.body()
+        } else {
+            null
+        }
     }
 
     suspend inline fun <reified T> getData(

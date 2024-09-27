@@ -25,6 +25,55 @@ data class Card(
     var shares: Int? = null,
 )
 
+fun Card.showsStr(): String = this.feedShows?.format() ?: "0"
+
+fun Card.timeStr(): String? {
+    val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
+    val createStr = this.addTime?.toInstant()?.toDDMMYYYYHHMM(2) ?: modStr
+    return if (modStr != createStr) "$createStr ($modStr)" else createStr
+}
+
+fun Card.viewsOrClicks(): Int = this.views ?: this.clicks!!
+
+fun Card.viewsStrAndTitle(): Pair<String, String> {
+    val ctrStr = ((this.clicks!!.toDouble() / this.feedShows!!.toDouble()) * 100).format()
+    val viewsStr = "${this.viewsOrClicks().format()} ($ctrStr%)"
+    val title = if (this.type == "article") "Клики (CTR)" else "Просмотры (VTR)"
+    return viewsStr to title
+}
+
+fun Card.fullReadsStrTitle(): Pair<String, String> {
+    val viewsTillEndPercent = ((this.viewsTillEnd!!.toDouble() / viewsOrClicks().toDouble()) * 100).format()
+    val viewsTillEndStr = "${this.viewsTillEnd!!.format() } ($viewsTillEndPercent%)"
+    val viewsTillEndTitle = if ( this.type == "article") "Дочитывания" else "Просмотры"
+    return viewsTillEndStr to viewsTillEndTitle
+}
+
+fun Card.subscribersViewStr(): String = if (this.subscribersViews == null || this.subscribersViews == 0) {
+    "0"
+} else {
+    val subscribersViewsPercent = try {
+        ((this.subscribersViews!!.toDouble() / this.viewsTillEnd!!.toDouble()) * 100).format()
+    } catch (e: Exception) { "" }
+    "${subscribersViews!!.format()} ($subscribersViewsPercent%)"
+}
+
+fun Card.likes() = this.likes?.format() ?: "0"
+
+fun Card.comments() = this.comments?.format() ?: "0"
+
+fun Card.reposts() = this.shares?.format() ?: "0"
+
+fun Card.subscriptions() = this.subscriptions?.format() ?: "0"
+
+fun Card.er(): String {
+    val sum = (this.comments ?: 0) + (this.likes ?:0) + (this.subscriptions?:0) + (this.shares ?:0)
+    val erViews = listOf(this.viewsTillEnd, this.views, this.clicks, this.feedShows).first { it != null && it>0 }
+    return if (erViews != null) {
+        "${((sum.toDouble() / erViews) * 100).format()}%"
+    } else { "0" }
+}
+
 /**
  *  Формирует список карт на основе данных полученных по запросу (студия, список публикаций).
  *  Используется в методе Requester.getPublicationsByView()
@@ -35,6 +84,8 @@ data class Card(
  */
 fun studioRequestDataToCards(jsonObject: JsonObject): List<Card> {
     val publications = jsonObject.arr("publications")
+
+
     val publicationCounters = jsonObject.arr("publicationCounters")
     val socialCounters = jsonObject.arr("socialCounters")
     val cards = mutableListOf<Card>()
@@ -42,11 +93,11 @@ fun studioRequestDataToCards(jsonObject: JsonObject): List<Card> {
         val publication = it as JsonObject
         val id = publication.string("id")!!
         val publicationCounter = publicationCounters?.find {
-            (it as JsonObject).string("id") == id
+            (it as JsonObject).string("publicationId") == id
         } as? JsonObject
 
         val socialCounter = socialCounters?.find {
-            (it as JsonObject).string("id") == id
+            (it as JsonObject).string("publicationId") == id
         } as? JsonObject
         val card = studioRequestDataToCard(publication, publicationCounter, socialCounter)
         card?.let(cards::add)
@@ -65,7 +116,7 @@ fun studioRequestDataToCard(
             id = publication.string("id")!!,
             type = publication.obj("content")!!.string("type")!!,
             title = publication.obj("content")!!.obj("preview")!!.string("title")!!,
-            snippet = publication.string("snippet") ?: "",
+            snippet = publication.obj("content")!!.obj("preview")!!.string("snippet") ?: "",
             publisherId = publication.string("publisherId")!!,
             addTime = publication.long("addTime"),
             modTime = publication.obj("content")!!.long("modTime")!!,

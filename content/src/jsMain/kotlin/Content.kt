@@ -5,6 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.events.Event
 import PageType.*
 import common.*
+import common.Option
 import dataclasses.ProzenData
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
@@ -148,10 +149,14 @@ fun keepServiceWorkerAlive() {
 
 
 fun main() {
-    keepServiceWorkerAlive()
-    window.setInterval({ keepServiceWorkerAlive() }, 25000)
-    listenToRequests()
-    injectCssAndScript()
+    Option.PROZEN.value().then { enabled ->
+        if (enabled) {
+            keepServiceWorkerAlive()
+            window.setInterval({ keepServiceWorkerAlive() }, 25000)
+            listenToRequests()
+            injectCssAndScript()
+        }
+    }
 }
 
 fun registerObserverWindowsLocation() {

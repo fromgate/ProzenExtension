@@ -2,6 +2,7 @@ import chrome.runtime.MessageSender
 import chrome.runtime.ExtensionMessageEvent
 import PageType.*
 import dataclasses.ServiceWorkerMessage
+import publications.Publications
 
 val serviceRequests = setOf("prozen-webrequest","prozen-mainpage-request")
 
@@ -49,6 +50,7 @@ fun listenToRequests() {
 
 
 fun processStudioCards(pageSize: Int) {
+    Publications(requester!!).processDashboardCards(pageSize)
     console.log("processDashboardCards")
 }
 

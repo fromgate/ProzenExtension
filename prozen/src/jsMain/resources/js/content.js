@@ -212,7 +212,7 @@ function backgroundListener(request) {
         token = request.token;
         const pageType = getPageType();
         if (pageType === "main") {
-            processDashboardCards(request.pageSize);
+            // processDashboardCards(request.pageSize);
         } else if (pageType === "publications") {
             processPublicationsCards(request);
         }
@@ -222,7 +222,7 @@ function backgroundListener(request) {
         token = request.token;
         const pageType = getPageType();
         if (pageType === "main") {
-            processDashboardCards(request.pageSize);
+            // processDashboardCards(request.pageSize);
         } else if (pageType === "publications") {
             processPublicationsCards(request);
         }
