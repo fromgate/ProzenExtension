@@ -52,14 +52,11 @@ class Publications(val requester: Requester) {
 
 
     fun updateWideCardElement(cardElement: HTMLElement, card: Card) {
-        // Найти элемент статистики публикации внутри карточки
         val statElement = cardElement.querySelector(".editor--dashboard-publication-item__publicationStat-1u") as? HTMLElement
-            ?: return // Если элемент статистики не найден, выйти
+            ?: return
 
-        // Очистить текущую статистику
         statElement.clear()
 
-        // Добавить новые элементы статистики с использованием Flexbox для колонок
         statElement.append {
             div("prozen-card-stats") {
                 style = "display: flex; flex-wrap: wrap; justify-content: space-between;"
@@ -99,9 +96,6 @@ class Publications(val requester: Requester) {
                     }
                 }
 
-                // Третий столбец
-                // лайки, коменты
-                // репосты, подписки
                 div("prozen-card-column") {
                     style = "flex-grow: 1.5;"
                     // Подписки
@@ -151,18 +145,22 @@ class Publications(val requester: Requester) {
                     }
                 }
 
-                // Четвертый столбец (если необходимо добавить больше данных)
                 div("prozen-card-column") {
-                    // Лайки
+
+                    val timeCrateAndModStr = card.timeCrateAndModStr()
+                    val titleTime = "Время создания: ${timeCrateAndModStr.first}${
+                        if (timeCrateAndModStr.second != null) "\nВремя редактирования: ${timeCrateAndModStr.second}" else "" 
+                    }"
                     div("prozen-card-row") {
-                        title = "Время публикации (время редактирования)"
+                        title = titleTime
                         span("prozen-card-icon prozen_studio_card_icon_clock")
-
-                        val timeStrTitle = card.timeStrTitle()
-
                         span("prozen-card-text") {
-                            title = timeStrTitle.second
-                            +timeStrTitle.first
+                            +timeCrateAndModStr.first
+                        }
+                        timeCrateAndModStr.second?.let {
+                            span("prozen-card-icon prodzen_studio_card_icon_edited") {
+                                style = "margin-left: 5px; width: 8px; height: 8px;"
+                            }
                         }
                     }
                     div("prozen-card-row") {
@@ -187,7 +185,4 @@ class Publications(val requester: Requester) {
             }
         }
     }
-
-
-
 }

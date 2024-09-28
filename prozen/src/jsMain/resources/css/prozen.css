@@ -460,6 +460,14 @@ html body .ui-lib-header__item._type_left {
     opacity: 70%;
 }
 
+.prodzen_studio_card_icon_edited {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 17.593 17.41' xmlns='http://www.w3.org/2000/svg' xmlns:cc='http://creativecommons.org/ns%23' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23'%3E%3Ctitle%3EshowsInFeed%3C/title%3E%3Cg transform='matrix(.68023 0 0 .77236 0 1.9627)' fill='none' fill-rule='evenodd'%3E%3Cg transform='translate(-220,-1599)' fill='%23000'%3E%3Cg transform='translate(56,160)'%3E%3Cpath d='m182 1457h-16v-16h10v6h6zm-4-18h-14v20h20v-13.791z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3Cmetadata%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:title%3EshowsInFeed%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cpath d='m4.5748 13.026 0.15191 1.831 2.0912-0.17452 9.7919-11.679-2.0499-1.9536z' fill='none' stroke='%23000' stroke-width='1.4362'/%3E%3C/svg%3E%0A");
+    height: 8px;
+    width: 8px;
+    display: inline-block;
+    margin-right: 8px;
+    opacity: 70%;
+}
 
 .author-studio-publication-cover {
     height: 95px !important;

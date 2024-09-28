@@ -42,6 +42,12 @@ fun Card.timeStrTitle(): Pair<String,String> {
     return createStr!! to title
 }
 
+fun Card.timeCrateAndModStr(): Pair<String, String?> {
+    val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
+    val createStr = this.addTime?.toInstant()?.toDDMMYYYYHHMM(2) ?: modStr
+    return if (modStr != createStr) createStr!! to modStr else createStr!! to null
+}
+
 fun Card.viewsOrClicks(): Int = this.views ?: this.clicks!!
 
 fun Card.viewsStrAndTitle(): Pair<String, String> {
