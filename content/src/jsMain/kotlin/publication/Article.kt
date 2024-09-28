@@ -59,13 +59,12 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
     }
 
 
-    fun addSubtitleLinks() {
+    private fun addSubtitleLinks() {
         Option.SUBTITLE_LINKS.value().then { option ->
             if (option) {
                 val shortLink = (document.head!!.querySelector("link[rel=canonical][href]") as HTMLLinkElement).href
                 val headers = document.querySelectorAll("h2, h3")
-                headers.asList().forEach {
-                    val header = it as HTMLHeadingElement
+                headers.asList().filterIsInstance<HTMLHeadingElement>().forEach { header ->
                     val anchorId = header.id
                     val linkIcon = document.create.span("publication_header_icon_url") {
                         title = "Ссылка на заголовок.\n" +
