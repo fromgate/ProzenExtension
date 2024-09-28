@@ -256,7 +256,7 @@ async function processPublicationsCards(request) {
     if (isPublicationGrid()) {
         modifyPublicationGrid(cards);
     } else {
-        modifyPublicationTable(cards);
+        // modifyPublicationTable(cards);
     }
 }
 

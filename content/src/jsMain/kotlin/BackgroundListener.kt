@@ -51,9 +51,9 @@ fun listenToRequests() {
 
 fun processStudioCards(pageSize: Int) {
     Publications(requester!!).processDashboardCards(pageSize)
-    console.log("processDashboardCards")
 }
 
 fun processPublicationsCards(serviceWorkerMessage: ServiceWorkerMessage) {
+    Publications(requester!!).processPublicationsCards(serviceWorkerMessage)
     console.log("processPublicationsCards with message: $serviceWorkerMessage")
 }

@@ -773,19 +773,18 @@ html body .ui-lib-header__item._type_left {
     gap: 12px; /* Промежуток между колонками */
 }
 
-/* Колонки */
+
 .prozen-card-column {
     flex-grow: 1; /* Колонки будут увеличиваться, чтобы заполнить пространство */
     flex-basis: 0; /* Колонки будут иметь равную ширину, адаптируясь к размеру родителя */
-    padding: 8px; /* Внутренний отступ */
-    background-color: #fff; /* Белый фон */
-    border-radius: 4px; /* Лёгкое скругление углов */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Лёгкая тень */
+    padding: 5px; /* Внутренний отступ */
+    /* background-color: #fff; /* Белый фон */
+    /* border-radius: 4px; /* Лёгкое скругление углов */
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Лёгкая тень */
     display: flex;
     flex-direction: column; /* Содержимое колонки располагается по вертикали */
 }
 
-/* Ряды внутри колонок */
 .prozen-card-row {
     display: flex;
     align-items: center;
@@ -793,7 +792,6 @@ html body .ui-lib-header__item._type_left {
     margin-bottom: 8px;
 }
 
-/* Стили для иконок */
 .prozen-card-icon {
     width: 12px;
     height: 12px;
@@ -812,25 +810,15 @@ html body .ui-lib-header__item._type_left {
     background-color: #d0d0d0;
 }
 
-
-/* Стили для текста внутри колонок */
 .prozen-card-text {
     white-space: nowrap;
     font-size: 12px; /* Размер шрифта для текста */
     color: #555; /* Темно-серый цвет для текста */
 }
 
-/* Стили для текста заголовков (опционально) */
 .prozen-card-title {
     font-size: 16px;
     font-weight: bold;
     color: #333;
     margin-bottom: 12px;
 }
-
-
-
-
-
-
-

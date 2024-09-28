@@ -197,11 +197,6 @@ open class Requester(val publisherId: String?, val token: String?) {
             val pubData = jsonObject?.arr("publications")
 
             pubData?.forEach {
-                console.log(it)
-
-                ///publications/0/publication/publicationId
-                ///publications/0/stats/typeSpecificViews
-
                 (it as? JsonObject)?.let {
                     val publicationId = it.obj("publication")?.string("publicationId")
                     val typeSpecificViews = it.obj("stats")?.int("typeSpecificViews")
