@@ -2,13 +2,16 @@ package publications
 
 import common.*
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.dom.clear
 import kotlinx.html.*
 import kotlinx.html.dom.append
+import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
+
 
 class Publications(val requester: Requester) {
 
@@ -154,16 +157,37 @@ class Publications(val requester: Requester) {
                     div("prozen-card-row") {
                         title = "Время публикации (время редактирования)"
                         span("prozen-card-icon prozen_studio_card_icon_clock")
-                        span("prozen-card-text") { +card.timeStr()!! }
+
+                        val timeStrTitle = card.timeStrTitle()
+
+                        span("prozen-card-text") {
+                            title = timeStrTitle.second
+                            +timeStrTitle.first
+                        }
                     }
                     div("prozen-card-row") {
-                        // TODO
-                        span("prozen-card-icon button prozen_studio_cards_subscribers")
-                        span("prozen-card-icon button prozen_studio_cards_subscribers")
+                        style ="justify-content: right;"
+                        span("prozen-card-icon button prozen_studio_card_icon_link") {
+                            title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
+                            onClickFunction = {
+                                it.preventDefault()
+                                copyTextToClipboard(card.url())
+                                showNotification("Cсылка скопирована в буфер обмена")
+                            }
+                        }
+                        span("prozen-card-icon button prozen_studio_card_icon_repost") {
+                            title = "Нажмите, чтобы сделать репост"
+                            onClickFunction = {
+                                it.preventDefault()
+                                window.open(card.repostUrl(), "_blank")
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
+
 
 }

@@ -33,6 +33,15 @@ fun Card.timeStr(): String? {
     return if (modStr != createStr) "$createStr ($modStr)" else createStr
 }
 
+fun Card.timeStrTitle(): Pair<String,String> {
+    val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
+    val createStr = this.addTime?.toInstant()?.toDDMMYYYYHHMM(2) ?: modStr
+
+    var title = "Время создания: $createStr"
+    if (modStr != createStr) title+="\nВремя редактирования: $modStr"
+    return createStr!! to title
+}
+
 fun Card.viewsOrClicks(): Int = this.views ?: this.clicks!!
 
 fun Card.viewsStrAndTitle(): Pair<String, String> {
@@ -73,6 +82,10 @@ fun Card.er(): String {
         "${((sum.toDouble() / erViews) * 100).format()}%"
     } else { "0" }
 }
+
+fun Card.url(): String = "https://dzen.ru/media/id/${this.publisherId}/${this.id}"
+
+fun Card.repostUrl(): String = "https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${this.id}"
 
 /**
  *  Формирует список карт на основе данных полученных по запросу (студия, список публикаций).

@@ -72,6 +72,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                                 "Кликните, чтобы скопировать её в буфер обмена"
                         onClickFunction = {
                             copyTextToClipboard("$shortLink#$anchorId")
+                            showNotification("Cсылка скопирована в буфер обмена")
                         }
                     }
                     if (header.hasChildNodes()) {
