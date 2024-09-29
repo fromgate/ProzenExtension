@@ -6,7 +6,7 @@ import kotlin.js.Promise
 import kotlin.js.json
 
 
-class Warnings(val publisherId: String, strikes: Pair<Boolean, Int>) {
+class Warnings(publisherId: String, strikes: Pair<Boolean, Int>) {
 
     private val storeKey: String = "$publisherId-warnings"
     private val channeBlocked = strikes.first

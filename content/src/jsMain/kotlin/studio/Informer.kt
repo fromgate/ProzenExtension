@@ -64,7 +64,7 @@ class Informer(val requester: Requester) {
         val channelUnIndexed = channelUnIndexedDeferred.await()
         val channelData = channelDataDeferred.await()
 
-        strikes?.let { Warnings(requester.publisherId!!, it)}
+        strikes?.let { Warnings(requester.publisherId!!, it).notify()}
 
 
         return@coroutineScope InformerData(
@@ -247,7 +247,7 @@ class Informer(val requester: Requester) {
                                             +"Охват подписчиков (SCR): "
                                         }
                                         span {
-                                            +it.format()
+                                            +"${it.format(2)}%"
                                         }
                                     }
                                 }

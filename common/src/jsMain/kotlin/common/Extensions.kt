@@ -24,8 +24,9 @@ fun JsonElement.asString(): String? = this.jsonPrimitive.contentOrNull
 
 
 // Number format
-fun Double.format(digits: Int = 2): String {
-    val param = json ("minimumFractionDigits" to digits, "maximumFractionDigits" to digits)
+fun Double.format(digits: Int? = null): String {
+    val d = digits ?: if (this < 2) 2 else 1
+    val param = json ("minimumFractionDigits" to d, "maximumFractionDigits" to d)
     return this.asDynamic().toLocaleString("ru-RU", param) as String
 }
 

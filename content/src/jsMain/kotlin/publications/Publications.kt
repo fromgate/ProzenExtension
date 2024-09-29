@@ -4,6 +4,7 @@ import common.*
 import dataclasses.ServiceWorkerMessage
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.dom.clear
@@ -13,6 +14,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.*
 
 
+@OptIn(DelicateCoroutinesApi::class)
 class Publications(val requester: Requester) {
 
 
@@ -549,5 +551,4 @@ class Publications(val requester: Requester) {
             }
         }
     }
-
 }

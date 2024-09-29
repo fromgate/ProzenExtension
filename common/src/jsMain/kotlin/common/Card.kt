@@ -13,7 +13,6 @@ data class Card(
     var publishTime: Long? = null,
     var feedShows: Int? = null,
     var clicks: Int? = null,
-    var views: Int? = null,
     var viewsTillEnd: Int? = null,
     var subscriptions: Int? = null,
     var subscribersViews: Int? = null,
@@ -37,12 +36,14 @@ fun Card.timeStr(): String? {
     return if (modStr != createStr) "$createStr ($modStr)" else createStr
 }
 
-fun Card.timeStrTitle(): Pair<String,String> {
+fun Card.views(): Int = if (this.type == "article") this.clicks!! else this.viewsTillEnd!!
+
+fun Card.timeStrTitle(): Pair<String, String> {
     val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
     val createStr = this.addTime?.toInstant()?.toDDMMYYYYHHMM(2) ?: modStr
 
     var title = "Время создания: $createStr"
-    if (modStr != createStr) title+="\nВремя редактирования: $modStr"
+    if (modStr != createStr) title += "\nВремя редактирования: $modStr"
     return createStr!! to title
 }
 
@@ -52,19 +53,20 @@ fun Card.timeCrateAndModStr(): Pair<String, String?> {
     return if (modStr != createStr) createStr!! to modStr else createStr!! to null
 }
 
-fun Card.viewsOrClicks(): Int = this.views ?: this.clicks!!
-
 fun Card.viewsStrAndTitle(): Pair<String, String> {
-    val ctrStr = ((this.clicks!!.toDouble() / this.feedShows!!.toDouble()) * 100).format()
-    val viewsStr = "${this.viewsOrClicks().format()} ($ctrStr%)"
-    val title = if (this.type == "article") "Клики (CTR)" else "Просмотры (VTR)"
+    val (views, ctr, title) = if (this.type == "article") {
+        Triple(this.clicks!!, (this.clicks!!.toDouble() / this.feedShows!!) * 100, "Клики (CTR)")
+    } else {
+        Triple(this.viewsTillEnd!!, (this.viewsTillEnd!!.toDouble() / this.feedShows!!) * 100, "Просмотры (VTR)")
+    }
+    val viewsStr = "${views.format()} (${ctr.format()}%)"
     return viewsStr to title
 }
 
 fun Card.fullReadsStrTitle(): Pair<String, String> {
-    val viewsTillEndPercent = ((this.viewsTillEnd!!.toDouble() / viewsOrClicks().toDouble()) * 100).format()
-    val viewsTillEndStr = "${this.viewsTillEnd!!.format() } ($viewsTillEndPercent%)"
-    val viewsTillEndTitle = if ( this.type == "article") "Дочитывания" else "Просмотры"
+    val viewsTillEndPercent = ((this.viewsTillEnd!!.toDouble() / views()) * 100).format()
+    val viewsTillEndStr = "${this.viewsTillEnd!!.format()} ($viewsTillEndPercent%)"
+    val viewsTillEndTitle = if (this.type == "article") "Дочитывания" else "Просмотры"
     return viewsTillEndStr to viewsTillEndTitle
 }
 
@@ -73,7 +75,9 @@ fun Card.subscribersViewStr(): String = if (this.subscribersViews == null || thi
 } else {
     val subscribersViewsPercent = try {
         ((this.subscribersViews!!.toDouble() / this.viewsTillEnd!!.toDouble()) * 100).format()
-    } catch (e: Exception) { "" }
+    } catch (e: Exception) {
+        ""
+    }
     "${subscribersViews!!.format()} ($subscribersViewsPercent%)"
 }
 
@@ -86,11 +90,13 @@ fun Card.reposts() = this.shares?.format() ?: "0"
 fun Card.subscriptions() = this.subscriptions?.format() ?: "0"
 
 fun Card.er(): String {
-    val sum = (this.comments ?: 0) + (this.likes ?:0) + (this.subscriptions?:0) + (this.shares ?:0)
-    val erViews = listOf(this.viewsTillEnd, this.views, this.clicks, this.feedShows).first { it != null && it>0 }
+    val sum = (this.comments ?: 0) + (this.likes ?: 0) + (this.subscriptions ?: 0) + (this.shares ?: 0)
+    val erViews = listOf(this.viewsTillEnd, this.clicks, this.feedShows).first { it != null && it > 0 }
     return if (erViews != null) {
         "${((sum.toDouble() / erViews) * 100).format()}%"
-    } else { "0" }
+    } else {
+        "0"
+    }
 }
 
 fun Card.url(): String = "https://dzen.ru/media/id/${this.publisherId}/${this.id}"
