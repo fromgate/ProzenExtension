@@ -16,6 +16,7 @@ fun showNotification(
 ) {
     val notification = document.create.div {
         classes = setOf("prozen-notification", "prozen-fade-in")
+        style = "z-index: 100;"
 
         img(src = logoUrl, alt = "👍") {
             classes = setOf("prozen-logo")

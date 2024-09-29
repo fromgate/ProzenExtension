@@ -25,6 +25,10 @@ data class Card(
     var shares: Int? = null,
 )
 
+fun Card.isOldFormat(): Boolean {
+    return this.type in listOf("post", "narrative", "story")
+}
+
 fun Card.showsStr(): String = this.feedShows?.format() ?: "0"
 
 fun Card.timeStr(): String? {

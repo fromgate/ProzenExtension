@@ -212,7 +212,7 @@ class Publications(val requester: Requester) {
             )
             if (isPublicationGrid()) {
                 console.log("isPublicationGrid")
-                // modifyPublicationGrid(cards);
+                modifyPublicationGrid(cards)
             } else {
                 modifyPublicationTable(cards);
             }
@@ -394,6 +394,160 @@ class Publications(val requester: Requester) {
             table?.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId']") as? HTMLElement
 
         return div?.parentElement?.parentElement?.parentElement?.parentElement as? HTMLElement
+    }
+
+
+
+    /**
+     *  Добавление расширенной статистики в карточном режиме страницы публикаций
+     *
+     *  @param cards List<Card> - список с данными карточек с расширенной статистикой
+     *
+     */
+    fun modifyPublicationGrid (cards: List<Card>) {
+        if (!isPublicationGrid()) return
+        val waitList = mutableListOf<Card>()
+        cards.forEach { card ->
+            if (!card.isOldFormat()) {
+                val cellElement = getGridCellById(card.id)
+                if (cellElement == null) {
+                    waitList.add(card)
+                } else {
+                    modifyGridCell (cellElement, card)
+                }
+            }
+        }
+        if (waitList.isNotEmpty()) {
+            window.setTimeout({
+                modifyPublicationTable(waitList)
+            }, 300)
+        }
+    }
+
+    fun getGridCellById(publicationId: String): HTMLElement? {
+        val a = document.querySelector("a.editor--publication-card__link-3k[href*='$publicationId'");
+        if (a != null) return a.parentNode as HTMLElement
+        val div = document.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId'");
+        val parentNode = div?.parentNode?.parentNode as? HTMLElement
+        return parentNode?.querySelector("div.editor--publication-card__stats-1k") as? HTMLElement
+    }
+
+    fun modifyGridCell (cellElement: HTMLElement, card: Card) {
+        if (cellElement.hasAttribute("data-prozen-publication-id")) return
+        cellElement.setAttribute("data-prozen-publication-id", card.id)
+
+        val date = cellElement.querySelector("span.Text_typography_text-12-16") as? HTMLElement
+        date?.innerText = "${card.timeStr()} · "
+
+        val statElement = cellElement.querySelector("div[class^=editor--stats__block]") as? HTMLElement
+        statElement?.clear()
+        val zIndex = 11
+        statElement?.append {
+            div("prozen-card-stats") {
+                style = "display: flex; flex-wrap: wrap; justify-content: space-between;"
+                div("prozen-card-column") {
+                    div("prozen-card-row") {
+                        style = "z-index: $zIndex;"
+                        title = "Показы"
+                        span("prozen-card-icon prozen_studio_card_icon_shows")
+                        span("prozen-card-text") { +card.showsStr() }
+                    }
+                    // Количество просмотров
+                    val views = card.viewsStrAndTitle()
+                    div("prozen-card-row") {
+                        style = "z-index: $zIndex;"
+                        title = views.second
+                        span("prozen-card-icon prozen_studio_card_icon_views")
+                        span("prozen-card-text") { +views.first }
+                    }
+
+                    val viewsTillEnd = card.fullReadsStrTitle()
+                    div("prozen-card-row") {
+                        style = "z-index: $zIndex;"
+                        title = viewsTillEnd.second
+                        span("prozen-card-icon prozen_studio_card_icon_full_views") { } // Иконка дочитываний
+                        span("prozen-card-text") { +viewsTillEnd.first } // Количество дочитываний
+                    }
+
+                    div("prozen-card-row") {
+                        style = "z-index: $zIndex;"
+                        title = "Просмотры от подписчиков"
+                        span("prozen-card-icon prozen_studio_card_icon_subscribers") { } // Иконка дочитываний
+                        span("prozen-card-text") { +card.subscribersViewStr() } // Количество дочитываний
+                    }
+
+                }
+
+                div("prozen-card-column") {
+                    div("prozen-card-row") {
+                        style = "justify-content: right;  z-index: $zIndex;"
+                        span("prozen-card-icon prozen_studio_card_icon_like") {
+                            title = "Лайки"
+                        }
+                        span("prozen-card-text") {
+                            title = "Лайки"
+                            +card.likes()
+                        }
+
+                        span("prozen-card-icon prozen_studio_card_icon_repost") {
+                            title = "Репосты публикации"
+                            style = "margin-left: 8px;"
+                        }
+                        span("prozen-card-text") {
+                            title = "Репосты публикации"
+                            +card.reposts()
+                        }
+                    }
+
+                    div("prozen-card-row") {
+                        style = "justify-content: right; z-index: $zIndex;"
+                        span("prozen-card-icon prozen_studio_cards_subscribers") {
+                            title = "Подписки с публикации"
+                        }
+                        span("prozen-card-text") {
+                            title = "Подписки с публикации"
+                            +card.subscriptions()
+                        }
+                        span("prozen-card-icon prozen_studio_card_icon_comments") {
+                            title = "Комментарии"
+                            style = "margin-left: 8px;"
+                        }
+                        span("prozen-card-text") {
+                            title = "Комментарии"
+                            +card.comments()
+                        }
+                    }
+                    div("prozen-card-row") {
+                        style = "justify-content: right; z-index: $zIndex;"
+                        span("prozen-card-icon prozen_studio_card_icon_er") {
+                            title = "Коэффициент вовлечённости, ER"
+                        }
+                        span("prozen-card-text") {
+                            title = "Коэффициент вовлечённости, ER"
+                            +card.er()
+                        }
+                    }
+                    div("prozen-card-row") {
+                        style = "justify-content: right; z-index:$zIndex;"
+                        span("prozen-card-icon button prozen_studio_card_icon_link") {
+                            title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
+                            onClickFunction = {
+                                it.preventDefault()
+                                copyTextToClipboard(card.url())
+                                showNotification("Cсылка скопирована в буфер обмена")
+                            }
+                        }
+                        span("prozen-card-icon button prozen_studio_card_icon_repost") {
+                            title = "Нажмите, чтобы сделать репост"
+                            onClickFunction = {
+                                it.preventDefault()
+                                window.open(card.repostUrl(), "_blank")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

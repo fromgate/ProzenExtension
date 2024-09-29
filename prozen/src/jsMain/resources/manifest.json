@@ -44,22 +44,10 @@
   "content_scripts": [
     {
       "js": [
-        "js/tools.js",
-        "js/options.js",
-        "js/requester.js",
-        "js/content.js",
         "js/contentKt.js"
       ],
       "matches": [
-        "https://dzen.ru/profile/editor/*"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "js": [
-        "js/contentKt.js"
-      ],
-      "matches": [
+        "https://dzen.ru/profile/editor/*",
         "https://dzen.ru/a/*",
         "https://dzen.ru/b/*",
         "https://dzen.ru/video/*",
