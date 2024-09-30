@@ -103,7 +103,6 @@ fun onProzenData(e: Event) {
         }
 
         PUBLICATIONS -> {
-            console.log("Studio -> Publications")
             registerObserverWindowsLocation()
             Menu(requester!!)
         }

@@ -213,7 +213,6 @@ class Publications(val requester: Requester) {
                 query = serviceWorkerMessage.query
             )
             if (isPublicationGrid()) {
-                console.log("isPublicationGrid")
                 modifyPublicationGrid(cards)
             } else {
                 modifyPublicationTable(cards);

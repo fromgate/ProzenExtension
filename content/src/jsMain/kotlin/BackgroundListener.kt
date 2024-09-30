@@ -55,5 +55,4 @@ fun processStudioCards(pageSize: Int) {
 
 fun processPublicationsCards(serviceWorkerMessage: ServiceWorkerMessage) {
     Publications(requester!!).processPublicationsCards(serviceWorkerMessage)
-    console.log("processPublicationsCards with message: $serviceWorkerMessage")
 }
