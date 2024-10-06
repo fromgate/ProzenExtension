@@ -111,7 +111,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      * @return Int? — число заблокированных пользователей, null — ошибка
      */
     open suspend fun getBannedUsers(): Int? {
-        val requestUrl = "https://dzen.ru/api/comments/banned-users";
+        val requestUrl = "https://dzen.ru/api/comments/banned-users"
         val data = getJson(requestUrl)
         return data?.arr("bannedUsers")?.size
     }
@@ -219,7 +219,7 @@ open class Requester(val publisherId: String?, val token: String?) {
     ): List<Card> {
         val cards = getPublicationsByView(pageSize, types, view, query, publicationIdAfter)
         val ids = cards.map { it.id }
-        val subscribersViews = getPublicationsStatsSubscribers(ids);
+        val subscribersViews = getPublicationsStatsSubscribers(ids)
         cards.forEach { it.subscribersViews = subscribersViews[it.id] ?: 0 }
         return cards
     }

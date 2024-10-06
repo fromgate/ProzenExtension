@@ -1,16 +1,15 @@
-import kotlinx.browser.document
-import kotlinx.browser.window
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import org.w3c.dom.events.Event
 import PageType.*
 import common.*
 import common.Option
 import dataclasses.ProzenData
-import kotlinx.coroutines.await
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromDynamic
 import org.w3c.dom.*
+import org.w3c.dom.events.Event
 import publication.Article
 import publication.Brief
 import publication.Shorts
@@ -67,7 +66,7 @@ val event = e as? MessageEvent ?: return
         null
     } ?: return
 
-    if (prozenData?.type == "prozen-data") {
+    if (prozenData.type == "prozen-data") {
         token = prozenData.text
         data = prozenData.jsonData
         publisherId = prozenData.jsonData?.obj("publisher")?.string("id")

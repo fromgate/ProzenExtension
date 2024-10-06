@@ -215,14 +215,14 @@ class Publications(val requester: Requester) {
             if (isPublicationGrid()) {
                 modifyPublicationGrid(cards)
             } else {
-                modifyPublicationTable(cards);
+                modifyPublicationTable(cards)
             }
         }
     }
 
     private fun isPublicationGrid(): Boolean {
-        val div = document.querySelector("table[class^=editor--publications-list]");
-        return div == null;
+        val div = document.querySelector("table[class^=editor--publications-list]")
+        return div == null
     }
 
 
@@ -426,9 +426,9 @@ class Publications(val requester: Requester) {
     }
 
     fun getGridCellById(publicationId: String): HTMLElement? {
-        val a = document.querySelector("a.editor--publication-card__link-3k[href*='$publicationId'");
+        val a = document.querySelector("a.editor--publication-card__link-3k[href*='$publicationId'")
         if (a != null) return a.parentNode as HTMLElement
-        val div = document.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId'");
+        val div = document.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId'")
         val parentNode = div?.parentNode?.parentNode as? HTMLElement
         return parentNode?.querySelector("div.editor--publication-card__stats-1k") as? HTMLElement
     }

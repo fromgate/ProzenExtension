@@ -2,12 +2,11 @@ package publication
 
 import ContentRunner
 import common.*
-import kotlinx.browser.window
-import kotlinx.serialization.json.JsonObject
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonObject
 
 
 const val NO_INDEX_TITLE = "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
