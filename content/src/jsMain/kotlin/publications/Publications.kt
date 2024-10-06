@@ -54,7 +54,7 @@ class Publications(val requester: Requester) {
 
         cover?.let {
             val url = it.style.backgroundImage.substring(4, it.style.backgroundImage.length - 1).replace("\"", "")
-            id = url.split("_")[2]
+            id = url.split("_").getOrNull(2)
         }
 
         if (id == null && publicationBlock.hasAttribute("href")) {

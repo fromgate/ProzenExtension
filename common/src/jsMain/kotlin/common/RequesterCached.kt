@@ -48,13 +48,12 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
         return rewards
     }
 
-    override suspend fun getChannelData(): Triple<Int?, Int?, Instant?> {
-        var channelData: Triple<Int?, Int?, Instant?>? = (getFromCache("getChannelData") as? Json)?.run {
+    override suspend fun getChannelData(): Pair<Int?, Instant?> {
+        var channelData: Pair<Int?, Instant?>? = (getFromCache("getChannelData") as? Json)?.run {
             val metrikaCounterId = this["1"] as? Int?
-            val audience = this["2"] as? Int?
-            val regTime = (this["3"] as? String?)?.parseInstant()
-            if (audience != null && regTime != null) {
-                Triple(metrikaCounterId, audience, regTime)
+            val regTime = (this["2"] as? String?)?.parseInstant()
+            if (regTime != null) {
+                Pair(metrikaCounterId, regTime)
             } else {
                 null
             }
@@ -65,13 +64,11 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                     "getChannelData",
                     json(
                         "1" to it.first,
-                        "2" to it.second,
-                        "3" to it.third.toString()
+                        "2" to it.second.toString()
                     ),
                     calcExpirationTime(5.hours, true)
                 )
             }
-
         }
         return channelData
     }
@@ -87,7 +84,7 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
     private suspend fun <T> getOrLoadFromCache(
         cacheKey: String,
         expirationTime: Instant,
-        loader: suspend () -> T?
+        loader: suspend () -> T?,
     ): T? {
         val cachedData = getFromCache(cacheKey) as? T
         if (cachedData != null) {
@@ -110,7 +107,7 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                     resolve(null)
                     return@get
                 }
-                val data = cacheItem["data"] as? Any
+                val data = cacheItem["data"]
                 val timeStr = cacheItem["time"] as? String
                 if (data == null || timeStr == null) {
                     resolve(null)
@@ -128,7 +125,6 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                     console.error("Error parsing cache for $key: ${e.message}")
                     resolve(null)
                 }
-
             }
         }.await()
     }

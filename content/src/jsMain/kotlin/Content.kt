@@ -7,6 +7,7 @@ import PageType.*
 import common.*
 import common.Option
 import dataclasses.ProzenData
+import kotlinx.coroutines.await
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromDynamic
 import org.w3c.dom.*
@@ -53,18 +54,18 @@ fun injectCssAndScript() {
 
 @OptIn(ExperimentalSerializationApi::class)
 fun onProzenData(e: Event) {
-    val event = e as? MessageEvent ?: return
+val event = e as? MessageEvent ?: return
 
     if (event.source !is Window || event.source != window) return
 
-    val eventData = event.data.asDynamic()
-    if (eventData.type != "prozen-data") return
-
     val prozenData = try {
-        Json.decodeFromDynamic<ProzenData>(event.data)
+        val eventData = event.data.asDynamic()
+        if (eventData.type == "prozen-data") {
+            Json.decodeFromDynamic<ProzenData>(event.data)
+        } else null
     } catch (e: Exception) {
         null
-    }
+    } ?: return
 
     if (prozenData?.type == "prozen-data") {
         token = prozenData.text

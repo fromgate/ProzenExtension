@@ -133,16 +133,16 @@ open class Requester(val publisherId: String?, val token: String?) {
     /**
      * Получить данные о канале
      *
-     * @returns Triple<Int?, Int?, Long?> — счётчик метрики, размер аудитории канала, время регистрации
+     * @returns Pair<Int?, Long?> — счётчик метрики, время регистрации
      */
-    open suspend fun getChannelData(): Triple<Int?, Int?, Instant?> {
+    open suspend fun getChannelData(): Pair<Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
         val jsonResponse = getJson(requestUrl)
         val publisher = jsonResponse?.obj("publisher")
         val metrikaCounterId = publisher?.obj("privateData")?.int("metrikaCounterId")
-        val audience = publisher?.int("audience")
+        //val audience = publisher?.int("audience")
         val regTime = publisher?.long("regTime")?.toInstant()
-        return Triple(metrikaCounterId, audience, regTime)
+        return Pair(metrikaCounterId, regTime)
     }
 
     /**

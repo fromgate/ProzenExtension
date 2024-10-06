@@ -3,14 +3,51 @@ package common
 import kotlin.js.Promise
 import kotlin.js.json
 
-enum class Option(val id: String, val defaultValue: Boolean = true) {
-    PROZEN("prozen-switch"),
-    SHORT_DASHBOARD_REALTIME("prozen-realtime-switch"),
-    PROZEN_MENU("prozen-menu-switch"),
-    INFORMER("prozen-informer-switch"),
-    SUBTITLE_LINKS("prozen-article-link-switch2", false),
-    COMMENTS_WIDGET("prozen-comments-switch2", false),
-    PROMOTE_SHOW("prozen-promote-show", false);
+enum class Option(
+    val id: String,
+    val title: String,
+    val description: String? = null,
+    val defaultValue: Boolean = true,
+) {
+    PROZEN("prozen-switch", "Расширение включено"),
+    PROZEN_MENU(
+        "prozen-menu-switch", "Меню в сайдбаре",
+        "Добавлять меню расширения в левую панель студии"
+    ),
+    INFORMER("prozen-informer-switch", "Виджет расширения"),
+    SHORT_DASHBOARD_REALTIME(
+        "prozen-realtime-switch", "Почасовая статистика (только график)",
+        "Если отключено, то из почасовой статистики скрывается список статей"
+    ),
+
+    SUBTITLE_LINKS(
+        "prozen-article-link-switch2", "Ссылки в подзаголовках",
+        "Добавлять ссылки в подзаголовки статей",
+        defaultValue = false
+    ),
+    COMMENTS_WIDGET("prozen-comments-switch2", "Комментарии в студии",
+        defaultValue = false),
+    PROMOTE_SHOW("prozen-promote-show", "Скрывать баннеры",
+        defaultValue = false);
+
+    /*
+     TODO:
+      Разделы
+       - Включить / выключить
+       - Студия
+         - Меню (в сайдбаре)
+         - Виджет
+         - Кэширование виджета ?
+         - Скрыть почасовой список
+         - Скрыть баннеры
+         - Скрыть коменты?
+       - Публикации
+         - Отображать статистику
+         - Ссылки в подзаголовках
+         - Перепроверять noindex         -
+
+
+     */
 
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 

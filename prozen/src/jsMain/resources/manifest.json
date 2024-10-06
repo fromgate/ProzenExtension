@@ -5,6 +5,7 @@
   "version": "2.8.2",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
+  "options_page": "settings.html",
   "action": {
     "default_icon": {
       "19": "icons/tab-icon-19.png",

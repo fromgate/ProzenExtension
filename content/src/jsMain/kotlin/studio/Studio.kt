@@ -17,8 +17,7 @@ class Studio(val requester: Requester) : ContentRunner {
         GlobalScope.launch {
             modifyStudioStyles()
             Menu(requester).create()
-            val informer = Informer(requester)
-            informer.create()
+            Informer(requester).create()
         }
     }
 

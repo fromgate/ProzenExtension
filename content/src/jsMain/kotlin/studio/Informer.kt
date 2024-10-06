@@ -64,7 +64,7 @@ class Informer(val requester: Requester) {
         val channelUnIndexed = channelUnIndexedDeferred.await()
         val channelData = channelDataDeferred.await()
 
-        strikes?.let { Warnings(requester.publisherId!!, it).notify()}
+        strikes?.let { Warnings(requester.publisherId!!, it).notify() }
 
 
         return@coroutineScope InformerData(
@@ -77,8 +77,7 @@ class Informer(val requester: Requester) {
             minuteCourse = minuteCourse,
             zenReaderUrl = zenReaderUrl,
             metrikaId = channelData.first,
-            audience = channelData.second,
-            regTime = channelData.third
+            regTime = channelData.second
         )
     }
 
@@ -226,17 +225,7 @@ class Informer(val requester: Requester) {
                                 }
                             }
                         }
-                        audience?.let {
-                            div("prozen-widget-item") {
-                                title = "Число уникальных пользователей, просмотревших публикации в течение месяца"
-                                span("prozen-widget-item-title") {
-                                    +"Аудитория: "
-                                }
-                                span {
-                                    +it.format()
-                                }
-                            }
-                        }
+
                         scr?.let {
                             if (!scr.isNaN()) {
                                 div("prozen-widget-item") {
@@ -336,7 +325,7 @@ class Informer(val requester: Requester) {
 
     fun closeMenu() {
         val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
-        val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
+        // val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
         if (menu.classList.contains("prozen-menu-open")) {
             menu.classList.remove("prozen-menu-open")
             document.removeEventListener(
@@ -359,8 +348,7 @@ data class InformerData(
     val minuteCourse: List<Triple<String, Double, Double>>,
     val zenReaderUrl: String?,
     val metrikaId: Int?,
-    val audience: Int?,
-    val regTime: Instant?
+    val regTime: Instant?,
 )
 
 fun InformerData.isNotNull(): Boolean {

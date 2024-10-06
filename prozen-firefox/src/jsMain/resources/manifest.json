@@ -5,6 +5,7 @@
   "version": "2.8.2",
   "author": "fromgate, prozen.ru",
   "default_locale": "ru",
+  "options_page": "settings.html",
   "browser_specific_settings": {
     "gecko": {
       "id": "{62e2b893-cd14-4019-8749-9ca43a1c66ac}",

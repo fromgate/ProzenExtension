@@ -2,6 +2,7 @@ package publication
 
 import ContentRunner
 import common.*
+import kotlinx.browser.window
 import kotlinx.serialization.json.JsonObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -32,7 +33,12 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     open suspend fun getStats() {
         val localStats = getDataStats()
         val stat = requester.getPublicationStat(publicationId)
-        val noindex = checkNoIndex()
+        val noindex = checkNoIndex() /*.let {
+            if (!it) it else {
+                console.log("checkNoIndex: true → performing recheck")
+                checkNoIndexUrl(window.location.href)
+            }
+        }*/
         val url = "https://dzen.ru/media/id/$channelId/$publicationId"
         val (createTime, modTime) = getCreateModTime()
         stats = PublicationStats(
