@@ -5,6 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.asList
 import org.w3c.dom.get
 
 val OFF_BY_DEFAULT = listOf(
@@ -15,13 +16,10 @@ val OFF_BY_DEFAULT = listOf(
 val switchIds = mutableListOf<String>();
 
 fun initSwitches() {
-    val switchElements = document.getElementsByClassName("switch-checkbox")
-    for (i in 0 until switchElements.length) {
-        val el = switchElements[i] as HTMLElement
-        val switchId = el.id
-        switchIds.add(switchId)
-        document.getElementById(switchId)?.addEventListener("click", {
-            onCheckboxClick(switchId)
+    document.getElementsByClassName("switch-checkbox").asList().forEach { element ->
+        switchIds.add(element.id)
+        element.addEventListener("click", {
+            onCheckboxClick(element.id)
         })
     }
 }
@@ -45,23 +43,22 @@ fun setCheckbox(switchId: String, switchState: Boolean, save: Boolean = false) {
 }
 
 fun loadOptions() {
+    var save = false
     Options.load().then { options ->
         switchIds.forEach { switchId ->
-            var save = false
             val value = options[switchId] ?: {
                 save = true
                 Option.getValueOrDefault(switchId, true)
             }
             setCheckbox(switchId, value as Boolean, false)
-            if (save) saveOptions()
         }
     }
+    if (save) saveOptions()
 }
 
 fun saveOptions() {
-    val options = mutableMapOf<String, Boolean>()
-    switchIds.forEach { switchId ->
-        options[switchId] = (document.getElementById(switchId) as HTMLInputElement).checked
+    val options = switchIds.associateWith {
+        (document.getElementById(it) as HTMLInputElement).checked
     }
     Options.save(options)
 }
