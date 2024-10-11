@@ -159,13 +159,12 @@ fun main() {
 }
 
 fun registerObserverWindowsLocation() {
-    val body = document.querySelector("body")
     observerWindowLocationHref?.disconnect()
-
     observerWindowLocationHref = MutationObserver { mutations, _ ->
-        mutations.forEach {
-            if (oldHref != document.location?.href) {
-                oldHref = document.location?.href ?: ""
+        repeat(mutations.count()) {
+            val newHref = document.location?.href?.split("?")?.first()
+            if (oldHref != newHref && newHref != null) {
+                oldHref = newHref
                 sendProzenRequest()
             }
         }
@@ -176,7 +175,7 @@ fun registerObserverWindowsLocation() {
         subtree = true
     )
 
-    body?.let {
+    document.querySelector("body")?.let {
         observerWindowLocationHref?.observe(it, config)
     }
 }
