@@ -59,8 +59,6 @@ enum class Option(
          - Отображать статистику
          - Ссылки в подзаголовках
          - Перепроверять noindex         -
-
-
      */
 
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
