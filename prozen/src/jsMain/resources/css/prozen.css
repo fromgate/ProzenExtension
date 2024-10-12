@@ -848,6 +848,11 @@ html body .ui-lib-header__item._type_left {
     height: 100%;
 }
 
+.prozen-settings-container h4 {
+    font-size: 15px;
+    color: #333;
+}
+
 .prozen-settings-header {
     display: flex;
     align-items: center;

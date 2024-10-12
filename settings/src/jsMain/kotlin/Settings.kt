@@ -20,20 +20,26 @@ fun createSettingsPage(root: HTMLElement) {
             }
 
             // Настройки
-            Option.entries.forEach { option ->
-                div(classes = "prozen-settings-item") {
-                    label {
-                        input(type = InputType.checkBox) {
-                            id = option.id
-                            checked = option.defaultValue
+            val groups = Option.entries.map { it.group }.toSet()
+            groups.forEach { group ->
+                if (group != "default") {
+                        h4 { +group }
+                }
+                Option.entries.filter { it.group == group }.forEach { option ->
+                    div(classes = "prozen-settings-item") {
+                        label {
+                            input(type = InputType.checkBox) {
+                                id = option.id
+                                checked = option.defaultValue
+                            }
+                            +option.title
                         }
-                        +option.title
-                    }
-                    option.description?.let {
-                        div(classes = "prozen-info-icon") {
-                            +"ℹ️"
-                            span(classes = "prozen-tooltip") {
-                                +it
+                        option.description?.let {
+                            div(classes = "prozen-info-icon") {
+                                +"ℹ️"
+                                span(classes = "prozen-tooltip") {
+                                    +it
+                                }
                             }
                         }
                     }

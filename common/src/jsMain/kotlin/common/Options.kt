@@ -8,27 +8,41 @@ enum class Option(
     val title: String,
     val description: String? = null,
     val defaultValue: Boolean = true,
+    val group: String = "default"
 ) {
     PROZEN("prozen-switch", "Расширение включено"),
+
+    // Студия
     PROZEN_MENU(
         "prozen-menu-switch", "Меню в сайдбаре",
-        "Добавлять меню расширения в левую панель студии"
+        "Добавлять меню расширения в левую панель студии", group = "Студия"
     ),
-    INFORMER("prozen-informer-switch", "Виджет расширения"),
+    INFORMER("prozen-informer-switch", "Виджет расширения", group = "Студия"),
     SHORT_DASHBOARD_REALTIME(
         "prozen-realtime-switch", "Почасовая статистика (только график)",
-        "Если отключено, то из почасовой статистики скрывается список статей"
+        "Если отключено, то из почасовой статистики скрывается список статей", group = "Студия"
+    ),
+    COMMENTS_WIDGET(
+        "prozen-comments-switch2", "Комментарии в студии",
+        defaultValue = false, group = "Студия"
+    ),
+    PROMOTE_SHOW(
+        "prozen-promote-show", "Скрывать баннеры",
+        defaultValue = false, group = "Студия"
     ),
 
+    // Публикация
+
     SUBTITLE_LINKS(
-        "prozen-article-link-switch2", "Ссылки в подзаголовках",
-        "Добавлять ссылки в подзаголовки статей",
-        defaultValue = false
+    "prozen-article-link-switch2", "Ссылки в подзаголовках",
+    "Добавлять ссылки в подзаголовки статей",
+    defaultValue = false, group = "Публикация"
     ),
-    COMMENTS_WIDGET("prozen-comments-switch2", "Комментарии в студии",
-        defaultValue = false),
-    PROMOTE_SHOW("prozen-promote-show", "Скрывать баннеры",
-        defaultValue = false);
+    RECHECK_NOINDEX(
+        "prozen-publication-noindex-recheck", "Перепроверять индексацию",
+        "Проводить дополнительную перепроверку, если в обнаружена отключённая индексация",
+        defaultValue = false, group = "Публикация"
+    );
 
     /*
      TODO:
