@@ -8,11 +8,6 @@ import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.asList
 import org.w3c.dom.get
 
-val OFF_BY_DEFAULT = listOf(
-    "prozen-realtime-switch",
-    "prozen-article-link-switch2",
-    "prozen-promote-show"/*,"prozen-comments-widget-switch"*/
-)
 val switchIds = mutableListOf<String>();
 
 fun initSwitches() {
