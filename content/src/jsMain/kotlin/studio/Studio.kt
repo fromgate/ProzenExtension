@@ -28,9 +28,9 @@ class Studio(val requester: Requester) : ContentRunner {
         // val showComments = Option.COMMENTS_WIDGET.value().await()
         val hideRealtimeStatsList = Option.SHORT_DASHBOARD_REALTIME.value().await()
         val hidePromoteBanner = Option.PROMOTE_SHOW.value().await()
+        val hideCommentsBlock = Option.COMMENTS_WIDGET.value().await()
 
         var sheetStr = ""
-        // if (!showComments) sheetStr += ".author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}"
 
         if (hideRealtimeStatsList) {
             sheetStr += ".editor--realtime-publications__list-3o{display:none;}"
@@ -39,6 +39,10 @@ class Studio(val requester: Requester) : ContentRunner {
         if (hidePromoteBanner) {
             sheetStr += ".editor--author-studio-dashboard__promoBanner-1U{display:none;}"
             sheetStr += ".editor--youtube-entrency-panel__root-2D{display:none;}"
+        }
+
+        if (hideCommentsBlock) {
+            sheetStr += ".editor--author-studio-comments-block__authorStudioCommentsBlock-13{display:none;}"
         }
 
         // Если нужно применить стили

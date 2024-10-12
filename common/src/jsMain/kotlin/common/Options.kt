@@ -23,7 +23,7 @@ enum class Option(
         "Если отключено, то из почасовой статистики скрывается список статей", group = "Студия"
     ),
     COMMENTS_WIDGET(
-        "prozen-comments-switch2", "Комментарии в студии",
+        "prozen-comments-switch2", "Скрывать комментарии",
         defaultValue = false, group = "Студия"
     ),
     PROMOTE_SHOW(
@@ -40,7 +40,7 @@ enum class Option(
     ),
     RECHECK_NOINDEX(
         "prozen-publication-noindex-recheck", "Перепроверять индексацию",
-        "Проводить дополнительную перепроверку, если в обнаружена отключённая индексация",
+        "Проводить дополнительную перепроверку, если обнаружена отключённая индексация",
         defaultValue = false, group = "Публикация"
     );
 

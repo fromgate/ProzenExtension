@@ -846,6 +846,7 @@ html body .ui-lib-header__item._type_left {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    cursor: default;
 }
 
 .prozen-settings-container h4 {
