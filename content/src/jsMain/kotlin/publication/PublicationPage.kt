@@ -17,7 +17,7 @@ const val NO_INDEX_TITLE = "Обнаружен мета-тег <meta name=\"robo
         "Примечание: связь этого тега с показами,\n" +
         "пессимизацией и иными ограничениями канала\n" +
         "официально не подтверждена."
-const val SHORT_LINK_TITLE = "Сокращённая ссылка на статью.\nКликните, чтобы скопировать её в буфер обмена."
+const val SHORT_LINK_TITLE = "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена."
 
 abstract class PublicationPage(val requester: Requester, val data: JsonObject) : ContentRunner {
     val channelId: String
@@ -34,12 +34,7 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     open suspend fun getStats() {
         val localStats = getDataStats()
         val stat = requester.getPublicationStat(publicationId)
-        val noIndexOnPage = checkNoIndex()
-        val noindex = if (Option.RECHECK_NOINDEX.value().await() && noIndexOnPage) {
-            checkNoIndexUrl(window.location.href)
-        } else {
-            noIndexOnPage
-        }
+        val noindex = isNotIndexed()
         val url = "https://dzen.ru/media/id/$channelId/$publicationId"
         val (createTime, modTime) = getCreateModTime()
         stats = PublicationStats(
@@ -75,4 +70,13 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     }
 
     abstract fun showStats()
+
+    suspend fun isNotIndexed(): Boolean {
+        val noIndexOnPage = checkNoIndex()
+        return if (Option.RECHECK_NOINDEX.value().await() && noIndexOnPage) {
+            checkNoIndexUrl(window.location.href)
+        } else {
+            noIndexOnPage
+        }
+    }
 }
