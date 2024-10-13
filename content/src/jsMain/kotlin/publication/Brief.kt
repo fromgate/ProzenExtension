@@ -20,34 +20,34 @@ class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester,
         infoBlock?.removeChildren()
         infoBlock?.append {
             div("article-stats-view__item") {
-                title = "Время создания (редактирования)"
+                title = M.publicationTime
                 attributes["itemprop"] = "datePublished"
                 +stats.showTime()
             }
             if (stats.views != stats.viewsTillEnd) {
                 div("article-stats-view__item") {
-                    title = "Просмотры"
+                    title = M.publicationViews
                     span(Icons.VIEWS.cssClass)
                     +(stats.views?.format() ?: "")
                 }
             }
             div("article-stats-view__item") {
-                title = "Дочитывания"
+                title = M.publicationFullViews
                 span(Icons.FULL_VIEWS.cssClass)
                 +(stats.viewsTillEnd?.format() ?: "")
             }
             div("article-stats-view__item") {
                 span(Icons.LINK.cssClass)
-                title = SHORT_LINK_TITLE
+                title = M.publicationCopyLink
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
-                    showNotification("Cсылка скопирована в буфер обмена")
+                    showNotification(M.notificationLinkCopied)
                 }
                 style = "cursor: pointer;"
             }
             if (stats.notIndexed) {
                 div("article-stats-view__item") {
-                    title = NO_INDEX_TITLE
+                    title = M.publicationNotIndexed
                     span(Icons.SAD_ROBOT.cssClass)
                 }
             }

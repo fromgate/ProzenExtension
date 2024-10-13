@@ -40,30 +40,30 @@ class Video(requester: Requester, data: JsonObject) : PublicationPage(requester,
 
         infoBlock?.append {
             span {
-                title = "Время создания (редактирования)"
+                title = M.publicationTime
                 attributes["itemprop"] = "datePublished"
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
                 +"🕑 ${stats.showTime()}"
             }
             span {
-                title = "Просмотры"
+                title = M.publicationViews
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
                 +"📺 ${stats.views?.format()}"
             }
 
             span {
-                title = SHORT_LINK_TITLE
+                title = M.publicationCopyLink
                 style =
                     "display: inline-block !important; margin-left: 5px !important; cursor: pointer; pointer-events:auto;"
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
-                    showNotification("Ссылка скопирована в буфер обмена")
+                    showNotification(M.notificationLinkCopied)
                 }
                 +"🔗"
             }
             if (stats.notIndexed) {
                 span {
-                    title = NO_INDEX_TITLE
+                    title = M.publicationNotIndexed
                     style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto;"
                     +"🤖"
                 }

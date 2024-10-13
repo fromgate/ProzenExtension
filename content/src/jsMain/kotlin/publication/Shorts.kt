@@ -1,5 +1,6 @@
 package publication
 
+import common.M
 import common.Requester
 import common.format
 import kotlinx.browser.document
@@ -37,19 +38,19 @@ class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester
 
         infoBlock?.append {
             span {
-                title = "Время создания (редактирования)"
+                title = M.publicationTime
                 attributes["itemprop"] = "datePublished"
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
                 +"🕑 ${stats.showTime()}"
             }
             span {
-                title = "Просмотры"
+                title = M.publicationViews
                 style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
                 +"📺 ${stats.views?.format()}"
             }
             if (stats.notIndexed) {
                 span {
-                    title = NO_INDEX_TITLE
+                    title = M.publicationNotIndexed
                     style = "display: inline-block !important; margin-left: 5px !important; pointer-events:auto; font-size: 12px;"
                     +"🤖"
                 }

@@ -23,34 +23,34 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
         infoBlock?.removeChildren()
         infoBlock?.append {
             div("article-info-block__addTimeInfo-25") {
-                title = "Время создания (редактирования)"
+                title = M.publicationTime
                 attributes["itemprop"] = "datePublished"
                 +stats.showTime()
             }
             if (stats.views != stats.viewsTillEnd) {
                 div("article-info-block__viewsInfo-1g") {
-                    title = "Просмотры"
+                    title = M.publicationViews
                     span(Icons.VIEWS.cssClass)
                     +(stats.views?.format() ?: "")
                 }
             }
             div("article-info-block__viewsInfo-1g") {
-                title = "Дочитывания"
+                title = M.publicationFullViews
                 span(Icons.FULL_VIEWS.cssClass)
                 +(stats.viewsTillEnd?.format() ?: "")
             }
             div("article-info-block__viewsInfo-1g") {
-                title = SHORT_LINK_TITLE
+                title = M.publicationCopyLink
                 style = "cursor: pointer;"
                 onClickFunction = {
                     copyTextToClipboard(stats.shortLink)
-                    showNotification("Cсылка скопирована в буфер обмена")
+                    showNotification(M.notificationLinkCopied)
                 }
                 span(Icons.LINK.cssClass)
             }
             if (stats.notIndexed) {
                 div("article-info-block__viewsInfo-1g") {
-                    title = NO_INDEX_TITLE
+                    title = M.publicationNotIndexed
                     span(Icons.SAD_ROBOT.cssClass)
                 }
             }
@@ -67,11 +67,10 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                 headers.asList().filterIsInstance<HTMLHeadingElement>().forEach { header ->
                     val anchorId = header.id
                     val linkIcon = document.create.span("publication_header_icon_url") {
-                        title = "Ссылка на заголовок.\n" +
-                                "Кликните, чтобы скопировать её в буфер обмена"
+                        title = M.publicationCopyLink
                         onClickFunction = {
                             copyTextToClipboard("$shortLink#$anchorId")
-                            showNotification("Cсылка скопирована в буфер обмена")
+                            showNotification(M.notificationLinkCopied)
                         }
                     }
                     if (header.hasChildNodes()) {

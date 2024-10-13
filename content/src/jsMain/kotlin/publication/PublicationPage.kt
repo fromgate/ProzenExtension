@@ -11,14 +11,6 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 
 
-const val NO_INDEX_TITLE = "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-        "Публикация не индексируется поисковиками.\n" +
-        "Если вы недавно редактировали статью, то это нормально.\n" +
-        "Примечание: связь этого тега с показами,\n" +
-        "пессимизацией и иными ограничениями канала\n" +
-        "официально не подтверждена."
-const val SHORT_LINK_TITLE = "Сокращённая ссылка на публикацию.\nКликните, чтобы скопировать её в буфер обмена."
-
 abstract class PublicationPage(val requester: Requester, val data: JsonObject) : ContentRunner {
     val channelId: String
     val publicationId: String
