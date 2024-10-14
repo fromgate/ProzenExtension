@@ -65,15 +65,13 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                 val headers = document.querySelectorAll("h2, h3")
                 headers.asList().filterIsInstance<HTMLHeadingElement>().forEach { header ->
                     val anchorId = header.id
+                    header.style.position = "relative"
                     val linkIcon = document.create.span("publication-header-icon-url") {
-                        title = M.publicationCopyLink
+                        title = M.publicationHeaderCopyLink
                         onClickFunction = {
                             copyTextToClipboard("$shortLink#$anchorId")
                             showNotification(M.notificationLinkCopied)
                         }
-                    }
-                    if (header.style.position != "relative") {
-                        header.style.position = "relative"
                     }
                     if (header.hasChildNodes()) {
                         header.insertBefore(linkIcon, header.firstChild)
