@@ -16,39 +16,41 @@ class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester,
     override fun showStats() {
         val stats = this.stats ?: return
         val infoBlock =
-            document.querySelector("div.article-stats-view") as? HTMLDivElement
+            document.querySelector("div.desktop-brief-page__stats") as? HTMLDivElement
         infoBlock?.removeChildren()
         infoBlock?.append {
-            div("article-stats-view__item") {
-                title = M.publicationTime
-                attributes["itemprop"] = "datePublished"
-                +stats.showTime()
-            }
-            if (stats.views != stats.viewsTillEnd) {
-                div("article-stats-view__item") {
-                    title = M.publicationViews
-                    span(Icons.VIEWS.cssClass)
-                    +(stats.views?.format() ?: "")
+            div("prozen-article-stats") {
+                div("prozen-article-stats-item") {
+                    title = M.publicationTime
+                    attributes["itemprop"] = "datePublished"
+                    +stats.showTime()
                 }
-            }
-            div("article-stats-view__item") {
-                title = M.publicationFullViews
-                span(Icons.FULL_VIEWS.cssClass)
-                +(stats.viewsTillEnd?.format() ?: "")
-            }
-            div("article-stats-view__item") {
-                span(Icons.LINK.cssClass)
-                title = M.publicationCopyLink
-                onClickFunction = {
-                    copyTextToClipboard(stats.shortLink)
-                    showNotification(M.notificationLinkCopied)
+                if (stats.views != stats.viewsTillEnd) {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationViews
+                        span(Icons.VIEWS.cssClass)
+                        +(stats.views?.format() ?: "")
+                    }
                 }
-                style = "cursor: pointer;"
-            }
-            if (stats.notIndexed) {
-                div("article-stats-view__item") {
-                    title = M.publicationNotIndexed
-                    span(Icons.SAD_ROBOT.cssClass)
+                div("prozen-article-stats-item") {
+                    title = M.publicationFullViews
+                    span(Icons.FULL_VIEWS.cssClass)
+                    +(stats.viewsTillEnd?.format() ?: "")
+                }
+                div("prozen-article-stats-item") {
+                    span(Icons.LINK.cssClass)
+                    title = M.publicationCopyLink
+                    onClickFunction = {
+                        copyTextToClipboard(stats.shortLink)
+                        showNotification(M.notificationLinkCopied)
+                    }
+                    style = "cursor: pointer;"
+                }
+                if (stats.notIndexed) {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationNotIndexed
+                        span(Icons.SAD_ROBOT.cssClass)
+                    }
                 }
             }
         }

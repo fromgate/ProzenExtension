@@ -25,14 +25,9 @@
         "search.html",
         "totalstats.html",
         "sadrobot.html",
-        "js/search.js",
-        "js/totalstats.js",
-        "js/sadrobot.js",
-        "js/pageKt.js",
-        "js/litepicker.js",
-        "js/ranges.js",
+        "js/*.js",
         "css/prozen.css",
-        "img/toast-logo.png"
+        "img/*.png"
       ],
       "matches": [
         "https://dzen.ru/*"

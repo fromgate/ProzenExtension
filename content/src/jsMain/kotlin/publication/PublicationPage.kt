@@ -1,6 +1,7 @@
 package publication
 
 import ContentRunner
+import chrome.browsingData.OriginTypes
 import common.*
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -64,11 +65,15 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     abstract fun showStats()
 
     suspend fun isNotIndexed(): Boolean {
-        val noIndexOnPage = checkNoIndex()
-        return if (Option.RECHECK_NOINDEX.value().await() && noIndexOnPage) {
-            checkNoIndexUrl(window.location.href)
+        if (Option.CHECK_NOINDEX.isSet())  {
+            val noIndexOnPage = checkNoIndex()
+            return if (Option.RECHECK_NOINDEX.isSet() && noIndexOnPage) {
+                checkNoIndexUrl(window.location.href)
+            } else {
+                noIndexOnPage
+            }
         } else {
-            noIndexOnPage
+            return false
         }
     }
 }

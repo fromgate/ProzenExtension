@@ -89,6 +89,7 @@ tasks {
             ":popup:jsBrowserDistribution",
             ":service-worker:jsBrowserDistribution",
             ":content:jsBrowserDistribution",
+            ":search:jsBrowserDistribution",
             ":status:jsBrowserDistribution",
             ":settings:jsBrowserDistribution",
             ":prozen:jsBrowserDistribution")

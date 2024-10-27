@@ -8,8 +8,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.append
-import kotlinx.html.js.*
 import kotlinx.html.js.div
+import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventListener
 import kotlin.js.json
@@ -40,11 +40,11 @@ class Informer(val requester: Requester) {
 
     suspend fun getData(): InformerData = coroutineScope {
         val date = Clock.System.now()
-        val todayStr = date.toYYYYMMDD()
+        val todayStr = date.toYYYYMD()
         val before7 = date.minus(7.days)
-        val before7Str = before7.toYYYYMMDD()
+        val before7Str = before7.toYYYYMD()
         val before30 = date.minus(30.days)
-        val before30Str = before30.toYYYYMMDD()
+        val before30Str = before30.toYYYYMD()
         val channelUrl = window.location.href.replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 

@@ -1,5 +1,6 @@
 package common
 
+import kotlinx.coroutines.await
 import kotlin.js.Promise
 import kotlin.js.json
 
@@ -38,10 +39,14 @@ enum class Option(
     "Добавлять ссылки в подзаголовки статей",
     defaultValue = false, group = "Публикация"
     ),
-    RECHECK_NOINDEX(
-        "prozen-publication-noindex-recheck", "Перепроверять индексацию",
-        "Проводить дополнительную перепроверку, если обнаружена отключённая индексация",
+    CHECK_NOINDEX(
+      "prozen-publication-noindex-check", "Проверять индексацию",
         defaultValue = false, group = "Публикация"
+    ),
+    RECHECK_NOINDEX(
+        "prozen-publication-noindex-recheck", "Двойная перепроверка индексации",
+        "Проводить дополнительную перепроверку, если обнаружена отключённая индексация",
+        defaultValue = true, group = "Публикация"
     );
 
     /*
@@ -64,6 +69,8 @@ enum class Option(
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 
     fun value() = Options.get(this.id)
+
+    suspend fun isSet(): Boolean = Options.get(this.id).await()
 
     companion object {
         fun getIds(): List<String> = entries.map { it.id }

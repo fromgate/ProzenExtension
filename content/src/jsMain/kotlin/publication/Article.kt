@@ -4,6 +4,7 @@ import common.*
 import common.Option
 import kotlinx.serialization.json.JsonObject
 import kotlinx.browser.document
+import kotlinx.dom.clear
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
@@ -18,40 +19,42 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
     /* 🕑 05.09.24 18:11 (05.09.24 18:18) 📃 408 📄 213 🔗 🤖 */
     override fun showStats() {
         val stats = this.stats ?: return
-        val infoBlock =
-            document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]") as? HTMLDivElement
-        infoBlock?.removeChildren()
+        val infoBlock = document.querySelector(".article__statistics") as? HTMLElement  //article-stats-view_theme_white
+        //document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]") as? HTMLDivElement
+        infoBlock?.clear()
         infoBlock?.append {
-            div("article-info-block__addTimeInfo-25") {
-                title = M.publicationTime
-                attributes["itemprop"] = "datePublished"
-                +stats.showTime()
-            }
-            if (stats.views != stats.viewsTillEnd) {
-                div("article-info-block__viewsInfo-1g") {
-                    title = M.publicationViews
-                    span(Icons.VIEWS.cssClass)
-                    +(stats.views?.format() ?: "")
+            div("prozen-article-stats") {
+                div("prozen-article-stats-item") {
+                    title = M.publicationTime
+                    attributes["itemprop"] = "datePublished"
+                    +stats.showTime()
                 }
-            }
-            div("article-info-block__viewsInfo-1g") {
-                title = M.publicationFullViews
-                span(Icons.FULL_VIEWS.cssClass)
-                +(stats.viewsTillEnd?.format() ?: "")
-            }
-            div("article-info-block__viewsInfo-1g") {
-                title = M.publicationCopyLink
-                style = "cursor: pointer;"
-                onClickFunction = {
-                    copyTextToClipboard(stats.shortLink)
-                    showNotification(M.notificationLinkCopied)
+                if (stats.views != stats.viewsTillEnd) {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationViews
+                        span(Icons.VIEWS.cssClass)
+                        +(stats.views?.format() ?: "")
+                    }
                 }
-                span(Icons.LINK.cssClass)
-            }
-            if (stats.notIndexed) {
-                div("article-info-block__viewsInfo-1g") {
-                    title = M.publicationNotIndexed
-                    span(Icons.SAD_ROBOT.cssClass)
+                div("prozen-article-stats-item") {
+                    title = M.publicationFullViews
+                    span(Icons.FULL_VIEWS.cssClass)
+                    +(stats.viewsTillEnd?.format() ?: "")
+                }
+                div("prozen-article-stats-item") {
+                    title = M.publicationCopyLink
+                    style = "cursor: pointer;"
+                    onClickFunction = {
+                        copyTextToClipboard(stats.shortLink)
+                        showNotification(M.notificationLinkCopied)
+                    }
+                    span(Icons.LINK.cssClass)
+                }
+                if (stats.notIndexed) {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationNotIndexed
+                        span(Icons.SAD_ROBOT.cssClass)
+                    }
                 }
             }
         }

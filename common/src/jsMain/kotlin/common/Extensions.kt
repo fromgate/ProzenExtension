@@ -1,6 +1,5 @@
 package common
 
-import kotlinx.browser.window
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -36,9 +35,18 @@ fun Int.format(): String {
 }
 
 // Date Time
-fun Instant.toYYYYMMDD(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
+fun Instant.toYYYYMD(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
     val time = this.toLocalDateTime(timeZone)
     return "${time.year}-${time.monthNumber}-${time.dayOfMonth}"
+}
+
+fun Instant.toYYYYMMDD(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
+    val time = this.toLocalDateTime(timeZone)
+    return "${time.year}-${time.monthNumber.padZero()}-${time.dayOfMonth.padZero()}"
+}
+
+fun Int.padZero(): String {
+    return this.toString().padStart(2, '0')
 }
 
 fun Long.toInstant(): Instant {

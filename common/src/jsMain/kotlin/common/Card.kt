@@ -1,6 +1,7 @@
 package common
 
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 
 data class Card(
     val id: String,
@@ -8,6 +9,7 @@ data class Card(
     val title: String,
     val snippet: String?,
     val publisherId: String,
+    val imageUrl: String?, // orig
     var addTime: Long? = null,
     var modTime: Long? = null,
     var publishTime: Long? = null,
@@ -23,6 +25,10 @@ data class Card(
     var comments: Int? = null,
     var shares: Int? = null,
 )
+
+fun Card.smallImage(): String? {
+    return this.imageUrl?.replace("/orig","/scale_360") // "/smart_crop_204x204"
+}
 
 fun Card.isOldFormat(): Boolean {
     return this.type in listOf("post", "narrative", "story")
@@ -118,6 +124,7 @@ fun studioRequestDataToCards(jsonObject: JsonObject): List<Card> {
     val publicationCounters = jsonObject.arr("publicationCounters")
     val socialCounters = jsonObject.arr("socialCounters")
     val cards = mutableListOf<Card>()
+
     publications?.forEach { it ->
         val publication = it as JsonObject
         val id = publication.string("id")!!
@@ -141,12 +148,21 @@ fun studioRequestDataToCard(
     subscribersViews: Int = 0,
 ): Card? {
     return try {
+        val imageId = publication.obj("content")?.obj("preview")?.string("imageId")
+
+        val imageUrl = if (imageId == null) null else {
+            publication.obj("content")?.arr("images")?.mapNotNull {
+                it.jsonObject.string("urlTemplate")?.replace("{size}","orig")
+            }?.find { it.contains(imageId) }
+        }
+
         Card(
             id = publication.string("id")!!,
             type = publication.obj("content")!!.string("type")!!,
             title = publication.obj("content")!!.obj("preview")!!.string("title")!!,
             snippet = publication.obj("content")!!.obj("preview")!!.string("snippet") ?: "",
             publisherId = publication.string("publisherId")!!,
+            imageUrl = imageUrl,
             addTime = publication.long("addTime"),
             modTime = publication.obj("content")!!.long("modTime")!!,
             publishTime = publication.long("publishTime") ?: 0,

@@ -9,7 +9,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.w3c.dom.url.URL
 
 
@@ -124,7 +126,6 @@ open class Requester(val publisherId: String?, val token: String?) {
         return actuality?.toDDMMYYYYHHMM(2)
     }
 
-
     suspend fun getPublicationStat(publicationId: String): Stats? {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
         return getData(requestUrl)
@@ -143,6 +144,48 @@ open class Requester(val publisherId: String?, val token: String?) {
         //val audience = publisher?.int("audience")
         val regTime = publisher?.long("regTime")?.toInstant()
         return Pair(metrikaCounterId, regTime)
+    }
+
+    /**
+     *  Получение количества опубликованных публикаций
+     *
+     *  @return Map<String,Int>? - счётчики публикаций каждого типа
+     */
+    suspend fun getPublishedPublicationsCount(): Map<String, Int>? {
+        val requestUrl =
+            "https://dzen.ru/editor-api/v2/publisher/${publisherId}/publications-count?publisherId=${publisherId}"
+        val data = getJson(requestUrl)
+        val items = data?.obj("items")
+        return items?.keys?.associateBy({ it }, { items.obj(it)?.int("published") ?: 0 })
+    }
+
+    /**
+     *  Загрузить все публикации канала
+     *
+     *  @param sort - Сортировать результат (true)
+     *  @param descending = направление сортировки (по умолчанию - true, от новых к старым)
+     *  @return List<Card> - Список карточек публикаций
+     */
+    suspend fun loadAllPublications(sort: Boolean = false, descending: Boolean = true): List<Card> {
+        val counts = getPublishedPublicationsCount()
+        val maxPageSize = 500
+        val publications = mutableListOf<Card>()
+        counts?.forEach {(publicationType, count)->
+            var publicationsLeft = count
+            var publicationIdAfer: String? = null
+            while (publicationsLeft >0) {
+                val publicationsToGet = if (publicationsLeft > maxPageSize)  maxPageSize else publicationsLeft
+                publicationsLeft -= publicationsToGet
+                val result = getPublicationsByView(publicationsToGet, publicationType, publicationIdAfter = publicationIdAfer)
+                publicationIdAfer = result.last().id
+                publications.addAll(result)
+            }
+        }
+        if (sort) {
+            if (descending) publications.sortByDescending { it.addTime }
+            else publications.sortBy { it.addTime }
+        }
+        return publications
     }
 
     /**
