@@ -1,4 +1,3 @@
-
 import common.Requester
 import common.components.dropButton
 import common.progress.Spinner
@@ -148,43 +147,42 @@ fun createSearchPage(root: HTMLElement) {
                             value = dates.second
                         }
                     }
+
                     dropButton(
                         buttonId = "prozen-search-dropdown",
+                        buttonTitleOrClass = ".prozen-triangle-button-icon",
                         items = mapOf(
                             "this-month" to "Текущий месяц",
                             "month" to "Месяц",
                             "half-year" to "Полгода",
                             "year" to "Год",
                             "all-time" to "Всё время"
-                        ),
-                        onSelect =  { selected ->
-                            val timePeriod: Pair<Instant, Instant>? = when (selected) {
-                                "this-month" -> {
-                                    getCurrentMonth()
-                                }
-
-                                "month" -> {
-                                    getLastMonth()
-                                }
-
-                                "year" -> {
-                                    getLastYear()
-                                }
-
-                                "half-year" -> {
-                                    getLast6Months()
-                                }
-
-                                "all-time" -> {
-                                    fromInputDate("2017-05-30")!! to Clock.System.now()
-                                }
-
-                                else -> null
+                        )
+                    ) { selected ->
+                        val timePeriod: Pair<Instant, Instant>? = when (selected) {
+                            "this-month" -> {
+                                getCurrentMonth()
                             }
-                            timePeriod?.let { setDateRange(it) } ?: showNotification("Произошла ошибка.")
+
+                            "month" -> {
+                                getLastMonth()
+                            }
+
+                            "year" -> {
+                                getLastYear()
+                            }
+
+                            "half-year" -> {
+                                getLast6Months()
+                            }
+
+                            "all-time" -> {
+                                fromInputDate("2017-05-30")!! to Clock.System.now()
+                            }
+
+                            else -> null
                         }
-                    ) {
-                        span ("prozen-triangle-button-icon")
+                        timePeriod?.let { setDateRange(it) } ?: showNotification("Произошла ошибка.")
                     }
                 }
             }

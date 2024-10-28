@@ -1154,26 +1154,16 @@ html body .ui-lib-header__item._type_left {
 /* Иконка SVG */
 .prozen-svg-icon {
     position: absolute;
-    bottom: 0; /* Выравнивание по нижнему краю */
-    right: 0; /* Выравнивание по правому краю */
+    bottom: 0;
+    right: 0;
     width: 25px;
     height: 25px;
-    /* background-color: rgba(255, 255, 255, 0.5); /* Полупрозрачный фон */
-    /* background-color: rgba(0, 0, 0, 0.15); /* Полупрозрачный фон */
-    /*border-radius: 40%; /* Иконка в виде круга */
-    text-shadow: 1px 1px 2px #4c5157, 0 0 1em #4c5157, 0 0 0.2em #4c5157;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
     display: flex;
     justify-content: center;
-    align-items: center; /* Центровка иконки внутри */
-    font-size: 18px;
+    align-items: center;
 }
-
-.prozen-svg-icon svg {
-    width: 100%;
-    height: 100%;
-    fill: #333; /* Цвет иконки */
-}
-
 
 /* Заголовок карточки */
 .prozen-search-result-title {
@@ -1234,7 +1224,6 @@ html body .ui-lib-header__item._type_left {
 .prozen-secondary-button:hover {
     background-color: #d0d0d0;
 }
-
 
 /* Индикаторы прогресса и ожидания */
 /* Общие стили для спиннеров и прогрессбаров */
@@ -1419,4 +1408,36 @@ html body .ui-lib-header__item._type_left {
     height: 16px;
     opacity: 0.7;
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 5.2917 5.2917' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath transform='matrix(.2575 .12162 -.12373 .25313 1.7012 .20884)' d='m8.8046 10.156c-0.33244 0.1646-7.7429-4.7697-7.7192-5.1399 0.023666-0.3702 8.0021-4.3207 8.3109-4.1151 0.30877 0.2056-0.25923 9.0904-0.59166 9.255z' fill-rule='evenodd' stroke='%23000' stroke-linecap='square' stroke-linejoin='round' stroke-width='.71811' style='paint-order:markers fill stroke'/%3E%3C/svg%3E%0A");
+}
+
+.prozen-type-article-icon {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 5.2917 5.2917' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round'%3E%3Crect x='.55119' y='.55119' width='4.1893' height='4.1893' stroke-linejoin='bevel' stroke-width='.52917' style='paint-order:markers stroke fill'/%3E%3Cpath d='m1.2805 1.4305 2.7267-0.00273' stroke-width='.52644'/%3E%3Cpath d='m1.268 2.4076 2.724-0.00563' stroke-width='.39688'/%3E%3Cpath d='m1.268 3.1847 2.724 0.00197' stroke-width='.39688'/%3E%3Cpath d='m1.268 3.9407 1.3643-0.00492' stroke-width='.39688'/%3E%3C/g%3E%3C/svg%3E%0A");
+    width: 80%;
+    height: 80%;
+    filter: invert(10%) sepia(96%) saturate(0%) hue-rotate(143deg) brightness(96%) contrast(77%);
+    opacity: 0.8;
+}
+
+.prozen-type-brief-icon {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 5.2917 5.2917' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round'%3E%3Crect x='.55119' y='.55119' width='4.1893' height='4.1893' stroke-linejoin='bevel' stroke-width='.52917' style='paint-order:markers stroke fill'/%3E%3Cpath d='m1.329 1.3457 2.724 0.00197' stroke-width='.39688'/%3E%3Cpath d='m1.329 2.1017 1.3643-0.00492' stroke-width='.39688'/%3E%3Cpath d='m2.9629 3.039 1.5348 1.3129' stroke-width='.39688'/%3E%3Cpath d='m2.9337 3.0681-1.0652 1.3645' stroke-width='.39688'/%3E%3Cpath d='m1.6878 2.88 0.8864 0.63723' stroke-width='.39688'/%3E%3Cpath d='m0.70032 3.3975 0.99791-0.52802' stroke-width='.39688'/%3E%3C/g%3E%3C/svg%3E%0A");
+    width: 80%;
+    height: 80%;
+    filter: invert(10%) sepia(96%) saturate(0%) hue-rotate(143deg) brightness(96%) contrast(77%);
+    opacity: 0.8;
+}
+
+.prozen-type-short-video-icon {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 5.2917 5.2917' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='bevel'%3E%3Crect x='.9926' y='.53895' width='3.3592' height='4.2138' stroke-width='.52917' style='paint-order:markers stroke fill'/%3E%3Cpath transform='matrix(.22472 -.0027607 .0026949 .21937 .73274 1.033)' d='m12.122 7.6423c-0.004565 0.27843-5.8464 3.5247-6.0852 3.3815-0.23884-0.14317-0.1293-6.8255 0.11411-6.9607 0.24341-0.13526 5.9757 3.3008 5.9711 3.5792z' stroke-width='1.7873' style='paint-order:stroke fill markers'/%3E%3C/g%3E%3C/svg%3E%0A");
+    width: 80%;
+    height: 80%;
+    filter: invert(10%) sepia(96%) saturate(0%) hue-rotate(143deg) brightness(96%) contrast(77%);
+    opacity: 0.8;
+}
+
+.prozen-type-gif-icon {
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 5.2917 5.2917' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='bevel'%3E%3Crect transform='rotate(90.014)' x='.96557' y='-4.7797' width='3.3592' height='4.2138' stroke-width='.52917' style='paint-order:markers stroke fill'/%3E%3Cpath transform='matrix(.22472 -.0027607 .0026949 .21937 .73274 1.033)' d='m12.122 7.6423c-0.004565 0.27843-5.8464 3.5247-6.0852 3.3815-0.23884-0.14317-0.1293-6.8255 0.11411-6.9607 0.24341-0.13526 5.9757 3.3008 5.9711 3.5792z' stroke-width='1.7873' style='paint-order:stroke fill markers'/%3E%3C/g%3E%3C/svg%3E%0A");
+    width: 80%;
+    height: 80%;
+    filter: invert(10%) sepia(96%) saturate(0%) hue-rotate(143deg) brightness(96%) contrast(77%);
+    opacity: 0.8;
 }

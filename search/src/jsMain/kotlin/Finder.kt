@@ -21,25 +21,25 @@ class Finder(val requester: Requester) {
     }
 
     fun find(
-        query: String, types: List<String>,  /* dateFrom, dateTo*/
+        query: String, types: List<String>,
         period: Pair<Instant, Instant>?
     ): List<Card> {
         return pubications.filter {
-            it.type in types && it.addedIn(period) && cardMatch(it, query)
+            it.type in types && it.addedIn(period) && it.cardMatch(query)
         }
     }
+}
 
-    fun cardMatch(card: Card, searchString: String?): Boolean {
-        if (searchString.isNullOrEmpty()) {
-            return true
-        }
-
-        val searchWords = searchString.split(" ").map { it.lowercase() } // Преобразуем один раз
-        val title = card.title.lowercase()
-        val description = card.snippet?.lowercase() ?: ""
-
-        return searchWords.any { word -> title.contains(word) || description.contains(word) }
+fun Card.cardMatch(searchString: String?): Boolean {
+    if (searchString.isNullOrEmpty()) {
+        return true
     }
+
+    val searchWords = searchString.split(" ").map { it.lowercase() } // Преобразуем один раз
+    val title = this.title.lowercase()
+    val description = this.snippet?.lowercase() ?: ""
+
+    return searchWords.any { word -> title.contains(word) || description.contains(word) }
 }
 
 fun Card.addedIn(period: Pair<Instant, Instant>?): Boolean {
@@ -56,13 +56,7 @@ fun Card.toLi(): HTMLElement {
                     classes = "prozen-search-result-icon"
                 )
                 span("prozen-svg-icon") {
-                    +when (this@toLi.type) {
-                        "article" -> "📄"
-                        "brief" -> "📃"
-                        "gif" -> "📺"
-                        "short_video" -> "📱"
-                        else -> "❔"
-                    }
+                    span ("prozen-type-${this@toLi.type.replace("_","-")}-icon ")
                 }
             }
 
