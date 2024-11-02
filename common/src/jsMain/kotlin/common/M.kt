@@ -17,4 +17,6 @@ object M {
     val publicationFullViews by I18nDelegate()
     val publicationTime by I18nDelegate()
     val publicationHeaderCopyLink by I18nDelegate()
+    val publicationLikes by I18nDelegate()
+    val publicationComments by I18nDelegate()
 }

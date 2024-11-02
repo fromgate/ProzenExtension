@@ -2,20 +2,7 @@
 @file:JsQualifier("chrome.tabs")
 package chrome.tabs
 
-import kotlin.js.*
 import kotlin.js.Json
-import org.khronos.webgl.*
-import org.w3c.dom.*
-import org.w3c.dom.events.*
-import org.w3c.dom.parsing.*
-import org.w3c.dom.svg.*
-import org.w3c.dom.url.*
-import org.w3c.fetch.*
-import org.w3c.files.*
-import org.w3c.notifications.*
-import org.w3c.performance.*
-import org.w3c.workers.*
-import org.w3c.xhr.*
 
 external interface MutedInfo {
     var muted: Boolean
@@ -203,6 +190,7 @@ external fun insertCSS(details: InjectDetails, callback: Function<*>? = definedE
 external fun insertCSS(tabId: Number, details: InjectDetails, callback: Function<*>? = definedExternally /* null */): Unit = definedExternally
 external fun highlight(highlightInfo: HighlightInfo, callback: (window: chrome.windows.Window) -> Unit): Unit = definedExternally
 external fun query(queryInfo: QueryInfo, callback: (result: Array<Tab>) -> Unit): Unit = definedExternally
+external fun query(queryInfo: Json, callback: (result: Array<Tab>) -> Unit): Unit = definedExternally
 external fun detectLanguage(callback: (language: String) -> Unit): Unit = definedExternally
 external fun detectLanguage(tabId: Number, callback: (language: String) -> Unit): Unit = definedExternally
 external fun setZoom(zoomFactor: Number, callback: (() -> Unit)? = definedExternally /* null */): Unit = definedExternally

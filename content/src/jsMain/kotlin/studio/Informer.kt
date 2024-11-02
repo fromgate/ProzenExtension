@@ -82,9 +82,11 @@ class Informer(val requester: Requester) {
     }
 
     fun appendStyledInformer(parent: HTMLElement, data: InformerData) {
+        if (document.getElementById("prozen-widget") != null) return
         with(data) {
             parent.append {
                 div("prozen-widget") {
+                    id = "prozen-widget"
                     div("prozen-header-wrapper") {
                         style = "position: relative;"
                         div("prozen-header-content") {

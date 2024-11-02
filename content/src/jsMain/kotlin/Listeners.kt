@@ -1,6 +1,7 @@
-import chrome.runtime.MessageSender
+import PageType.MAIN
+import PageType.PUBLICATIONS
 import chrome.runtime.ExtensionMessageEvent
-import PageType.*
+import chrome.runtime.MessageSender
 import dataclasses.ServiceWorkerMessage
 import publications.Publications
 

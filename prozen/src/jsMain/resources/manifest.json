@@ -27,7 +27,8 @@
         "sadrobot.html",
         "js/*.js",
         "css/prozen.css",
-        "img/*.png"
+        "img/*.png",
+        "icons/*.png"
       ],
       "matches": [
         "https://dzen.ru/*"

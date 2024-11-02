@@ -13,6 +13,9 @@ enum class Option(
 ) {
     PROZEN("prozen-switch", "Расширение включено"),
 
+    POPUP_INFO("prozen-popup-info-block", "Статистика во всплывающем окне",
+        "Показывать блок с информацией о текущей статистке во всплывающем окне расширения"),
+
     // Студия
     PROZEN_MENU(
         "prozen-menu-switch", "Меню в сайдбаре",
@@ -72,6 +75,10 @@ enum class Option(
 
     suspend fun isSet(): Boolean = Options.get(this.id).await()
 
+    fun set(value: Boolean) {
+        Options.set(this.id, value)
+    }
+
     companion object {
         fun getIds(): List<String> = entries.map { it.id }
         fun getById(id: String): Option? = entries.firstOrNull { it.id == id }
@@ -80,6 +87,7 @@ enum class Option(
             return getById(id)?.getValueOrDefault(value) ?: true
         }
     }
+
 }
 
 object Options {
@@ -91,7 +99,7 @@ object Options {
 
     fun get(option: Option) = get(option.id)
 
-    fun set(optionId: String, value: Boolean) {
+    /* fun set(optionId: String, value: Boolean) {
         load().then { loadedOptions ->
             val loaded = loadedOptions.toMutableMap()
             val options = json()
@@ -100,6 +108,10 @@ object Options {
             }
             chrome.storage.local.set(options)
         }
+    } */
+
+    fun set(optionId: String, value: Boolean) {
+        save (mapOf(optionId to value))
     }
 
     fun load(): Promise<Map<String, Boolean>> {

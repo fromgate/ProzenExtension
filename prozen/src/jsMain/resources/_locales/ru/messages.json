@@ -31,6 +31,12 @@
   "publicationFullViews": {
     "message": "Дочитывания"
   },
+  "publicationLikes": {
+    "message": "Лайки"
+  },
+  "publicationComments": {
+    "message": "Комментарии"
+  },
   "publicationTime": {
     "message": "Время создания (редактирования)"
   }

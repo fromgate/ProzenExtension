@@ -1,8 +1,6 @@
 package publication
 
 import common.*
-import common.Option
-import kotlinx.serialization.json.JsonObject
 import kotlinx.browser.document
 import kotlinx.dom.clear
 import kotlinx.html.dom.append
@@ -12,15 +10,22 @@ import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.span
 import kotlinx.html.style
 import kotlinx.html.title
-import org.w3c.dom.*
+import kotlinx.serialization.json.JsonObject
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLHeadingElement
+import org.w3c.dom.HTMLLinkElement
+import org.w3c.dom.asList
+import kotlin.collections.set
 
 
 class Article(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
     /* 🕑 05.09.24 18:11 (05.09.24 18:18) 📃 408 📄 213 🔗 🤖 */
     override fun showStats() {
         val stats = this.stats ?: return
-        val infoBlock = document.querySelector(".article__statistics") as? HTMLElement  //article-stats-view_theme_white
-        //document.querySelector("div[class^=content--article-info-block__articleInfoBlock-]") as? HTMLDivElement
+
+
+        val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-']") as? HTMLElement
+
         infoBlock?.clear()
         infoBlock?.append {
             div("prozen-article-stats") {

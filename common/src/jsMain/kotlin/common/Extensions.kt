@@ -8,17 +8,34 @@ import org.w3c.dom.HTMLElement
 import kotlin.js.json
 
 
-// Extension for Json Elements
-fun JsonObject.obj(key: String): JsonObject? = this[key]?.jsonObject
-fun JsonObject.arr(key: String): JsonArray? = this[key]?.jsonArray
-fun JsonObject.string(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
-fun JsonObject.int(key: String): Int? = this[key]?.jsonPrimitive?.intOrNull
-fun JsonObject.long(key: String): Long? = this[key]?.jsonPrimitive?.longOrNull
-fun JsonObject.time(key: String): Instant? = this[key]?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochSeconds(it) }
-fun JsonObject.float(key: String): Float? = this[key]?.jsonPrimitive?.floatOrNull
-fun JsonObject.double(key: String): Double? = this[key]?.jsonPrimitive?.doubleOrNull
-fun JsonObject.bool(key: String): Boolean? = this[key]?.jsonPrimitive?.booleanOrNull
+
+
+fun JsonObject.getNestedElement(key: String): JsonElement? {
+    val keys = key.split(".", "/", limit = 2)
+    val element = this[keys.first()]
+    return if (keys.size < 2) {
+        element
+    } else {
+        element?.jsonObject?.getNestedElement(keys.last())
+    }
+}
+
+fun Int.aqc(): String {
+    return (this * 2).toString()
+}
+
+fun JsonObject.obj(key: String): JsonObject? = getNestedElement(key)?.jsonObject
+fun JsonObject.arr(key: String): JsonArray? = getNestedElement(key)?.jsonArray
+fun JsonObject.bool(key: String): Boolean? = getNestedElement(key)?.jsonPrimitive?.booleanOrNull
+fun JsonObject.int(key: String): Int? = getNestedElement(key)?.jsonPrimitive?.intOrNull
+fun JsonObject.string(key: String): String? = getNestedElement(key)?.jsonPrimitive?.contentOrNull
+fun JsonObject.long(key: String): Long? = getNestedElement(key)?.jsonPrimitive?.longOrNull
+fun JsonObject.time(key: String): Instant? = getNestedElement(key)?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochSeconds(it) }
+fun JsonObject.float(key: String): Float? = getNestedElement(key)?.jsonPrimitive?.floatOrNull
+fun JsonObject.double(key: String): Double? = getNestedElement(key)?.jsonPrimitive?.doubleOrNull
+
 fun JsonArray.obj(index: Int): JsonObject? = if (this.isEmpty() && index >= this.size) null else this[index].jsonObject
+
 fun JsonElement.asString(): String? = this.jsonPrimitive.contentOrNull
 
 
