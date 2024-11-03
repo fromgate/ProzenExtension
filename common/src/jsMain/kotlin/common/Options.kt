@@ -52,23 +52,6 @@ enum class Option(
         defaultValue = true, group = "Публикация"
     );
 
-    /*
-     TODO:
-      Разделы
-       - Включить / выключить
-       - Студия
-         - Меню (в сайдбаре)
-         - Виджет
-         - Кэширование виджета ?
-         - Скрыть почасовой список
-         - Скрыть баннеры
-         - Скрыть коменты?
-       - Публикации
-         - Отображать статистику
-         - Ссылки в подзаголовках
-         - Перепроверять noindex         -
-     */
-
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 
     fun value() = Options.get(this.id)
@@ -98,17 +81,6 @@ object Options {
     }
 
     fun get(option: Option) = get(option.id)
-
-    /* fun set(optionId: String, value: Boolean) {
-        load().then { loadedOptions ->
-            val loaded = loadedOptions.toMutableMap()
-            val options = json()
-            loaded.forEach { (id, existValue) ->
-                options[optionId] = if (id == optionId) value else existValue
-            }
-            chrome.storage.local.set(options)
-        }
-    } */
 
     fun set(optionId: String, value: Boolean) {
         save (mapOf(optionId to value))
