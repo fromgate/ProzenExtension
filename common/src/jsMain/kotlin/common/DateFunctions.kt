@@ -1,11 +1,12 @@
-import common.toYYYYMMDD
+package common
+
 import kotlinx.browser.document
 import kotlinx.datetime.*
 import org.w3c.dom.HTMLInputElement
 
-fun getDateRange(): Pair<Instant, Instant>? {
-    val fromDateInput = document.getElementById("from-date") as? HTMLInputElement
-    val toDateInput = document.getElementById("to-date") as? HTMLInputElement
+fun getDateRange(fromDateId: String = "from-date", toDateId: String = "to-date"): Pair<Instant, Instant>? {
+    val fromDateInput = document.getElementById(fromDateId) as? HTMLInputElement
+    val toDateInput = document.getElementById(toDateId) as? HTMLInputElement
     val fromDate = fromDateInput?.value?.takeIf { it.isNotEmpty() }?.let { Instant.parse("${it}T00:00:00Z") }
     val toDate = toDateInput?.value?.takeIf { it.isNotEmpty() }?.let { Instant.parse("${it}T23:59:59Z") }
     return if (fromDate != null && toDate != null) {
@@ -21,7 +22,6 @@ fun fromInputDate(dateStr: String, endOfDate: Boolean = false): Instant? {
         null
     }
 }
-
 
 fun getLastWeek(): Pair<Instant, Instant> {
     val now = Clock.System.now()
