@@ -8,6 +8,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.asList
+import org.w3c.dom.events.KeyboardEvent
 
 fun createSettingsPage(root: HTMLElement) {
     root.append {
@@ -20,10 +21,10 @@ fun createSettingsPage(root: HTMLElement) {
             }
 
             // Настройки
-            val groups = Option.entries.map { it.group }.toSet()
+            val groups = Option.entries.asSequence().map { it.group }.filter { it != "hidden" }.toSet()
             groups.forEach { group ->
                 if (group != "default") {
-                        h4 { +group }
+                    h4 { +group }
                 }
                 Option.entries.filter { it.group == group }.forEach { option ->
                     div(classes = "prozen-settings-item") {
@@ -36,7 +37,6 @@ fun createSettingsPage(root: HTMLElement) {
                         }
                         option.description?.let {
                             div(classes = "prozen-info-icon") {
-                                +"ℹ️"
                                 span(classes = "prozen-tooltip") {
                                     +it
                                 }
@@ -71,12 +71,48 @@ fun createSettingsPage(root: HTMLElement) {
     }
 }
 
+fun toggleDebug() {
+    Option.DEBUG.value().then { option ->
+        val debug = !option
+        Option.DEBUG.set(debug)
+        showNotification("Режим отладки ${if (debug) "включён" else "отключён"}")
+    }
+}
+
+fun registerKeyEvents() {
+    var isDPressed = false
+    var isNumpad0Pressed = false
+    document.addEventListener("keydown", { event ->
+        val keyboardEvent = event as KeyboardEvent
+        when (keyboardEvent.code) {
+            "KeyD" -> isDPressed = true
+            "Numpad0" -> isNumpad0Pressed = true
+        }
+        if (isDPressed && isNumpad0Pressed) {
+            toggleDebug()
+            isDPressed = false
+            isNumpad0Pressed = false
+        }
+    })
+
+    document.addEventListener("keyup", { event ->
+        val keyboardEvent = event as KeyboardEvent
+        when (keyboardEvent.code) {
+            "KeyD" -> isDPressed = false
+            "Numpad0" -> isNumpad0Pressed = false
+        }
+    })
+
+}
+
+
 fun main() {
     val rootElement = document.getElementById("settings-root") as HTMLElement
     createSettingsPage(rootElement)
     Options.load().then {
         it.entries.forEach { (key, value) ->
-            (document.getElementById(key) as HTMLInputElement).checked = value
+            (document.getElementById(key) as? HTMLInputElement)?.checked = value
         }
     }
+    registerKeyEvents()
 }

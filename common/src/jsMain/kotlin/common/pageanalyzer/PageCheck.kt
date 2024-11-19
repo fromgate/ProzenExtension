@@ -2,64 +2,105 @@ package common.pageanalyzer
 
 import common.arr
 import common.bool
+import common.dInfo
 import common.string
 import kotlinx.serialization.json.jsonObject
 
 abstract class PageCheck {
+
     protected val results = mutableMapOf<TypeCheck, Any>()
 
-    abstract fun analyze(context: PageContext)
+    fun analyze(context: PageContext) {
+        results.clear()
+        perform(context)
+    }
+    protected abstract fun perform(context: PageContext)
 
     fun getResults(): Map<TypeCheck, Any> = results
 }
 
-class CheckNoIndex : PageCheck() {
-    override fun analyze(context: PageContext) {
+object CheckNoIndex : PageCheck() {
+    override fun perform(context: PageContext) {
         val noindex = context.metaTags.any { meta ->
             val propertyAttr = meta.getAttribute("property")
             (meta.name == "robots" || propertyAttr == "robots") && meta.content.contains("noindex")
         }
-        results[TypeCheck.NO_INDEX] = noindex
+        console.dInfo("CheckNoIndex: $noindex")
+        if (noindex) results[TypeCheck.NO_INDEX] = true
     }
 }
 
-class CheckThematics : PageCheck() {
-    override fun analyze(context: PageContext) {
+object CheckThematics : PageCheck() {
+    override fun perform(context: PageContext) {
         if (context.thematics.isNotEmpty()) {
             results[TypeCheck.THEMATICS] = context.thematics
+            console.dInfo("CheckThematics: ${context.thematics.map { it.title }.joinToString()}")
+        } else {
+            console.dInfo("CheckThematics: Thematics are empty")
         }
     }
 }
 
-class CheckComments : PageCheck() {
-    override fun analyze(context: PageContext) {
-        var comments: String? = if (context.isText()) {
+object CheckComments : PageCheck() {
+    override fun perform(context: PageContext) {
+        val comments: TypeCheck? = if (context.isText()) {
             when (context.embeddedJson?.string("publication.visibleComments")) {
-                "invisible" -> "off"
-                "subscribe-visible" -> "subscribers"
-                "visible" -> "all"
+                "invisible" -> TypeCheck.COMMENTS_OFF
+                "subscribe-visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
+                "visible" -> TypeCheck.COMMENTS_ALL
                 else -> null
             }
         } else {
             val item = context.embeddedJson?.arr("ssrData/socialMetaResponse/items")?.firstOrNull()?.jsonObject
-            when (item?.string ("metaInfo.visibleComments")) {
-                "invisible" -> "off"
-                "subscribe-visible" -> "subscribers"
-                "visible" -> "all"
+            when (item?.string("metaInfo.visibleComments")) {
+                "invisible" -> TypeCheck.COMMENTS_OFF
+                "subscribe-visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
+                "visible" -> TypeCheck.COMMENTS_ALL
                 else -> null
             }
         }
-        comments?.let { results[TypeCheck.COMMENTS] = it }
+        comments?.let { results[it] = true }
+        console.dInfo("CheckComments: ${comments?.name ?: "null"}")
     }
 }
 
-class CheckCovid : PageCheck() {
-    override fun analyze(context: PageContext) {
-        val covid = if (context.isText()) {
-           context.embeddedJson?.bool("publication.covid19Mentioned")
+object CheckAdv : PageCheck() {
+    override fun perform(context: PageContext) {
+        if (context.embeddedJson != null) {
+            when (context.type) {
+                "article" -> {
+                    if (
+                        context.embeddedJson!!.string("adData.adBlocks.desktop-header.rsyaAdData.blockId") == null
+                        && context.embeddedJson!!.string("adData.adBlocks.desktop-right.rsyaAdData.blockId") == null
+                        && context.embeddedJson!!.string("adData.adBlocks.desktop-footer.rsyaAdData.blockId") == null
+                    ) {
+                        results[TypeCheck.NO_ADV] = true
+                    }
+                }
+
+                "gif" -> {
+                    if (context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.TOP_SIDEBAR.rsyaAdData") == null
+                        && context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.BOTTOM_PLAYER.rsyaAdData") == null
+                        && context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.LIVE_ADS_BANNER.rsyaAdData") == null
+                        && context.embeddedJson!!.string("ssrData.videoSettings.exportData.clientDefinition.video_ads_under_desktop_player") == null
+                        && context.embeddedJson!!.string("ssrData.videoSettings.exportData.clientDefinition.video_related_ads_banner") == null
+                        ) {
+                        results[TypeCheck.NO_ADV] = true
+                    }
+                }
+            }
+        }
+    }
+}
+
+object CheckCovid : PageCheck() {
+    override fun perform(context: PageContext) {
+        val covid: Boolean? = if (context.isText()) {
+            context.embeddedJson?.bool("publication.covid19Mentioned")
         } else {
             context.embeddedJson?.bool("ssrData.videoSettings.exportData.video.covid_19")
-        } ?: false
-        results[TypeCheck.COVID] = covid
+        }
+
+        if (covid == true) results[TypeCheck.COVID] = true
     }
 }

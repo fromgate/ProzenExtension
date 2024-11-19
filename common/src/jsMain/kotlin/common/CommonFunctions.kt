@@ -1,20 +1,20 @@
 package common
 
-import io.ktor.client.*
-import io.ktor.client.engine.js.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
 import kotlinx.coroutines.promise
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.asList
 import org.w3c.dom.parsing.DOMParser
+import org.w3c.fetch.FOLLOW
+import org.w3c.fetch.RequestInit
+import org.w3c.fetch.RequestRedirect
 import kotlin.js.Promise
-
+import kotlin.js.RegExp
 
 fun getZenObject(): Pair<String, String>? {
     val content = document.head
@@ -37,24 +37,40 @@ fun zenReaderUrl(channelUrl: String): String {
     return "https://t.me/zenreaderbot?start=$id"
 }
 
-suspend fun checkNoIndexUrl(url: String): Boolean {
-    val client = HttpClient(Js)
+suspend fun getPageFromUrl(url: String): String? {
     return try {
-        val response = client.get(url)
-        val responseText = response.bodyAsText()
+        val response = window.fetch(url).await()
+        if (response.ok) {
+            response.text().await()
+        } else {
+            console.error("Failed to fetch URL: ${response.statusText}")
+            null
+        }
+    } catch (e: Exception) {
+        console.error("Error fetching URL: $e")
+        null
+    }
+}
+
+suspend fun getFinalUrl(url: String): String {
+    val response = window.fetch(url, RequestInit(method = "HEAD", redirect = RequestRedirect.FOLLOW)).await()
+    return response.url
+}
+
+suspend fun checkNoIndexUrl(url: String): Boolean {
+    return try {
+        val responseText = getPageFromUrl(url) ?: return false
         val document = DOMParser().parseFromString(responseText, "text/html")
         val metas = document.getElementsByTagName("meta")
         metas.asList()
-            .map { it as HTMLMetaElement }
+            .mapNotNull { it as? HTMLMetaElement }
             .any { meta ->
                 val propertyAttr = meta.getAttribute("property")
                 (meta.name == "robots" || propertyAttr == "robots") && meta.content.contains("noindex")
             }
-    } catch (e: Exception) {
-        console.error("Error fetching or processing URL: $e")
+    } catch (e: Throwable) {
+        console.error("Error processing URL: $e")
         false
-    } finally {
-        client.close()
     }
 }
 
@@ -132,4 +148,18 @@ fun paucal(num: Int, p1: String, p234: String, p: String): String {
             else -> "$numStr $p"
         }
     }
+}
+
+fun Int.paucal(p1: String, p234: String, p: String): String {
+    return common.paucal(this, p1, p234, p)
+}
+
+fun convertDzenUrlToOk(dzenUrl: String): String? {
+    val regex = RegExp("""https://dzen\.ru/(a|b|video|short_video)/([^?/]+)""")
+    val match = regex.exec(dzenUrl) ?: return null
+    val type = match[1]
+    // Пока только статьи переносятся в OK
+    if (type != "a") return null
+    val id = match[2]
+    return "https://ok.ru/dzen/article/$id"
 }

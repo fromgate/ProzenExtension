@@ -24,6 +24,7 @@ data class Card(
     var likes: Int? = null,
     var comments: Int? = null,
     var shares: Int? = null,
+    var isBanned: Boolean = false
 )
 
 fun Card.smallImage(): String? {
@@ -147,24 +148,26 @@ fun studioRequestDataToCard(
     socialCounter: JsonObject?,
     subscribersViews: Int = 0,
 ): Card? {
+
     return try {
         val imageId = publication.obj("content")?.obj("preview")?.string("imageId")
 
         val imageUrl = if (imageId == null) null else {
-            publication.obj("content")?.arr("images")?.mapNotNull {
+            publication.arr("content.images")?.mapNotNull {
                 it.jsonObject.string("urlTemplate")?.replace("{size}","orig")
             }?.find { it.contains(imageId) }
         }
 
         Card(
             id = publication.string("id")!!,
-            type = publication.obj("content")!!.string("type")!!,
-            title = publication.obj("content")!!.obj("preview")!!.string("title")!!,
-            snippet = publication.obj("content")!!.obj("preview")!!.string("snippet") ?: "",
+            type = publication.string("content.type")!!,
+            title = publication.string("content.preview.title")!!,
+            snippet = publication.string("content.preview.snippet") ?: "",
             publisherId = publication.string("publisherId")!!,
+            isBanned = publication.bool("isBanned")?: false,
             imageUrl = imageUrl,
             addTime = publication.long("addTime"),
-            modTime = publication.obj("content")!!.long("modTime")!!,
+            modTime = publication.long("content.modTime")!!,
             publishTime = publication.long("publishTime") ?: 0,
 
             feedShows = publicationCounter?.int("impressions") ?: 0,

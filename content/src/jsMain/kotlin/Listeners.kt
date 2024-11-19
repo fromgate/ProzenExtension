@@ -1,7 +1,9 @@
+
 import PageType.MAIN
 import PageType.PUBLICATIONS
 import chrome.runtime.ExtensionMessageEvent
 import chrome.runtime.MessageSender
+import common.dInfo
 import dataclasses.ServiceWorkerMessage
 import publications.Publications
 
@@ -26,6 +28,8 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
                 token = request.token as? String
             )
 
+            console.dInfo("backgroundListener / serviceWorkerMessage: $serviceWorkerMessage")
+
             when (pageType) {
                 MAIN -> {
                     processStudioCards(serviceWorkerMessage.pageSize ?: 0)
@@ -33,11 +37,11 @@ fun backgroundListener(request: dynamic, sender: MessageSender, sendResponse: (A
                 PUBLICATIONS -> {
                     processPublicationsCards(serviceWorkerMessage)
                 }
-                else -> console.log("Unknown page type")
+                else -> console.dInfo("Unknown page type")
             }
         }
     } catch (e: Exception) {
-        console.log("Error: ", e.message ?: "Unknown error")
+        console.error("Error: ", e.message ?: "Unknown error")
     }
 }
 

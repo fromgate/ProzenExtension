@@ -14,11 +14,23 @@ fun getDateRange(fromDateId: String = "from-date", toDateId: String = "to-date")
     } else null
 }
 
+fun setDateRange(fromDate: Instant?, toDate: Instant?, fromDateId: String = "from-date", toDateId: String = "to-date") {
+    val fromDateInput = document.getElementById(fromDateId) as? HTMLInputElement
+    val toDateInput = document.getElementById(toDateId) as? HTMLInputElement
+    val zone = TimeZone.currentSystemDefault()
+    fromDateInput?.value = fromDate?.toLocalDateTime(zone)?.date?.toString() ?: ""
+    toDateInput?.value = toDate?.toLocalDateTime(zone)?.date?.toString() ?: ""
+}
+
+fun setDateRange(range: Pair<Instant, Instant>, fromDateId: String = "from-date", toDateId: String = "to-date") {
+    setDateRange(range.first, range.second, fromDateId, toDateId)
+}
+
 fun fromInputDate(dateStr: String, endOfDate: Boolean = false): Instant? {
     return try {
         Instant.parse("${dateStr}T${if (endOfDate) "23:59:59" else "00:00:00"}Z")
     } catch (e: Exception) {
-        console.error("Failed to parse date: $dateStr")
+        console.dError("Failed to parse date: $dateStr")
         null
     }
 }

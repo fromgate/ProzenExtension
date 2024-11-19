@@ -7,14 +7,16 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
 import kotlinx.html.*
-import kotlinx.html.div
 import kotlinx.html.dom.create
-import kotlinx.html.js.*
+import kotlinx.html.js.onClickFunction
+import kotlinx.html.js.ul
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
 import kotlin.js.json
 
 class Menu(val requester: Requester): ContentRunner {
+
+
     var metrikaId: Int? = null
     suspend fun getData() {
         metrikaId = requester.getChannelData().first
@@ -154,6 +156,30 @@ class Menu(val requester: Requester): ContentRunner {
                                 )
                             ) {
                                 window.open(chrome.runtime.getURL("sadrobot.html"))
+                            }
+                        }
+                    }
+
+                    li {
+                        title = "Поиск проблемных публикаций"
+                        style = "cursor: pointer;"
+                        a(classes = "editor--navbar__item-17") {
+                            div(classes = "editor--navbar__icon-1d") {
+                                div(classes = "editor--navbar__svg-2_ prozen_menu_robot")
+                            }
+                            span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
+                                +"Статус публикаций"
+                            }
+                        }
+                        onClickFunction = {
+                            chrome.storage.local.set(
+                                json(
+                                    "prozenId" to requester.publisherId,
+                                    "prozenToken" to requester.token,
+                                    "prozenPublisherId" to requester.publisherId
+                                )
+                            ) {
+                                window.open(chrome.runtime.getURL("status.html"))
                             }
                         }
                     }

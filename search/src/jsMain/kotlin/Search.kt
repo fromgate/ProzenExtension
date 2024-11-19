@@ -7,8 +7,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.dom.clear
 import kotlinx.html.*
 import kotlinx.html.dom.append
@@ -219,18 +217,6 @@ fun getTypesToSearch(): List<String> {
         .mapNotNull { checkBox -> checkBox.id.takeIf { checkBox.checked } }
 }
 
-
-fun setDateRange(fromDate: Instant?, toDate: Instant?) {
-    val fromDateInput = document.getElementById("from-date") as? HTMLInputElement
-    val toDateInput = document.getElementById("to-date") as? HTMLInputElement
-    val zone = TimeZone.currentSystemDefault()
-    fromDateInput?.value = fromDate?.toLocalDateTime(zone)?.date?.toString() ?: ""
-    toDateInput?.value = toDate?.toLocalDateTime(zone)?.date?.toString() ?: ""
-}
-
-fun setDateRange(range: Pair<Instant, Instant>) {
-    setDateRange(range.first, range.second)
-}
 
 fun main() {
     val rootElement = document.getElementById("search-root") as HTMLElement

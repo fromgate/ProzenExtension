@@ -25,6 +25,7 @@
         "search.html",
         "totalstats.html",
         "sadrobot.html",
+        "status.html",
         "js/*.js",
         "css/prozen.css",
         "img/*.png",

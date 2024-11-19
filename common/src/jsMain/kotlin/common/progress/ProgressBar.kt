@@ -5,15 +5,13 @@ import kotlinx.dom.clear
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.dom.create
-
 import org.w3c.dom.HTMLElement
 import kotlin.math.min
 
 class ProgressBar(private val rootElement: HTMLElement? = null) {
-
     private var progressElement: HTMLElement? = null
 
-    fun show(initValue: Int =0, text: String = "Выполнение...") {
+    fun show(initValue: Int = 0, text: String = "Выполнение...") {
         progressElement?.clear()
         progressElement?.remove()
 
@@ -21,13 +19,13 @@ class ProgressBar(private val rootElement: HTMLElement? = null) {
             if (rootElement == null) {
                 classes = setOf("prozen-overlay", "prozen-overlay-progress")
                 div(classes = "prozen-progress-bar") {
-                    div(classes = "prozen-progress-bar-fill") {}
+                    div(classes = "prozen-progress-bar-fill")
                 }
                 div(classes = "prozen-overlay-text") { +text }
             } else {
                 classes = setOf("prozen-inline-progress")
                 div(classes = "prozen-progress-bar") {
-                    div(classes = "prozen-progress-bar-fill") {}
+                    div(classes = "prozen-progress-bar-fill")
                 }
                 div(classes = "prozen-inline-text") { +text }
             }
@@ -44,13 +42,13 @@ class ProgressBar(private val rootElement: HTMLElement? = null) {
         if (text != null) {
             val progressText =
                 progressElement?.querySelector(".prozen-overlay-text, .prozen-inline-text") as? HTMLElement
-            progressElement?.innerText = text
+            progressText?.innerText = text
         }
     }
 
     fun update(value: Int, max: Int, text: String? = null) {
-        val percentage = value / max * 100
-        update(percentage, text)
+        val percentage = (value.toDouble() / max) * 100
+        update(percentage.toInt(), text)
     }
 
     fun close() {

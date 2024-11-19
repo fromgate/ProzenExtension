@@ -8,8 +8,6 @@ import org.w3c.dom.HTMLElement
 import kotlin.js.json
 
 
-
-
 fun JsonObject.getNestedElement(key: String): JsonElement? {
     val keys = key.split(".", "/", limit = 2)
     val element = this[keys.first()]
@@ -20,9 +18,6 @@ fun JsonObject.getNestedElement(key: String): JsonElement? {
     }
 }
 
-fun Int.aqc(): String {
-    return (this * 2).toString()
-}
 
 fun JsonObject.obj(key: String): JsonObject? = getNestedElement(key)?.jsonObject
 fun JsonObject.arr(key: String): JsonArray? = getNestedElement(key)?.jsonArray

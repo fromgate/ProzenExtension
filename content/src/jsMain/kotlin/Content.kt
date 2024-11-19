@@ -1,3 +1,4 @@
+
 import PageType.*
 import common.*
 import common.Option
@@ -79,6 +80,8 @@ val event = e as? MessageEvent ?: return
     requester = RequesterCached(publisherId, token)
 
     val pageType = getPageType()
+
+    console.dInfo("getPageType: $pageType")
 
     val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {

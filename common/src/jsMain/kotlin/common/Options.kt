@@ -50,7 +50,9 @@ enum class Option(
         "prozen-publication-noindex-recheck", "Двойная перепроверка индексации",
         "Проводить дополнительную перепроверку, если обнаружена отключённая индексация",
         defaultValue = true, group = "Публикация"
-    );
+    ),
+    DEBUG ("prozen-debug-mode","Режим отладки",
+        defaultValue = false, group = "hidden");
 
     fun getValueOrDefault(value: Boolean?) = value ?: defaultValue
 
