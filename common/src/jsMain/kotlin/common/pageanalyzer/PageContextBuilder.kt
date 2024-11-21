@@ -1,15 +1,9 @@
 package common.pageanalyzer
 
-import common.arr
-import common.getFinalUrl
-import common.int
-import common.string
+import common.*
 import kotlinx.browser.window
 import kotlinx.coroutines.await
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
 
@@ -57,11 +51,13 @@ class PageContextBuilder(private val document: Document) {
 
     fun initializeUrlAndType(document: Document): Pair<String, String> {
         val url = (document.querySelector("link[rel=canonical]") as? HTMLLinkElement)?.href ?: ""
-        val type = when (url.split("/").getOrNull(3) ?: "") {
+        val regex = Regex("""https://dzen\.ru/(a|b|video/watch|shorts)/([^?/]+)""")
+        val match = regex.find(url)
+        val type = when (match?.groupValues?.get(1) ?: "unknown") {
             "a" -> "article"
             "b" -> "brief"
-            "video" -> "gif"
-            "short_video" -> "short_video"
+            "video/watch" -> "gif"
+            "shorts" -> "short_video"
             else -> "unknown"
         }
         return url to type
@@ -73,21 +69,23 @@ class PageContextBuilder(private val document: Document) {
         return this
     }
 
+
     fun initializePageJsonData(): PageContextBuilder {
         var jsonData: JsonObject? = null
         var thematicJsonData: JsonArray? = null
         var topicChannelSubscriptionSuggestion: String? = null
-
         when (type) {
             "article", "brief" -> {
                 val script = document.getElementById("all-data") as? HTMLScriptElement
                 if (script != null) {
-                    jsonData = getTextDataByPrefix(script.text)?.let { Json.decodeFromString(it) }
-                    thematicJsonData = getTextDataByPrefix(script.text, "  w._thematicBanners = ")
-                        ?.let { Json.decodeFromString(it) }
-                    topicChannelSubscriptionSuggestion = getTextDataByPrefix(
-                        script.text, "  w._topicChannelSubscriptionSuggestion = "
-                    )?.let { Json.decodeFromString<JsonObject>(it).string("topicChannelTitle") }
+                    val filter = "w._data,w._thematicBanners,w._thematicBanners"
+                        .split(",")
+                        .toSet()
+                    val jsonElements = extractJsonElements(script.text, required = filter)
+                    jsonData = jsonElements["w._data"]?.jsonObject
+                    thematicJsonData = jsonElements["w._thematicBanners"]?.jsonArray
+                    topicChannelSubscriptionSuggestion =
+                        jsonElements["w._topicChannelSubscriptionSuggestion"]?.jsonObject?.string("topicChannelTitle")
                 }
             }
 
@@ -96,8 +94,7 @@ class PageContextBuilder(private val document: Document) {
                     .filterIsInstance<HTMLScriptElement>()
                     .find { it.text.contains("\"webCommonData\":{\"clientDefinitionMap\":") }
                 if (script != null) {
-                    val jsonStr = getTextDataByPrefix(script.text, "        var _params=(", 2)
-                    jsonData = jsonStr?.let { Json.decodeFromString(it) }
+                    jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
                     thematicJsonData = jsonData?.arr("ssrData.videoMetaResponse.thematicBanners")
                     topicChannelSubscriptionSuggestion = jsonData?.string(
                         "ssrData.videoMetaResponse.topicChannelSubscriptionSuggestion.topicChannelTitle"
@@ -112,16 +109,28 @@ class PageContextBuilder(private val document: Document) {
         return this
     }
 
-    fun getTextDataByPrefix(
-        scriptLines: String,
-        prefix: String = "  w._data = ",
-        removeLast: Int = 1,
-        removePrefix: Boolean = true,
-    ): String? {
-        return scriptLines
-            .lineSequence()
-            .firstOrNull { it.startsWith(prefix) }
-            ?.let { if (removePrefix) it.substring(prefix.length, it.length - removeLast) else it }
+    fun extractJsonStrings(
+        input: String,
+        required: Set<String>? = null,
+        prefixRegex: Regex = Regex("""(?:w\.\w+|var\s+\w+)\s*=\s*\(?"""),// Regex("""w\.\w+\s*=\s*""")
+    ): Map<String, String> {
+        return input.lines()
+            .mapNotNull { line ->
+                line.trim().takeIf { it.contains(prefixRegex) }
+            }
+            .mapNotNull { line ->
+                val prefix = prefixRegex.find(line)!!.value.replace(Regex("""\s*=\s*\(?"""), "").trim()
+                if (required == null || required.contains(prefix)) {
+                    val valuePart = line.substringAfter("=")
+                        .trim()
+                        .removePrefix("(")
+                        .removeSuffix(";")
+                        .removeSuffix(")")
+                    prefix to valuePart
+                } else {
+                    null
+                }
+            }.toMap()
     }
 
     fun getThematics(thematicObject: JsonArray, mainTopic: String?): List<Thematic> {
@@ -144,34 +153,14 @@ class PageContextBuilder(private val document: Document) {
         return thematics.sortByTitle(mainTopic)
     }
 
-    fun getTextDataByPattern(
-        scriptLines: String,
-        startPattern: String = "{\"data\":{\"MICRO_APP_SSR_DATA",
-        endPattern: String = "}})}();",
-    ): String? {
-        val begin = scriptLines.indexOf(startPattern)
-        if (begin < 0) return null
-        return scriptLines.substring(begin, scriptLines.length - endPattern.length)
-    }
-
-    /*
-    fun isVideo() = type == "short_video" || type == "gif"
-fun PageContext.isText() = type == "article" || type == "brief"
-fun PageContext.isOk() = this.isOk && !this.isParseError
-fun PageContext.containsAnyChecks(typeChecks: List<TypeCheck>): Boolean {
-    return checkResults.keys.any { it in typeChecks }
-}
-     */
-
-
     fun initializeStats(): PageContextBuilder {
         if (isText()) {
             views = embeddedJson?.int("publication.publicationStatistics.views")
             viewsTillEnd = embeddedJson?.int("publication.publicationStatistics.viewsTillEnd")
             val script = document.getElementById("all-data") as? HTMLScriptElement
             if (script != null) {
-                val scriptText = getTextDataByPrefix(script.text, "  w._socialMediaResponse = ")
-                val data = scriptText?.let { Json.decodeFromString<JsonObject>(it) }
+                val data = extractJsonElement(script.text,"w._socialMediaResponse")
+                    ?.jsonObject
                     ?.arr("items")?.firstOrNull()?.jsonObject
                 comments = data?.int("metaInfo.commentsCount")
                 likes = data?.int("metaInfo.likeCount")
@@ -192,6 +181,36 @@ fun PageContext.containsAnyChecks(typeChecks: List<TypeCheck>): Boolean {
             }
         }
         return this
+    }
+
+    fun extractJsonElement(
+        input: String,
+        required: String,
+        prefixRegex: Regex = Regex("""(?:w\.\w+|var\s+\w+)\s*=\s*\(?"""),// Regex("""w\.\w+\s*=\s*"""),
+    ): JsonElement? {
+        val jsonString = extractJsonStrings(input, setOf(required), prefixRegex).values.first()
+        return try {
+            Json.decodeFromString<JsonElement>(jsonString)
+        } catch (e: Exception) {
+            console.dError("Failed to parse $required : ${jsonString.take(50)}...")
+            null
+        }
+    }
+
+    fun extractJsonElements(
+        input: String,
+        required: Set<String>? = null,
+        prefixRegex: Regex = Regex("""(?:w\.\w+|var\s+\w+)\s*=\s*\(?"""),// Regex("""w\.\w+\s*=\s*"""),
+    ): Map<String, JsonElement?> {
+        val jsonStrings = extractJsonStrings(input, required, prefixRegex)
+        return jsonStrings.mapValues { (key, jsonString) ->
+            try {
+                Json.decodeFromString<JsonElement>(jsonString)
+            } catch (e: Exception) {
+                console.dError("Failed to parse $key : ${jsonString.take(50)}...")
+                null
+            }
+        }
     }
 
     fun isVideo() = type == "short_video" || type == "gif"
@@ -217,8 +236,6 @@ fun PageContext.containsAnyChecks(typeChecks: List<TypeCheck>): Boolean {
             isParseError = isParseError
         )
     }
-
-
 }
 
 fun performChecks(context: PageContext, checks: List<PageCheck>) {
@@ -233,20 +250,15 @@ fun performChecks(context: PageContext, checks: List<PageCheck>) {
 suspend fun createPageContext(
     documentUrl: String,
     checks: List<PageCheck> = listOf(
-        CheckNoIndex, CheckAdv, CheckThematics, CheckCovid, CheckComments
-    )
+        CheckNoIndex, CheckAdv, CheckThematics, CheckCovid, CheckComments, CheckDmca
+    ),
 ): PageContext {
-    val targetUrl = if (documentUrl.matches(Regex("""https://dzen\.ru/(a|b|video|short_video)/.+"""))) {
-        documentUrl
-    } else {
-        getFinalUrl(documentUrl)
-    }
-
+    val regex = Regex("""https://dzen\.ru/(a|b|video/watch|shorts)/([^?/]+)""")
+    val targetUrl = regex.find(documentUrl)?.groupValues?.get(0) ?: getFinalUrl(documentUrl)
     val response = window.fetch(targetUrl).await()
     if (response.ok) {
         val htmlContent = response.text().await()
         val document = DOMParser().parseFromString(htmlContent, "text/html")
-
         val builder = PageContextBuilder(document)
             .initializeBaseData()
             .initializeMetaTags()

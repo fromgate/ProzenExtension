@@ -14,7 +14,6 @@ import org.w3c.fetch.FOLLOW
 import org.w3c.fetch.RequestInit
 import org.w3c.fetch.RequestRedirect
 import kotlin.js.Promise
-import kotlin.js.RegExp
 
 fun getZenObject(): Pair<String, String>? {
     val content = document.head
@@ -155,11 +154,10 @@ fun Int.paucal(p1: String, p234: String, p: String): String {
 }
 
 fun convertDzenUrlToOk(dzenUrl: String): String? {
-    val regex = RegExp("""https://dzen\.ru/(a|b|video|short_video)/([^?/]+)""")
-    val match = regex.exec(dzenUrl) ?: return null
-    val type = match[1]
-    // Пока только статьи переносятся в OK
+    val regex = Regex("""https://dzen\.ru/(a|b|video/watch|shorts)/([^?/]+)""")
+    val match = regex.find(dzenUrl) ?: return null
+    val type = match.groupValues[1]
     if (type != "a") return null
-    val id = match[2]
+    val id = match.groupValues[2]
     return "https://ok.ru/dzen/article/$id"
 }

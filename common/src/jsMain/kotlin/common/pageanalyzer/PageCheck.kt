@@ -44,6 +44,7 @@ object CheckThematics : PageCheck() {
 object CheckComments : PageCheck() {
     override fun perform(context: PageContext) {
         val comments: TypeCheck? = if (context.isText()) {
+            val visibleComments = context.embeddedJson?.string("publication.visibleComments")
             when (context.embeddedJson?.string("publication.visibleComments")) {
                 "invisible" -> TypeCheck.COMMENTS_OFF
                 "subscribe-visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
@@ -54,7 +55,7 @@ object CheckComments : PageCheck() {
             val item = context.embeddedJson?.arr("ssrData/socialMetaResponse/items")?.firstOrNull()?.jsonObject
             when (item?.string("metaInfo.visibleComments")) {
                 "invisible" -> TypeCheck.COMMENTS_OFF
-                "subscribe-visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
+                "subscribe_visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
                 "visible" -> TypeCheck.COMMENTS_ALL
                 else -> null
             }
@@ -79,11 +80,16 @@ object CheckAdv : PageCheck() {
                 }
 
                 "gif" -> {
+                    ///ssrData/videoMetaResponse/video/ad/adVideoConfigData/enabled ???
+
                     if (context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.TOP_SIDEBAR.rsyaAdData") == null
                         && context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.BOTTOM_PLAYER.rsyaAdData") == null
                         && context.embeddedJson!!.string("ssrData.videoSettings.exportData.video.adBlocks.LIVE_ADS_BANNER.rsyaAdData") == null
                         && context.embeddedJson!!.string("ssrData.videoSettings.exportData.clientDefinition.video_ads_under_desktop_player") == null
                         && context.embeddedJson!!.string("ssrData.videoSettings.exportData.clientDefinition.video_related_ads_banner") == null
+
+                        && context.embeddedJson!!.string("ssrData.videoMetaResponse.adBlocks.TOP_SIDEBAR.rsyaAdData.blockId") == null
+                        && context.embeddedJson!!.string("ssrData.videoMetaResponse.adBlocks.BOTTOM_PLAYER.rsyaAdData.blockId") == null
                         ) {
                         results[TypeCheck.NO_ADV] = true
                     }
@@ -102,5 +108,14 @@ object CheckCovid : PageCheck() {
         }
 
         if (covid == true) results[TypeCheck.COVID] = true
+    }
+}
+
+object CheckDmca : PageCheck() {
+    override fun perform(context: PageContext) {
+        if (context.isVideo()) {
+            val dmca: Boolean? = context.embeddedJson?.bool("ssrData.videoMetaResponse.isDmcaMusicCopyright")
+            if (dmca == true) results[TypeCheck.DMCA] = true
+        }
     }
 }
