@@ -10,9 +10,6 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.asList
 import org.w3c.dom.parsing.DOMParser
-import org.w3c.fetch.FOLLOW
-import org.w3c.fetch.RequestInit
-import org.w3c.fetch.RequestRedirect
 import kotlin.js.Promise
 
 fun getZenObject(): Pair<String, String>? {
@@ -49,11 +46,6 @@ suspend fun getPageFromUrl(url: String): String? {
         console.error("Error fetching URL: $e")
         null
     }
-}
-
-suspend fun getFinalUrl(url: String): String {
-    val response = window.fetch(url, RequestInit(method = "HEAD", redirect = RequestRedirect.FOLLOW)).await()
-    return response.url
 }
 
 suspend fun checkNoIndexUrl(url: String): Boolean {

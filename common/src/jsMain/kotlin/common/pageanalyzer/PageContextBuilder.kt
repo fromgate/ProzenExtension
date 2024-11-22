@@ -254,7 +254,7 @@ suspend fun createPageContext(
     ),
 ): PageContext {
     val regex = Regex("""https://dzen\.ru/(a|b|video/watch|shorts)/([^?/]+)""")
-    val targetUrl = regex.find(documentUrl)?.groupValues?.get(0) ?: getFinalUrl(documentUrl)
+    val targetUrl = regex.find(documentUrl)?.groupValues?.get(0) ?: getCachedFinalUrl(documentUrl)
     val response = window.fetch(targetUrl).await()
     if (response.ok) {
         val htmlContent = response.text().await()

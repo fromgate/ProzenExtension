@@ -8,9 +8,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.dom.clear
-import kotlinx.html.*
+import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.span
+import kotlinx.html.style
+import kotlinx.html.title
 import org.w3c.dom.*
 
 
@@ -184,8 +187,10 @@ class Publications(val requester: Requester) {
                             title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
                             onClickFunction = {
                                 it.preventDefault()
-                                copyTextToClipboard(card.url())
-                                showNotification("Cсылка скопирована в буфер обмена")
+                                GlobalScope.launch {
+                                    copyTextToClipboard(card.shorUrl())
+                                    showNotification("Cсылка скопирована в буфер обмена")
+                                }
                             }
                         }
                         span("prozen-card-icon button prozen_studio_card_icon_repost") {
@@ -534,8 +539,10 @@ class Publications(val requester: Requester) {
                             title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
                             onClickFunction = {
                                 it.preventDefault()
-                                copyTextToClipboard(card.url())
-                                showNotification("Cсылка скопирована в буфер обмена")
+                                GlobalScope.launch {
+                                    copyTextToClipboard(card.url())
+                                    showNotification("Cсылка скопирована в буфер обмена")
+                                }
                             }
                         }
                         span("prozen-card-icon button prozen_studio_card_icon_repost") {

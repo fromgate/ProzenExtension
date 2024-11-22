@@ -108,6 +108,10 @@ fun Card.er(): String {
 
 fun Card.url(): String = "https://dzen.ru/media/id/${this.publisherId}/${this.id}"
 
+suspend fun Card.shorUrl(): String {
+    return getCachedFinalUrl("https://dzen.ru/media/id/${this.publisherId}/${this.id}")
+}
+
 fun Card.repostUrl(): String = "https://dzen.ru/media/zen/login?briefEditorPublicationId=draft&repostId=${this.id}"
 
 /**
