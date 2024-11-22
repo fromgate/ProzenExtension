@@ -36,7 +36,8 @@ object CheckThematics : PageCheck() {
             results[TypeCheck.THEMATICS] = context.thematics
             console.dInfo("CheckThematics: ${context.thematics.map { it.title }.joinToString()}")
         } else {
-            console.dInfo("CheckThematics: Thematics are empty")
+            results[TypeCheck.NO_THEMATICS] = true
+            console.dInfo("CheckThematics: No thematics detected")
         }
     }
 }
