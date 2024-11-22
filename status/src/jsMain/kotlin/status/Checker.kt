@@ -2,8 +2,13 @@ package status
 
 import common.*
 import common.pageanalyzer.*
+import common.progress.ProgressBar
 import kotlinx.browser.document
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.create
@@ -51,6 +56,28 @@ class Checker(private val requester: Requester) {
     suspend fun loadPageContext(card: Card) {
         checks[card.id] = createPageContext(card.url())
     }
+
+
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun loadCardsInParallel(unloaded: List<Card>, maxParallelism: Int = 3, progress: ProgressBar? = null) {
+        var count = 0
+        val semaphore = Semaphore(maxParallelism)
+        val countMutex = Mutex()
+        val jobs = unloaded.map { card ->
+            GlobalScope.async {
+                semaphore.withPermit {
+                    progress?.update(text = card.title)
+                    loadPageContext(card)
+                    countMutex.withLock {
+                        count++
+                    }
+                    progress?.update(count, unloaded.size)
+                }
+            }
+        }
+        jobs.awaitAll()
+    }
+
 
     fun hasPublications(): Boolean {
         return cards.isNotEmpty()

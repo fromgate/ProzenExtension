@@ -175,7 +175,7 @@ class Informer(val requester: Requester) {
                                             "prozenPublisherId" to requester.publisherId
                                         )
                                     ) {
-                                        window.open(chrome.runtime.getURL("sadrobot.html"))
+                                        window.open(chrome.runtime.getURL("status.html"))
                                     }
                                 }
                             }

@@ -175,6 +175,8 @@ fun createSearchPage(root: HTMLElement) {
                         id = "start-check-button"
                         onClickFunction = {
                             if (checker != null) {
+                                val ul = document.getElementById("search-results") as HTMLUListElement
+                                ul.clear()
                                 GlobalScope.launch {
                                     if (!checker!!.hasPublications()) {
                                         val spinner = Spinner()
@@ -187,23 +189,15 @@ fun createSearchPage(root: HTMLElement) {
                                     val selectedTypeChecks = getSelectedTypeChecks()
 
                                     val found = checker!!.find(typesToSearch, period)
+
                                     val unloaded = checker!!.getUnloadedContextCards(found)
                                     console.dInfo("Unloaded / Found: ${unloaded.size} / ${found.size}")
                                     if (unloaded.isNotEmpty()) {
-                                        var count = 0
                                         val progress = ProgressBar()
-                                        progress.show(10, "Загрузка публикаций")
-                                        unloaded.forEach { card ->
-                                            progress.update(text = "Загрузка: ${card.title}")
-                                            checker!!.loadPageContext(card)
-                                            count++
-                                            progress.update(count, unloaded.size)
-                                        }
+                                        progress.show(1, "Загрузка публикаций")
+                                        checker!!.loadCardsInParallel(unloaded, 3, progress)
                                         progress.close()
                                     }
-
-                                    val ul = document.getElementById("search-results") as HTMLUListElement
-                                    ul.clear()
 
                                     val toShow = found
                                         .map { it to checker!!.getPageContext(it) }

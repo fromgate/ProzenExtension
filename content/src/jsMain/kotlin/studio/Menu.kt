@@ -135,9 +135,8 @@ class Menu(val requester: Requester): ContentRunner {
                         }
                     }
 
-                    // Четвертый элемент меню
                     li {
-                        title = "Поиск проблемных публикаций"
+                        title = "Проверка состояния публикаций"
                         style = "cursor: pointer;"
                         a(classes = "editor--navbar__item-17") {
                             div(classes = "editor--navbar__icon-1d") {
@@ -145,30 +144,6 @@ class Menu(val requester: Requester): ContentRunner {
                             }
                             span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
                                 +"Проверка публикаций"
-                            }
-                        }
-                        onClickFunction = {
-                            chrome.storage.local.set(
-                                json(
-                                    "prozenId" to requester.publisherId,
-                                    "prozenToken" to requester.token,
-                                    "prozenPublisherId" to requester.publisherId
-                                )
-                            ) {
-                                window.open(chrome.runtime.getURL("sadrobot.html"))
-                            }
-                        }
-                    }
-
-                    li {
-                        title = "Поиск проблемных публикаций"
-                        style = "cursor: pointer;"
-                        a(classes = "editor--navbar__item-17") {
-                            div(classes = "editor--navbar__icon-1d") {
-                                div(classes = "editor--navbar__svg-2_ prozen_menu_robot")
-                            }
-                            span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
-                                +"Статус публикаций"
                             }
                         }
                         onClickFunction = {

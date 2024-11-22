@@ -33,9 +33,9 @@ class ProgressBar(private val rootElement: HTMLElement? = null) {
         appendToBodyOrRoot(progressElement!!)
     }
 
-    fun update(progress: Int? = null, text: String? = null) {
+    fun update(progress: Double? = null, text: String? = null) {
         if (progress != null) {
-            val normalizedProgress = min(progress, 100)
+            val normalizedProgress = min(progress, 100.0)
             val progressBarLine = progressElement?.querySelector(".prozen-progress-bar-fill") as? HTMLElement
             progressBarLine?.style?.width = "$normalizedProgress%"
         }
@@ -48,7 +48,7 @@ class ProgressBar(private val rootElement: HTMLElement? = null) {
 
     fun update(value: Int, max: Int, text: String? = null) {
         val percentage = (value.toDouble() / max) * 100
-        update(percentage.toInt(), text)
+        update(percentage, text)
     }
 
     fun close() {
