@@ -14,10 +14,10 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
 import kotlin.js.json
 
-class Menu(val requester: Requester): ContentRunner {
-
+class Menu(val requester: Requester) : ContentRunner {
 
     var metrikaId: Int? = null
+
     suspend fun getData() {
         metrikaId = requester.getChannelData().first
     }
@@ -40,9 +40,6 @@ class Menu(val requester: Requester): ContentRunner {
     }
 
     fun appendMenu(nabBar: HTMLElement) {
-
-        //editor--navbar__ul-1l
-
         var existedMenu = document.getElementById("prozen-main-menu")
         if (existedMenu != null && existedMenu.getAttribute("data-publisherId") != requester.publisherId!!) {
             existedMenu.parentNode!!.removeChild(existedMenu)
@@ -167,4 +164,3 @@ class Menu(val requester: Requester): ContentRunner {
         create()
     }
 }
-
