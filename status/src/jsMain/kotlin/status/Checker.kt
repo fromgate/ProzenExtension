@@ -66,7 +66,7 @@ class Checker(private val requester: Requester) {
         val jobs = unloaded.map { card ->
             GlobalScope.async {
                 semaphore.withPermit {
-                    progress?.update(text = card.title)
+                    progress?.update(text = card.title.ifEmpty { "…" })
                     loadPageContext(card)
                     countMutex.withLock {
                         count++

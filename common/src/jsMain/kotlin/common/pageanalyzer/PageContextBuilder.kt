@@ -78,7 +78,7 @@ class PageContextBuilder(private val document: Document) {
             "article", "brief" -> {
                 val script = document.getElementById("all-data") as? HTMLScriptElement
                 if (script != null) {
-                    val filter = "w._data,w._thematicBanners,w._thematicBanners"
+                    val filter = "w._data,w._thematicBanners,w._thematicBanners,w._topicChannelSubscriptionSuggestion"
                         .split(",")
                         .toSet()
                     val jsonElements = extractJsonElements(script.text, required = filter)
@@ -150,7 +150,8 @@ class PageContextBuilder(private val document: Document) {
                 console.log(e)
             }
         }
-        return thematics.sortByTitle(mainTopic)
+        //return thematics.sortByTitle(mainTopic)
+        return thematics.filter { mainTopic == null || it.title == mainTopic }
     }
 
     fun initializeStats(): PageContextBuilder {
