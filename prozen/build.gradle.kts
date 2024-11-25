@@ -91,6 +91,7 @@ tasks {
             ":content:jsBrowserDistribution",
             ":search:jsBrowserDistribution",
             ":status:jsBrowserDistribution",
+            ":stats:jsBrowserDistribution",
             ":settings:jsBrowserDistribution",
             ":prozen:jsBrowserDistribution")
         from("$rootDir/build/distributions/jsKt")

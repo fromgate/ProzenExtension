@@ -13,6 +13,7 @@ kotlin {
                 distribution {
                     outputDirectory = File("$rootDir/build/distributions/jsKt")
                 }
+                sourceMaps = (rootProject.ext["generateSourceMaps"] as Boolean)
             }
         }
         binaries.executable()
@@ -23,7 +24,6 @@ kotlin {
             kotlin.srcDir("src/jsMain/kotlin")
             dependencies {
                 implementation(project(":chrome"))
-                // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0-RC.2")
             }
         }
     }

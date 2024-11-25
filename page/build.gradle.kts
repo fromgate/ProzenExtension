@@ -13,6 +13,7 @@ kotlin {
                 distribution {
                     outputDirectory = File("$rootDir/build/distributions/jsKt")
                 }
+                sourceMaps = (rootProject.ext["generateSourceMaps"] as Boolean)
             }
         }
         binaries.executable()
