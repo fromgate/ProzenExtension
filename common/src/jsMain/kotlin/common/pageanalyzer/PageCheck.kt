@@ -2,7 +2,6 @@ package common.pageanalyzer
 
 import common.arr
 import common.bool
-import common.dInfo
 import common.string
 import kotlinx.serialization.json.jsonObject
 
@@ -25,7 +24,6 @@ object CheckNoIndex : PageCheck() {
             val propertyAttr = meta.getAttribute("property")
             (meta.name == "robots" || propertyAttr == "robots") && meta.content.contains("noindex")
         }
-        console.dInfo("CheckNoIndex: $noindex")
         if (noindex) results[TypeCheck.NO_INDEX] = true
     }
 }
@@ -34,11 +32,8 @@ object CheckThematics : PageCheck() {
     override fun perform(context: PageContext) {
         if (context.thematics.isNotEmpty()) {
             results[TypeCheck.THEMATICS] = context.thematics
-            console.dInfo("CheckThematics: ${context.thematics.map { it.title }.joinToString()}")
         } else {
-            results[TypeCheck.NO_THEMATICS] = true
-            console.dInfo("CheckThematics: No thematics detected")
-        }
+            results[TypeCheck.NO_THEMATICS] = true                    }
     }
 }
 
@@ -62,7 +57,6 @@ object CheckComments : PageCheck() {
             }
         }
         comments?.let { results[it] = true }
-        console.dInfo("CheckComments: ${comments?.name ?: "null"}")
     }
 }
 

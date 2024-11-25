@@ -81,8 +81,6 @@ val event = e as? MessageEvent ?: return
 
     val pageType = getPageType()
 
-    console.dInfo("getPageType: $pageType")
-
     val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {
             Article(requester!!, data!!)

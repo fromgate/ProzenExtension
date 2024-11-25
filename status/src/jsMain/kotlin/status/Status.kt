@@ -28,9 +28,6 @@ var publisherId: String? = null
 var token: String? = null
 var checker: Checker? = null
 
-//❌ Блокировка 🤖 Индексация 😷 COVID-19 🪙 Реклама 🎹 DMCA 🤐 Комментарии отключены 🤫 Комментарии для подписчиков 😬 Комментарии открыты для всех
-
-
 private fun getChannelId() {
     chrome.storage.local.get(arrayOf("prozenSearch", "prozenToken", "prozenPublisherId")) { result ->
         publisherId = result["prozenPublisherId"] as? String
@@ -39,7 +36,7 @@ private fun getChannelId() {
         if (requester.hasToken() && requester.hasPublisherId()) {
             checker = Checker(requester)
         } else {
-            console.error("Failed to create Finder object for unknown publisher and token.")
+            console.error("Failed to create Checker object for unknown publisher and token.")
         }
     }
 }
@@ -260,9 +257,7 @@ fun getSelectedTypeChecks(): List<TypeCheck> {
 
 fun saveChecks() {
     val prozenStatusPublications = getTypesToSearch().joinToString(",")
-    console.dInfo("saveChecks / prozenStatusPublications $prozenStatusPublications")
     val prozenStatusChecks = getSelectedTypeChecks().joinToString(",") { it.name }
-    console.dInfo("saveChecks / prozenStatusChecks $prozenStatusChecks")
     chrome.storage.local.set(
         json ("prozenStatusPublications" to prozenStatusPublications, "prozenStatusChecks" to prozenStatusChecks)
     )
@@ -273,15 +268,9 @@ fun saveChecks() {
 fun loadChecks() {
     chrome.storage.local.get(arrayOf("prozenStatusPublications", "prozenStatusChecks")) { result ->
         val prozenStatusPublications = (result["prozenStatusPublications"] as? String)?.split(",")?.toSet()
-        console.dInfo("loadChecks / prozenStatusPublications ${prozenStatusPublications ?: "null"}")
-
         val prozenStatusChecks = (result["prozenStatusChecks"] as? String)?.split(",")?.toSet()
-
-        console.dInfo("loadChecks / prozenStatusChecks ${prozenStatusChecks ?: "null"}")
-
         prozenStatusPublications?.let { setInputChecks("prozen-search-types-input", it) }
         prozenStatusChecks?.let { setInputChecks("prozen-search-type-checks-input", it) }
-
     }
 }
 
