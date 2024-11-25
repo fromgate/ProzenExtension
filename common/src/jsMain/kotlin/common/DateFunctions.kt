@@ -82,6 +82,8 @@ fun getCurrentYear(): Pair<Instant, Instant> {
     return firstOfYear to now
 }
 
+fun getAllTime() =  fromInputDate("2017-05-30")!! to Clock.System.now()
+
 fun Pair<Instant, Instant>.toStringPair(): Pair<String, String> {
     return this.first.toYYYYMMDD() to this.second.toYYYYMMDD()
 }

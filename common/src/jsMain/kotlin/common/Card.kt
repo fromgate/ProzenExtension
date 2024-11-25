@@ -1,5 +1,6 @@
 package common
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
@@ -107,6 +108,12 @@ fun Card.er(): String {
 }
 
 fun Card.url(): String = "https://dzen.ru/media/id/${this.publisherId}/${this.id}"
+
+fun Card.isInPeriod(period: Pair<Instant, Instant>): Boolean {
+    if (this.addTime == null) return false
+    val addTimeInstant = Instant.fromEpochMilliseconds(this.addTime!!)
+    return addTimeInstant in period.first..period.second
+}
 
 suspend fun Card.shorUrl(): String {
     return getCachedFinalUrl("https://dzen.ru/media/id/${this.publisherId}/${this.id}")

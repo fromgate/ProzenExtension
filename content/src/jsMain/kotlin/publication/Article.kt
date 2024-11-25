@@ -19,13 +19,9 @@ import kotlin.collections.set
 
 
 class Article(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
-    /* 🕑 05.09.24 18:11 (05.09.24 18:18) 📃 408 📄 213 🔗 🤖 */
     override fun showStats() {
         val stats = this.stats ?: return
-
-
         val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-']") as? HTMLElement
-
         infoBlock?.clear()
         infoBlock?.append {
             div("prozen-article-stats") {

@@ -23,8 +23,9 @@
     {
       "resources": [
         "search.html",
-        "totalstats.html",
+        "stats.html",
         "status.html",
+        "settings.html",
         "js/*.js",
         "css/prozen.css",
         "img/*.png",

@@ -1489,6 +1489,36 @@ html body .ui-lib-header__item._type_left {
     color: #000;
 }
 
+.prozen-light-button {
+    padding: 8px 8px;
+    background-color: #e5e5e5;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-left: 5px;
+}
+
+.prozen-light-button:hover {
+    background-color: #e0e0e0;
+    color: #000;
+}
+
+.prozen-light-button:active {
+    background-color: #d0d0d0;
+    color: #000;
+}
+
+.prozen-excel-button-icon {
+    display: block;
+    width: 17px;
+    height: 18px;
+    opacity: 0.7;
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg enable-background='new 0 0 115.28 122.88' version='1.1' viewBox='0 0 115.28 122.88' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle type='text/css'%3E.st0%7Bfill-rule:evenodd;clip-rule:evenodd;%7D%3C/style%3E%3Cpath class='st0' d='m25.38 57h64.88v-19.66h-20.67c-2.17 0-5.19-1.17-6.62-2.6s-2.3-4.01-2.3-6.17v-20.93h-52.52c-0.18 0-0.32 0.09-0.41 0.18-0.15 0.1-0.19 0.23-0.19 0.42v106.45c0 0.14 0.09 0.32 0.18 0.41 0.09 0.14 0.28 0.18 0.41 0.18h81.51c0.18 0 0.17-0.09 0.27-0.18 0.14-0.09 0.33-0.28 0.33-0.41v-11.16h-64.87c-4.14 0-7.56-3.4-7.56-7.56v-31.42c0-4.15 3.4-7.55 7.56-7.55zm4.22 11.07h8.25l4.29 7.45 4.16-7.45h8.15l-7.52 11.72 8.23 12.48h-8.42l-4.75-7.77-4.78 7.77h-8.35l8.34-12.61-7.6-11.59zm28.58 0h7.47v18.25h11.7v5.95h-19.17v-24.2zm21.88 16.19 7.1-0.45c0.15 1.15 0.47 2.03 0.94 2.63 0.77 0.97 1.87 1.46 3.3 1.46 1.06 0 1.89-0.25 2.46-0.75 0.58-0.5 0.87-1.08 0.87-1.74 0-0.63-0.27-1.19-0.82-1.68-0.55-0.5-1.82-0.96-3.82-1.4-3.28-0.73-5.61-1.71-7.01-2.93-1.41-1.22-2.11-2.77-2.11-4.66 0-1.24 0.36-2.41 1.08-3.52s1.8-1.98 3.25-2.61 3.43-0.95 5.95-0.95c3.09 0 5.45 0.57 7.07 1.73 1.62 1.15 2.59 2.98 2.9 5.49l-7.03 0.42c-0.19-1.1-0.58-1.9-1.18-2.39-0.6-0.5-1.43-0.75-2.48-0.75-0.87 0-1.53 0.19-1.97 0.55-0.44 0.37-0.66 0.82-0.66 1.35 0 0.38 0.18 0.73 0.54 1.04 0.34 0.32 1.18 0.61 2.5 0.89 3.27 0.7 5.61 1.42 7.01 2.14 1.41 0.72 2.44 1.61 3.09 2.68 0.64 1.07 0.96 2.26 0.96 3.58 0 1.55-0.43 2.98-1.28 4.29-0.86 1.31-2.06 2.3-3.6 2.98s-3.48 1.01-5.82 1.01c-4.11 0-6.96-0.79-8.55-2.38-1.58-1.58-2.48-3.59-2.69-6.03zm17.73-27.26h9.93c4.16 0 7.56 3.41 7.56 7.56v31.42c0 4.15-3.41 7.56-7.56 7.56h-9.93v13.55c0 1.61-0.65 3.04-1.7 4.1-1.06 1.06-2.49 1.7-4.1 1.7h-86.18c-1.61 0-3.04-0.64-4.1-1.7s-1.7-2.49-1.7-4.1v-111.24c0-1.61 0.65-3.04 1.7-4.1 1.06-1.06 2.53-1.7 4.1-1.7h58.72c0.13-0.05 0.27-0.05 0.41-0.05 0.64 0 1.29 0.28 1.75 0.69h0.09c0.09 0.05 0.14 0.09 0.23 0.18l29.99 30.36c0.51 0.51 0.88 1.2 0.88 1.98 0 0.23-0.05 0.41-0.09 0.65v23.14zm-30.27-29.03v-19.03l21.43 21.7h-18.76c-0.74 0-1.38-0.32-1.89-0.78-0.46-0.46-0.78-1.15-0.78-1.89z'/%3E%3C/svg%3E%0A");
+}
+
+
 .prozen-calendar-button-icon {
     display: block;
     width: 16px;
@@ -1873,4 +1903,173 @@ html body .ui-lib-header__item._type_left {
 .prozen-placeholder-text {
     color: #777777;
     font-size: 14px;
+}
+
+/* Statistics Page */
+.prozen-stats-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        background-color: #eaeaea;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+
+    /* Контейнер статистики */
+    .prozen-statistics-container {
+        width: 900px;
+        background-color: #f5f5f5;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Заголовок */
+    .prozen-statistics-header {
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    /* Фильтры */
+    .prozen-statistics-filters {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px 0;
+        /*border-bottom: 1px solid #ddd;*/
+    }
+
+    .prozen-statistics-filters label {
+        font-size: 14px;
+        color: #555;
+    }
+
+    /*
+    .prozen-statistics-filters button {
+        background-color: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .prozen-statistics-filters button:hover {
+        background-color: #5a6268;
+    } */
+
+    /* Секция статистики */
+    .prozen-statistics-section {
+        margin-bottom: 20px;
+    }
+
+    .prozen-statistics-section h4 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        /* border-bottom: 1px solid #ddd;
+        padding-bottom: 5px; */
+        color: #444;
+    }
+
+    /* Список статистики */
+    .prozen-statistics-list {
+        background-color: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+    }
+
+    /* Элементы списка */
+    .prozen-statistics-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    /*
+    .prozen-statistics-item:last-child {
+        border-bottom: none;
+    } */
+
+    .prozen-statistics-item span {
+        flex: 1;
+        text-align: left;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .prozen-statistics-item span.value {
+        text-align: left;
+        font-weight: bold;
+        color: #000;
+    }
+
+    /* Кнопки действий */
+    .prozen-statistics-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    /*
+    .prozen-statistics-actions button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .prozen-statistics-actions button:hover {
+        background-color: #0056b3;
+    } */
+
+
+/* Контейнер для строки статистики */
+.prozen-statistics-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Левый блок (описание) */
+.prozen-statistics-description {
+    flex: 1;
+    text-align: left;
+}
+
+/* Правый блок (значение) */
+.prozen-statistics-value {
+    flex: 1;
+    text-align: left;
+}
+
+/* Основное значение */
+.prozen-statistics-main-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    display: block;
+}
+
+/* Дополнительное значение */
+.prozen-statistics-secondary-value {
+    font-size: 12px;
+    color: #888;
+    display: inline; /* Можно менять на inline, если надо размещать на одной строке */
 }

@@ -81,6 +81,28 @@ class Menu(val requester: Requester) : ContentRunner {
                             }
                         }
                     }
+                    li {
+                        title = "Сводная статистика"
+                        style = "cursor: pointer;"
+                        a(classes = "editor--navbar__item-17") {
+                            div(classes = "editor--navbar__icon-1d") {
+                                div(classes = "editor--navbar__svg-2_ prozen_menu_stats")
+                            }
+                            span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
+                                +"Статистика"
+                            }
+                        }
+                        onClickFunction = {
+                            chrome.storage.local.set(
+                                json(
+                                    "prozenToken" to requester.token,
+                                    "prozenPublisherId" to requester.publisherId
+                                )
+                            ) {
+                                window.open(chrome.runtime.getURL("stats.html"))
+                            }
+                        }
+                    }
 
                     // Второй элемент меню
                     li {
