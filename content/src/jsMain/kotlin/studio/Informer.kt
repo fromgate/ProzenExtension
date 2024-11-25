@@ -131,7 +131,7 @@ class Informer(val requester: Requester) {
                                             "prozenPublisherId" to requester.publisherId
                                         )
                                     ) {
-                                        window.open(chrome.runtime.getURL("totalstats.html"))
+                                        window.open(chrome.runtime.getURL("stats.html"))
                                     }
                                 }
                             }

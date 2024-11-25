@@ -67,28 +67,6 @@ class Menu(val requester: Requester) : ContentRunner {
                                 div(classes = "editor--navbar__svg-2_ prozen_menu_stats")
                             }
                             span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
-                                +"Полная статистика"
-                            }
-                        }
-                        onClickFunction = {
-                            chrome.storage.local.set(
-                                json(
-                                    "prozenToken" to requester.token,
-                                    "prozenPublisherId" to requester.publisherId
-                                )
-                            ) {
-                                window.open(chrome.runtime.getURL("totalstats.html"))
-                            }
-                        }
-                    }
-                    li {
-                        title = "Сводная статистика"
-                        style = "cursor: pointer;"
-                        a(classes = "editor--navbar__item-17") {
-                            div(classes = "editor--navbar__icon-1d") {
-                                div(classes = "editor--navbar__svg-2_ prozen_menu_stats")
-                            }
-                            span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
                                 +"Статистика"
                             }
                         }
@@ -162,7 +140,7 @@ class Menu(val requester: Requester) : ContentRunner {
                                 div(classes = "editor--navbar__svg-2_ prozen_menu_robot")
                             }
                             span(classes = "Text Text_typography_text-15-20 editor--navbar__text-pc") {
-                                +"Проверка публикаций"
+                                +"Проверка"
                             }
                         }
                         onClickFunction = {
