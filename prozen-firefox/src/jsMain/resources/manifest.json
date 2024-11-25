@@ -29,15 +29,13 @@
     {
       "resources": [
         "search.html",
-        "totalstats.html",
-        "sadrobot.html",
-        "js/search.js",
-        "js/totalstats.js",
-        "js/sadrobot.js",
-        "js/pageKt.js",
-        "js/litepicker.js",
-        "js/ranges.js",
-        "css/prozen.css"
+        "stats.html",
+        "status.html",
+        "settings.html",
+        "js/*.js",
+        "css/prozen.css",
+        "img/*.png",
+        "icons/*.png"
       ],
       "matches": [
         "https://dzen.ru/*"
