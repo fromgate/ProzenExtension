@@ -8,6 +8,14 @@ data class Thematic(
     val subscribersCount: Int?,
 )
 
+fun List<Thematic>.getTagged(tagTitles: List<String>?, suggested: String?): List<Thematic> {
+    if (tagTitles.isNullOrEmpty() && suggested.isNullOrEmpty()) return this
+    return this.filter {
+        (tagTitles != null && it.title in tagTitles)
+                || (suggested != null && it.title == suggested)
+    }
+}
+
 fun List<Thematic>.sortByTitle(targetTitle: String?): List<Thematic> {
     if (this.isEmpty()) return this
     val (matchingTitle, others) = this.partition { it.title == (targetTitle ?: this.first().title) }

@@ -104,9 +104,16 @@ class PageContextBuilder(private val document: Document) {
         }
 
         embeddedJson = jsonData
-        thematics = thematicJsonData?.let { getThematics(it, topicChannelSubscriptionSuggestion) } ?: emptyList()
+        val tags = getTheamticTags()
+        thematics = thematicJsonData?.let {
+            getThematics(it, tags, topicChannelSubscriptionSuggestion)
+        } ?: emptyList()
         isParseError = jsonData == null
         return this
+    }
+
+    fun getTheamticTags(): List<String> {
+        return metaTags.filter { it.getAttribute("property") == "og:article:tag" }.map { it.content }
     }
 
     fun extractJsonStrings(
@@ -133,7 +140,7 @@ class PageContextBuilder(private val document: Document) {
             }.toMap()
     }
 
-    fun getThematics(thematicObject: JsonArray, mainTopic: String?): List<Thematic> {
+    fun getThematics(thematicObject: JsonArray, tags: List<String>?, suggested: String?): List<Thematic> {
         val thematics = mutableListOf<Thematic>()
         thematicObject.forEach {
             try {
@@ -150,8 +157,7 @@ class PageContextBuilder(private val document: Document) {
                 console.log(e)
             }
         }
-        //return thematics.sortByTitle(mainTopic)
-        return thematics.filter { mainTopic == null || it.title == mainTopic }
+        return thematics.getTagged(tags, suggested)
     }
 
     fun initializeStats(): PageContextBuilder {
