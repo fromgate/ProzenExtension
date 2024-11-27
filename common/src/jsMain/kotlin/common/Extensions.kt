@@ -52,9 +52,10 @@ fun Instant.toYYYYMD(timeZone: TimeZone = TimeZone.currentSystemDefault()): Stri
     return "${time.year}-${time.monthNumber}-${time.dayOfMonth}"
 }
 
-fun Instant.toYYYYMMDD(timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
+fun Instant.toYYYYMMDD(timeZone: TimeZone = TimeZone.currentSystemDefault(), showTime: Boolean = false): String {
     val time = this.toLocalDateTime(timeZone)
-    return "${time.year}-${time.monthNumber.padZero()}-${time.dayOfMonth.padZero()}"
+    val dateStr = "${time.year}-${time.monthNumber.padZero()}-${time.dayOfMonth.padZero()}"
+    return "$dateStr${if (showTime) " ${time.hour.padZero()}_${time.minute.padZero()}_${time.second.padZero()}" else ""}"
 }
 
 fun Int.padZero(): String {

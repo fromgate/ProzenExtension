@@ -1,5 +1,6 @@
 
 import common.Card
+import common.toYYYYMMDD
 import common.views
 import kotlinx.datetime.Clock
 import org.khronos.webgl.ArrayBuffer
@@ -63,10 +64,11 @@ object ExcelExporter {
      */
     private fun getExcelData(cards: List<Card>, type: String): Array<Array<Any>> {
         val header = when (type) {
-            "article" -> arrayOf<Any>("Статья", "Показы", "Клики", "Дочитывания")
-            "brief" -> arrayOf<Any>("Пост", "Показы", "Клики", "Просмотры")
-            "gif", "short_video" -> arrayOf<Any>("Видео", "Показы", "Клики", "Просмотры")
-            else -> return arrayOf(arrayOf<Any>("Нет данных"))
+            "article" -> arrayOf<Any>("","Статья", "Показы", "Клики", "Дочитывания")
+            "brief" -> arrayOf<Any>("","Пост", "Показы", "Просмотры")
+            "gif" -> arrayOf<Any>("","Видео", "Показы", "Просмотры")
+            "short_video" -> arrayOf<Any>("","Ролик", "Показы", "Просмотры")
+            else -> arrayOf<Any>("", type, "Показы", "Просмотры")
         }
         val rows = cards.groupBy { it.type }.flatMap { (_, cardList) ->
             cardList.map { it.toArray() }
@@ -89,7 +91,7 @@ object ExcelExporter {
     /**
      * Генерация текущей метки времени для имени файла.
      */
-    private fun generateTimestamp(): String = Clock.System.now().toString()
+    private fun generateTimestamp(): String = Clock.System.now().toYYYYMMDD(showTime = true)
 
     /**
      * Преобразование карточки в массив данных, которые будут отображаться

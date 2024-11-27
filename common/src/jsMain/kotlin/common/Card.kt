@@ -44,7 +44,7 @@ fun Card.timeStr(): String? {
     return if (modStr != createStr) "$createStr ($modStr)" else createStr
 }
 
-fun Card.views(): Int = if (this.type == "article") this.clicks!! else this.viewsTillEnd!!
+fun Card.views(): Int = if (this.type == "article") this.viewsTillEnd!! else this.clicks!!
 
 fun Card.timeStrTitle(): Pair<String, String> {
     val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
