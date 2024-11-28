@@ -1,5 +1,6 @@
 import common.Option
 import common.Options
+import common.components.prozenCornerInfoBlock
 import common.showNotification
 import kotlinx.browser.document
 import kotlinx.html.*
@@ -37,6 +38,7 @@ fun createSettingsPage(root: HTMLElement) {
                         }
                         option.description?.let {
                             div(classes = "prozen-info-icon") {
+                                +"ℹ"
                                 span(classes = "prozen-tooltip") {
                                     +it
                                 }
@@ -63,11 +65,12 @@ fun createSettingsPage(root: HTMLElement) {
 
             // Футер с ссылками
             footer(classes = "prozen-footer") {
-                a(href = "https://t.me/prodzen", target = "_blank") { +"Телеграм-канал @prodzen" }
+                a(href = "https://t.me/+jgjgYMVg2gY0ODVi", target = "_blank") { +"Телеграм-канал @prodzen" }
                 a(href = "https://prozen.ru", target = "_blank") { +"prozen.ru" }
                 a(href = "https://donate.stream/prodzen", target = "_blank") { +"Поддержать разработку" }
             }
         }
+        prozenCornerInfoBlock()
     }
 }
 

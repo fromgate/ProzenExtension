@@ -88,9 +88,9 @@ suspend fun createPopup() {
             // Футер с ссылками
             div(classes = "prozen-popup-footer") {
                 div(classes = "prozen-popup-footer-row") {
-                    a(href = "https://t.me/+jgjgYMVg2gY0ODVi", target = "_blank") { +"Телеграм" }
+                    a(href = "https://t.me/+jgjgYMVg2gY0ODVi", target = "_blank") { +"Продзен в Telegram" }
                     a(href = "https://prozen.ru", target = "_blank") { +"prozen.ru" }
-                    a(href = "https://dzen.ru/prodzn", target = "_blank") { +"Дзен" }
+                    a(href = "https://dzen.ru/prodzn", target = "_blank") { +"Продзен в Дзене" }
                 }
                 div(classes = "prozen-popup-footer-secondary") {
                     a(

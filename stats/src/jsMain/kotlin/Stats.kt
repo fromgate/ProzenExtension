@@ -1,6 +1,7 @@
 
 import common.*
 import common.components.dropButton
+import common.components.prozenCornerInfoBlock
 import common.progress.Spinner
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -116,6 +117,7 @@ fun createStatisticsPage(root: HTMLElement) {
                 id = "statistics"
             }
         }
+        prozenCornerInfoBlock()
     }
 }
 

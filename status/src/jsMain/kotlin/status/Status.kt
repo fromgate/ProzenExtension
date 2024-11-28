@@ -2,6 +2,7 @@ package status
 
 import common.*
 import common.components.dropButton
+import common.components.prozenCornerInfoBlock
 import common.pageanalyzer.TypeCheck
 import common.pageanalyzer.containsAnyChecks
 import common.pageanalyzer.isOk
@@ -234,6 +235,7 @@ fun createSearchPage(root: HTMLElement) {
 
 
         }
+        prozenCornerInfoBlock()
     }
 }
 
