@@ -55,9 +55,9 @@ fun listenToRequests() {
 
 
 fun processStudioCards(pageSize: Int) {
-    Publications(requester!!).processDashboardCards(pageSize)
+    Publications(request!!).processDashboardCards(pageSize)
 }
 
 fun processPublicationsCards(serviceWorkerMessage: ServiceWorkerMessage) {
-    Publications(requester!!).processPublicationsCards(serviceWorkerMessage)
+    Publications(request!!).processPublicationsCards(serviceWorkerMessage)
 }

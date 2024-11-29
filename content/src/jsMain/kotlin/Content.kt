@@ -26,7 +26,7 @@ import kotlin.js.json
 var token: String? = null
 var data: JsonObject? = null
 var publisherId: String? = null
-var requester: Requester? = null
+var request: Requester? = null
 
 var oldHref: String = window.location.href
 var observerWindowLocationHref: MutationObserver? = null
@@ -81,40 +81,40 @@ val event = e as? MessageEvent ?: return
         publisherId = getZenObject()?.first
     }
 
-    requester = RequesterCached(publisherId, token)
+    request = RequesterCached(publisherId, token)
 
     val pageType = getPageType()
 
     val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {
-            Article(requester!!, data!!)
+            Article(request!!, data!!)
         }
 
         BRIEF -> {
-            Brief(requester!!, data!!)
+            Brief(request!!, data!!)
         }
 
         VIDEO -> {
-            Video(requester!!, data!!)
+            Video(request!!, data!!)
         }
 
         SHORT -> {
-            Shorts(requester!!, data!!)
+            Shorts(request!!, data!!)
         }
 
         MAIN -> {
             registerObserverWindowsLocation()
-            Studio(requester!!) // + Menu
+            Studio(request!!) // + Menu
         }
 
         PUBLICATIONS -> {
             registerObserverWindowsLocation()
-            Menu(requester!!)
+            Menu(request!!)
         }
 
         STATS, CAMPAIGNS, COMMENTS, MONEY -> {
             registerObserverWindowsLocation()
-            Menu(requester!!)
+            Menu(request!!)
         }
 
         else -> {
