@@ -62,7 +62,7 @@ val event = e as? MessageEvent ?: return
         val eventData = event.data.asDynamic()
         if (eventData.type == "prozen-data") {
             Json.decodeFromDynamic<ProzenData>(event.data)
-        } else null
+        } else return
     } catch (e: Exception) {
         null
     } ?: return

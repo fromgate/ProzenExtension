@@ -6,10 +6,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import org.w3c.dom.url.URL
-import org.w3c.fetch.CORS
-import org.w3c.fetch.Headers
-import org.w3c.fetch.RequestInit
-import org.w3c.fetch.RequestMode
+import org.w3c.fetch.*
 
 
 open class Requester(val publisherId: String?, val token: String?) {
