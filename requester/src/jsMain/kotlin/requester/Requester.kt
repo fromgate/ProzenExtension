@@ -9,7 +9,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
@@ -309,8 +308,4 @@ open class Requester(val publisherId: String?, val token: String?) {
             }
         }
     }
-
 }
-
-@Serializable
-data class Stats(val publicationId: String, val views: Int, val viewsTillEnd: Int)

@@ -30,7 +30,7 @@ fun createSettingsPage(root: HTMLElement) {
                 Option.entries.filter { it.group == group }.forEach { option ->
                     div(classes = "prozen-settings-item") {
                         label {
-                            input(type = InputType.checkBox) {
+                            input(classes = "prozen-checkbox", type = InputType.checkBox) {
                                 id = option.id
                                 checked = option.defaultValue
                             }

@@ -96,28 +96,28 @@ fun createSearchPage(root: HTMLElement) {
                 // gif, short_video, brief, article
                 div(classes = "prozen-search-filters") {
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "article"
                             checked = true
                         }
                         +"Статьи"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "gif"
                             checked = true
                         }
                         +"Видео"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "short_video"
                             checked = true
                         }
                         +"Ролики"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "brief"
                             checked = true
                         }

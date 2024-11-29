@@ -59,7 +59,7 @@ fun createSearchPage(root: HTMLElement) {
                 }
                 div(classes = "prozen-search-filters") {
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "article"
                             checked = true
                             onChangeFunction = { saveChecks() }
@@ -67,7 +67,7 @@ fun createSearchPage(root: HTMLElement) {
                         +"Статьи"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "gif"
                             checked = true
                             onChangeFunction = { saveChecks() }
@@ -75,7 +75,7 @@ fun createSearchPage(root: HTMLElement) {
                         +"Видео"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "short_video"
                             checked = true
                             onChangeFunction = { saveChecks() }
@@ -83,7 +83,7 @@ fun createSearchPage(root: HTMLElement) {
                         +"Ролики"
                     }
                     label {
-                        input(classes = "prozen-search-types-input", type = InputType.checkBox) {
+                        input(classes = "prozen-search-types-input prozen-checkbox", type = InputType.checkBox) {
                             id = "brief"
                             checked = true
                             onChangeFunction = { saveChecks() }
@@ -99,7 +99,7 @@ fun createSearchPage(root: HTMLElement) {
                 div(classes = "prozen-search-filters") {
                     TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE }.forEach { typeCheck ->
                         label {
-                            input(classes = "prozen-search-type-checks-input", type = InputType.checkBox) {
+                            input(classes = "prozen-search-type-checks-input prozen-checkbox", type = InputType.checkBox) {
                                 id = typeCheck.name
                                 checked = true
                                 if (typeCheck == TypeCheck.IS_BANNED) {
