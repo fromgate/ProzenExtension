@@ -12,6 +12,7 @@ import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventListener
+import requester.Requester
 import kotlin.js.json
 import kotlin.time.Duration.Companion.days
 

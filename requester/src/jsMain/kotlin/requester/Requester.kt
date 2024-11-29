@@ -1,44 +1,47 @@
-package common
+package requester
 
-import kotlinx.browser.window
-import kotlinx.coroutines.await
+import common.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.w3c.dom.url.URL
-import org.w3c.fetch.*
 
 
 open class Requester(val publisherId: String?, val token: String?) {
 
-    /* private val client = HttpClient {
+    private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
-    } */
-
-    private val jsonParser = Json { ignoreUnknownKeys = true }
-
+    }
 
     fun hasToken(): Boolean = this.token != null
     fun hasPublisherId(): Boolean = this.publisherId != null
 
-    val defaultHeaders: Headers
-        get() {
-            val headers = Headers()
-            headers.append(
-                "User-Agent",
-                "Mozilla/5.0 (Apple-iPhone7C2/1202.466; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3"
-            )
-            headers.append("Zen-Client-Experiments", "zen-version:2.189.0")
-            headers.append(
-                "Zen-Features",
-                """{"no_amp_links":true,"forced_bulk_stats":true,"blurred_preview":true,"big_card_images":true,"complaints_with_reasons":true,"pass_experiments":true,"video_providers":["yandex-web","youtube","youtube-web"],"screen":{"dpi":96},"need_background_image":true,"color_theme":"white","no_small_auth":true,"need_main_color":true,"need_zen_one_data":true,"interests_supported":true,"return_sources":true,"screens":["feed","category","categories","profile","switchable_subs","suggest","blocked","preferences","subscribers","blocked_suggest","video_recommend","language","send_app_link_sms","comments_counter","social_profile","social_activity_feed","social_profile_edit","social_interests_feedback","profile_onboarding_shown","profile_complete_onboarding","profile_deactivate","profile_cancel_deactivate"],"stat_params_with_context":true,"card_types":["post"]}"""
-            )
-            headers.append("X-Prozen-Request", "kot")
-            token?.let { headers.append("X-Csrf-Token", it) }
-            return headers
+    val defaultHeaders: HeadersBuilder.() -> Unit = {
+        append(
+            HttpHeaders.UserAgent,
+            "Mozilla/5.0 (Apple-iPhone7C2/1202.466; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3"
+        )
+        append("Zen-Client-Experiments", "zen-version:2.189.0")
+        append(
+            "Zen-Features",
+            "{\"no_amp_links\":true,\"forced_bulk_stats\":true,\"blurred_preview\":true,\"big_card_images\":true,\"complaints_with_reasons\":true,\"pass_experiments\":true,\"video_providers\":[\"yandex-web\",\"youtube\",\"youtube-web\"],\"screen\":{\"dpi\":96},\"need_background_image\":true,\"color_theme\":\"white\",\"no_small_auth\":true,\"need_main_color\":true,\"need_zen_one_data\":true,\"interests_supported\":true,\"return_sources\":true,\"screens\":[\"feed\",\"category\",\"categories\",\"profile\",\"switchable_subs\",\"suggest\",\"blocked\",\"preferences\",\"subscribers\",\"blocked_suggest\",\"video_recommend\",\"language\",\"send_app_link_sms\",\"comments_counter\",\"social_profile\",\"social_activity_feed\",\"social_profile_edit\",\"social_interests_feedback\",\"profile_onboarding_shown\",\"profile_complete_onboarding\",\"profile_deactivate\",\"profile_cancel_deactivate\"],\"stat_params_with_context\":true,\"card_types\":[\"post\"]}"
+        )
+        append("X-Prozen-Request", "kot")
+        if (token != null) {
+            append("X-Csrf-Token", token)
         }
+    }
 
 
     /**
@@ -51,7 +54,7 @@ open class Requester(val publisherId: String?, val token: String?) {
     open suspend fun getScr(from: String, to: String): Double? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?allPublications=true&addTimeFrom=$from&addTimeTo=$to&fields=typeSpecificViews&fields=deepViewsRate&fields=ctr&fields=vtr&fields=shares&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=viewMap&fields=subscribers&fields=subscribersDiff&fields=impressions&fields=deepViews&fields=sumInvolvedViewTimeSec&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&totalLimitedByIds=false&isSubscriber=true&pageSize=100&page=0&clid=320"
-        val data = fetchJson(requestUrl)
+        val data = getJson(requestUrl)
         val totalViews = data?.obj("total")?.obj("stats")?.int("impressions")?.toDouble()
         val openingSubscribers = data?.int("openingSubscribers")?.toDouble()
         val count = data?.int("publicationCount")?.toDouble()
@@ -72,14 +75,14 @@ open class Requester(val publisherId: String?, val token: String?) {
         val rewards = mutableListOf<Triple<String, Double, Double>>()
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/income2?from=$from&to=$to&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true"
-        val data = fetchJson(requestUrl)
-        val intervals = data?.obj("total")?.arr("intervals")
+        val data = getJson(requestUrl)
+        val intervals = data?.arr("total.intervals")
         intervals?.forEach { interval ->
             val rewardData = interval.jsonObject
             val timeStamp = rewardData.long("timestamp")
             val time = timeStamp?.let { Instant.fromEpochMilliseconds(it) }
             val dateStr = time?.toDDMMYY()
-            val income = rewardData.obj("income")?.double("timespent-reward")
+            val income = rewardData.double("income.timespent-reward")
             val viewTimeSec = rewardData.int("viewTimeSec")
 
             if (dateStr != null && income != null && viewTimeSec != null && viewTimeSec > 0) {
@@ -97,7 +100,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      * */
     open suspend fun getStrikesInfo(): Pair<Boolean, Int>? {
         val requestUrl = "https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=$publisherId&language=ru"
-        val data = fetchJson(requestUrl)
+        val data = getJson(requestUrl)
         val channelBlock = data?.bool("channelRestricted")
         val limitations = data?.arr("limitations")?.size
         return if (channelBlock != null && limitations != null) {
@@ -112,22 +115,21 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getBannedUsers(): Int? {
         val requestUrl = "https://dzen.ru/api/comments/banned-users"
-        val data = fetchJson(requestUrl)
+        val data = getJson(requestUrl)
         return data?.arr("bannedUsers")?.size
     }
 
     open suspend fun getStatsActuality(): String? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?fields=views&publicationTypes=article&publisherId=$publisherId&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
-        val jsonResponse = fetchJson(requestUrl)
+        val jsonResponse = getJson(requestUrl)
         val actuality = jsonResponse?.long("actuality")?.toInstant()
         return actuality?.toDDMMYYYYHHMM(2)
     }
 
     suspend fun getPublicationStat(publicationId: String): Stats? {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
-        val je = fetchElement(requestUrl)
-        return je?.let { Json.decodeFromJsonElement<Stats>(it) }
+        return getData(requestUrl)
     }
 
     /**
@@ -137,9 +139,9 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getChannelData(): Pair<Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
-        val jsonResponse = fetchJson(requestUrl)
+        val jsonResponse = getJson(requestUrl)
         val publisher = jsonResponse?.obj("publisher")
-        val metrikaCounterId = publisher?.obj("privateData")?.int("metrikaCounterId")
+        val metrikaCounterId = publisher?.int("privateData.metrikaCounterId")
         //val audience = publisher?.int("audience")
         val regTime = publisher?.long("regTime")?.toInstant()
         return Pair(metrikaCounterId, regTime)
@@ -153,7 +155,7 @@ open class Requester(val publisherId: String?, val token: String?) {
     suspend fun getPublishedPublicationsCount(): Map<String, Int>? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/${publisherId}/publications-count?publisherId=${publisherId}"
-        val data = fetchJson(requestUrl)
+        val data = getJson(requestUrl)
         val items = data?.obj("items")
         return items?.keys?.associateBy({ it }, { items.obj(it)?.int("published") ?: 0 })
     }
@@ -216,7 +218,7 @@ open class Requester(val publisherId: String?, val token: String?) {
             view?.let { append("view", it) }
             publicationIdAfter?.let { append("publicationIdAfter", it) }
         }
-        val jsonObject = fetchJson(url.href)
+        val jsonObject = getJson(url.href)
         return jsonObject?.let(::studioRequestDataToCards) ?: emptyList()
     }
 
@@ -235,7 +237,7 @@ open class Requester(val publisherId: String?, val token: String?) {
                 append("from", "2022-01-25")
             }
 
-            val jsonObject = fetchJson(url.href)
+            val jsonObject = getJson(url.href)
             val pubData = jsonObject?.arr("publications")
 
             pubData?.forEach {
@@ -266,44 +268,6 @@ open class Requester(val publisherId: String?, val token: String?) {
         return cards
     }
 
-
-    private suspend fun fetchJson(url: String, headers: Headers = defaultHeaders): JsonObject? {
-        val response = window.fetch(
-            url,
-            RequestInit(
-                method = "GET",
-                headers = headers,
-                mode = RequestMode.CORS
-            )
-        ).await()
-
-        return if (response.ok) {
-            val responseText = response.text().await()
-            jsonParser.decodeFromString<JsonObject>(responseText)
-        } else {
-            null
-        }
-    }
-
-    private suspend fun fetchElement(url: String, headers: Headers = defaultHeaders): JsonElement? {
-        val response = window.fetch(
-            url,
-            RequestInit(
-                method = "GET",
-                headers = headers,
-                mode = RequestMode.CORS
-            )
-        ).await()
-
-        return if (response.ok) {
-            val responseText = response.text().await()
-            jsonParser.decodeFromString<JsonElement>(responseText)
-        } else {
-            null
-        }
-    }
-
-
     /**
      * Выполнить GET-запрос по указанному URL и вернуть ответ в виде объекта JSON
      *
@@ -311,7 +275,6 @@ open class Requester(val publisherId: String?, val token: String?) {
      * @param customHeaders: HeadersBuilder —
      * @return JsonObject —
      */
-    /*
     suspend fun getJson(
         requestUrl: String,
         customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
@@ -321,10 +284,8 @@ open class Requester(val publisherId: String?, val token: String?) {
             response.body()
         } else {
             null
-        } */
+        }
     }
-
-/*
 
     suspend inline fun <reified T> getData(
         requestUrl: String,
@@ -336,9 +297,8 @@ open class Requester(val publisherId: String?, val token: String?) {
         } else {
             null
         }
-    } */
+    }
 
-/*
     suspend fun getHttpResponse(
         requestUrl: String,
         customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
@@ -351,6 +311,6 @@ open class Requester(val publisherId: String?, val token: String?) {
     }
 
 }
-*/
+
 @Serializable
 data class Stats(val publicationId: String, val views: Int, val viewsTillEnd: Int)

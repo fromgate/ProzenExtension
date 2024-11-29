@@ -14,6 +14,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
+import requester.Requester
 
 var counter: Counter? = null
 var token: String? = null

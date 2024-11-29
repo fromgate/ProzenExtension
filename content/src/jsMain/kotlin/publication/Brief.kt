@@ -3,7 +3,6 @@ package publication
 import common.*
 import kotlinx.browser.document
 import kotlinx.html.dom.append
-import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.span
@@ -11,6 +10,7 @@ import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLDivElement
+import requester.Requester
 
 class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
     override fun showStats() {

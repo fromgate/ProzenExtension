@@ -1,6 +1,9 @@
 package publication
 
-import common.*
+import common.M
+import common.copyTextToClipboard
+import common.format
+import common.showNotification
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
 import kotlinx.dom.clear
@@ -12,6 +15,7 @@ import kotlinx.html.title
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLMetaElement
+import requester.Requester
 
 class Video(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
 

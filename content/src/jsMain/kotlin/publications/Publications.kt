@@ -15,6 +15,7 @@ import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.title
 import org.w3c.dom.*
+import requester.Requester
 
 
 @OptIn(DelicateCoroutinesApi::class)

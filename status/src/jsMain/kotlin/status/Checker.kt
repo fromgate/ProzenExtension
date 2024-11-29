@@ -13,6 +13,7 @@ import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import org.w3c.dom.HTMLElement
+import requester.Requester
 
 class Checker(private val requester: Requester) {
 

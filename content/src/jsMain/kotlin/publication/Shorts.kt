@@ -1,7 +1,6 @@
 package publication
 
 import common.M
-import common.Requester
 import common.format
 import kotlinx.browser.document
 import kotlinx.datetime.Instant
@@ -12,6 +11,7 @@ import kotlinx.html.title
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLMetaElement
+import requester.Requester
 
 class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
 

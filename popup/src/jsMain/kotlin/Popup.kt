@@ -1,6 +1,4 @@
 import common.Cache
-import common.Channel
-import common.Excerpt
 import common.Option
 import kotlinx.browser.document
 import kotlinx.coroutines.*
@@ -10,6 +8,8 @@ import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLElement
+import requester.Channel
+import requester.Excerpt
 import kotlin.js.Json
 import kotlin.js.json
 import kotlin.time.Duration.Companion.days

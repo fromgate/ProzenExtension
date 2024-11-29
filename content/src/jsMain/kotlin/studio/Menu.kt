@@ -2,7 +2,6 @@ package studio
 
 import ContentRunner
 import common.Option
-import common.Requester
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
@@ -12,6 +11,7 @@ import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.ul
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
+import requester.Requester
 import kotlin.js.json
 
 class Menu(val requester: Requester) : ContentRunner {

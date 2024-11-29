@@ -1,5 +1,4 @@
 import common.Card
-import common.Requester
 import common.smallImage
 import common.url
 import kotlinx.browser.document
@@ -7,6 +6,7 @@ import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import org.w3c.dom.HTMLElement
+import requester.Requester
 
 class Finder(val requester: Requester) {
 

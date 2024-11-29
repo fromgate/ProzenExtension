@@ -23,6 +23,7 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.asList
+import requester.Requester
 import kotlin.js.json
 
 var publisherId: String? = null

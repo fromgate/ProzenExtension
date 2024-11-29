@@ -1,7 +1,7 @@
 import common.Card
-import common.Requester
 import common.isInPeriod
 import kotlinx.datetime.Instant
+import requester.Requester
 import kotlin.math.roundToInt
 
 class Counter(private val requester: Requester) {

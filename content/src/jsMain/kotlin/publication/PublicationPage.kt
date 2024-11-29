@@ -1,15 +1,15 @@
 package publication
 
 import ContentRunner
-import chrome.browsingData.OriginTypes
 import common.*
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
+import requester.Requester
+import requester.Stats
 
 
 abstract class PublicationPage(val requester: Requester, val data: JsonObject) : ContentRunner {

@@ -2,13 +2,13 @@ package studio
 
 import ContentRunner
 import common.Option
-import common.Requester
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import org.w3c.dom.css.CSSStyleSheet
+import requester.Requester
 
 class Studio(val requester: Requester) : ContentRunner {
 
