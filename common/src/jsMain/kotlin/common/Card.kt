@@ -44,7 +44,7 @@ fun Card.timeStr(): String? {
     return if (modStr != createStr) "$createStr ($modStr)" else createStr
 }
 
-fun Card.views(): Int = if (this.type == "article") this.viewsTillEnd!! else this.clicks!!
+fun Card.views(): Int = if (this.type == "article") this.clicks!! else this.viewsTillEnd!!
 
 fun Card.timeStrTitle(): Pair<String, String> {
     val modStr = this.modTime?.toInstant()?.toDDMMYYYYHHMM(2)
@@ -82,11 +82,11 @@ fun Card.subscribersViewStr(): String = if (this.subscribersViews == null || thi
     "0"
 } else {
     val subscribersViewsPercent = try {
-        ((this.subscribersViews!!.toDouble() / this.viewsTillEnd!!.toDouble()) * 100).format()
+        " (${((this.subscribersViews!!.toDouble() / this.viewsTillEnd!!.toDouble()) * 100).format()}%)"
     } catch (e: Exception) {
         ""
     }
-    "${subscribersViews!!.format()} ($subscribersViewsPercent%)"
+    "${subscribersViews!!.format()}$subscribersViewsPercent"
 }
 
 fun Card.likes() = this.likes?.format() ?: "0"

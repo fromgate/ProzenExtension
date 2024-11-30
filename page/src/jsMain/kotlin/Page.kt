@@ -22,6 +22,5 @@ fun sendProzenData() {
         "text" to (window["_csrfToken"] ?: ""),
         "jsonData" to (window["_data"] ?: "{}")
     )
-    console.log(data)
     window.postMessage(data, "*")
 }

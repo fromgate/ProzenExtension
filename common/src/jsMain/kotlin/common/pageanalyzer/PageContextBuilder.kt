@@ -178,7 +178,8 @@ class PageContextBuilder(private val document: Document) {
     fun initializeStats(): PageContextBuilder {
         if (isText()) {
             views = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.publicationStatistics.views")
-            viewsTillEnd = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.publicationStatistics.viewsTillEnd")
+            viewsTillEnd =
+                embeddedJson?.int("ssrData.publishersResponse.data.data.publication.publicationStatistics.viewsTillEnd")
             timeToRead = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.content.timeToReadSeconds")
             val data = embeddedJson?.arr("ssrData.socialMetaResponse.items")?.firstOrNull()?.jsonObject
             comments = data?.int("metaInfo.commentsCount")
@@ -246,6 +247,7 @@ class PageContextBuilder(private val document: Document) {
             viewsTillEnd = viewsTillEnd,
             comments = comments,
             likes = likes,
+            timeToRead,
             thematics = thematics,
             embeddedJson = embeddedJson,
             metaTags = metaTags,
