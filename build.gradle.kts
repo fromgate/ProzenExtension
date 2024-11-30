@@ -25,6 +25,7 @@ tasks.named("build") {
 }
 
 tasks.register("buildVersion") {
+    ext["generateSourceMaps"] = false
     group = "build"
     description = "Build the project and tag the current version"
     dependsOn("build", ":prozen:tagVersion")
