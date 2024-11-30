@@ -37,6 +37,13 @@ class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester,
                     span(Icons.FULL_VIEWS.cssClass)
                     +(stats.viewsTillEnd?.format() ?: "")
                 }
+                stats.timeToRead?.let {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationTimeToRead + "\n${it.secToTimeString()}"
+                        span("publication_icon_read_time")
+                        + it.secToHHMMSS()
+                    }
+                }
                 div("prozen-article-stats-item") {
                     span(Icons.LINK.cssClass)
                     title = M.publicationCopyLink

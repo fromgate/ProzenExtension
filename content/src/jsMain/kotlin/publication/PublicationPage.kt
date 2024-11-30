@@ -18,6 +18,8 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
 
     var stats: PublicationStats? = null
 
+
+
     init {
         val zenObject = getZenObject()
         channelId = zenObject!!.first
@@ -35,6 +37,7 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
             modTime,
             maxOfNullable(localStats?.views, stat?.views),
             maxOfNullable(localStats?.viewsTillEnd, stat?.viewsTillEnd),
+            localStats?.timeToRead,
             noindex,
             url
         )
@@ -47,11 +50,14 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     }
 
     private fun getDataStats(): Stats? {
-        val localStats = data.obj("publication")?.obj("publicationStatistics")
+        val localStats = data.obj("publication.publicationStatistics")
         val views = localStats?.int("views")
         val viewsTillEnd = localStats?.int("viewsTillEnd")
+
+
+        val timeToRead = data?.int("publication.content.timeToReadSeconds")
         if (views == null || viewsTillEnd == null) return null
-        return Stats(publicationId, views, viewsTillEnd)
+        return Stats(publicationId, views, viewsTillEnd, timeToRead)
     }
 
     @OptIn(DelicateCoroutinesApi::class)

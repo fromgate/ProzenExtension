@@ -1,7 +1,4 @@
-import common.M
-import common.Option
-import common.convertDzenUrlToOk
-import common.format
+import common.*
 import common.pageanalyzer.*
 import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
@@ -75,6 +72,13 @@ fun showInfo(info: PageContext) {
                         title = M.publicationComments
                         span("publication_icon_comments prozen-popup-stats-item-icon")
                         +it.format()
+                    }
+                }
+                info.timeToRead?.let {
+                    div("prozen-popup-stats-item") {
+                        title = M.publicationTimeToRead
+                        span("publication_icon_comments prozen-popup-stats-item-icon")
+                        +it.secToHHMMSS()
                     }
                 }
                 val okLink = convertDzenUrlToOk(info.url)

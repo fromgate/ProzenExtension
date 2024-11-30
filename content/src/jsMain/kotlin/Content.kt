@@ -2,7 +2,6 @@
 import PageType.*
 import common.Option
 import common.getZenObject
-import common.obj
 import common.string
 import dataclasses.ProzenData
 import kotlinx.browser.document
@@ -74,7 +73,7 @@ val event = e as? MessageEvent ?: return
     if (prozenData.type == "prozen-data") {
         token = prozenData.text
         data = prozenData.jsonData
-        publisherId = prozenData.jsonData?.obj("publisher")?.string("id")
+        publisherId = prozenData.jsonData?.string("publisher.id")
     }
 
     if (publisherId == null) {

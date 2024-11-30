@@ -40,6 +40,9 @@
   "publicationTime": {
     "message": "Время создания (редактирования)"
   },
+  "publicationTimeToRead": {
+    "message": "Среднее время прочтения"
+  },
   "publicationOkLink": {
     "message": "Ссылка на публикацию в ОК"
   }

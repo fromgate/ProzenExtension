@@ -13,6 +13,7 @@ data class PageContext(
     var viewsTillEnd: Int? = null,
     var comments: Int? = null,
     var likes: Int? = null,
+    var timeToRead: Int? = null,
     var thematics: List<Thematic> = emptyList(),
     var embeddedJson: JsonObject? = null,
     val metaTags: MutableList<HTMLMetaElement> = mutableListOf(),

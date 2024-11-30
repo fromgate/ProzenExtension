@@ -20,6 +20,8 @@ import kotlin.collections.set
 
 
 class Article(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
+
+
     override fun showStats() {
         val stats = this.stats ?: return
         val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-']") as? HTMLElement
@@ -42,6 +44,13 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                     title = M.publicationFullViews
                     span(Icons.FULL_VIEWS.cssClass)
                     +(stats.viewsTillEnd?.format() ?: "")
+                }
+                stats.timeToRead?.let {
+                    div("prozen-article-stats-item") {
+                        title = M.publicationTimeToRead + "\n${it.secToTimeString()}"
+                        span("publication_icon_read_time")
+                        + it.secToHHMMSS()
+                    }
                 }
                 div("prozen-article-stats-item") {
                     title = M.publicationCopyLink

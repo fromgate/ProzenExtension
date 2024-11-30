@@ -31,6 +31,7 @@ class Video(requester: Requester, data: JsonObject) : PublicationPage(requester,
             null,
             views,
             null,
+            null,
             noindex,
             url
         )

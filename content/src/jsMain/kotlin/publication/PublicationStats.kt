@@ -8,6 +8,7 @@ data class PublicationStats(
     var modificationTime: Instant?,
     var views: Int?,
     var viewsTillEnd: Int?,
+    var timeToRead: Int?,
     val notIndexed: Boolean,
     val shortLink: String
 )

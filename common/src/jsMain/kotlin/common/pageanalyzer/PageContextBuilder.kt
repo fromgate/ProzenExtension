@@ -17,6 +17,7 @@ class PageContextBuilder(private val document: Document) {
     private var viewsTillEnd: Int? = null
     private var comments: Int? = null
     private var likes: Int? = null
+    private var timeToRead: Int? = null
     private var thematics: List<Thematic> = emptyList()
     private var embeddedJson: JsonObject? = null
     private val metaTags: MutableList<HTMLMetaElement> = mutableListOf()
@@ -75,6 +76,7 @@ class PageContextBuilder(private val document: Document) {
         var thematicJsonData: JsonArray? = null
         var topicChannelSubscriptionSuggestion: String? = null
         when (type) {
+            /*
             "article", "brief" -> {
                 val script = document.getElementById("all-data") as? HTMLScriptElement
                 if (script != null) {
@@ -87,12 +89,25 @@ class PageContextBuilder(private val document: Document) {
                     topicChannelSubscriptionSuggestion =
                         jsonElements["w._topicChannelSubscriptionSuggestion"]?.jsonObject?.string("topicChannelTitle")
                 }
+            } */
+
+            "article", "brief" -> {
+                val script = document.getElementsByTagName("script").asList()
+                    .filterIsInstance<HTMLScriptElement>()
+                    .find { it.text.contains(""""webCommonData":{"clientDefinitionMap":""") }
+                if (script != null) {
+                    jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
+                    thematicJsonData = jsonData?.arr("ssrData.publishersResponse.thematicBanners")
+                    topicChannelSubscriptionSuggestion = jsonData?.string(
+                        "ssrData.publishersResponse.topicChannelSubscriptionSuggestion.topicChannelTitle"
+                    )
+                }
             }
 
             "gif", "short_video" -> {
                 val script = document.getElementsByTagName("script").asList()
                     .filterIsInstance<HTMLScriptElement>()
-                    .find { it.text.contains("\"webCommonData\":{\"clientDefinitionMap\":") }
+                    .find { it.text.contains(""""webCommonData":{"clientDefinitionMap":""") }
                 if (script != null) {
                     jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
                     thematicJsonData = jsonData?.arr("ssrData.videoMetaResponse.thematicBanners")
@@ -162,16 +177,12 @@ class PageContextBuilder(private val document: Document) {
 
     fun initializeStats(): PageContextBuilder {
         if (isText()) {
-            views = embeddedJson?.int("publication.publicationStatistics.views")
-            viewsTillEnd = embeddedJson?.int("publication.publicationStatistics.viewsTillEnd")
-            val script = document.getElementById("all-data") as? HTMLScriptElement
-            if (script != null) {
-                val data = extractJsonElement(script.text,"w._socialMediaResponse")
-                    ?.jsonObject
-                    ?.arr("items")?.firstOrNull()?.jsonObject
-                comments = data?.int("metaInfo.commentsCount")
-                likes = data?.int("metaInfo.likeCount")
-            }
+            views = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.publicationStatistics.views")
+            viewsTillEnd = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.publicationStatistics.viewsTillEnd")
+            timeToRead = embeddedJson?.int("ssrData.publishersResponse.data.data.publication.content.timeToReadSeconds")
+            val data = embeddedJson?.arr("ssrData.socialMetaResponse.items")?.firstOrNull()?.jsonObject
+            comments = data?.int("metaInfo.commentsCount")
+            likes = data?.int("metaInfo.likeCount")
         } else if (isVideo()) {
             val script = document.getElementById("video-microdata") as? HTMLScriptElement
             if (script != null) {

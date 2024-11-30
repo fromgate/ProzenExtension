@@ -25,7 +25,9 @@ fun JsonObject.bool(key: String): Boolean? = getNestedElement(key)?.jsonPrimitiv
 fun JsonObject.int(key: String): Int? = getNestedElement(key)?.jsonPrimitive?.intOrNull
 fun JsonObject.string(key: String): String? = getNestedElement(key)?.jsonPrimitive?.contentOrNull
 fun JsonObject.long(key: String): Long? = getNestedElement(key)?.jsonPrimitive?.longOrNull
-fun JsonObject.time(key: String): Instant? = getNestedElement(key)?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochSeconds(it) }
+fun JsonObject.time(key: String): Instant? =
+    getNestedElement(key)?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochSeconds(it) }
+
 fun JsonObject.float(key: String): Float? = getNestedElement(key)?.jsonPrimitive?.floatOrNull
 fun JsonObject.double(key: String): Double? = getNestedElement(key)?.jsonPrimitive?.doubleOrNull
 
@@ -37,12 +39,12 @@ fun JsonElement.asString(): String? = this.jsonPrimitive.contentOrNull
 // Number format
 fun Double.format(digits: Int? = null): String {
     val d = digits ?: if (this < 2) 2 else 1
-    val param = json ("minimumFractionDigits" to d, "maximumFractionDigits" to d)
+    val param = json("minimumFractionDigits" to d, "maximumFractionDigits" to d)
     return this.asDynamic().toLocaleString("ru-RU", param) as String
 }
 
 fun Int.format(): String {
-    val param = js ("{minimumFractionDigits: 0, maximumFractionDigits: 0}")
+    val param = js("{minimumFractionDigits: 0, maximumFractionDigits: 0}")
     return this.asDynamic().toLocaleString("ru-RU", param) as String
 }
 
@@ -92,4 +94,20 @@ fun HTMLElement.removeChildren() {
 
 fun Double?.isNanOrNull(): Boolean {
     return this == null || this.isNaN()
+}
+
+fun Int.secToHHMMSS(): String {
+    val hours = "${(this / 3600).padZero()}:".takeIf { it != "00:" } ?: ""
+    val minutes = ((this % 3600) / 60).padZero()
+    val seconds = (this % 60).padZero()
+    return "${hours}$minutes:$seconds"
+}
+
+fun Int.secToTimeString(): String {
+    val hours = this / 3600
+    val hoursStr = if (hours > 0) hours.paucal("час", "часа", "часов") else ""
+    val minutes = (this % 3600) / 60
+    val minutesStr = if (minutes > 0) minutes.paucal("минута", "минуты", "минут") else ""
+    val secondsStr = (this % 60).paucal("секунда", "секунды", "секунд")
+    return "$hoursStr $minutesStr $secondsStr".trim()
 }
