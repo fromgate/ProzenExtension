@@ -40,7 +40,7 @@ fun showInfo(info: PageContext) {
                 +info.title
             }
 
-            val viewPair = getViewPair(info.views, info.viewsTillEnd)
+            val viewPair = info.getViewPair()
 
             div(classes = "prozen-popup-info-stats") {
                 viewPair.first?.let {
@@ -77,7 +77,7 @@ fun showInfo(info: PageContext) {
                 info.timeToRead?.let {
                     div("prozen-popup-stats-item") {
                         title = M.publicationTimeToRead
-                        span("publication_icon_comments prozen-popup-stats-item-icon")
+                        span("publication_icon_read_time prozen-popup-stats-item-icon")
                         +it.secToHHMMSS()
                     }
                 }
@@ -133,6 +133,8 @@ fun showInfo(info: PageContext) {
     }
 }
 
-fun getViewPair(views: Int?, viewsTillEnd: Int?): Pair<Int?, Int?> {
-    return if (views == viewsTillEnd) views to null else views to viewsTillEnd
+
+fun PageContext.getViewPair(): Pair<Int?, Int?> {
+    if (views != viewsTillEnd) return views to viewsTillEnd
+    return if (this.type == "article") null to viewsTillEnd else views to null
 }

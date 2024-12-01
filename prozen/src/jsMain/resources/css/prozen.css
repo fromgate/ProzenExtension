@@ -2032,15 +2032,12 @@ html body .ui-lib-header__item._type_left {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    /* background-color: rgba(50, 50, 50, 0.8);
-    color: white; */
     color: #555;
     font-size: 13px;
     line-height: 1.2;
     padding: 10px;
     border-radius: 5px;
     z-index: 10;
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */
     max-width: 250px;
     text-align: left;
 }
@@ -2052,7 +2049,6 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-corner-link {
-    /* color: #76c7c0; */
     color: #555;
     text-decoration: none;
     display: block;
@@ -2062,7 +2058,6 @@ html body .ui-lib-header__item._type_left {
 .prozen-corner-link:hover {
     text-decoration: none;
     color: #444;
-    /* color: #5aa69a; */
 }
 
 /* Чекбокс */
