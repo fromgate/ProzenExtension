@@ -1,4 +1,4 @@
-package common.pageanalyzer
+package pageanalyzer
 
 data class Thematic(
     val link: String,

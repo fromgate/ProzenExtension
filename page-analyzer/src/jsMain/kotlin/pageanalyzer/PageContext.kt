@@ -1,4 +1,4 @@
-package common.pageanalyzer
+package pageanalyzer
 
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLMetaElement

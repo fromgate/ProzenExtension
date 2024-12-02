@@ -1,7 +1,6 @@
 package status
 
 import common.*
-import common.pageanalyzer.*
 import common.progress.ProgressBar
 import kotlinx.browser.document
 import kotlinx.coroutines.*
@@ -13,6 +12,7 @@ import kotlinx.datetime.Instant
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import org.w3c.dom.HTMLElement
+import pageanalyzer.*
 import requester.Requester
 
 class Checker(private val requester: Requester) {

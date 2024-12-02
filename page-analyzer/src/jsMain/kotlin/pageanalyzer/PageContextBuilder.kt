@@ -1,4 +1,4 @@
-package common.pageanalyzer
+package pageanalyzer
 
 import common.*
 import kotlinx.browser.window
@@ -73,62 +73,32 @@ class PageContextBuilder(private val document: Document) {
 
     fun initializePageJsonData(): PageContextBuilder {
         var jsonData: JsonObject? = null
-        var thematicJsonData: JsonArray? = null
-        var topicChannelSubscriptionSuggestion: String? = null
-        when (type) {
-            /*
-            "article", "brief" -> {
-                val script = document.getElementById("all-data") as? HTMLScriptElement
-                if (script != null) {
-                    val filter = "w._data,w._thematicBanners,w._thematicBanners,w._topicChannelSubscriptionSuggestion"
-                        .split(",")
-                        .toSet()
-                    val jsonElements = extractJsonElements(script.text, required = filter)
-                    jsonData = jsonElements["w._data"]?.jsonObject
-                    thematicJsonData = jsonElements["w._thematicBanners"]?.jsonArray
-                    topicChannelSubscriptionSuggestion =
-                        jsonElements["w._topicChannelSubscriptionSuggestion"]?.jsonObject?.string("topicChannelTitle")
-                }
-            } */
-
-            "article", "brief" -> {
-                val script = document.getElementsByTagName("script").asList()
-                    .filterIsInstance<HTMLScriptElement>()
-                    .find { it.text.contains(""""webCommonData":{"clientDefinitionMap":""") }
-                if (script != null) {
-                    jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
-                    thematicJsonData = jsonData?.arr("ssrData.publishersResponse.thematicBanners")
-                    topicChannelSubscriptionSuggestion = jsonData?.string(
-                        "ssrData.publishersResponse.topicChannelSubscriptionSuggestion.topicChannelTitle"
-                    )
-                }
-            }
-
-            "gif", "short_video" -> {
-                val script = document.getElementsByTagName("script").asList()
-                    .filterIsInstance<HTMLScriptElement>()
-                    .find { it.text.contains(""""webCommonData":{"clientDefinitionMap":""") }
-                if (script != null) {
-                    jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
-                    thematicJsonData = jsonData?.arr("ssrData.videoMetaResponse.thematicBanners")
-                    topicChannelSubscriptionSuggestion = jsonData?.string(
-                        "ssrData.videoMetaResponse.topicChannelSubscriptionSuggestion.topicChannelTitle"
-                    )
-                }
-            }
+        val script = document.getElementsByTagName("script").asList()
+            .filterIsInstance<HTMLScriptElement>()
+            .find { it.text.contains(""""webCommonData":{"clientDefinitionMap":""") }
+        if (script != null) {
+            jsonData = extractJsonElement(script.text, "var _params")?.jsonObject
         }
-
         embeddedJson = jsonData
-        val tags = getTheamticTags()
-        thematics = thematicJsonData?.let {
-            getThematics(it, tags, topicChannelSubscriptionSuggestion)
-        } ?: emptyList()
         isParseError = jsonData == null
         return this
     }
 
-    fun getTheamticTags(): List<String> {
-        return metaTags.filter { it.getAttribute("property") == "og:article:tag" }.map { it.content }
+    fun initializeThematics(): PageContextBuilder {
+        val pathPrefix = if (isText()) "ssrData.publishersResponse" else "ssrData.videoMetaResponse"
+
+        val thematicJsonData: JsonArray? = embeddedJson?.arr("$pathPrefix.thematicBanners")
+        val topicChannelSubscriptionSuggestion: String? =
+            embeddedJson?.string("$pathPrefix.topicChannelSubscriptionSuggestion.topicChannelTitle")
+
+        val tags = metaTags.filter { it.getAttribute("property") == "og:article:tag" }.map { it.content }
+        val firstTopic = tags.firstOrNull() ?: topicChannelSubscriptionSuggestion
+
+        thematics = thematicJsonData?.let {
+            getThematics(it, tags, topicChannelSubscriptionSuggestion)
+        }?.sortByTitle(firstTopic) ?: emptyList()
+
+        return this
     }
 
     fun extractJsonStrings(
@@ -283,6 +253,7 @@ suspend fun createPageContext(
             .initializeBaseData()
             .initializeMetaTags()
             .initializePageJsonData()
+            .initializeThematics()
             .initializeStats()
 
         val context = builder.finalize()

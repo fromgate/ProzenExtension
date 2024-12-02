@@ -3,9 +3,6 @@ package status
 import common.*
 import common.components.dropButton
 import common.components.prozenCornerInfoBlock
-import common.pageanalyzer.TypeCheck
-import common.pageanalyzer.containsAnyChecks
-import common.pageanalyzer.isOk
 import common.progress.ProgressBar
 import common.progress.Spinner
 import kotlinx.browser.document
@@ -23,6 +20,9 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.asList
+import pageanalyzer.TypeCheck
+import pageanalyzer.containsAnyChecks
+import pageanalyzer.isOk
 import requester.Requester
 import kotlin.js.json
 

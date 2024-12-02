@@ -1,5 +1,4 @@
 import common.*
-import common.pageanalyzer.*
 import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -9,6 +8,7 @@ import kotlinx.html.js.a
 import kotlinx.html.span
 import kotlinx.html.style
 import kotlinx.html.title
+import pageanalyzer.*
 import kotlin.js.json
 
 

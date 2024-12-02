@@ -1,6 +1,7 @@
 rootProject.name = "ProzenExtension"
 include(":common")
 include(":requester")
+include(":page-analyzer")
 include(":page")
 include(":content")
 include(":popup")

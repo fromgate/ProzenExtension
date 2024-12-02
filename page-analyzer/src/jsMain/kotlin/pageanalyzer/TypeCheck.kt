@@ -1,4 +1,4 @@
-package common.pageanalyzer
+package pageanalyzer
 
 import common.M
 
