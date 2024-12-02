@@ -42,7 +42,7 @@ object CheckThematics : PageCheck() {
 object CheckComments : PageCheck() {
     override fun perform(context: PageContext) {
         val item = context.embeddedJson?.arr("ssrData/socialMetaResponse/items")?.firstOrNull()?.jsonObject
-        val comments = when (item?.string("metaInfo.visibleComments")) {
+        val comments = when (item?.string("metaInfo.visibleComments")?.lowercase()) {
             "invisible" -> TypeCheck.COMMENTS_OFF
             "subscribe_visible" -> TypeCheck.COMMENTS_SUBSCRIBERS
             "visible" -> TypeCheck.COMMENTS_ALL
