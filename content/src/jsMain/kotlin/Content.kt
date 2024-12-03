@@ -1,8 +1,7 @@
 
 import PageType.*
+import common.*
 import common.Option
-import common.getZenObject
-import common.string
 import dataclasses.ProzenData
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -84,6 +83,8 @@ val event = e as? MessageEvent ?: return
 
     val pageType = getPageType()
 
+    console.dInfo("pageType: $pageType")
+
     val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {
             Article(request!!, data!!)
@@ -152,6 +153,7 @@ fun keepServiceWorkerAlive() {
 
 
 fun main() {
+    console.dLog("Content.Kt executed")
     Option.PROZEN.value().then { enabled ->
         if (enabled) {
             keepServiceWorkerAlive()

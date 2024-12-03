@@ -7,6 +7,10 @@
     "message": "Расширенная статистика и дополнительные функции для редактора Дзена",
     "description": "Описание расширения"
   },
+  "extDescriptionFirefox": {
+    "message": "Расширенная статистика и дополнительные функции для редактора Дзена (Firefox Edition)",
+    "description": "Extension description"
+  },
   "popupPrivacyPolicy": {
     "message": "Политика безопасности",
     "description": "The Privacy policy link shown in the popup window"

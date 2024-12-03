@@ -153,3 +153,7 @@ fun convertDzenUrlToOk(dzenUrl: String): String? {
     val id = match.groupValues[2]
     return "https://ok.ru/dzen/article/$id"
 }
+
+fun isFirefox(): Boolean {
+    return chrome.runtime.getManifest().description?.contains("Firefox") == true
+}

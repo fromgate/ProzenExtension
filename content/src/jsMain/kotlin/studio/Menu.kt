@@ -2,6 +2,7 @@ package studio
 
 import ContentRunner
 import common.Option
+import common.dLog
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
@@ -24,6 +25,7 @@ class Menu(val requester: Requester) : ContentRunner {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun create(count: Int = 0) {
+        console.dLog("Menu / create : count: $count")
         if (count == 4) return
         GlobalScope.launch {
             if (!Option.PROZEN_MENU.value().await()) return@launch

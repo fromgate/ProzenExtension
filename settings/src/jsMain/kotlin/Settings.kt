@@ -1,6 +1,7 @@
 import common.Option
 import common.Options
 import common.components.prozenCornerInfoBlock
+import common.isFirefox
 import common.showNotification
 import kotlinx.browser.document
 import kotlinx.html.*
@@ -23,24 +24,28 @@ fun createSettingsPage(root: HTMLElement) {
 
             // Настройки
             val groups = Option.entries.asSequence().map { it.group }.filter { it != "hidden" }.toSet()
+            val isFirefox = isFirefox()
+            val firefoxRelated = setOf (Option.SHORT_DASHBOARD_REALTIME, Option.COMMENTS_WIDGET, Option.PROMOTE_SHOW)
             groups.forEach { group ->
                 if (group != "default") {
                     h4 { +group }
                 }
                 Option.entries.filter { it.group == group }.forEach { option ->
-                    div(classes = "prozen-settings-item") {
-                        label {
-                            input(classes = "prozen-checkbox", type = InputType.checkBox) {
-                                id = option.id
-                                checked = option.defaultValue
+                    if (!isFirefox || option !in firefoxRelated) {
+                        div(classes = "prozen-settings-item") {
+                            label {
+                                input(classes = "prozen-checkbox", type = InputType.checkBox) {
+                                    id = option.id
+                                    checked = option.defaultValue
+                                }
+                                +option.title
                             }
-                            +option.title
-                        }
-                        option.description?.let {
-                            div(classes = "prozen-info-icon") {
-                                +"ℹ"
-                                span(classes = "prozen-tooltip") {
-                                    +it
+                            option.description?.let {
+                                div(classes = "prozen-info-icon") {
+                                    +"ℹ"
+                                    span(classes = "prozen-tooltip") {
+                                        +it
+                                    }
                                 }
                             }
                         }

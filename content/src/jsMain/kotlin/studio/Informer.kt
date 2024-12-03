@@ -20,6 +20,7 @@ class Informer(val requester: Requester) {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun create(count: Int = 0) {
+        console.dLog("Informer / create : count: $count")
         GlobalScope.launch {
             if (!Option.INFORMER.value().await()) return@launch
             val data = getData()
@@ -40,6 +41,7 @@ class Informer(val requester: Requester) {
     }
 
     suspend fun getData(): InformerData = coroutineScope {
+        console.dLog("Informer / getData()")
         val date = Clock.System.now()
         val todayStr = date.toYYYYMD()
         val before7 = date.minus(7.days)
