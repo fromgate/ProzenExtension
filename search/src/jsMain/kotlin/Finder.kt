@@ -16,6 +16,10 @@ class Finder(val requester: Requester) {
         pubications = requester.loadAllPublications(true)
     }
 
+    fun count(): Int {
+        return pubications.size
+    }
+
     fun hasPublications(): Boolean {
         return pubications.isNotEmpty()
     }

@@ -214,6 +214,8 @@ fun createSearchPage(root: HTMLElement) {
                                         toShow.forEach { (card, context) ->
                                             ul.appendChild(card.toLi(context))
                                         }
+                                        val countStr = toShow.size.paucal("публикация", "публикации", "публикаций")
+                                        showNotification("Поиск завершён.\nНайдено: $countStr из ${checker!!.count().format()}.")
                                     } else {
                                         showNotification("Поиск завершён.\nПубликации не найдены.")
                                     }

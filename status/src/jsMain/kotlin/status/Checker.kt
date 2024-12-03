@@ -25,6 +25,10 @@ class Checker(private val requester: Requester) {
         return checks[card.id]
     }
 
+    fun count(): Int {
+        return checks.size
+    }
+
     suspend fun loadPublications() {
         cards = requester.loadAllPublications(true)
         console.dInfo("Checker: Loaded ${cards.size} cards")

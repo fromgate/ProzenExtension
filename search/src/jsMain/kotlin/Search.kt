@@ -76,6 +76,8 @@ fun createSearchPage(root: HTMLElement) {
                                             found.forEach { card ->
                                                 ul.appendChild(card.toLi())
                                             }
+                                            val countStr = found.size.paucal("публикация", "публикации", "публикаций")
+                                            showNotification("Поиск завершён.\nНайдено: $countStr из ${finder!!.count().format()}.")
                                         } else {
                                             showNotification("Поиск завершён.\nПубликации не найдены.")
                                         }
