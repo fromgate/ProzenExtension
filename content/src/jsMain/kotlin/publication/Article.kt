@@ -77,7 +77,9 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
             if (option) {
                 val shortLink = (document.head!!.querySelector("link[rel=canonical][href]") as HTMLLinkElement).href
                 val headers = document.querySelectorAll("h2, h3")
-                headers.asList().filterIsInstance<HTMLHeadingElement>().forEach { header ->
+                headers.asList().filterIsInstance<HTMLHeadingElement>()
+                    .filter { !it.className.contains("content--banner-desktop__title") }
+                    .forEach { header ->
                     val anchorId = header.id
                     header.style.position = "relative"
                     val linkIcon = document.create.span("publication-header-icon-url") {

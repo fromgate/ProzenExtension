@@ -829,27 +829,24 @@ html body .ui-lib-header__item._type_left {
 .prozen-card-stats {
     cursor: default;
     display: flex;
-    flex-wrap: wrap; /* Колонки будут переноситься на новую строку, если места недостаточно */
-    gap: 12px; /* Промежуток между колонками */
+    flex-wrap: nowrap;
+    gap: 4px;
 }
 
 
 .prozen-card-column {
-    flex-grow: 1; /* Колонки будут увеличиваться, чтобы заполнить пространство */
-    flex-basis: 0; /* Колонки будут иметь равную ширину, адаптируясь к размеру родителя */
-    padding: 5px; /* Внутренний отступ */
-    /* background-color: #fff; /* Белый фон */
-    /* border-radius: 4px; /* Лёгкое скругление углов */
-    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Лёгкая тень */
+    flex-grow: 1;
+    /* flex-basis: 0; */
+    padding: 5px 1px; /* Внутренний отступ */
     display: flex;
-    flex-direction: column; /* Содержимое колонки располагается по вертикали */
+    flex-direction: column;
 }
 
 .prozen-card-row {
     display: flex;
     align-items: center;
-    justify-content: left; /* space-between; *//* Иконка и текст по краям */
-    margin-bottom: 8px;
+    justify-content: left;
+    margin-bottom: 5px;
 }
 
 .prozen-card-icon {
@@ -872,6 +869,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-card-text {
     white-space: nowrap;
+    overflow: hidden;
     font-size: 12px; /* Размер шрифта для текста */
     color: #555; /* Темно-серый цвет для текста */
 }

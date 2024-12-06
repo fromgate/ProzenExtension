@@ -62,31 +62,41 @@ fun Card.timeCrateAndModStr(): Pair<String, String?> {
 }
 
 fun Card.viewsStrAndTitle(): Pair<String, String> {
-    val (views, ctr, title) = if (this.type == "article") {
-        Triple(this.clicks!!, (this.clicks!!.toDouble() / this.feedShows!!) * 100, "Клики (CTR)")
+    val (views, сtr, title) = if (this.type == "article") {
+        Triple(this.clicks ?: 0, (this.clicks?.toDouble() ?: 0.0) / (this.feedShows ?: 1) * 100, "Клики (CTR)")
     } else {
-        Triple(this.viewsTillEnd!!, (this.viewsTillEnd!!.toDouble() / this.feedShows!!) * 100, "Просмотры (VTR)")
+        Triple(this.viewsTillEnd ?: 0, (this.viewsTillEnd?.toDouble() ?: 0.0) / (this.feedShows ?: 1) * 100, "Просмотры (VTR)")
     }
-    val viewsStr = "${views.format()} (${ctr.format()}%)"
+    val ctrStr = if (сtr.isFinite()) " (${сtr.format()}%)" else ""
+    val viewsStr = "${views.format()}$ctrStr"
     return viewsStr to title
 }
 
 fun Card.fullReadsStrTitle(): Pair<String, String> {
-    val viewsTillEndPercent = ((this.viewsTillEnd!!.toDouble() / views()) * 100).format()
-    val viewsTillEndStr = "${this.viewsTillEnd!!.format()} ($viewsTillEndPercent%)"
+    val viewsCount = views()
+    val viewsTillEnd = this.viewsTillEnd
+    val viewsTillEndStr = if (viewsTillEnd != null && viewsCount > 0) {
+        val viewsTillEndPercent = (viewsTillEnd.toDouble() / viewsCount) * 100
+        val percentStr = if (viewsTillEndPercent.isFinite()) " (${viewsTillEndPercent.format()}%)" else ""
+        "${viewsTillEnd.format()}$percentStr"
+    } else {
+        "0"
+    }
     val viewsTillEndTitle = if (this.type == "article") "Дочитывания" else "Просмотры"
     return viewsTillEndStr to viewsTillEndTitle
 }
 
-fun Card.subscribersViewStr(): String = if (this.subscribersViews == null || this.subscribersViews == 0) {
-    "0"
-} else {
-    val subscribersViewsPercent = try {
-        " (${((this.subscribersViews!!.toDouble() / this.viewsTillEnd!!.toDouble()) * 100).format()}%)"
-    } catch (e: Exception) {
+fun Card.subscribersViewStr(): String {
+    val subscribersViews = this.subscribersViews
+    val viewsTillEnd = this.viewsTillEnd
+    if (subscribersViews == null || subscribersViews == 0) return "0"
+    val subscribersViewsPercent = if (viewsTillEnd != null && viewsTillEnd > 0) {
+        val percent = (subscribersViews.toDouble() / viewsTillEnd.toDouble()) * 100
+        if (percent.isFinite()) " (${percent.format()}%)" else ""
+    } else {
         ""
     }
-    "${subscribersViews!!.format()}$subscribersViewsPercent"
+    return "${subscribersViews.format()}$subscribersViewsPercent"
 }
 
 fun Card.likes() = this.likes?.format() ?: "0"
