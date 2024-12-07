@@ -9,7 +9,7 @@ import org.w3c.dom.parsing.DOMParser
 
 class PageContextBuilder(private val document: Document) {
     private var url: String = ""
-    private var type: String = "unknown"
+    internal var type: String = "unknown"
     private var title: String = "Публикация"
     private var publisherId: String = ""
     private var publicationId: String = ""
@@ -18,9 +18,9 @@ class PageContextBuilder(private val document: Document) {
     private var comments: Int? = null
     private var likes: Int? = null
     private var timeToRead: Int? = null
-    private var thematics: List<Thematic> = emptyList()
-    private var embeddedJson: JsonObject? = null
-    private val metaTags: MutableList<HTMLMetaElement> = mutableListOf()
+    internal var thematics: List<Thematic> = emptyList()
+    internal var embeddedJson: JsonObject? = null
+    internal val metaTags: MutableList<HTMLMetaElement> = mutableListOf()
     private val checkResults: MutableMap<TypeCheck, Any> = mutableMapOf()
     private var isOk: Boolean = true
     private var isParseError: Boolean = false
@@ -172,6 +172,16 @@ class PageContextBuilder(private val document: Document) {
         return this
     }
 
+    fun performChecks(checks: List<PageCheck>): PageContextBuilder {
+        if (this.isOk && !this.isParseError) {
+            checks.forEach {
+                it.analyze(this)
+                this.checkResults.putAll(it.getResults())
+            }
+        }
+        return this
+    }
+
     fun extractJsonElement(
         input: String,
         required: String,
@@ -219,21 +229,12 @@ class PageContextBuilder(private val document: Document) {
             likes = likes,
             timeToRead,
             thematics = thematics,
-            embeddedJson = embeddedJson,
-            metaTags = metaTags,
+            // embeddedJson = embeddedJson,
+            // metaTags = metaTags,
             checkResults = checkResults,
             isOk = isOk,
             isParseError = isParseError
         )
-    }
-}
-
-fun performChecks(context: PageContext, checks: List<PageCheck>) {
-    if (context.isOk()) {
-        checks.forEach {
-            it.analyze(context)
-            context.checkResults.putAll(it.getResults())
-        }
     }
 }
 
@@ -255,9 +256,9 @@ suspend fun createPageContext(
             .initializePageJsonData()
             .initializeThematics()
             .initializeStats()
+            .performChecks (checks)
 
         val context = builder.finalize()
-        performChecks(context, checks)
         return context
     } else {
         return PageContext(

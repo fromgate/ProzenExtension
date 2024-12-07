@@ -9,18 +9,18 @@ abstract class PageCheck {
 
     protected val results = mutableMapOf<TypeCheck, Any>()
 
-    fun analyze(context: PageContext) {
+    fun analyze(context: PageContextBuilder) {
         results.clear()
         perform(context)
     }
 
-    protected abstract fun perform(context: PageContext)
+    protected abstract fun perform(context: PageContextBuilder)
 
     fun getResults(): Map<TypeCheck, Any> = results
 }
 
 object CheckNoIndex : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         val noindex = context.metaTags.any { meta ->
             val propertyAttr = meta.getAttribute("property")
             (meta.name == "robots" || propertyAttr == "robots") && meta.content.contains("noindex")
@@ -30,7 +30,7 @@ object CheckNoIndex : PageCheck() {
 }
 
 object CheckThematics : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         if (context.thematics.isNotEmpty()) {
             results[TypeCheck.THEMATICS] = context.thematics
         } else {
@@ -40,7 +40,7 @@ object CheckThematics : PageCheck() {
 }
 
 object CheckComments : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         val item = context.embeddedJson?.arr("ssrData/socialMetaResponse/items")?.firstOrNull()?.jsonObject
         val comments = when (item?.string("metaInfo.visibleComments")?.lowercase()) {
             "invisible" -> TypeCheck.COMMENTS_OFF
@@ -53,7 +53,7 @@ object CheckComments : PageCheck() {
 }
 
 object CheckAdv : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         if (context.embeddedJson != null) {
             when (context.type) {
                 "article" -> {
@@ -87,7 +87,7 @@ object CheckAdv : PageCheck() {
 }
 
 object CheckCovid : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         val covid: Boolean? = if (context.isText()) {
             context.embeddedJson?.bool("ssrData/publishersResponse/data/data/publication/covid19Mentioned")
         } else {
@@ -99,7 +99,7 @@ object CheckCovid : PageCheck() {
 }
 
 object CheckDmca : PageCheck() {
-    override fun perform(context: PageContext) {
+    override fun perform(context: PageContextBuilder) {
         if (context.isVideo()) {
             val dmca: Boolean? = context.embeddedJson?.bool("ssrData.videoMetaResponse.isDmcaMusicCopyright")
             if (dmca == true) results[TypeCheck.DMCA] = true

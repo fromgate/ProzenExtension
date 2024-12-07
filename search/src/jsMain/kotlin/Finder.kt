@@ -43,7 +43,7 @@ fun Card.cardMatch(searchString: String?): Boolean {
     val title = this.title.lowercase()
     val description = this.snippet?.lowercase() ?: ""
 
-    return searchWords.any { word -> title.contains(word) || description.contains(word) }
+    return searchWords.all { word -> title.contains(word) || description.contains(word) }
 }
 
 fun Card.addedIn(period: Pair<Instant, Instant>?): Boolean {
