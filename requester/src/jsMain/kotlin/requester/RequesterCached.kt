@@ -14,13 +14,13 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
     val cache = Cache (publisherId ?: "RequesterCache")
 
     override suspend fun getScr(from: String, to: String): Double? {
-        return cache.getOrLoadFromCache("getScr", cache.calcExpirationTime(3.hours, true)) {
+        return cache.getOrLoadFromCache("getScr", cache.calcExpirationTime(5.hours, true)) {
             super.getScr(from, to)
         }
     }
 
     override suspend fun getBannedUsers(): Int? {
-        return cache.getOrLoadFromCache("getBannedUsers", cache.calcExpirationTime(3.hours)) {
+        return cache.getOrLoadFromCache("getBannedUsers", cache.calcExpirationTime(30.minutes)) {
             super.getBannedUsers()
         }
     }
@@ -43,7 +43,7 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                 rewards.map {
                     json("1" to it.first, "2" to it.second, "3" to it.third)
                 }.toTypedArray(),
-                cache.calcExpirationTime(30.minutes)
+                cache.calcExpirationTime(60.minutes)
             )
         }
         return rewards

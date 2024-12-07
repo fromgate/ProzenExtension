@@ -854,7 +854,6 @@ html body .ui-lib-header__item._type_left {
     height: 12px;
     background-size: contain;
     background-repeat: no-repeat;
-    margin-right: 5px;
 }
 
 .prozen-card-icon.button {
@@ -870,8 +869,8 @@ html body .ui-lib-header__item._type_left {
 .prozen-card-text {
     white-space: nowrap;
     overflow: hidden;
-    font-size: 12px; /* Размер шрифта для текста */
-    color: #555; /* Темно-серый цвет для текста */
+    font-size: 12px;
+    color: #555;
 }
 
 .prozen-card-title {
@@ -879,6 +878,58 @@ html body .ui-lib-header__item._type_left {
     font-weight: bold;
     color: #333;
     margin-bottom: 12px;
+}
+
+
+/* Отображение карточек в режиме сетки */
+.prozen-grid-card-stats {
+    display: flex;
+    flex-direction: column; /* Все строки расположены вертикально */
+    gap: 4px; /* Промежуток между строками */
+}
+
+.prozen-grid-card-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+    white-space: nowrap;
+    overflow: hidden
+}
+
+.prozen-grid-card-cell {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.prozen-grid-card-cell:last-child {
+    justify-content: flex-end;
+}
+
+.prozen-grid-card-icon {
+    width: 12px;
+    height: 12px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.prozen-grid-card-icon.button {
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.prozen-grid-card-icon.button:hover {
+    background-color: #d0d0d0;
+}
+
+.prozen-grid-card-text {
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 12px;
+    color: #555;
 }
 
 
@@ -1437,7 +1488,7 @@ html body .ui-lib-header__item._type_left {
     position: absolute;
     background-color: #f1f1f1;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
     border-radius: 4px;
 }

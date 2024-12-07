@@ -450,93 +450,77 @@ class Publications(val requester: Requester) {
         statElement?.clear()
         val zIndex = 11
         statElement?.append {
-            div("prozen-card-stats") {
-                style = "display: flex; flex-wrap: wrap; justify-content: space-between;"
-                div("prozen-card-column") {
-                    div("prozen-card-row") {
-                        style = "z-index: $zIndex;"
+            div("prozen-grid-card-stats") {
+                // Показы  | Лайки / Коменты
+                div("prozen-grid-card-row") {
+                    div("prozen-grid-card-cell") {
                         title = "Показы"
-                        span("prozen-card-icon prozen_studio_card_icon_shows")
-                        span("prozen-card-text") { +card.showsStr() }
+                        span("prozen-grid-card-icon prozen_studio_card_icon_shows")
+                        span("prozen-grid-card-text") { +card.showsStr() }
                     }
-                    // Количество просмотров
-                    val views = card.viewsStrAndTitle()
-                    div("prozen-card-row") {
-                        style = "z-index: $zIndex;"
-                        title = views.second
-                        span("prozen-card-icon prozen_studio_card_icon_views")
-                        span("prozen-card-text") { +views.first }
-                    }
-
-                    val viewsTillEnd = card.fullReadsStrTitle()
-                    div("prozen-card-row") {
-                        style = "z-index: $zIndex;"
-                        title = viewsTillEnd.second
-                        span("prozen-card-icon prozen_studio_card_icon_full_views") { } // Иконка дочитываний
-                        span("prozen-card-text") { +viewsTillEnd.first } // Количество дочитываний
-                    }
-
-                    div("prozen-card-row") {
-                        style = "z-index: $zIndex;"
-                        title = "Просмотры от подписчиков"
-                        span("prozen-card-icon prozen_studio_card_icon_subscribers") { } // Иконка дочитываний
-                        span("prozen-card-text") { +card.subscribersViewStr() } // Количество дочитываний
-                    }
-
-                }
-
-                div("prozen-card-column") {
-                    div("prozen-card-row") {
-                        style = "justify-content: right;  z-index: $zIndex;"
-                        span("prozen-card-icon prozen_studio_card_icon_like") {
+                    div("prozen-grid-card-cell") {
+                        span("prozen-grid-card-icon prozen_studio_card_icon_like") {
                             title = "Лайки"
                         }
-                        span("prozen-card-text") {
+                        span("prozen-grid-card-text") {
                             title = "Лайки"
                             +card.likes()
                         }
-
-                        span("prozen-card-icon prozen_studio_card_icon_repost") {
+                        span("prozen-grid-card-icon prozen_studio_card_icon_repost") {
                             title = "Репосты публикации"
                             style = "margin-left: 8px;"
                         }
-                        span("prozen-card-text") {
+                        span("prozen-grid-card-text") {
                             title = "Репосты публикации"
                             +card.reposts()
                         }
                     }
+                }
 
-                    div("prozen-card-row") {
-                        style = "justify-content: right; z-index: $zIndex;"
-                        span("prozen-card-icon prozen_studio_cards_subscribers") {
+                // Просмотры | Подписки / Коменты
+                div("prozen-grid-card-row") {
+                    div("prozen-grid-card-cell") {
+                        val views = card.viewsStrAndTitle()
+                        title = views.second
+                        span("prozen-grid-card-icon prozen_studio_card_icon_views")
+                        span("prozen-grid-card-text") { +views.first }
+                    }
+                    div("prozen-grid-card-cell") {
+                        span("prozen-grid-card-icon prozen_studio_cards_subscribers") {
                             title = "Подписки с публикации"
                         }
-                        span("prozen-card-text") {
-                            title = "Подписки с публикации"
-                            +card.subscriptions()
-                        }
-                        span("prozen-card-icon prozen_studio_card_icon_comments") {
+                        span("prozen-grid-card-text") { +card.subscriptions() }
+                        span("prozen-grid-card-icon prozen_studio_card_icon_comments") {
                             title = "Комментарии"
-                            style = "margin-left: 8px;"
                         }
-                        span("prozen-card-text") {
-                            title = "Комментарии"
-                            +card.comments()
-                        }
+                        span("prozen-grid-card-text") { +card.comments() }
                     }
-                    div("prozen-card-row") {
-                        style = "justify-content: right; z-index: $zIndex;"
-                        span("prozen-card-icon prozen_studio_card_icon_er") {
+                }
+
+                // Дочитывания | ER
+                div("prozen-grid-card-row") {
+                    div("prozen-grid-card-cell") {
+                        val viewsTillEnd = card.fullReadsStrTitle()
+                        title = viewsTillEnd.second
+                        span("prozen-grid-card-icon prozen_studio_card_icon_full_views")
+                        span("prozen-grid-card-text") { +viewsTillEnd.first }
+                    }
+                    div("prozen-grid-card-cell") {
+                        span("prozen-grid-card-icon prozen_studio_card_icon_er") {
                             title = "Коэффициент вовлечённости, ER"
                         }
-                        span("prozen-card-text") {
-                            title = "Коэффициент вовлечённости, ER"
-                            +card.er()
-                        }
+                        span("prozen-grid-card-text") { +card.er() }
                     }
-                    div("prozen-card-row") {
-                        style = "justify-content: right; z-index:$zIndex;"
-                        span("prozen-card-icon button prozen_studio_card_icon_link") {
+                }
+
+                div("prozen-grid-card-row") {
+                    div("prozen-grid-card-cell") {
+                        title = "Просмотры от подписчиков"
+                        span("prozen-grid-card-icon prozen_studio_card_icon_subscribers")
+                        span("prozen-grid-card-text") { +card.subscribersViewStr() }
+                    }
+                    div("prozen-grid-card-cell") {
+                        span("prozen-grid-card-icon button prozen_studio_card_icon_link") {
                             title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
                             onClickFunction = {
                                 it.preventDefault()
@@ -546,7 +530,7 @@ class Publications(val requester: Requester) {
                                 }
                             }
                         }
-                        span("prozen-card-icon button prozen_studio_card_icon_repost") {
+                        span("prozen-grid-card-icon button prozen_studio_card_icon_repost") {
                             title = "Нажмите, чтобы сделать репост"
                             onClickFunction = {
                                 it.preventDefault()
