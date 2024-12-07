@@ -12,8 +12,6 @@ data class PageContext(
     var likes: Int? = null,
     var timeToRead: Int? = null,
     var thematics: List<Thematic> = emptyList(),
-    // var embeddedJson: JsonObject? = null,
-    // val metaTags: MutableList<HTMLMetaElement> = mutableListOf(),
     val checkResults: MutableMap<TypeCheck, Any> = mutableMapOf(),
 
     var isOk: Boolean = true,
