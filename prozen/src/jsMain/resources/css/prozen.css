@@ -830,14 +830,14 @@ html body .ui-lib-header__item._type_left {
     cursor: default;
     display: flex;
     flex-wrap: nowrap;
-    gap: 4px;
+    gap: 10px;
 }
 
 
 .prozen-card-column {
     flex-grow: 1;
     /* flex-basis: 0; */
-    padding: 5px 1px; /* Внутренний отступ */
+    padding: 5px 2px; /* Внутренний отступ */
     display: flex;
     flex-direction: column;
 }
@@ -884,8 +884,8 @@ html body .ui-lib-header__item._type_left {
 /* Отображение карточек в режиме сетки */
 .prozen-grid-card-stats {
     display: flex;
-    flex-direction: column; /* Все строки расположены вертикально */
-    gap: 4px; /* Промежуток между строками */
+    flex-direction: column;
+    gap: 4px;
 }
 
 .prozen-grid-card-row {

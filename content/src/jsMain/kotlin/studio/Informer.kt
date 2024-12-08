@@ -215,9 +215,9 @@ class Informer(val requester: Requester) {
                                 }
                             }
                         }
-                        channelUnIndexed?.let {
+                        channelUnIndexed?.let { notIndexed ->
                             div("prozen-widget-item") {
-                                if (it) {
+                                if (notIndexed) {
                                     title = "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
                                             "Главная страница канала не индексируется поисковиками.\n" +
                                             "Это нормальная ситуация для новых каналов."
@@ -225,8 +225,8 @@ class Informer(val requester: Requester) {
                                 span("prozen-widget-item-title") {
                                     +"Индексация канала: "
                                 }
-                                span {
-                                    +if (it) "Нет 🤖" else "Есть"
+                                span("prozen-widget-warning".takeIf { notIndexed }) {
+                                    +if (notIndexed) "Нет 🤖" else "Есть"
                                 }
                             }
                         }
