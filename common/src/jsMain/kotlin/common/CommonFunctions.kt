@@ -65,6 +65,12 @@ suspend fun checkNoIndexUrl(url: String): Boolean {
     }
 }
 
+fun getSignificantUrl(url: String): String {
+    return url.substringBefore('?')
+        .substringBefore('#')
+        .removeSuffix("/")
+}
+
 fun shortUrl(publisherId: String?, publicationId: String?): String {
     var url = window.location.href.split("?")[0].split("#")[0]
     url = url.substring(0, url.lastIndexOf("/")) + "/" + url.substring(url.lastIndexOf("-") + 1)

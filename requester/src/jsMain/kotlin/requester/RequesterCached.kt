@@ -78,7 +78,10 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
         return (cache.getFromCache("getStrikesInfo") as? Json)?.run {
             Pair(this["1"] as Boolean, this["2"] as Int)
         } ?: super.getStrikesInfo()?.also {
-            cache.saveToCache("getStrikesInfo", json("1" to it.first, "2" to it.second))
+            cache.saveToCache("getStrikesInfo",
+                json("1" to it.first, "2" to it.second),
+                cache.calcExpirationTime(5.minutes)
+            )
         }
     }
 

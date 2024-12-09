@@ -13,7 +13,6 @@ import kotlinx.html.title
 import kotlinx.serialization.json.JsonObject
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLHeadingElement
-import org.w3c.dom.HTMLLinkElement
 import org.w3c.dom.asList
 import requester.Requester
 import kotlin.collections.set
@@ -75,7 +74,6 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
     private fun addSubtitleLinks() {
         Option.SUBTITLE_LINKS.value().then { option ->
             if (option) {
-                val shortLink = (document.head!!.querySelector("link[rel=canonical][href]") as HTMLLinkElement).href
                 val headers = document.querySelectorAll("h2, h3")
                 headers.asList().filterIsInstance<HTMLHeadingElement>()
                     .filter { !it.className.contains("content--banner-desktop__title") }
@@ -85,7 +83,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
                     val linkIcon = document.create.span("publication-header-icon-url") {
                         title = M.publicationHeaderCopyLink
                         onClickFunction = {
-                            copyTextToClipboard("$shortLink#$anchorId")
+                            copyTextToClipboard("$canonicalUrl#$anchorId")
                             showNotification(M.notificationLinkCopied)
                         }
                     }

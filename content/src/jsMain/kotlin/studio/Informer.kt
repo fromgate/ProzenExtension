@@ -48,7 +48,7 @@ class Informer(val requester: Requester) {
         val before7Str = before7.toYYYYMD()
         val before30 = date.minus(30.days)
         val before30Str = before30.toYYYYMD()
-        val channelUrl = window.location.href.replace("profile/editor/", "")
+        val channelUrl = getSignificantUrl(window.location.href).replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
         val channelDataDeferred = async { requester.getChannelData() }
