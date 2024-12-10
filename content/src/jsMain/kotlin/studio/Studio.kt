@@ -26,7 +26,6 @@ class Studio(val requester: Requester) : ContentRunner {
 
     suspend fun modifyStudioStyles() {
         if (!isFirefox()) {
-
             val hideRealtimeStatsList = Option.SHORT_DASHBOARD_REALTIME.value().await()
             val hidePromoteBanner = Option.PROMOTE_SHOW.value().await()
             val hideCommentsBlock = Option.COMMENTS_WIDGET.value().await()
