@@ -284,7 +284,7 @@ class Informer(val requester: Requester) {
                             var titleText = "Стоимость минуты вовлечённого просмотра"
                             val previous = minuteCourse.previousToLastNonZero()
                             if (previous != null) {
-                                titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(4)} ₽"
+                                titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(3)} ₽"
                             }
 
                             div("prozen-widget-item") {
@@ -299,7 +299,7 @@ class Informer(val requester: Requester) {
                                         else -> "prozen-widget-error"
                                     }
                                 ) {
-                                    +"${last.third.format(4)}₽"
+                                    +"${last.third.format(3)}₽"
                                 }
                             }
                         }

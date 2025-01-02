@@ -16,13 +16,11 @@ import org.w3c.dom.url.URL
 
 
 open class Requester(val publisherId: String?, val token: String?) {
-
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
     }
-
     fun hasToken(): Boolean = this.token != null
     fun hasPublisherId(): Boolean = this.publisherId != null
 
@@ -85,7 +83,7 @@ open class Requester(val publisherId: String?, val token: String?) {
             val viewTimeSec = rewardData.int("viewTimeSec")
 
             if (dateStr != null && income != null && viewTimeSec != null && viewTimeSec > 0) {
-                val course = income / (viewTimeSec / 60)
+                val course = income / (viewTimeSec / 60.0)
                 rewards.add(Triple(dateStr, income, course))
             }
         }
