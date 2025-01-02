@@ -22,7 +22,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-serialization:3.0.3")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
                 implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
-                implementation("io.ktor:ktor-client-json:3.0.3")
+                // implementation("io.ktor:ktor-client-json:3.0.3")
             }
         }
     }
