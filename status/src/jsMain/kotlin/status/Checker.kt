@@ -83,6 +83,17 @@ class Checker(private val requester: Requester) {
         jobs.awaitAll()
     }
 
+    suspend fun loadCardsWithDelay(unloaded: List<Card>,  progress: ProgressBar? = null, delayTimeMs: Long = 10L) {
+        var count = 0
+        unloaded.forEach {card ->
+            progress?.update(text = card.title.ifEmpty { "…" })
+            loadPageContext(card)
+            count++
+            if (delayTimeMs > 0) delay(delayTimeMs)
+            progress?.update(count, unloaded.size)
+        }
+    }
+
 
     fun hasPublications(): Boolean {
         return cards.isNotEmpty()

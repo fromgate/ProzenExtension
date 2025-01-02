@@ -177,6 +177,7 @@ fun createSearchPage(root: HTMLElement) {
                                 val ul = document.getElementById("search-results") as HTMLUListElement
                                 ul.clear()
                                 GlobalScope.launch {
+                                    val useFastCheck = Option.FAST_CHECK.isSet()
                                     if (!checker!!.hasPublications()) {
                                         val spinner = Spinner()
                                         spinner.show("Публикации загружаются…")
@@ -194,7 +195,11 @@ fun createSearchPage(root: HTMLElement) {
                                     if (unloaded.isNotEmpty()) {
                                         val progress = ProgressBar()
                                         progress.show(1, "Загрузка публикаций")
-                                        checker!!.loadCardsInParallel(unloaded, 3, progress)
+                                        if (useFastCheck) {
+                                            checker!!.loadCardsInParallel(unloaded, 3, progress)
+                                        } else {
+                                            checker!!.loadCardsWithDelay(unloaded, progress)
+                                        }
                                         progress.close()
                                     }
 
