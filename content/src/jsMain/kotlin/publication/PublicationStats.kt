@@ -10,10 +10,14 @@ data class PublicationStats(
     var viewsTillEnd: Int?,
     var timeToRead: Int?,
     val notIndexed: Boolean,
-    val shortLink: String
+    val shortLink: String,
 )
 
 fun PublicationStats.showTime(): String {
-    val mod = modificationTime?.takeIf { it != createTime }?.toDDMMYYYYHHMM()?.let { " ($it)" } ?: ""
-    return createTime.toDDMMYYYYHHMM() + mod
+    val createTimeStr = createTime.toDDMMYYYYHHMM()
+    val modTimeStr =
+        modificationTime?.toDDMMYYYYHHMM()?.takeIf {
+            it != createTimeStr
+        }?.let { " ($it)" } ?: ""
+    return createTimeStr + modTimeStr
 }

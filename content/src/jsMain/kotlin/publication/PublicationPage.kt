@@ -46,8 +46,8 @@ abstract class PublicationPage(val requester: Requester, val data: JsonObject) :
     }
 
     private fun getCreateModTime(): Pair<Instant, Instant?> {
-        val createTime = data.obj("publication")?.obj("content")?.long("modTime")?.toInstant()
-        val modTime = data.obj("publication")?.obj("content")?.long("modTime")?.toInstant()
+        val createTime = data.time("publication.addTime") ?: data.time("publication.publishTime")
+        val modTime = data.time("publication.content.modTime") ?: data.time("publication.modificationTime")
         return createTime!! to modTime
     }
 

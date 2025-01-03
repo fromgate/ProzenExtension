@@ -25,8 +25,12 @@ fun JsonObject.bool(key: String): Boolean? = getNestedElement(key)?.jsonPrimitiv
 fun JsonObject.int(key: String): Int? = getNestedElement(key)?.jsonPrimitive?.intOrNull
 fun JsonObject.string(key: String): String? = getNestedElement(key)?.jsonPrimitive?.contentOrNull
 fun JsonObject.long(key: String): Long? = getNestedElement(key)?.jsonPrimitive?.longOrNull
-fun JsonObject.time(key: String): Instant? =
+fun JsonObject.timeFromSecs(key: String): Instant? =
     getNestedElement(key)?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochSeconds(it) }
+
+fun JsonObject.time(key: String): Instant? =
+    getNestedElement(key)?.jsonPrimitive?.longOrNull?.let { Instant.fromEpochMilliseconds(it) }
+
 
 fun JsonObject.float(key: String): Float? = getNestedElement(key)?.jsonPrimitive?.floatOrNull
 fun JsonObject.double(key: String): Double? = getNestedElement(key)?.jsonPrimitive?.doubleOrNull
