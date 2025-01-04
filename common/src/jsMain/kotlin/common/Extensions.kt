@@ -5,7 +5,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
 import org.w3c.dom.HTMLElement
-import kotlin.js.json
+import kotlin.math.pow
+import kotlin.math.round
 
 
 fun JsonObject.getNestedElement(key: String): JsonElement? {
@@ -39,17 +40,32 @@ fun JsonArray.obj(index: Int): JsonObject? = if (this.isEmpty() && index >= this
 
 fun JsonElement.asString(): String? = this.jsonPrimitive.contentOrNull
 
+fun Double.roundTo(decimalPlaces: Int = 3): Double {
+    val factor = 10.0.pow(decimalPlaces)
+    return round(this * factor) / factor
+}
 
 // Number format
 fun Double.format(digits: Int? = null): String {
     val d = digits ?: if (this < 2) 2 else 1
-    val param = json("minimumFractionDigits" to d, "maximumFractionDigits" to d)
-    return this.asDynamic().toLocaleString("ru-RU", param) as String
+    val rounded = this.roundTo(d)
+    val parts = rounded.toString().split('.')
+    val integerPart = parts[0].toInt().format()
+    val fractionalPart = if (parts.size > 1) parts[1] else ""
+    val formattedFraction = if (fractionalPart.length < d) {
+        fractionalPart.padEnd(d, '0')
+    } else {
+        fractionalPart
+    }
+    return if (d > 0) "$integerPart.$formattedFraction" else integerPart
 }
 
 fun Int.format(): String {
-    val param = js("{minimumFractionDigits: 0, maximumFractionDigits: 0}")
-    return this.asDynamic().toLocaleString("ru-RU", param) as String
+    return this.toString()
+        .reversed()
+        .chunked(3)
+        .joinToString(" ")
+        .reversed()
 }
 
 // Date Time
