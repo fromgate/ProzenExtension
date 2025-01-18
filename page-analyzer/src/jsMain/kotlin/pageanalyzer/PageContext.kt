@@ -16,6 +16,7 @@ data class PageContext(
 
     var isOk: Boolean = true,
     var isParseError: Boolean = false,
+    var isCaptchaAsked: Boolean = false,
 )
 
 fun PageContext.isVideo() = type == "short_video" || type == "gif"

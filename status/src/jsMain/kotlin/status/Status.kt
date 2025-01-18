@@ -99,7 +99,10 @@ fun createSearchPage(root: HTMLElement) {
                 div(classes = "prozen-search-filters") {
                     TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE }.forEach { typeCheck ->
                         label {
-                            input(classes = "prozen-search-type-checks-input prozen-checkbox", type = InputType.checkBox) {
+                            input(
+                                classes = "prozen-search-type-checks-input prozen-checkbox",
+                                type = InputType.checkBox
+                            ) {
                                 id = typeCheck.name
                                 checked = true
                                 if (typeCheck == TypeCheck.IS_BANNED) {
@@ -191,11 +194,14 @@ fun createSearchPage(root: HTMLElement) {
                                     val found = checker!!.find(typesToSearch, period)
 
                                     val unloaded = checker!!.getUnloadedContextCards(found)
+
+                                    var checkIsOk: Boolean = true
                                     console.dInfo("Unloaded / Found: ${unloaded.size} / ${found.size}")
                                     if (unloaded.isNotEmpty()) {
                                         val progress = ProgressBar()
                                         progress.show(1, "Загрузка публикаций")
-                                        if (useFastCheck) {
+
+                                        checkIsOk = if (useFastCheck) {
                                             checker!!.loadCardsInParallel(unloaded, 3, progress)
                                         } else {
                                             checker!!.loadCardsWithDelay(unloaded, progress)
@@ -219,8 +225,13 @@ fun createSearchPage(root: HTMLElement) {
                                         toShow.forEach { (card, context) ->
                                             ul.appendChild(card.toLi(context))
                                         }
-                                        val countStr = toShow.size.paucal("публикация", "публикации", "публикаций")
-                                        showNotification("Поиск завершён.\nНайдено: $countStr из ${checker!!.count().format()}.")
+                                        if (checkIsOk) {
+                                            val countStr = toShow.size.paucal("публикация", "публикации", "публикаций")
+                                            showNotification("Поиск завершён.\nНайдено: $countStr из ${checker!!.count().format()}.")
+
+                                        } else {
+                                            showNotification("Проверка прервана! Дзен включил капчу.\nПовторите проверку позднее.")
+                                        }
                                     } else {
                                         showNotification("Поиск завершён.\nПубликации не найдены.")
                                     }
@@ -269,10 +280,9 @@ fun saveChecks() {
     val prozenStatusPublications = getTypesToSearch().joinToString(",")
     val prozenStatusChecks = getSelectedTypeChecks().joinToString(",") { it.name }
     chrome.storage.local.set(
-        json ("prozenStatusPublications" to prozenStatusPublications, "prozenStatusChecks" to prozenStatusChecks)
+        json("prozenStatusPublications" to prozenStatusPublications, "prozenStatusChecks" to prozenStatusChecks)
     )
 }
-
 
 
 fun loadChecks() {

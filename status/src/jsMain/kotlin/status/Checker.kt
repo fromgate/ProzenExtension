@@ -58,13 +58,51 @@ class Checker(private val requester: Requester) {
         }
     }
 
-    suspend fun loadPageContext(card: Card) {
-        checks[card.id] = createPageContext(card.url())
+    suspend fun loadPageContext(card: Card): Boolean {
+        val context = createPageContext(card.url())
+        checks[card.id] = context
+        return !context.isCaptchaAsked
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun loadCardsInParallel(
+        unloaded: List<Card>,
+        maxParallelism: Int = 3,
+        progress: ProgressBar? = null,
+    ): Boolean {
+        val scope = CoroutineScope(Dispatchers.Default) // Определяем scope
+        val semaphore = Semaphore(maxParallelism)
+        val countMutex = Mutex()
+        var count = 0
+        val jobs = unloaded.map { card ->
+            scope.async {
+                semaphore.withPermit {
+                    progress?.update(text = card.title.ifEmpty { "…" })
+                    val isOk = loadPageContext(card)
+
+                    if (!isOk) {
+                        scope.cancel()
+                    }
+
+                    countMutex.withLock {
+                        count++
+                    }
+                    progress?.update(count, unloaded.size)
+
+                    isOk // Возвращаем результат загрузки
+                }
+            }
+        }
+
+        return try {
+            jobs.awaitAll().all { it }
+        } catch (_: CancellationException) {
+            false
+        }
+    }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun loadCardsInParallel(unloaded: List<Card>, maxParallelism: Int = 3, progress: ProgressBar? = null) {
+    suspend fun loadCardsInParallelOld(unloaded: List<Card>, maxParallelism: Int = 3, progress: ProgressBar? = null) {
         var count = 0
         val semaphore = Semaphore(maxParallelism)
         val countMutex = Mutex()
@@ -83,15 +121,21 @@ class Checker(private val requester: Requester) {
         jobs.awaitAll()
     }
 
-    suspend fun loadCardsWithDelay(unloaded: List<Card>,  progress: ProgressBar? = null, delayTimeMs: Long = 10L) {
+    suspend fun loadCardsWithDelay(
+        unloaded: List<Card>,
+        progress: ProgressBar? = null,
+        delayTimeMs: Long = 10L,
+    ): Boolean {
         var count = 0
-        unloaded.forEach {card ->
+        unloaded.forEach { card ->
             progress?.update(text = card.title.ifEmpty { "…" })
-            loadPageContext(card)
+            val isOk = loadPageContext(card)
+            if (!isOk) return false
             count++
             if (delayTimeMs > 0) delay(delayTimeMs)
             progress?.update(count, unloaded.size)
         }
+        return true
     }
 
 
@@ -189,19 +233,23 @@ fun Card.toLi(pageContext: PageContext?): HTMLElement {
                             }
 
                         } else {
-                            if (!context.isOk) {
-                                span("prozen-status-result-emoji") {
+
+                            val (icon, text) = when {
+                                context.isCaptchaAsked -> {
+                                    "🚫" to "Дзен просит капчу!\nПовторите проверку позднее."
+                                }
+                                !context.isOk -> {
                                     val statusCode = context.checkResults[TypeCheck.HTTP_STATUS_CODE] as? Int
-                                    title =
-                                        "Ошибка загрузки страницы.\nПовторите проверку позднее.${statusCode?.let { "\nКод ошибки $it" } ?: ""}"
-                                    +"⚠️"
+                                    "⚠️" to "Ошибка загрузки страницы.\nПовторите проверку позднее.${statusCode?.let { "\nКод ошибки $it" } ?: ""}"
                                 }
+                                context.isParseError -> {
+                                    "⚠️" to "Ошибка распознавания данных.\nВозможно нужно обновить расширение."
+                                }
+                                else -> "⚠️" to "Неизвестная ошибка.\nПовторите проверку позднее."
                             }
-                            if (context.isParseError) {
-                                span("prozen-status-result-emoji") {
-                                    title = "Ошибка распознавания данных.\nВозможно нужно обновить расширение."
-                                    +"⚠️"
-                                }
+                            span("prozen-status-result-emoji") {
+                                title = text
+                                +icon
                             }
                         }
                     }

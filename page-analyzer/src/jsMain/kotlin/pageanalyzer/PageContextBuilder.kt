@@ -24,6 +24,7 @@ class PageContextBuilder(private val document: Document) {
     private val checkResults: MutableMap<TypeCheck, Any> = mutableMapOf()
     private var isOk: Boolean = true
     private var isParseError: Boolean = false
+    private var isCaptchaAsked: Boolean = false
 
     fun initializeBaseData(): PageContextBuilder {
         val (initUrl, initType) = initializeUrlAndType(document)
@@ -233,7 +234,8 @@ class PageContextBuilder(private val document: Document) {
             // metaTags = metaTags,
             checkResults = checkResults,
             isOk = isOk,
-            isParseError = isParseError
+            isParseError = isParseError,
+            isCaptchaAsked = isCaptchaAsked
         )
     }
 }
@@ -244,10 +246,26 @@ suspend fun createPageContext(
         CheckNoIndex, CheckAdv, CheckThematics, CheckCovid, CheckComments, CheckDmca
     ),
 ): PageContext {
+    console.dLog("createPageContext: $documentUrl")
     val regex = Regex("""https://dzen\.ru/(a|b|video/watch|shorts)/([^?/]+)""")
     val targetUrl = regex.find(documentUrl)?.groupValues?.get(0) ?: getCachedFinalUrl(documentUrl)
+    console.dLog("targetUrl: $targetUrl")
+    if (targetUrl.startsWith("https://dzen.ru/showcaptcha?")) {
+        console.dLog("Captcha were asked")
+        return PageContext(
+            url = targetUrl,
+            type = "unknown",
+            title = "unknown",
+            publisherId = "",
+            publicationId = "",
+            isOk = false,
+            isCaptchaAsked = true
+        )
+    }
+
     val response = window.fetch(targetUrl).await()
     if (response.ok) {
+        console.dLog("Response: Ok")
         val htmlContent = response.text().await()
         val document = DOMParser().parseFromString(htmlContent, "text/html")
         val builder = PageContextBuilder(document)
@@ -257,10 +275,11 @@ suspend fun createPageContext(
             .initializeThematics()
             .initializeStats()
             .performChecks (checks)
-
         val context = builder.finalize()
+        console.dLog("Check is Ok: ${context.isOk()}")
         return context
     } else {
+        console.dLog("Response: ${response.status}")
         return PageContext(
             url = targetUrl,
             type = "unknown",
