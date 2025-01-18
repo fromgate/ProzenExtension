@@ -51,7 +51,7 @@ fun getLastMonth(): Pair<Instant, Instant> {
 fun getCurrentMonth(): Pair<Instant, Instant> {
     val now = Clock.System.now()
     val firstOfMonth = now.toLocalDateTime(TimeZone.currentSystemDefault()).run {
-        Instant.parse("${date.year}-${date.monthNumber}-01T00:00:00Z")
+        Instant.parse("${date.year}-${date.monthNumber.padZero()}-01T00:00:00Z")
     }
     return firstOfMonth to now
 }
