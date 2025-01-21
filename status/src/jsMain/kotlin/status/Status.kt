@@ -45,7 +45,10 @@ suspend fun loadChannelId() {
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun createSearchPage(root: HTMLElement) {
+suspend fun createSearchPage(root: HTMLElement) {
+
+    val dates = loadLastSelectedTime() ?: getLastMonth().toStringPair()
+
     root.append {
         div(classes = "prozen-search-container") {
             div(classes = "prozen-search-header-container") {
@@ -116,7 +119,7 @@ fun createSearchPage(root: HTMLElement) {
                     }
                 }
 
-                val dates = getLast6Months().toStringPair()
+
                 div(classes = "prozen-search-date-filter") {
                     div {
                         label { +"С даты:" }
@@ -147,29 +150,10 @@ fun createSearchPage(root: HTMLElement) {
                             "all-time" to "Всё время"
                         )
                     ) { selected ->
-                        val timePeriod: Pair<Instant, Instant>? = when (selected) {
-                            "this-month" -> {
-                                getCurrentMonth()
-                            }
-
-                            "month" -> {
-                                getLastMonth()
-                            }
-
-                            "year" -> {
-                                getLastYear()
-                            }
-
-                            "half-year" -> {
-                                getLast6Months()
-                            }
-
-                            "all-time" -> {
-                                fromInputDate("2017-05-30")!! to Clock.System.now()
-                            }
-
-                            else -> null
+                        GlobalScope.launch {
+                            saveSelectedTime(selected)
                         }
+                        val timePeriod: Pair<Instant, Instant>? = selectedToPeriod (selected)
                         timePeriod?.let { setDateRange(it) } ?: showNotification("Произошла ошибка.")
                     }
 
@@ -302,6 +286,40 @@ fun setInputChecks(className: String, checked: Set<String>) {
         .forEach { it.checked = checked.contains(it.id) }
 }
 
+suspend fun saveSelectedTime(select: String) {
+    saveToStorage("$publisherId-checker-period", select)
+}
+
+suspend fun loadLastSelectedTime(): Pair<String,String>? {
+    val selected = getFromStorageStr("$publisherId-checker-period")
+    return selected?.let { selectedToPeriod(it)?.toStringPair() }
+}
+
+fun selectedToPeriod(selected: String): Pair<Instant, Instant>? {
+    return when (selected) {
+        "this-month" -> {
+            getCurrentMonth()
+        }
+
+        "month" -> {
+            getLastMonth()
+        }
+
+        "year" -> {
+            getLastYear()
+        }
+
+        "half-year" -> {
+            getLast6Months()
+        }
+
+        "all-time" -> {
+            fromInputDate("2017-05-30")!! to Clock.System.now()
+        }
+
+        else -> null
+    }
+}
 
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
