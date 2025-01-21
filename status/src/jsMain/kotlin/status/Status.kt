@@ -30,16 +30,17 @@ var publisherId: String? = null
 var token: String? = null
 var checker: Checker? = null
 
-private fun getChannelId() {
-    chrome.storage.local.get(arrayOf("prozenSearch", "prozenToken", "prozenPublisherId")) { result ->
-        publisherId = result["prozenPublisherId"] as? String
-        token = result["prozenToken"] as? String
-        val requester = Requester(publisherId, token)
-        if (requester.hasToken() && requester.hasPublisherId()) {
-            checker = Checker(requester)
-        } else {
-            console.error("Failed to create Checker object for unknown publisher and token.")
-        }
+suspend fun loadChannelId() {
+    val keys = arrayOf("prozenSearch", "prozenToken", "prozenPublisherId")
+    val data = getFromStorageStr(keys)
+    publisherId = data["prozenPublisherId"]
+    token = data["prozenToken"]
+    val requester = Requester(publisherId, token)
+    if (requester.hasToken() && requester.hasPublisherId()) {
+        checker = Checker(requester)
+    } else {
+        console.error("Failed to create Checker object for unknown publisher and token.")
+        throw IllegalStateException("Invalid publisher or token")
     }
 }
 
@@ -115,7 +116,7 @@ fun createSearchPage(root: HTMLElement) {
                     }
                 }
 
-                val dates = getLastMonth().toStringPair()
+                val dates = getLast6Months().toStringPair()
                 div(classes = "prozen-search-date-filter") {
                     div {
                         label { +"С даты:" }
@@ -302,9 +303,12 @@ fun setInputChecks(className: String, checked: Set<String>) {
 }
 
 
+@OptIn(DelicateCoroutinesApi::class)
 fun main() {
-    val root = document.getElementById("status-root") as? HTMLElement
-    root?.let { createSearchPage(it) }
-    loadChecks()
-    getChannelId()
+    GlobalScope.launch {
+        val root = document.getElementById("status-root") as? HTMLElement
+        loadChannelId()
+        root?.let { createSearchPage(it) }
+        loadChecks()
+    }
 }
