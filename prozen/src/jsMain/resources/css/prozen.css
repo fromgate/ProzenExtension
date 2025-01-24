@@ -77,10 +77,7 @@
     --stats-secondary-value-color: #888;
 
     /* Угловой блок */
-    --corner-block-background-color: #f5f5f5;
     --corner-block-text-color: #555;
-    --corner-block-border-radius: 5px;
-    --corner-block-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     --corner-link-color: #555;
     --corner-link-hover-color: #444;
 }
@@ -163,11 +160,9 @@
         --stats-secondary-value-color: #888;
 
         /* Угловой блок */
-        --corner-block-background-color: #3a3a3a;
-        --corner-block-text-color: #e0e0e0;
-        --corner-block-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        --corner-link-color: #e0e0e0;
-        --corner-link-hover-color: #b0b0b0;
+        --corner-block-text-color: #b0b0b0;
+        --corner-link-color: #b0b0b0;
+        --corner-link-hover-color: #c0c0c0;
     }
 
 
