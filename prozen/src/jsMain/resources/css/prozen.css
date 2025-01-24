@@ -60,6 +60,29 @@
     --popup-checkbox-checked-border-color: #555;
     --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
 
+    /* Статистика */
+    --stats-body-background-color: #eaeaea;
+    --stats-text-color: #333;
+    --stats-container-background-color: #f5f5f5;
+    --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --stats-header-color: #333;
+    --stats-filters-label-color: #555;
+    --stats-section-title-color: #444;
+    --stats-list-background-color: #fff;
+    --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --stats-item-text-color: #333;
+    --stats-item-value-color: #000;
+    --stats-row-text-color: #555;
+    --stats-main-value-color: #333;
+    --stats-secondary-value-color: #888;
+
+    /* Угловой блок */
+    --corner-block-background-color: #f5f5f5;
+    --corner-block-text-color: #555;
+    --corner-block-border-radius: 5px;
+    --corner-block-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    --corner-link-color: #555;
+    --corner-link-hover-color: #444;
 }
 
 /* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
@@ -122,6 +145,29 @@
         --popup-checkbox-checked-background-color: #666;
         --popup-checkbox-checked-border-color: #888;
         --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23e0e0e0' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+
+        /* Статистика */
+        --stats-body-background-color: #2d2d2d;
+        --stats-text-color: #e0e0e0;
+        --stats-container-background-color: #3a3a3a;
+        --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        --stats-header-color: #e0e0e0;
+        --stats-filters-label-color: #b0b0b0;
+        --stats-section-title-color: #d0d0d0;
+        --stats-list-background-color: #444;
+        --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --stats-item-text-color: #e0e0e0;
+        --stats-item-value-color: #fff;
+        --stats-row-text-color: #b0b0b0;
+        --stats-main-value-color: #e0e0e0;
+        --stats-secondary-value-color: #888;
+
+        /* Угловой блок */
+        --corner-block-background-color: #3a3a3a;
+        --corner-block-text-color: #e0e0e0;
+        --corner-block-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        --corner-link-color: #e0e0e0;
+        --corner-link-hover-color: #b0b0b0;
     }
 
 
@@ -1072,9 +1118,6 @@ html body .ui-lib-header__item._type_left {
 
 
 /* Settings */
-
-
-
 .prozen-settings-body {
     display: flex;
     justify-content: center;
@@ -1157,7 +1200,7 @@ html body .ui-lib-header__item._type_left {
     visibility: hidden;
     width: 200px;
     background-color: #333;
-    color: #fff;
+    color: #eee;
     text-align: center;
     border-radius: 6px;
     padding: 5px 10px;
@@ -1231,22 +1274,6 @@ html body .ui-lib-header__item._type_left {
 .prozen-settings-header > img, .prozen-info-icon > span:first-child {
     filter: var(--filter-invert-on-dark, none);
 }
-
-/* Тёмная тема: настройки */
-/* @media (prefers-color-scheme: dark) {
-    .prozen-tooltip {
-        background-color: #444;
-        color: #e0e0e0;
-    }
-
-    .prozen-tooltip::after {
-        border-color: #444 transparent transparent transparent;
-    }
-
-    .prozen-footer {
-        border-top-color: #444;
-    }
-} */
 
 /* Search Page */
 .prozen-search-body {
@@ -1771,10 +1798,9 @@ html body .ui-lib-header__item._type_left {
     opacity: 0.8;
 }
 
+/*********************/
 /* Обновлённый попап */
 /*********************/
-
-
 
 /* Основной контейнер попапа */
 .popup-body {
@@ -2114,25 +2140,27 @@ html body .ui-lib-header__item._type_left {
     font-size: 14px;
 }
 
-/* Statistics Page */
+/*******************/
+/* Статистика      */
+/*******************/
 .prozen-stats-body {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
-    background-color: #eaeaea;
+    background-color: var(--stats-body-background-color);
     font-family: Arial, sans-serif;
-    color: #333;
+    color: var(--stats-text-color);
 }
 
 /* Контейнер статистики */
 .prozen-statistics-container {
     width: 900px;
-    background-color: #f5f5f5;
+    background-color: var(--stats-container-background-color);
     margin: 20px 0;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--stats-container-shadow);
 }
 
 /* Заголовок */
@@ -2140,7 +2168,7 @@ html body .ui-lib-header__item._type_left {
     font-size: 24px;
     text-align: center;
     margin-bottom: 20px;
-    color: #333;
+    color: var(--stats-header-color);
 }
 
 /* Фильтры */
@@ -2150,12 +2178,11 @@ html body .ui-lib-header__item._type_left {
     align-items: center;
     margin-bottom: 20px;
     padding: 10px 0;
-    /*border-bottom: 1px solid #ddd;*/
 }
 
 .prozen-statistics-filters label {
     font-size: 14px;
-    color: #555;
+    color: var(--stats-filters-label-color);
 }
 
 /* Секция статистики */
@@ -2166,14 +2193,14 @@ html body .ui-lib-header__item._type_left {
 .prozen-statistics-section h4 {
     font-size: 18px;
     margin-bottom: 10px;
-    color: #444;
+    color: var(--stats-section-title-color);
 }
 
 /* Список статистики */
 .prozen-statistics-list {
-    background-color: #fff;
+    background-color: var(--stats-list-background-color);
     border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--stats-list-shadow);
     padding: 15px;
 }
 
@@ -2189,13 +2216,13 @@ html body .ui-lib-header__item._type_left {
     flex: 1;
     text-align: left;
     font-size: 14px;
-    color: #333;
+    color: var(--stats-item-text-color);
 }
 
 .prozen-statistics-item span.value {
     text-align: left;
     font-weight: bold;
-    color: #000;
+    color: var(--stats-item-value-color);
 }
 
 .prozen-statistics-actions {
@@ -2211,7 +2238,7 @@ html body .ui-lib-header__item._type_left {
     justify-content: space-between;
     padding: 3px 0;
     font-size: 14px;
-    color: #555;
+    color: var(--stats-row-text-color);
     line-height: 1.5;
 }
 
@@ -2231,15 +2258,15 @@ html body .ui-lib-header__item._type_left {
 .prozen-statistics-main-value {
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: var(--stats-main-value-color);
     display: block;
 }
 
 /* Дополнительное значение */
 .prozen-statistics-secondary-value {
     font-size: 12px;
-    color: #888;
-    display: inline; /* Можно менять на inline, если надо размещать на одной строке */
+    color: var(--stats-secondary-value-color);
+    display: inline;
 }
 
 
@@ -2248,7 +2275,7 @@ html body .ui-lib-header__item._type_left {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    color: #555;
+    color: var(--corner-block-text-color);
     font-size: 13px;
     line-height: 1.2;
     padding: 10px;
@@ -2265,7 +2292,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-corner-link {
-    color: #555;
+    color: var(--corner-link-color);
     text-decoration: none;
     display: block;
     margin-top: 5px;
@@ -2273,7 +2300,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-corner-link:hover {
     text-decoration: none;
-    color: #444;
+    color: var(--corner-link-hover-color);
 }
 
 /* Чекбокс */
