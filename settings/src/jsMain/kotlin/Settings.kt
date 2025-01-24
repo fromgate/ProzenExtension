@@ -42,7 +42,7 @@ fun createSettingsPage(root: HTMLElement) {
                             }
                             option.description?.let {
                                 div(classes = "prozen-info-icon") {
-                                    +"ℹ"
+                                    span {+"ℹ" }
                                     span(classes = "prozen-tooltip") {
                                         +it
                                     }

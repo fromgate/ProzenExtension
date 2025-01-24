@@ -1,30 +1,160 @@
+/* Светлая тема по умолчанию */
+:root {
+    --filter-invert-on-dark: none;
+
+    /* Виджет-информер «Состояние канала» */
+    --widget-background: #eff0f245;
+    --widget-color: #333;
+    --widget-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --widget-header: #323232;
+    --widget-title: #555;
+    --widget-link: #334;
+    --widget-warning: #ff6200;
+    --widget-success: #4caf50;
+    --widget-error: #f44336;
+
+    /* Настройки */
+    --settings-body-backround-color: #eaeaea;
+    --settings-container-background-color: #f5f5f5;
+    --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --settings-header-border-bottom-color: #ddd;
+    --settings-container-h4-color: #333;
+    --settings-container-h3-color: #333;
+    --settings-item-label-color: #555;
+    --settings-save-button-background-color: #6c757d;
+    --settings-save-button-background-color-hover: #5a6268;
+    --settings-prozen-footer-border-top-color: #ddd;
+    --settings-prozen-footer-a-color: #6c757d;
+    --settings-prozen-footer-a-color-hover: #333;
+
+    /* Попап */
+    --popup-body-background-color: #fff;
+    --popup-background-color: #f7f7f7;
+    --popup-border-color: #ccc;
+    --popup-text-color: #333;
+    --popup-card-background-color: #fff;
+    --popup-card-border-color: #ddd;
+    --popup-info-block-background-color: #f1f1f1;
+    --popup-info-block-border-color: #ddd;
+    --popup-tag-background-color: #e0e0e0;
+    --popup-tag-text-color: #555;
+    --popup-button-background-color: #ddd;
+    --popup-button-text-color: #333;
+    --popup-button-hover-background-color: #ccc;
+    --popup-button-active-background-color: #bbb;
+    --popup-footer-border-color: #ddd;
+    --popup-footer-text-color: #777;
+    --popup-footer-link-color: #555;
+    --popup-footer-link-hover-color: #333;
+    --popup-footer-secondary-text-color: #aaa;
+    --popup-footer-secondary-link-color: #777;
+    --popup-footer-secondary-link-hover-color: #555;
+
+    /* Чекбокс */
+    --popup-checkbox-background-color: #fff;
+    --popup-checkbox-border-color: #555;
+    --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --popup-checkbox-hover-border-color: #444;
+    --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --popup-checkbox-checked-background-color: #888;
+    --popup-checkbox-checked-border-color: #555;
+    --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+
+}
+
+/* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --filter-invert-on-dark: invert(1);
+
+        /*
+        --widget-background: #2d2d2d;
+        --widget-color: #e0e0e0;
+        --widget-box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+        --widget-header: #ffffff;
+        --widget-title: #b0b0b0;
+        --widget-link: #7f7faa;
+        --widget-warning: #ffa726;
+        --widget-success: #66bb6a;
+        --widget-error: #ef5350; */
+
+        --settings-body-backround-color: #1e1e1e;
+        --settings-container-background-color: #2d2d2d;
+        --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        --settings-header-border-bottom-color: #444;
+        --settings-container-h4-color: #e0e0e0;
+        --settings-container-h3-color: #e0e0e0;
+        --settings-item-label-color: #b0b0b0;
+        --settings-save-button-background-color: #555;
+        --settings-save-button-background-color-hover: #666;
+        --settings-prozen-footer-border-top-color: #444;
+        --settings-prozen-footer-a-color: #b0b0b0;
+        --settings-prozen-footer-a-color-hover: #e0e0e0;
+
+        --popup-body-background-color: #252525;
+        --popup-background-color: #2d2d2d;
+        --popup-border-color: #444;
+        --popup-text-color: #e0e0e0;
+        --popup-card-background-color: #3a3a3a;
+        --popup-card-border-color: #444;
+        --popup-info-block-background-color: #3a3a3a;
+        --popup-info-block-border-color: #444;
+        --popup-tag-background-color: #555;
+        --popup-tag-text-color: #e0e0e0;
+        --popup-button-background-color: #555;
+        --popup-button-text-color: #e0e0e0;
+        --popup-button-hover-background-color: #666;
+        --popup-button-active-background-color: #777;
+        --popup-footer-border-color: #444;
+        --popup-footer-text-color: #b0b0b0;
+        --popup-footer-link-color: #b0b0b0;
+        --popup-footer-link-hover-color: #e0e0e0;
+        --popup-footer-secondary-text-color: #888;
+        --popup-footer-secondary-link-color: #888;
+        --popup-footer-secondary-link-hover-color: #b0b0b0;
+
+        /* Чекбокс */
+        --popup-checkbox-background-color: #3a3a3a;
+        --popup-checkbox-border-color: #777;
+        --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --popup-checkbox-hover-border-color: #888;
+        --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        --popup-checkbox-checked-background-color: #666;
+        --popup-checkbox-checked-border-color: #888;
+        --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23e0e0e0' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+    }
+
+
+}
+
+/*
 .icon_calendar {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3ECalendar%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-340.000000, -2799.000000)' fill='%23858585'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M293,2650 L291,2650 L291,2648 L295,2648 L295,2654 L293,2654 L293,2650 Z M286,2657 L302,2657 L302,2645 L286,2645 L286,2657 Z M302,2641 L302,2639 L300,2639 L300,2641 L295,2641 L295,2639 L293,2639 L293,2641 L288,2641 L288,2639 L286,2639 L286,2641 L284,2641 L284,2659 L304,2659 L304,2641 L302,2641 Z' id='calendar'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     height: 14px;
     top: +1px;
     width: 14px;
-}
-
+} */
+/*
 .icon_shows_in_feed {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EshowsInFeed%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-220.000000, -1599.000000)' fill='%23858585'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M182,1457.0005 L166,1457.0005 L166,1441.0005 L176,1441.0005 L176,1447.0005 L182,1447.0005 L182,1457.0005 Z M178,1439.0005 L164,1439.0005 L164,1459.0005 L184,1459.0005 L184,1445.2095 L178,1439.0005 Z' id='showsInFeed'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     height: 14px;
     top: +1px;
     width: 14px;
-}
+} */
 
-.icon_views {
+/* .icon_views {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EViews%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-60.000000, -1599.000000)' fill='%23858585'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M8,1447 L14,1447 L14,1443 L8,1443 L8,1447 Z M22,1457 L6,1457 L6,1441 L16,1441 L16,1447 L22,1447 L22,1457 Z M18,1439 L4,1439 L4,1459 L24,1459 L24,1445.105 L18,1439 Z' id='views'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     height: 14px;
     top: +1px;
     width: 14px;
-}
+} */
 
-.icon_views_till_end {
+/* .icon_views_till_end {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 20 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EViewsTillEnd%3C/title%3E%3Cdesc%3ECreated with Sketch.%3C/desc%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-100.000000, -1599.000000)' fill='%23858585'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M48,1455 L60,1455 L60,1453 L48,1453 L48,1455 Z M48,1451 L60,1451 L60,1449 L48,1449 L48,1451 Z M48,1447 L54,1447 L54,1443 L48,1443 L48,1447 Z M62,1457 L46,1457 L46,1441 L56,1441 L56,1447 L62,1447 L62,1457 Z M58,1439 L44,1439 L44,1459 L64,1459 L64,1445.105 L58,1439 Z' id='ViewsTillEnd'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     height: 14px;
     top: +1px;
     width: 14px;
-}
+} */
 
 .icon_like {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg width='14px' height='14px' viewBox='0 0 21 20' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3ELike%3C/title%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Dribbble-Light-Preview' transform='translate(-259.000000, -760.000000)' fill='%23858585'%3E%3Cg id='icons' transform='translate(56.000000, 160.000000)'%3E%3Cpath d='M203,620 L207.200006,620 L207.200006,608 L203,608 L203,620 Z M223.924431,611.355 L222.100579,617.89 C221.799228,619.131 220.638976,620 219.302324,620 L209.300009,620 L209.300009,608.021 L211.104962,601.825 C211.274012,600.775 212.223214,600 213.339366,600 C214.587817,600 215.600019,600.964 215.600019,602.153 L215.600019,608 L221.126177,608 C222.97313,608 224.340232,609.641 223.924431,611.355 L223.924431,611.355 Z' id='like-%5B%231385%5D'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A");
@@ -243,32 +373,34 @@
     opacity: 55%;
 }
 
+/*
 .prozen_button {
-    display: inline-block;
-    background: #e2e2e2;
-    color: #212121;
-    border: .0625rem;
-    border-radius: 3px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    height: 30px;
-    margin-bottom: 1px;
-}
+display: inline-block;
+background: #e2e2e2;
+color: #212121;
+border: .0625rem;
+border-radius: 3px;
+text-decoration: none;
+cursor: pointer;
+transition: background 0.3s;
+height: 30px;
+margin-bottom: 1px;
+} */
 
 .prozen-image-wrap {
     position: relative;
 }
 
+/*
 .prozen-image-wrap h5 {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    color: white;
-    padding: 5px;
-    background-color: #00000080;
-    border-radius: 5px 10px;
-}
+position: absolute;
+left: 0;
+bottom: 0;
+color: white;
+padding: 5px;
+background-color: #00000080;
+border-radius: 5px 10px;
+} */
 
 .icon-telegram {
     height: 16px;
@@ -359,6 +491,13 @@ html body .ui-lib-header__item._type_left {
     height: 24px;
     width: 24px;
 }
+
+/* Тёмная тема: кнопки меню в сайдбаре */
+/* @media (prefers-color-scheme: dark) {
+    .prozen_menu_stats,.prozen_menu_metrika, .prozen_menu_search, .prozen_menu_robot {
+        filter: invert(1);
+    }
+} */
 
 .prozen_menu_metrika {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E%3Csvg width='24' height='24' viewBox='0 0 6.3499999 6.3500002' version='1.1' id='svg5' inkscape:version='1.1 (c68e22c387, 2021-05-23)' sodipodi:docname='metrika.svg' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Csodipodi:namedview id='namedview7' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageshadow='2' inkscape:pageopacity='0.0' inkscape:pagecheckerboard='0' inkscape:document-units='mm' showgrid='false' units='px' inkscape:zoom='21.465993' inkscape:cx='14.231813' inkscape:cy='8.8745021' inkscape:window-width='1920' inkscape:window-height='1017' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='layer1' /%3E%3Cdefs id='defs2' /%3E%3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1'%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.424;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855' width='1.4922633' height='4.5755897' x='4.5158157' y='1.0335689' /%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.416683;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855-4' width='1.4993167' height='3.1467674' x='2.4327016' y='2.4234135' /%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.408389;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855-4-5' width='1.5076107' height='1.7398919' x='0.34896758' y='3.8803298' /%3E%3C/g%3E%3C/svg%3E%0A");
@@ -649,10 +788,10 @@ html body .ui-lib-header__item._type_left {
 
 /* Виджет-информер */
 .prozen-widget {
-    background-color: #eff0f245;
-    color: #333;
+    background-color: var(--widget-background, #eff0f245);
+    color: var(--widget-color, #333);
     border-radius: 15px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--widget-box-shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
     padding: 16px 20px;
     margin-top: 24px;
     font-size: 16px;
@@ -663,7 +802,7 @@ html body .ui-lib-header__item._type_left {
 .prozen-header-content {
     font-size: 20px; /* Крупнее заголовок */
     font-weight: 600; /* Средний между normal и bold */
-    color: #323232;
+    color: var(--widget-header, #323232);
     margin-bottom: 6px;
     display: flex;
     align-items: center;
@@ -674,6 +813,7 @@ html body .ui-lib-header__item._type_left {
     height: 24px;
     opacity: 0.7;
     margin-right: 8px;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-widget-content {
@@ -690,12 +830,12 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-widget-item-title {
     font-weight: 500;
-    color: #555;
+    color: var(--widget-title, #555);
 }
 
 /* Link style */
 .prozen-widget-link {
-    color: #334;
+    color: var(--widget-link, #334);
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
@@ -707,15 +847,15 @@ html body .ui-lib-header__item._type_left {
 
 /* Additional styling for warnings and indicators */
 .prozen-widget-warning {
-    color: #ff6200;
+    color: var(--widget-warning, #ff6200);
 }
 
 .prozen-widget-success {
-    color: #4caf50;
+    color: var(--widget-success, #4caf50);
 }
 
 .prozen-widget-error {
-    color: #f44336;
+    color: var(--widget-error, #f44336);
 }
 
 .prozen-dropdown-menu {
@@ -833,10 +973,8 @@ html body .ui-lib-header__item._type_left {
     gap: 10px;
 }
 
-
 .prozen-card-column {
     flex-grow: 1;
-    /* flex-basis: 0; */
     padding: 5px 2px; /* Внутренний отступ */
     display: flex;
     flex-direction: column;
@@ -935,22 +1073,24 @@ html body .ui-lib-header__item._type_left {
 
 /* Settings */
 
+
+
 .prozen-settings-body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #eaeaea;
+    background-color: var(--settings-body-backround-color, #eaeaea);
 }
 
 .prozen-settings-container {
     width: 600px;
     margin: 0 auto;
-    background-color: #f5f5f5;
+    background-color: var(--settings-container-background-color, #f5f5f5);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--settings-container-box-shadow, 0 4px 8px rgba(0, 0, 0, 0.1));
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -960,7 +1100,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-settings-container h4 {
     font-size: 15px;
-    color: #333;
+    color: var(--settings-container-h4-color, #333);
 }
 
 .prozen-settings-header {
@@ -968,7 +1108,8 @@ html body .ui-lib-header__item._type_left {
     align-items: center;
     justify-content: center;
     padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid;
+    border-bottom-color: var(--settings-header-border-bottom-color, #ddd);
     margin-bottom: 20px;
 }
 
@@ -981,7 +1122,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-settings-header h3 {
     font-size: 20px;
-    color: #333;
+    color: var(--settings-container-h3-color, #333);
 }
 
 .prozen-settings-item {
@@ -996,7 +1137,7 @@ html body .ui-lib-header__item._type_left {
     display: flex;
     align-items: center;
     font-size: 16px;
-    color: #555;
+    color: var(--settings-item-label-color, #555);
 }
 
 .prozen-settings-item input[type="checkbox"] {
@@ -1054,7 +1195,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-save-button {
     padding: 10px 20px;
-    background-color: #6c757d;
+    background-color: var(--settings-save-button-background-color, #6c757d);
     color: white;
     font-size: 16px;
     border: none;
@@ -1064,27 +1205,48 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-save-button:hover {
-    background-color: #5a6268;
+    background-color: var(--settings-save-button-background-color-hover, #5a6268);
 }
 
 .prozen-footer {
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid;
+    border-top-color: var(--settings-prozen-footer-border-top-color,#ddd);
     margin-top: 20px;
     font-size: 14px;
 }
 
 .prozen-footer a {
-    color: #6c757d;
+    color: var(--settings-prozen-footer-a-color, #6c757d);
     text-decoration: none;
     transition: color 0.3s;
 }
 
 .prozen-footer a:hover {
-    color: #333;
+    color: var(--settings-prozen-footer-a-color-hover, #333);
 }
+
+.prozen-settings-header > img, .prozen-info-icon > span:first-child {
+    filter: var(--filter-invert-on-dark, none);
+}
+
+/* Тёмная тема: настройки */
+/* @media (prefers-color-scheme: dark) {
+    .prozen-tooltip {
+        background-color: #444;
+        color: #e0e0e0;
+    }
+
+    .prozen-tooltip::after {
+        border-color: #444 transparent transparent transparent;
+    }
+
+    .prozen-footer {
+        border-top-color: #444;
+    }
+} */
 
 /* Search Page */
 .prozen-search-body {
@@ -1613,14 +1775,18 @@ html body .ui-lib-header__item._type_left {
 /*********************/
 
 
+
 /* Основной контейнер попапа */
+.popup-body {
+    background-color: var(--popup-body-background-color, #fff);
+}
 .prozen-popup-container {
     width: 350px;
     padding: 5px;
     box-sizing: border-box;
     font-family: Roboto, sans-serif;
-    background-color: #f7f7f7;
-    border: 1px solid #ccc;
+    background-color: var(--popup-background-color);
+    border: 1px solid var(--popup-border-color);
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -1643,14 +1809,14 @@ html body .ui-lib-header__item._type_left {
 .prozen-popup-title {
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: var(--popup-text-color);
 }
 
 /* Карточка последней публикации */
 .prozen-popup-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--popup-card-border-color);
     border-radius: 6px;
-    background-color: #fff;
+    background-color: var(--popup-card-background-color);
     display: flex;
     flex-direction: column;
     padding: 4px;
@@ -1681,7 +1847,7 @@ html body .ui-lib-header__item._type_left {
     padding: 5px;
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: var(--popup-text-color);
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -1691,8 +1857,8 @@ html body .ui-lib-header__item._type_left {
 
 /* Информационный блок */
 .prozen-popup-info-block {
-    background-color: #f1f1f1;
-    border: 1px solid #ddd;
+    background-color: var(--popup-info-block-background-color);
+    border: 1px solid var(--popup-info-block-border-color);
     border-radius: 6px;
     padding: 10px;
     margin-bottom: 12px;
@@ -1701,13 +1867,13 @@ html body .ui-lib-header__item._type_left {
 .prozen-popup-info-title {
     font-size: 14px;
     font-weight: bold;
-    color: #333;
+    color: var(--popup-text-color);
     margin-bottom: 8px;
 }
 
 .prozen-popup-info-stats {
     font-size: 12px;
-    color: #666;
+    color: var(--popup-text-color);
     margin-bottom: 8px;
     display: flex;
     flex-direction: row;
@@ -1723,6 +1889,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-popup-stats-item-icon {
+    filter: var(--filter-invert-on-dark, none);
     margin-right: 4px;
     width: 18px;
     height: 18px;
@@ -1743,10 +1910,10 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-popup-tag {
-    background-color: #e0e0e0;
+    background-color: var(--popup-tag-background-color);
     border-radius: 4px;
     padding: 2px 6px;
-    color: #555;
+    color: var(--popup-tag-text-color);
 }
 
 /* Управляющая строка с кнопками */
@@ -1761,8 +1928,8 @@ html body .ui-lib-header__item._type_left {
 .prozen-popup-toggle-button,
 .prozen-popup-settings-button {
     font-size: 12px;
-    color: #333;
-    background-color: #ddd;
+    color: var(--popup-button-text-color);
+    background-color: var(--popup-button-background-color);
     border: none;
     border-radius: 4px;
     padding: 4px 8px;
@@ -1772,21 +1939,21 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-popup-toggle-button.active {
     font-weight: bold;
-    background-color: #bbb;
+    background-color: var(--popup-button-active-background-color);
 }
 
 .prozen-popup-settings-button:hover,
 .prozen-popup-toggle-button:hover {
-    background-color: #ccc;
+    background-color: var(--popup-button-hover-background-color);
 }
 
 /* Футер */
 .prozen-popup-footer {
     margin-top: auto;
     padding-top: 10px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--popup-footer-border-color);
     font-size: 12px;
-    color: #777;
+    color: var(--popup-footer-text-color);
 }
 
 /* Стили для первой строки футера */
@@ -1798,30 +1965,30 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-popup-footer-row a {
-    color: #555;
+    color: var(--popup-footer-link-color);
     text-decoration: none;
     font-size: 12px;
 }
 
 .prozen-popup-footer-row a:hover {
-    color: #333;
+    color: var(--popup-footer-link-hover-color);
 }
 
 /* Стили для второй строки футера */
 .prozen-popup-footer-secondary {
     text-align: center;
-    color: #aaa;
+    color: var(--popup-footer-secondary-text-color);
     font-size: 11px;
 }
 
 .prozen-popup-footer-secondary a {
-    color: #777;
+    color: var(--popup-footer-secondary-link-color);
     text-decoration: none;
     font-size: 11px;
 }
 
 .prozen-popup-footer-secondary a:hover {
-    color: #555;
+    color: var(--popup-footer-secondary-link-hover-color);
 }
 
 /* Окно выбора тем */
@@ -1949,94 +2116,94 @@ html body .ui-lib-header__item._type_left {
 
 /* Statistics Page */
 .prozen-stats-body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        background-color: #eaeaea;
-        font-family: Arial, sans-serif;
-        color: #333;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    background-color: #eaeaea;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
 
-    /* Контейнер статистики */
-    .prozen-statistics-container {
-        width: 900px;
-        background-color: #f5f5f5;
-        margin: 20px 0;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+/* Контейнер статистики */
+.prozen-statistics-container {
+    width: 900px;
+    background-color: #f5f5f5;
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    /* Заголовок */
-    .prozen-statistics-header {
-        font-size: 24px;
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
-    }
+/* Заголовок */
+.prozen-statistics-header {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
 
-    /* Фильтры */
-    .prozen-statistics-filters {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding: 10px 0;
-        /*border-bottom: 1px solid #ddd;*/
-    }
+/* Фильтры */
+.prozen-statistics-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    /*border-bottom: 1px solid #ddd;*/
+}
 
-    .prozen-statistics-filters label {
-        font-size: 14px;
-        color: #555;
-    }
+.prozen-statistics-filters label {
+    font-size: 14px;
+    color: #555;
+}
 
-    /* Секция статистики */
-    .prozen-statistics-section {
-        margin-bottom: 20px;
-    }
+/* Секция статистики */
+.prozen-statistics-section {
+    margin-bottom: 20px;
+}
 
-    .prozen-statistics-section h4 {
-        font-size: 18px;
-        margin-bottom: 10px;
-        color: #444;
-    }
+.prozen-statistics-section h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #444;
+}
 
-    /* Список статистики */
-    .prozen-statistics-list {
-        background-color: #fff;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-    }
+/* Список статистики */
+.prozen-statistics-list {
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
 
-    /* Элементы списка */
-    .prozen-statistics-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+/* Элементы списка */
+.prozen-statistics-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
-    .prozen-statistics-item span {
-        flex: 1;
-        text-align: left;
-        font-size: 14px;
-        color: #333;
-    }
+.prozen-statistics-item span {
+    flex: 1;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
 
-    .prozen-statistics-item span.value {
-        text-align: left;
-        font-weight: bold;
-        color: #000;
-    }
+.prozen-statistics-item span.value {
+    text-align: left;
+    font-weight: bold;
+    color: #000;
+}
 
-    .prozen-statistics-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-    }
+.prozen-statistics-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
 
 /* Контейнер для строки статистики */
 .prozen-statistics-row {
@@ -2113,10 +2280,10 @@ html body .ui-lib-header__item._type_left {
 .prozen-checkbox {
     width: 16px;
     height: 16px;
-    background-color: #fff;
-    border: 1px solid #555;
+    background-color: var(--popup-checkbox-background-color);
+    border: 1px solid var(--popup-checkbox-border-color);
     border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--popup-checkbox-box-shadow);
     appearance: none;
     -webkit-appearance: none;
     outline: none;
@@ -2125,14 +2292,14 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-checkbox:hover {
-    border-color: #444; /* Цвет рамки при наведении */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-color: var(--popup-checkbox-hover-border-color);
+    box-shadow: var(--popup-checkbox-hover-box-shadow);
 }
 
 .prozen-checkbox:checked {
-    background-color: #888;
-    border-color: #555;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+    background-color: var(--popup-checkbox-checked-background-color);
+    border-color: var(--popup-checkbox-checked-border-color);
+    background-image: var(--popup-checkbox-checked-icon);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 10px 10px; /* Размер галочки */
