@@ -1544,6 +1544,10 @@ html body .ui-lib-header__item._type_left {
     text-overflow: ellipsis;
 }
 
+.prozen-status-body {
+    background-color: var(--search-body-background-color);
+}
+
 .prozen-status-result {
     font-size: 14px;
     color: var(--search-result-description-color);
