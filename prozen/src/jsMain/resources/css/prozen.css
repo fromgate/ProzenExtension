@@ -3,7 +3,7 @@
     --filter-invert-on-dark: none;
 
     /* Виджет-информер «Состояние канала» */
-    --widget-background: #eff0f245;
+    --widget-bg: #eff0f245;
     --widget-color: #333;
     --widget-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     --widget-header: #323232;
@@ -14,34 +14,34 @@
     --widget-error: #f44336;
 
     /* Настройки */
-    --settings-body-backround-color: #eaeaea;
-    --settings-container-background-color: #f5f5f5;
+    --settings-body-bg: #eaeaea;
+    --settings-container-bg: #f5f5f5;
     --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     --settings-header-border-bottom-color: #ddd;
     --settings-container-h4-color: #333;
     --settings-container-h3-color: #333;
     --settings-item-label-color: #555;
-    --settings-save-button-background-color: #6c757d;
-    --settings-save-button-background-color-hover: #5a6268;
+    --settings-save-button-bg-color: #6c757d;
+    --settings-save-button-bg-color-hover: #5a6268;
     --settings-prozen-footer-border-top-color: #ddd;
     --settings-prozen-footer-a-color: #6c757d;
     --settings-prozen-footer-a-color-hover: #333;
 
     /* Попап */
-    --popup-body-background-color: #fff;
+    --popup-body-bg: #fff;
     --popup-background-color: #f7f7f7;
     --popup-border-color: #ccc;
     --popup-text-color: #333;
     --popup-card-background-color: #fff;
     --popup-card-border-color: #ddd;
-    --popup-info-block-background-color: #f1f1f1;
+    --popup-info-block-bg: #f1f1f1;
     --popup-info-block-border-color: #ddd;
-    --popup-tag-background-color: #e0e0e0;
+    --popup-tag-bg: #e0e0e0;
     --popup-tag-text-color: #555;
-    --popup-button-background-color: #ddd;
+    --popup-button-bg: #ddd;
     --popup-button-text-color: #333;
-    --popup-button-hover-background-color: #ccc;
-    --popup-button-active-background-color: #bbb;
+    --popup-button-bg-hover: #ccc;
+    --popup-button-bg-active: #bbb;
     --popup-footer-border-color: #ddd;
     --popup-footer-text-color: #777;
     --popup-footer-link-color: #555;
@@ -51,24 +51,24 @@
     --popup-footer-secondary-link-hover-color: #555;
 
     /* Чекбокс */
-    --popup-checkbox-background-color: #fff;
+    --popup-checkbox-bg: #fff;
     --popup-checkbox-border-color: #555;
     --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     --popup-checkbox-hover-border-color: #444;
     --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    --popup-checkbox-checked-background-color: #888;
+    --popup-checkbox-checked-bg: #888;
     --popup-checkbox-checked-border-color: #555;
     --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
 
     /* Статистика */
-    --stats-body-background-color: #eaeaea;
+    --stats-body-bg: #eaeaea;
     --stats-text-color: #333;
-    --stats-container-background-color: #f5f5f5;
+    --stats-container-bg: #f5f5f5;
     --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     --stats-header-color: #333;
     --stats-filters-label-color: #555;
     --stats-section-title-color: #444;
-    --stats-list-background-color: #fff;
+    --stats-list-bg: #fff;
     --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --stats-item-text-color: #333;
     --stats-item-value-color: #000;
@@ -82,30 +82,60 @@
     --corner-link-hover-color: #444;
 
     /* Поиск */
-    --search-body-background-color: #eaeaea;
-    --search-container-background-color: #f5f5f5;
+    --search-body-bg: #eaeaea;
+    --search-container-bg: #f5f5f5;
     --search-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    --search-header-background-color: #f5f5f5;
+    --search-header-bg: #f5f5f5;
     --search-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --search-text-color: #333;
     --search-input-border-color: #ccc;
-    --search-button-background-color: #6c757d;
-    --search-button-hover-background-color: #5a6268;
-    --search-button-active-background-color: #3c454d;
+
+    --search-button-bg: #6c757d;
+    --search-button-bg-hover: #5a6268;
+
+    --search-button-active-bg: #3c454d;
     --search-button-text-color: white;
     --search-filter-label-color: #555;
-    --search-result-item-background-color: #fff;
+    --search-result-item-bg-color: #fff;
     --search-result-item-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --search-result-item-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     --search-result-title-color: #333;
     --search-result-description-color: #666;
-    --search-status-tag-background-color: #e0e0e0;
+    --search-status-tag-bg: #e0e0e0;
     --search-status-tag-text-color: #555;
-    --search-status-emoji-background-color: #f1f1f1;
+    --search-status-emoji-bg: #f1f1f1;
     --search-status-emoji-text-color: #bfbfbf;
-    --search-secondary-button-background-color: #e0e0e0;
-    --search-secondary-button-hover-background-color: #d0d0d0;
+    --search-secondary-button-bg: #e0e0e0;
+    --search-secondary-button-bg-hover: #d0d0d0;
     --search-secondary-button-text-color: #333;
+
+    /* Кнопка с выпадающим списком (меню) */
+    --dbutton-bg: #333;
+    --dbutton-text: white;
+    --dbutton-border-radius: 4px;
+    --dbutton-padding: 10px;
+    --dbutton-font-size: 16px;
+    --dbutton-menu-bg: #f1f1f1;
+    --dbutton-menu-text: black;
+    --dbutton-menu-hover-bg: #ddd;
+    --dbutton-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    --dbutton-dropdown-bg: #e5e5e5;
+    --dbutton-dropdown-text: #333;
+    --dbutton-dropdown-border: 1px solid #ccc;
+    --dbutton-dropdown-hover-bg: #e0e0e0;
+    --dbutton-dropdown-hover-text: #000;
+    --dbutton-dropdown-active-bg: #d0d0d0;
+    --dbutton-dropdown-active-text: #000;
+
+    --lbutton-bg: #e5e5e5;
+    --lbutton-text: #333;
+    --lbutton-border: 1px solid #ccc;
+    --lbutton-border-radius: 4px;
+    --lbutton-padding: 8px;
+    --lbutton-hover-bg: #e0e0e0;
+    --lbutton-hover-text: #000;
+    --lbutton-active-bg: #d0d0d0;
+    --lbutton-active-text: #000;
 }
 
 /* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
@@ -124,33 +154,33 @@
         --widget-success: #66bb6a;
         --widget-error: #ef5350; */
 
-        --settings-body-backround-color: #1e1e1e;
-        --settings-container-background-color: #2d2d2d;
+        --settings-body-bg: #1e1e1e;
+        --settings-container-bg: #2d2d2d;
         --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         --settings-header-border-bottom-color: #444;
         --settings-container-h4-color: #e0e0e0;
         --settings-container-h3-color: #e0e0e0;
         --settings-item-label-color: #b0b0b0;
-        --settings-save-button-background-color: #555;
-        --settings-save-button-background-color-hover: #666;
+        --settings-save-button-bg-color: #555;
+        --settings-save-button-bg-color-hover: #666;
         --settings-prozen-footer-border-top-color: #444;
         --settings-prozen-footer-a-color: #b0b0b0;
         --settings-prozen-footer-a-color-hover: #e0e0e0;
 
-        --popup-body-background-color: #252525;
+        --popup-body-bg: #252525;
         --popup-background-color: #2d2d2d;
         --popup-border-color: #444;
         --popup-text-color: #e0e0e0;
         --popup-card-background-color: #3a3a3a;
         --popup-card-border-color: #444;
-        --popup-info-block-background-color: #3a3a3a;
+        --popup-info-block-bg: #3a3a3a;
         --popup-info-block-border-color: #444;
-        --popup-tag-background-color: #555;
+        --popup-tag-bg: #555;
         --popup-tag-text-color: #e0e0e0;
-        --popup-button-background-color: #555;
+        --popup-button-bg: #555;
         --popup-button-text-color: #e0e0e0;
-        --popup-button-hover-background-color: #666;
-        --popup-button-active-background-color: #777;
+        --popup-button-bg-hover: #666;
+        --popup-button-bg-active: #777;
         --popup-footer-border-color: #444;
         --popup-footer-text-color: #b0b0b0;
         --popup-footer-link-color: #b0b0b0;
@@ -160,24 +190,24 @@
         --popup-footer-secondary-link-hover-color: #b0b0b0;
 
         /* Чекбокс */
-        --popup-checkbox-background-color: #3a3a3a;
+        --popup-checkbox-bg: #3a3a3a;
         --popup-checkbox-border-color: #777;
         --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         --popup-checkbox-hover-border-color: #888;
         --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-        --popup-checkbox-checked-background-color: #666;
+        --popup-checkbox-checked-bg: #666;
         --popup-checkbox-checked-border-color: #888;
         --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23e0e0e0' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
 
         /* Статистика */
-        --stats-body-background-color: #2d2d2d;
+        --stats-body-bg: #2d2d2d;
         --stats-text-color: #e0e0e0;
-        --stats-container-background-color: #3a3a3a;
+        --stats-container-bg: #3a3a3a;
         --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         --stats-header-color: #e0e0e0;
         --stats-filters-label-color: #b0b0b0;
         --stats-section-title-color: #d0d0d0;
-        --stats-list-background-color: #444;
+        --stats-list-bg: #444;
         --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         --stats-item-text-color: #e0e0e0;
         --stats-item-value-color: #fff;
@@ -191,30 +221,52 @@
         --corner-link-hover-color: #c0c0c0;
 
         /* Поиск */
-        --search-body-background-color: #2d2d2d;
-        --search-container-background-color: #3a3a3a;
+        --search-body-bg: #2d2d2d;
+        --search-container-bg: #3a3a3a;
         --search-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        --search-header-background-color: #3a3a3a;
+        --search-header-bg: #3a3a3a;
         --search-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         --search-text-color: #e0e0e0;
         --search-input-border-color: #555;
-        --search-button-background-color: #5a6268;
-        --search-button-hover-background-color: #4a5258;
-        --search-button-active-background-color: #3a4248;
+        --search-button-bg: #5a6268;
+        --search-button-bg-hover: #4a5258;
+        --search-button-active-bg: #3a4248;
         --search-button-text-color: #e0e0e0;
         --search-filter-label-color: #b0b0b0;
-        --search-result-item-background-color: #444;
+        --search-result-item-bg-color: #444;
         --search-result-item-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         --search-result-item-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
         --search-result-title-color: #e0e0e0;
         --search-result-description-color: #b0b0b0;
-        --search-status-tag-background-color: #555;
+        --search-status-tag-bg: #555;
         --search-status-tag-text-color: #e0e0e0;
-        --search-status-emoji-background-color: #666;
+        --search-status-emoji-bg: #666;
         --search-status-emoji-text-color: #b0b0b0;
-        --search-secondary-button-background-color: #555;
-        --search-secondary-button-hover-background-color: #666;
+        --search-secondary-button-bg: #555;
+        --search-secondary-button-bg-hover: #666;
         --search-secondary-button-text-color: #e0e0e0;
+
+        /* Кнопка с выпадающим списком (меню) */
+        --dbutton-bg: #222;
+        --dbutton-text: #ddd;
+        --dbutton-menu-bg: #444;
+        --dbutton-menu-text: #fff;
+        --dbutton-menu-hover-bg: #666;
+        --dbutton-dropdown-bg: #555;
+        --dbutton-dropdown-text: #eee;
+        --dbutton-dropdown-border: 1px solid #777;
+        --dbutton-dropdown-hover-bg: #666;
+        --dbutton-dropdown-hover-text: #fff;
+        --dbutton-dropdown-active-bg: #777;
+        --dbutton-dropdown-active-text: #fff;
+
+        --lbutton-bg: #444;
+        --lbutton-text: #ddd;
+        --lbutton-border: 1px solid #777;
+        --lbutton-hover-bg: #555;
+        --lbutton-hover-text: #fff;
+        --lbutton-active-bg: #666;
+        --lbutton-active-text: #fff;
     }
 
 
@@ -883,7 +935,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Виджет-информер */
 .prozen-widget {
-    background-color: var(--widget-background, #eff0f245);
+    background-color: var(--widget-bg, #eff0f245);
     color: var(--widget-color, #333);
     border-radius: 15px;
     box-shadow: var(--widget-box-shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
@@ -1173,13 +1225,13 @@ html body .ui-lib-header__item._type_left {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: var(--settings-body-backround-color, #eaeaea);
+    background-color: var(--settings-body-bg, #eaeaea);
 }
 
 .prozen-settings-container {
     width: 600px;
     margin: 0 auto;
-    background-color: var(--settings-container-background-color, #f5f5f5);
+    background-color: var(--settings-container-bg, #f5f5f5);
     padding: 20px;
     border-radius: 10px;
     box-shadow: var(--settings-container-box-shadow, 0 4px 8px rgba(0, 0, 0, 0.1));
@@ -1287,7 +1339,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-save-button {
     padding: 10px 20px;
-    background-color: var(--settings-save-button-background-color, #6c757d);
+    background-color: var(--settings-save-button-bg-color, #6c757d);
     color: white;
     font-size: 16px;
     border: none;
@@ -1297,7 +1349,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-save-button:hover {
-    background-color: var(--settings-save-button-background-color-hover, #5a6268);
+    background-color: var(--settings-save-button-bg-color-hover, #5a6268);
 }
 
 .prozen-footer {
@@ -1333,14 +1385,14 @@ html body .ui-lib-header__item._type_left {
     align-items: flex-start;
     height: 100vh;
     margin: 0;
-    background-color: var(--search-body-background-color);
+    background-color: var(--search-body-bg);
     overflow-y: scroll;
 }
 
 .prozen-search-container {
     width: 800px;
     margin: 20px auto;
-    background-color: var(--search-container-background-color);
+    background-color: var(--search-container-bg);
     padding: 20px;
     border-radius: 10px;
     box-shadow: var(--search-container-shadow);
@@ -1351,7 +1403,7 @@ html body .ui-lib-header__item._type_left {
 .prozen-search-header-container {
     position: sticky;
     top: 0;
-    background-color: var(--search-header-background-color);
+    background-color: var(--search-header-bg);
     z-index: 10;
     padding: 10px;
     box-shadow: var(--search-header-shadow);
@@ -1385,13 +1437,13 @@ html body .ui-lib-header__item._type_left {
     font-size: 16px;
     border: 1px solid var(--search-input-border-color);
     border-radius: 4px;
-    background-color: var(--search-container-background-color);
+    background-color: var(--search-container-bg);
     color: var(--search-text-color);
 }
 
 .prozen-search-button {
     padding: 10px 20px;
-    background-color: var(--search-button-background-color);
+    background-color: var(--search-button-bg);
     color: var(--search-button-text-color);
     font-size: 16px;
     border: none;
@@ -1402,11 +1454,11 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-search-button:hover {
-    background-color: var(--search-button-hover-background-color);
+    background-color: var(--search-button-bg-hover);
 }
 
 .prozen-search-button:active {
-    background-color: var(--search-button-active-background-color);
+    background-color: var(--search-button-active-bg);
 }
 
 /* Фильтры контента */
@@ -1450,7 +1502,7 @@ html body .ui-lib-header__item._type_left {
     border: 1px solid var(--search-input-border-color);
     border-radius: 4px;
     margin-right: 30px;
-    background-color: var(--search-container-background-color);
+    background-color: var(--search-container-bg);
     color: var(--search-text-color);
 }
 
@@ -1465,7 +1517,7 @@ html body .ui-lib-header__item._type_left {
 .prozen-search-result-item {
     display: flex;
     align-items: flex-start;
-    background-color: var(--search-result-item-background-color);
+    background-color: var(--search-result-item-bg-color);
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 6px;
@@ -1545,7 +1597,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-status-body {
-    background-color: var(--search-body-background-color);
+    background-color: var(--search-body-bg);
 }
 
 .prozen-status-result {
@@ -1557,14 +1609,14 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-status-result-tag {
-    background-color: var(--search-status-tag-background-color);
+    background-color: var(--search-status-tag-bg);
     border-radius: 4px;
     padding: 2px 6px;
     color: var(--search-status-tag-text-color);
 }
 
 .prozen-status-result-emoji {
-    background-color: var(--search-status-emoji-background-color);
+    background-color: var(--search-status-emoji-bg);
     border-radius: 4px;
     padding: 2px 3px;
     color: var(--search-status-emoji-text-color);
@@ -1573,7 +1625,7 @@ html body .ui-lib-header__item._type_left {
 /* Менее выделенная кнопка */
 .prozen-secondary-button {
     padding: 8px 16px;
-    background-color: var(--search-secondary-button-background-color);
+    background-color: var(--search-secondary-button-bg);
     color: var(--search-secondary-button-text-color);
     font-size: 14px;
     border: none;
@@ -1584,7 +1636,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-secondary-button:hover {
-    background-color: var(--search-secondary-button-hover-background-color);
+    background-color: var(--search-secondary-button-bg-hover);
 }
 
 /* Индикаторы прогресса и ожидания */
@@ -1693,34 +1745,36 @@ html body .ui-lib-header__item._type_left {
     margin: 0 .3em;
 }
 
+/****************************/
 /* Кнопка с выпадающим меню */
+/***************************/
 .prozen-dbutton-container {
     position: relative;
     display: inline-block;
 }
 
 .prozen-dbutton-button {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-    font-size: 16px;
+    background-color: var(--dbutton-bg);
+    color: var(--dbutton-text);
+    padding: var(--dbutton-padding);
+    font-size: var(--dbutton-font-size);
     border: none;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: var(--dbutton-border-radius);
 }
 
 .prozen-dbutton-menu {
-    display: none; /* По умолчанию скрыто */
+    display: none;
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: var(--dbutton-menu-bg);
     min-width: 160px;
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: var(--dbutton-shadow);
     z-index: 1;
-    border-radius: 4px;
+    border-radius: var(--dbutton-border-radius);
 }
 
 .prozen-dbutton-menu-item {
-    color: black;
+    color: var(--dbutton-menu-text);
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -1728,7 +1782,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-dbutton-menu-item:hover {
-    background-color: #ddd;
+    background-color: var(--dbutton-menu-hover-bg);
 }
 
 .prozen-dbutton-container.show .prozen-dbutton-menu {
@@ -1737,48 +1791,51 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-dropdown-menu-button {
     padding: 8px 8px;
-    background-color: #e5e5e5;
-    color: #333;
+    background-color: var(--dbutton-dropdown-bg);
+    color: var(--dbutton-dropdown-text);
     font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: var(--dbutton-dropdown-border);
+    border-radius: var(--dbutton-border-radius);
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-left: 5px;
 }
 
 .prozen-dropdown-menu-button:hover {
-    background-color: #e0e0e0;
-    color: #000;
+    background-color: var(--dbutton-dropdown-hover-bg);
+    color: var(--dbutton-dropdown-hover-text);
 }
 
 .prozen-dropdown-menu-button:active {
-    background-color: #d0d0d0;
-    color: #000;
+    background-color: var(--dbutton-dropdown-active-bg);
+    color: var(--dbutton-dropdown-active-text);
 }
 
+
+/* Второстепенная (светлая) кнопка */
 .prozen-light-button {
-    padding: 8px 8px;
-    background-color: #e5e5e5;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: var(--lbutton-padding);
+    background-color: var(--lbutton-bg);
+    color: var(--lbutton-text);
+    border: var(--lbutton-border);
+    border-radius: var(--lbutton-border-radius);
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-left: 5px;
 }
 
 .prozen-light-button:hover {
-    background-color: #e0e0e0;
-    color: #000;
+    background-color: var(--lbutton-hover-bg);
+    color: var(--lbutton-hover-text);
 }
 
 .prozen-light-button:active {
-    background-color: #d0d0d0;
-    color: #000;
+    background-color: var(--lbutton-active-bg);
+    color: var(--lbutton-active-text);
 }
 
 .prozen-excel-button-icon {
+    filter: var(--filter-invert-on-dark);
     display: block;
     width: 17px;
     height: 18px;
@@ -1796,6 +1853,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-triangle-button-icon {
+    filter: var(--filter-invert-on-dark);
     display: block;
     width: 16px;
     height: 16px;
@@ -1841,7 +1899,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Основной контейнер попапа */
 .popup-body {
-    background-color: var(--popup-body-background-color, #fff);
+    background-color: var(--popup-body-bg, #fff);
 }
 .prozen-popup-container {
     width: 350px;
@@ -1920,7 +1978,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Информационный блок */
 .prozen-popup-info-block {
-    background-color: var(--popup-info-block-background-color);
+    background-color: var(--popup-info-block-bg);
     border: 1px solid var(--popup-info-block-border-color);
     border-radius: 6px;
     padding: 10px;
@@ -1973,7 +2031,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-popup-tag {
-    background-color: var(--popup-tag-background-color);
+    background-color: var(--popup-tag-bg);
     border-radius: 4px;
     padding: 2px 6px;
     color: var(--popup-tag-text-color);
@@ -1992,7 +2050,7 @@ html body .ui-lib-header__item._type_left {
 .prozen-popup-settings-button {
     font-size: 12px;
     color: var(--popup-button-text-color);
-    background-color: var(--popup-button-background-color);
+    background-color: var(--popup-button-bg);
     border: none;
     border-radius: 4px;
     padding: 4px 8px;
@@ -2002,12 +2060,12 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-popup-toggle-button.active {
     font-weight: bold;
-    background-color: var(--popup-button-active-background-color);
+    background-color: var(--popup-button-bg-active);
 }
 
 .prozen-popup-settings-button:hover,
 .prozen-popup-toggle-button:hover {
-    background-color: var(--popup-button-hover-background-color);
+    background-color: var(--popup-button-bg-hover);
 }
 
 /* Футер */
@@ -2185,7 +2243,7 @@ html body .ui-lib-header__item._type_left {
     justify-content: center;
     align-items: center;
     margin: 0;
-    background-color: var(--stats-body-background-color);
+    background-color: var(--stats-body-bg);
     font-family: Arial, sans-serif;
     color: var(--stats-text-color);
 }
@@ -2193,7 +2251,7 @@ html body .ui-lib-header__item._type_left {
 /* Контейнер статистики */
 .prozen-statistics-container {
     width: 900px;
-    background-color: var(--stats-container-background-color);
+    background-color: var(--stats-container-bg);
     margin: 20px 0;
     padding: 20px;
     border-radius: 10px;
@@ -2235,7 +2293,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Список статистики */
 .prozen-statistics-list {
-    background-color: var(--stats-list-background-color);
+    background-color: var(--stats-list-bg);
     border-radius: 6px;
     box-shadow: var(--stats-list-shadow);
     padding: 15px;
@@ -2344,7 +2402,7 @@ html body .ui-lib-header__item._type_left {
 .prozen-checkbox {
     width: 16px;
     height: 16px;
-    background-color: var(--popup-checkbox-background-color);
+    background-color: var(--popup-checkbox-bg);
     border: 1px solid var(--popup-checkbox-border-color);
     border-radius: 3px;
     box-shadow: var(--popup-checkbox-box-shadow);
@@ -2361,7 +2419,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-checkbox:checked {
-    background-color: var(--popup-checkbox-checked-background-color);
+    background-color: var(--popup-checkbox-checked-bg);
     border-color: var(--popup-checkbox-checked-border-color);
     background-image: var(--popup-checkbox-checked-icon);
     background-repeat: no-repeat;
