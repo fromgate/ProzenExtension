@@ -136,6 +136,10 @@
     --lbutton-hover-text: #000;
     --lbutton-active-bg: #d0d0d0;
     --lbutton-active-text: #000;
+
+    /* Кнопка меняю (гамбургер) */
+    --menu-button-color: #333;
+    --menu-button-hover-color: #5e666e;
 }
 
 /* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
@@ -143,8 +147,8 @@
     :root {
         --filter-invert-on-dark: invert(1);
 
-        /*
-        --widget-background: #2d2d2d;
+        /* */
+        --widget-bg: #2d2d2d;
         --widget-color: #e0e0e0;
         --widget-box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
         --widget-header: #ffffff;
@@ -152,7 +156,7 @@
         --widget-link: #7f7faa;
         --widget-warning: #ffa726;
         --widget-success: #66bb6a;
-        --widget-error: #ef5350; */
+        --widget-error: #ef5350; /* */
 
         --settings-body-bg: #1e1e1e;
         --settings-container-bg: #2d2d2d;
@@ -267,6 +271,10 @@
         --lbutton-hover-text: #fff;
         --lbutton-active-bg: #666;
         --lbutton-active-text: #fff;
+
+        /* Кнопка меню (гамбургер) */
+        --menu-button-color: #e0e0e0;
+        --menu-button-hover-color: #b0b0b0;
     }
 
 
@@ -1044,18 +1052,22 @@ html body .ui-lib-header__item._type_left {
     margin-right: 8px;
 }
 
+/*************************************/
+/* Кнопка меню (гамбургер в виджете) */
+/*************************************/
 .prozen-menu-button {
     background: none;
     border: none;
     font-size: 24px;
-    color: #333;
+    color: var(--menu-button-color);
     cursor: pointer;
     padding: 0 4px;
     margin-left: auto;
+    transition: color 0.3s ease;
 }
 
 .prozen-menu-button:hover {
-    color: #5e666e;
+    color: var(--menu-button-hover-color);
 }
 
 .prozen-menu-stats {
