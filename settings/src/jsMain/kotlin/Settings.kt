@@ -1,6 +1,7 @@
 import common.Option
 import common.Options
 import common.components.prozenCornerInfoBlock
+import common.components.triStateCheckbox
 import common.isFirefox
 import common.showNotification
 import kotlinx.browser.document
@@ -9,6 +10,7 @@ import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.asList
 import org.w3c.dom.events.KeyboardEvent
 
@@ -25,7 +27,7 @@ fun createSettingsPage(root: HTMLElement) {
             // Настройки
             val groups = Option.entries.asSequence().map { it.group }.filter { it != "hidden" }.toSet()
             val isFirefox = isFirefox()
-            val firefoxRelated = setOf (Option.SHORT_DASHBOARD_REALTIME, Option.COMMENTS_WIDGET, Option.PROMOTE_SHOW)
+            val firefoxRelated = setOf(Option.SHORT_DASHBOARD_REALTIME, Option.COMMENTS_WIDGET, Option.PROMOTE_SHOW)
             groups.forEach { group ->
                 if (group != "default") {
                     h4 { +group }
@@ -42,7 +44,7 @@ fun createSettingsPage(root: HTMLElement) {
                             }
                             option.description?.let {
                                 div(classes = "prozen-info-icon") {
-                                    span {+"ℹ" }
+                                    span { +"ℹ" }
                                     span(classes = "prozen-tooltip") {
                                         +it
                                     }
@@ -50,6 +52,19 @@ fun createSettingsPage(root: HTMLElement) {
                             }
                         }
                     }
+                }
+            }
+
+            h4 { +"Оформление" }
+            div(classes = "prozen-settings-item") {
+
+
+                triStateCheckbox(componentId = "prozen-theme", label = "Тема") {
+                    val labelSpan = document.getElementById("prozen-theme-label") as? HTMLSpanElement
+                    labelSpan?.let { label ->
+                        label.innerText = it.name
+                    }
+                    showNotification(it.name)
                 }
             }
 
