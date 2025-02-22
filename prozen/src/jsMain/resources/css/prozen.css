@@ -1,5 +1,5 @@
 /* Светлая тема по умолчанию */
-:root {
+:root.prozen-light {
     --filter-invert-on-dark: none;
 
     /* Виджет-информер «Состояние канала» */
@@ -112,7 +112,6 @@
     /* Кнопка с выпадающим списком (меню) */
     --dbutton-bg: #333;
     --dbutton-text: white;
-    --dbutton-border-radius: 4px;
     --dbutton-padding: 10px;
     --dbutton-font-size: 16px;
     --dbutton-menu-bg: #f1f1f1;
@@ -130,8 +129,6 @@
     --lbutton-bg: #e5e5e5;
     --lbutton-text: #333;
     --lbutton-border: 1px solid #ccc;
-    --lbutton-border-radius: 4px;
-    --lbutton-padding: 8px;
     --lbutton-hover-bg: #e0e0e0;
     --lbutton-hover-text: #000;
     --lbutton-active-bg: #d0d0d0;
@@ -144,147 +141,164 @@
     /* TriState checkbox */
     --tristate-checbox-filter: invert(33%) sepia(21%) saturate(6%) hue-rotate(353deg) brightness(93%) contrast(91%);
 
+    /* Карточки */
+    --card-text: #555;
+
+    /* Выпадающее меню */
+    --dbmenu-bg: #fff;
+    --dbmenu-text: #333;
+    --dbmenu-hover-bg: #f0f0f0;
+    --dbmenu-shadow: rgba(0, 0, 0, 0.1);
+
 }
 
 /* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --filter-invert-on-dark: invert(1);
 
-        /* */
-        --widget-bg: #2d2d2d;
-        --widget-color: #e0e0e0;
-        --widget-box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
-        --widget-header: #ffffff;
-        --widget-title: #b0b0b0;
-        --widget-link: #7f7faa;
-        --widget-warning: #ffa726;
-        --widget-success: #66bb6a;
-        --widget-error: #ef5350; /* */
+:root.prozen-dark {
+    --filter-invert-on-dark: invert(1);
 
-        --settings-body-bg: #1e1e1e;
-        --settings-container-bg: #2d2d2d;
-        --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        --settings-header-border-bottom-color: #444;
-        --settings-container-h4-color: #e0e0e0;
-        --settings-container-h3-color: #e0e0e0;
-        --settings-item-label-color: #b0b0b0;
-        --settings-save-button-bg-color: #555;
-        --settings-save-button-bg-color-hover: #666;
-        --settings-prozen-footer-border-top-color: #444;
-        --settings-prozen-footer-a-color: #b0b0b0;
-        --settings-prozen-footer-a-color-hover: #e0e0e0;
+    /* */
+    --widget-bg: #202020; /*#2d2d2d;*/
+    --widget-color: #e0e0e0;
+    --widget-box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+    --widget-header: #ffffff;
+    --widget-title: #b0b0b0;
+    --widget-link: #7f7faa;
+    --widget-warning: #ffa726;
+    --widget-success: #66bb6a;
+    --widget-error: #ef5350; /* */
 
-        --popup-body-bg: #252525;
-        --popup-background-color: #2d2d2d;
-        --popup-border-color: #444;
-        --popup-text-color: #e0e0e0;
-        --popup-card-background-color: #3a3a3a;
-        --popup-card-border-color: #444;
-        --popup-info-block-bg: #3a3a3a;
-        --popup-info-block-border-color: #444;
-        --popup-tag-bg: #555;
-        --popup-tag-text-color: #e0e0e0;
-        --popup-button-bg: #555;
-        --popup-button-text-color: #e0e0e0;
-        --popup-button-bg-hover: #666;
-        --popup-button-bg-active: #777;
-        --popup-footer-border-color: #444;
-        --popup-footer-text-color: #b0b0b0;
-        --popup-footer-link-color: #b0b0b0;
-        --popup-footer-link-hover-color: #e0e0e0;
-        --popup-footer-secondary-text-color: #888;
-        --popup-footer-secondary-link-color: #888;
-        --popup-footer-secondary-link-hover-color: #b0b0b0;
+    --settings-body-bg: #18181a;
+    --settings-container-bg: #202021;
+    --settings-container-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --settings-header-border-bottom-color: #444;
+    --settings-container-h4-color: #e0e0e0;
+    --settings-container-h3-color: #e0e0e0;
+    --settings-item-label-color: #b0b0b0;
+    --settings-save-button-bg-color: #555;
+    --settings-save-button-bg-color-hover: #666;
+    --settings-prozen-footer-border-top-color: #444;
+    --settings-prozen-footer-a-color: #b0b0b0;
+    --settings-prozen-footer-a-color-hover: #e0e0e0;
 
-        /* Чекбокс */
-        --popup-checkbox-bg: #3a3a3a;
-        --popup-checkbox-border-color: #777;
-        --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        --popup-checkbox-hover-border-color: #888;
-        --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-        --popup-checkbox-checked-bg: #666;
-        --popup-checkbox-checked-border-color: #888;
-        --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23e0e0e0' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+    --popup-body-bg: #252525;
+    --popup-background-color: #2d2d2d;
+    --popup-border-color: #444;
+    --popup-text-color: #e0e0e0;
+    --popup-card-background-color: #3a3a3a;
+    --popup-card-border-color: #444;
+    --popup-info-block-bg: #3a3a3a;
+    --popup-info-block-border-color: #444;
+    --popup-tag-bg: #555;
+    --popup-tag-text-color: #e0e0e0;
+    --popup-button-bg: #555;
+    --popup-button-text-color: #e0e0e0;
+    --popup-button-bg-hover: #666;
+    --popup-button-bg-active: #777;
+    --popup-footer-border-color: #444;
+    --popup-footer-text-color: #b0b0b0;
+    --popup-footer-link-color: #b0b0b0;
+    --popup-footer-link-hover-color: #e0e0e0;
+    --popup-footer-secondary-text-color: #888;
+    --popup-footer-secondary-link-color: #888;
+    --popup-footer-secondary-link-hover-color: #b0b0b0;
 
-        /* Статистика */
-        --stats-body-bg: #2d2d2d;
-        --stats-text-color: #e0e0e0;
-        --stats-container-bg: #3a3a3a;
-        --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        --stats-header-color: #e0e0e0;
-        --stats-filters-label-color: #b0b0b0;
-        --stats-section-title-color: #d0d0d0;
-        --stats-list-bg: #444;
-        --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        --stats-item-text-color: #e0e0e0;
-        --stats-item-value-color: #fff;
-        --stats-row-text-color: #b0b0b0;
-        --stats-main-value-color: #e0e0e0;
-        --stats-secondary-value-color: #888;
+    /* Чекбокс */
+    --popup-checkbox-bg: #3a3a3a;
+    --popup-checkbox-border-color: #777;
+    --popup-checkbox-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --popup-checkbox-hover-border-color: #888;
+    --popup-checkbox-hover-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    --popup-checkbox-checked-bg: #666;
+    --popup-checkbox-checked-border-color: #888;
+    --popup-checkbox-checked-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23e0e0e0' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
 
-        /* Угловой блок */
-        --corner-block-text-color: #b0b0b0;
-        --corner-link-color: #b0b0b0;
-        --corner-link-hover-color: #c0c0c0;
+    /* Статистика */
+    --stats-body-bg: #18181a; /*#2d2d2d; */
+    --stats-text-color: #e0e0e0;
 
-        /* Поиск */
-        --search-body-bg: #2d2d2d;
-        --search-container-bg: #3a3a3a;
-        --search-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        --search-header-bg: #3a3a3a;
-        --search-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        --search-text-color: #e0e0e0;
-        --search-input-border-color: #555;
-        --search-button-bg: #5a6268;
-        --search-button-bg-hover: #4a5258;
-        --search-button-active-bg: #3a4248;
-        --search-button-text-color: #e0e0e0;
-        --search-filter-label-color: #b0b0b0;
-        --search-result-item-bg-color: #444;
-        --search-result-item-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        --search-result-item-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-        --search-result-title-color: #e0e0e0;
-        --search-result-description-color: #b0b0b0;
-        --search-status-tag-bg: #555;
-        --search-status-tag-text-color: #e0e0e0;
-        --search-status-emoji-bg: #666;
-        --search-status-emoji-text-color: #b0b0b0;
-        --search-secondary-button-bg: #555;
-        --search-secondary-button-bg-hover: #666;
-        --search-secondary-button-text-color: #e0e0e0;
+    --stats-container-bg: #202021; /*#3a3a3a;*/
+    --stats-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --stats-header-color: #e0e0e0;
+    --stats-filters-label-color: #b0b0b0;
+    --stats-section-title-color: #d0d0d0;
+    --stats-list-bg: #252526;
+    --stats-list-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --stats-item-text-color: #e0e0e0;
+    --stats-item-value-color: #fff;
+    --stats-row-text-color: #b0b0b0;
+    --stats-main-value-color: #e0e0e0;
+    --stats-secondary-value-color: #888;
 
-        /* Кнопка с выпадающим списком (меню) */
-        --dbutton-bg: #222;
-        --dbutton-text: #ddd;
-        --dbutton-menu-bg: #444;
-        --dbutton-menu-text: #fff;
-        --dbutton-menu-hover-bg: #666;
-        --dbutton-dropdown-bg: #555;
-        --dbutton-dropdown-text: #eee;
-        --dbutton-dropdown-border: 1px solid #777;
-        --dbutton-dropdown-hover-bg: #666;
-        --dbutton-dropdown-hover-text: #fff;
-        --dbutton-dropdown-active-bg: #777;
-        --dbutton-dropdown-active-text: #fff;
+    /* Угловой блок */
+    --corner-block-text-color: #b0b0b0;
+    --corner-link-color: #b0b0b0;
+    --corner-link-hover-color: #c0c0c0;
 
-        --lbutton-bg: #444;
-        --lbutton-text: #ddd;
-        --lbutton-border: 1px solid #777;
-        --lbutton-hover-bg: #555;
-        --lbutton-hover-text: #fff;
-        --lbutton-active-bg: #666;
-        --lbutton-active-text: #fff;
+    /* Поиск */
+    --search-body-bg: #18181a;
+    --search-container-bg: #202021;
+    --search-container-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --search-header-bg: #252526;
+    --search-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --search-text-color: #e0e0e0;
+    --search-input-border-color: #555;
+    --search-button-bg: #5a6268;
+    --search-button-bg-hover: #4a5258;
+    --search-button-active-bg: #3a4248;
+    --search-button-text-color: #e0e0e0;
+    --search-filter-label-color: #b0b0b0;
+    --search-result-item-bg-color: #252526;
+    --search-result-item-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --search-result-item-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --search-result-title-color: #e0e0e0;
+    --search-result-description-color: #b0b0b0;
+    --search-status-tag-bg: #555;
+    --search-status-tag-text-color: #e0e0e0;
+    --search-status-emoji-bg: #666;
+    --search-status-emoji-text-color: #b0b0b0;
+    --search-secondary-button-bg: #555;
+    --search-secondary-button-bg-hover: #666;
+    --search-secondary-button-text-color: #e0e0e0;
 
-        /* Кнопка меню (гамбургер) */
-        --menu-button-color: #e0e0e0;
-        --menu-button-hover-color: #b0b0b0;
+    /* Кнопка с выпадающим списком (меню) */
+    --dbutton-bg: #222;
+    --dbutton-text: #ddd;
+    --dbutton-menu-bg: #444;
+    --dbutton-menu-text: #fff;
+    --dbutton-menu-hover-bg: #666;
+    --dbutton-dropdown-bg: #555;
+    --dbutton-dropdown-text: #eee;
+    --dbutton-dropdown-border: 1px solid #777;
+    --dbutton-dropdown-hover-bg: #666;
+    --dbutton-dropdown-hover-text: #fff;
+    --dbutton-dropdown-active-bg: #777;
+    --dbutton-dropdown-active-text: #fff;
 
-        --tristate-checbox-filter: invert(48%) sepia(0%) saturate(0%) hue-rotate(67deg) brightness(97%) contrast(89%);
-    }
+    --lbutton-bg: #444;
+    --lbutton-text: #ddd;
+    --lbutton-border: 1px solid #777;
+    --lbutton-hover-bg: #555;
+    --lbutton-hover-text: #fff;
+    --lbutton-active-bg: #666;
+    --lbutton-active-text: #fff;
 
+    /* Кнопка меню (гамбургер) */
+    --menu-button-color: #e0e0e0;
+    --menu-button-hover-color: #b0b0b0;
 
+    --tristate-checbox-filter: invert(48%) sepia(0%) saturate(0%) hue-rotate(67deg) brightness(97%) contrast(89%);
+
+    /* Карточки */
+    --card-text: #d0d0d0;
+
+    /* Выпадающее меню */
+    --dbmenu-bg: #29292b;
+    --dbmenu-text: #ddd;
+    --dbmenu-hover-bg: #444;
+    --dbmenu-shadow: rgba(0, 0, 0, 0.4);
 }
+
 
 /*
 .icon_calendar {
@@ -653,12 +667,11 @@ html body .ui-lib-header__item._type_left {
     width: 24px;
 }
 
-/* Тёмная тема: кнопки меню в сайдбаре */
-/* @media (prefers-color-scheme: dark) {
-    .prozen_menu_stats,.prozen_menu_metrika, .prozen_menu_search, .prozen_menu_robot {
-        filter: invert(1);
-    }
-} */
+
+.prozen_menu_stats, .prozen_menu_metrika, .prozen_menu_search, .prozen_menu_robot {
+    filter: var(--filter-invert-on-dark);
+}
+
 
 .prozen_menu_metrika {
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E%3Csvg width='24' height='24' viewBox='0 0 6.3499999 6.3500002' version='1.1' id='svg5' inkscape:version='1.1 (c68e22c387, 2021-05-23)' sodipodi:docname='metrika.svg' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Csodipodi:namedview id='namedview7' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageshadow='2' inkscape:pageopacity='0.0' inkscape:pagecheckerboard='0' inkscape:document-units='mm' showgrid='false' units='px' inkscape:zoom='21.465993' inkscape:cx='14.231813' inkscape:cy='8.8745021' inkscape:window-width='1920' inkscape:window-height='1017' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' inkscape:current-layer='layer1' /%3E%3Cdefs id='defs2' /%3E%3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1'%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.424;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855' width='1.4922633' height='4.5755897' x='4.5158157' y='1.0335689' /%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.416683;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855-4' width='1.4993167' height='3.1467674' x='2.4327016' y='2.4234135' /%3E%3Crect style='fill:none;stroke:%23000000;stroke-width:0.408389;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none' id='rect855-4-5' width='1.5076107' height='1.7398919' x='0.34896758' y='3.8803298' /%3E%3C/g%3E%3C/svg%3E%0A");
@@ -1019,13 +1032,14 @@ html body .ui-lib-header__item._type_left {
     color: var(--widget-error, #f44336);
 }
 
+/* Выпадающее меню */
 .prozen-dropdown-menu {
     display: none;
     position: absolute;
     right: 0;
     top: 100%;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--dbmenu-bg);
+    box-shadow: 0 4px 8px var(--dbmenu-shadow);
     list-style: none;
     padding: 8px 0;
     margin: 0;
@@ -1040,7 +1054,7 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-dropdown-menu li {
     padding: 10px 16px;
-    color: #333;
+    color: var(--dbmenu-text);
     cursor: pointer;
     font-size: 14px;
     display: flex;
@@ -1051,7 +1065,7 @@ html body .ui-lib-header__item._type_left {
 }
 
 .prozen-dropdown-menu li:hover {
-    background-color: #f0f0f0;
+    background-color: var(--dbmenu-hover-bg);
 }
 
 .prozen-dropdown-menu span {
@@ -1081,6 +1095,7 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-menu-metrika {
@@ -1088,6 +1103,7 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-menu-search {
@@ -1095,6 +1111,7 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-menu-robot {
@@ -1102,6 +1119,7 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-menu-telegram {
@@ -1109,6 +1127,7 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-menu-options {
@@ -1116,18 +1135,19 @@ html body .ui-lib-header__item._type_left {
     height: 20px;
     width: 20px;
     display: inline-block;
+    filter: var(--filter-invert-on-dark);
 }
 
 
 /* Основные стили для всей карточки */
 .prozen-card {
-    background-color: #f9f9f9; /* Светло-серый фон */
-    border-radius: 8px; /* Скруглённые углы */
-    padding: 16px; /* Внутренние отступы */
-    margin-bottom: 16px; /* Отступ между карточками */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
     font-family: 'Arial', sans-serif; /* Шрифт */
-    color: #333; /* Основной цвет текста */
+    color: #333;
 }
 
 /* Контейнер для колонок */
@@ -1157,6 +1177,7 @@ html body .ui-lib-header__item._type_left {
     height: 12px;
     background-size: contain;
     background-repeat: no-repeat;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-card-icon.button {
@@ -1173,7 +1194,7 @@ html body .ui-lib-header__item._type_left {
     white-space: nowrap;
     overflow: hidden;
     font-size: 12px;
-    color: #555;
+    color: var(--card-text);
 }
 
 .prozen-card-title {
@@ -1216,6 +1237,7 @@ html body .ui-lib-header__item._type_left {
     height: 12px;
     background-size: contain;
     background-repeat: no-repeat;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen-grid-card-icon.button {
@@ -1232,7 +1254,7 @@ html body .ui-lib-header__item._type_left {
     white-space: nowrap;
     overflow: hidden;
     font-size: 12px;
-    color: #555;
+    color: var(--card-text);
 }
 
 
@@ -1382,7 +1404,7 @@ html body .ui-lib-header__item._type_left {
     justify-content: space-between;
     padding-top: 10px;
     border-top: 1px solid;
-    border-top-color: var(--settings-prozen-footer-border-top-color,#ddd);
+    border-top-color: var(--settings-prozen-footer-border-top-color, #ddd);
     margin-top: 20px;
     font-size: 14px;
 }
@@ -1785,7 +1807,7 @@ html body .ui-lib-header__item._type_left {
     font-size: var(--dbutton-font-size);
     border: none;
     cursor: pointer;
-    border-radius: var(--dbutton-border-radius);
+    border-radius: 4px;
 }
 
 .prozen-dbutton-menu {
@@ -1795,7 +1817,7 @@ html body .ui-lib-header__item._type_left {
     min-width: 160px;
     box-shadow: var(--dbutton-shadow);
     z-index: 1;
-    border-radius: var(--dbutton-border-radius);
+    border-radius: 4px;
 }
 
 .prozen-dbutton-menu-item {
@@ -1820,7 +1842,7 @@ html body .ui-lib-header__item._type_left {
     color: var(--dbutton-dropdown-text);
     font-size: 14px;
     border: var(--dbutton-dropdown-border);
-    border-radius: var(--dbutton-border-radius);
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-left: 5px;
@@ -1839,11 +1861,11 @@ html body .ui-lib-header__item._type_left {
 
 /* Второстепенная (светлая) кнопка */
 .prozen-light-button {
-    padding: var(--lbutton-padding);
+    padding: 8px;
     background-color: var(--lbutton-bg);
     color: var(--lbutton-text);
     border: var(--lbutton-border);
-    border-radius: var(--lbutton-border-radius);
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-left: 5px;
@@ -1926,6 +1948,7 @@ html body .ui-lib-header__item._type_left {
 .popup-body {
     background-color: var(--popup-body-bg, #fff);
 }
+
 .prozen-popup-container {
     width: 350px;
     padding: 5px;
@@ -2462,8 +2485,11 @@ html body .ui-lib-header__item._type_left {
 
 .prozen-tristate-checkbox {
     filter: var(--tristate-checbox-filter);
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
+    margin-left: 3px;
+    background-color: rgba(255, 255, 255, 20%);
+    border-radius: 50%;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -2482,14 +2508,3 @@ html body .ui-lib-header__item._type_left {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CclipPath id='halfClip'%3E%3Crect x='0' y='0' width='12' height='24' /%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10.5' stroke='black' stroke-width='3' fill='none' /%3E%3Ccircle cx='12' cy='12' r='10.5' fill='black' clip-path='url(%23halfClip)' /%3E%3C/svg%3E%0A");
 }
 
-.prozen-tristate-checkbox::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border-radius: 50%; /* Делаем круг */
-    z-index: -1; /* Отправляем фон назад */
-}

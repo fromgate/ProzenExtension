@@ -1,8 +1,7 @@
 package status
 
 import common.*
-import common.components.dropButton
-import common.components.prozenCornerInfoBlock
+import common.components.*
 import common.progress.ProgressBar
 import common.progress.Spinner
 import kotlinx.browser.document
@@ -324,6 +323,8 @@ fun selectedToPeriod(selected: String): Pair<Instant, Instant>? {
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
     GlobalScope.launch {
+        val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()
+        setVisualTheme(currentTheme.toTheme())
         val root = document.getElementById("status-root") as? HTMLElement
         loadChannelId()
         root?.let { createSearchPage(it) }

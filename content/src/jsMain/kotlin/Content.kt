@@ -85,6 +85,8 @@ val event = e as? MessageEvent ?: return
 
     console.dInfo("pageType: $pageType")
 
+    setVisualTheme()
+
     val contentRunner: ContentRunner? = when (pageType) {
         ARTICLE -> {
             Article(request!!, data!!)

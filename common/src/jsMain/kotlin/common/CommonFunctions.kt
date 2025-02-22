@@ -1,5 +1,8 @@
 package common
 
+import common.components.TriState
+import common.components.themeToTristate
+import common.components.toTheme
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -162,4 +165,26 @@ fun convertDzenUrlToOk(dzenUrl: String): String? {
 
 fun isFirefox(): Boolean {
     return chrome.runtime.getManifest().description?.contains("Firefox") == true
+}
+
+suspend fun setVisualThemeOpt() {
+    val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()
+    setVisualTheme(currentTheme.toTheme())
+}
+
+fun setVisualTheme(defaultTheme: String = "system") {
+    val root = document.documentElement ?: return
+    root.classList.remove("prozen-light", "prozen-dark")
+    val theme = when {
+        root.className.contains("dark") -> "dark"
+        root.className.contains("light") -> "light"
+        else -> defaultTheme
+    }
+    val newClass = when (theme) {
+        "light" -> "prozen-light"
+        "dark" -> "prozen-dark"
+        "system" -> if (window.matchMedia("(prefers-color-scheme: dark)").matches) "prozen-dark" else "prozen-light"
+        else -> return
+    }
+    root.classList.add(newClass)
 }

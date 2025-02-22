@@ -1,10 +1,10 @@
-import common.Option
-import common.Options
-import common.components.prozenCornerInfoBlock
-import common.components.triStateCheckbox
-import common.isFirefox
-import common.showNotification
+
+import common.*
+import common.components.*
 import kotlinx.browser.document
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
@@ -14,7 +14,9 @@ import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.asList
 import org.w3c.dom.events.KeyboardEvent
 
-fun createSettingsPage(root: HTMLElement) {
+@OptIn(DelicateCoroutinesApi::class)
+suspend fun createSettingsPage(root: HTMLElement, currentTheme: TriState) {
+
     root.append {
         div(classes = "prozen-settings-container") {
 
@@ -24,10 +26,24 @@ fun createSettingsPage(root: HTMLElement) {
                 h3 { +"Продзен: настройки расширения" }
             }
 
+
+
             // Настройки
             val groups = Option.entries.asSequence().map { it.group }.filter { it != "hidden" }.toSet()
             val isFirefox = isFirefox()
             val firefoxRelated = setOf(Option.SHORT_DASHBOARD_REALTIME, Option.COMMENTS_WIDGET, Option.PROMOTE_SHOW)
+            div(classes = "prozen-settings-item") {
+                triStateCheckbox(componentId = "prozen-theme", label = currentTheme.toThemeName().second, initialState = currentTheme) {
+                    val labelSpan = document.getElementById("prozen-theme-label") as? HTMLSpanElement
+                    val (theme, themeName) = it.toThemeName()
+                    console.dLog(theme)
+                    labelSpan?.let { label ->
+                        label.innerText = themeName
+                    }
+                    setVisualTheme (theme)
+                    GlobalScope.launch { saveToStorage("prozen-theme", theme) }
+                }
+            }
             groups.forEach { group ->
                 if (group != "default") {
                     h4 { +group }
@@ -54,20 +70,6 @@ fun createSettingsPage(root: HTMLElement) {
                     }
                 }
             }
-
-            h4 { +"Оформление" }
-            div(classes = "prozen-settings-item") {
-
-
-                triStateCheckbox(componentId = "prozen-theme", label = "Тема") {
-                    val labelSpan = document.getElementById("prozen-theme-label") as? HTMLSpanElement
-                    labelSpan?.let { label ->
-                        label.innerText = it.name
-                    }
-                    showNotification(it.name)
-                }
-            }
-
             // Кнопка Сохранить
             div(classes = "prozen-save-button-container") {
                 button(classes = "prozen-save-button") {
@@ -129,13 +131,18 @@ fun registerKeyEvents() {
 }
 
 
+@OptIn(DelicateCoroutinesApi::class)
 fun main() {
-    val rootElement = document.getElementById("settings-root") as HTMLElement
-    createSettingsPage(rootElement)
-    Options.load().then {
-        it.entries.forEach { (key, value) ->
-            (document.getElementById(key) as? HTMLInputElement)?.checked = value
+    GlobalScope.launch {
+        val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()
+        setVisualTheme(currentTheme.toTheme())
+        val rootElement = document.getElementById("settings-root") as HTMLElement
+        createSettingsPage(rootElement, currentTheme)
+        Options.load().then {
+            it.entries.forEach { (key, value) ->
+                (document.getElementById(key) as? HTMLInputElement)?.checked = value
+            }
         }
+        registerKeyEvents()
     }
-    registerKeyEvents()
 }

@@ -69,6 +69,11 @@ class Publications(val requester: Requester) {
         return id
     }
 
+    /* <li tabindex="-1" class="Menu-Item Menu-Item_type_menuitem" aria-selected="false" aria-disabled="false">
+    <a tabindex="-1" class="Menu-ItemInteractive"
+    href="/profile/editor/id/5a3def60e86a9e50b401ab4a/publications-stat?statType=publications&amp;publicationsPublicationType=article&amp;publicationId=67a643c26bcf180eb8c05cfd&amp;intervalType=infinite"><div class="Menu-MenuItemContent"><span class="Text Text_color_full Menu-MenuItemIcon"><svg viewBox="0 0 24 24"><use xlink:href="#statistics_78f1--react"></use></svg></span><div class="Menu-MenuItemTextContent">
+    <span class="Text Text_color_full Text_typography_text-16-20 Menu-MenuItemText">Посмотреть статистику</span></div></div></a></li>
+    * */
 
     private fun updateStudioCardElement(cardElement: HTMLElement, card: Card) {
         val statElement =
@@ -438,6 +443,17 @@ class Publications(val requester: Requester) {
         val parentNode = div?.parentNode?.parentNode as? HTMLElement
         return parentNode?.querySelector("div.editor--publication-card__stats-1k") as? HTMLElement
     }
+
+    /*
+            val statsLink = document.querySelector("div.editor--publication-card__menu-2h > span > div > ul > li:nth-child(3) > a[href*='publicationId=$publicationId']") as? HTMLLinkElement
+        if (statsLink != null) {
+            val parentStats = statsLink.parentNode?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode as? HTMLElement
+            console.log("parentStats")
+            console.log(parentStats?: "null")
+            if (parentStats != null)  return parentStats
+        }
+
+     */
 
     fun modifyGridCell (cellElement: HTMLElement, card: Card) {
         if (cellElement.hasAttribute("data-prozen-publication-id")) return

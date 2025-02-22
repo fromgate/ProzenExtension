@@ -1,6 +1,6 @@
+
 import common.*
-import common.components.dropButton
-import common.components.prozenCornerInfoBlock
+import common.components.*
 import common.progress.Spinner
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -223,9 +223,14 @@ fun getTypesToSearch(): List<String> {
 }
 
 
+@OptIn(DelicateCoroutinesApi::class)
 fun main() {
-    val rootElement = document.getElementById("search-root") as HTMLElement
-    createSearchPage(rootElement)
-    getChannelId()
-    loadSearchHistory()
+    GlobalScope.launch {
+        val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()
+        setVisualTheme(currentTheme.toTheme())
+        val rootElement = document.getElementById("search-root") as HTMLElement
+        createSearchPage(rootElement)
+        getChannelId()
+        loadSearchHistory()
+    }
 }

@@ -48,3 +48,21 @@ fun TagConsumer<HTMLElement>.triStateCheckbox(
         }
     }
 }
+
+fun TriState.toThemeName(): Pair<String,String> = when(this) {
+    TriState.UNCHECKED -> "light" to "Тема оформления: светлая"
+    TriState.CHECKED -> "dark" to "Тема оформления: тёмная"
+    TriState.INDETERMINATE -> "system" to "Тема оформления: системная"
+}
+
+fun TriState.toTheme(): String = when (this) {
+    TriState.UNCHECKED -> "light"
+    TriState.CHECKED -> "dark"
+    TriState.INDETERMINATE -> "system"
+}
+
+fun String?.themeToTristate(): TriState = when (this?.lowercase() ?: "system") {
+    "light" -> TriState.UNCHECKED
+    "dark" -> TriState.CHECKED
+    else -> TriState.INDETERMINATE
+}

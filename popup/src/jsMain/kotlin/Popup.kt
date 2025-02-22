@@ -1,5 +1,7 @@
+
 import common.Cache
 import common.Option
+import common.setVisualThemeOpt
 import kotlinx.browser.document
 import kotlinx.coroutines.*
 import kotlinx.dom.clear
@@ -179,6 +181,7 @@ fun showInfo() {
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
     GlobalScope.launch {
+        setVisualThemeOpt()
         createPopup()
         listOf (
             async { setLastPost() },
