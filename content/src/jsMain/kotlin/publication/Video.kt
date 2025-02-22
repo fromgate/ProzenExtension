@@ -40,7 +40,7 @@ class Video(requester: Requester, data: JsonObject) : PublicationPage(requester,
     override fun showStats() {
         val stats = this.stats ?: return
 
-        val infoBlock = document.querySelector("div.video-site--video-header__subtitle-1f") as? HTMLDivElement
+        val infoBlock = document.querySelector("div.video-site--card-channel-info__description-2R") as? HTMLDivElement
         infoBlock?.clear()
 
         infoBlock?.append {

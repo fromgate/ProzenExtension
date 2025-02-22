@@ -1,6 +1,7 @@
 /* Светлая тема по умолчанию */
 :root.prozen-light {
     --filter-invert-on-dark: none;
+    --filter-sad-robot: none;
 
     /* Виджет-информер «Состояние канала» */
     --widget-bg: #eff0f245;
@@ -150,12 +151,17 @@
     --dbmenu-hover-bg: #f0f0f0;
     --dbmenu-shadow: rgba(0, 0, 0, 0.1);
 
+    /* Статистика на публикация */
+    --publication-stats-item-text: #555;
+
 }
 
 /* Тёмная тема, если браузер поддерживает и пользователь предпочитает тёмную тему */
 
 :root.prozen-dark {
     --filter-invert-on-dark: invert(1);
+    --filter-invert-on-dark-bright: invert(1) brightness(1.2) contrast(1.5);
+    --filter-sad-robot: brightness(1.2) contrast(1.5) saturate(300%) hue-rotate(0deg);
 
     /* */
     --widget-bg: #202020; /*#2d2d2d;*/
@@ -297,6 +303,9 @@
     --dbmenu-text: #ddd;
     --dbmenu-hover-bg: #444;
     --dbmenu-shadow: rgba(0, 0, 0, 0.4);
+
+    /* Статистика на публикация */
+    --publication-stats-item-text: #d0d0d0;
 }
 
 
@@ -380,6 +389,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-invert-on-dark-bright);
 }
 
 .publication_icon_views {
@@ -401,6 +411,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-sad-robot);
 }
 
 
@@ -424,6 +435,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-invert-on-dark-bright);
 }
 
 .publication_icon_views_video {
@@ -447,6 +459,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-invert-on-dark-bright);
 }
 
 .publication_icon_read_time {
@@ -459,6 +472,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-invert-on-dark-bright);
 }
 
 .publication_icon_likes {
@@ -1771,6 +1785,7 @@ html body .ui-lib-header__item._type_left {
 
 /* Элементы статистики в статье */
 .prozen-article-stats {
+    color: var(--publication-stats-item-text);
     position: relative;
     display: flex;
     margin: 16px 0 0;
