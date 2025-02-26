@@ -424,6 +424,7 @@
     display: inline-block;
     vertical-align: middle;
     position: relative;
+    filter: var(--filter-sad-robot) !important;
 }
 
 .publication_icon_views_2 {
