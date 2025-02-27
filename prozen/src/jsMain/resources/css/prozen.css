@@ -658,6 +658,7 @@ html body .ui-lib-header__item._type_left {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    filter: var(--filter-invert-on-dark);
 }
 
 .prozen_navbar {

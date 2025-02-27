@@ -23,7 +23,7 @@ class Article(requester: Requester, data: JsonObject) : PublicationPage(requeste
 
     override fun showStats() {
         val stats = this.stats ?: return
-        val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-']") as? HTMLElement
+        val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-'], div[class^=content--article-render__info-]") as? HTMLElement
         infoBlock?.clear()
         infoBlock?.append {
             div("prozen-article-stats") {
