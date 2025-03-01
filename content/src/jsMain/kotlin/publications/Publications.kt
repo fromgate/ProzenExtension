@@ -464,9 +464,9 @@ class Publications(val requester: Requester) {
 
         val statElement = cellElement.querySelector("div[class^=editor--stats__block]") as? HTMLElement
         statElement?.clear()
-        val zIndex = 11
         statElement?.append {
             div("prozen-grid-card-stats") {
+                style = "z-index: 10;"
                 // Показы  | Лайки / Коменты
                 div("prozen-grid-card-row") {
                     div("prozen-grid-card-cell") {
