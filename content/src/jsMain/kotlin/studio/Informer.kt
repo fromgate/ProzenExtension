@@ -30,6 +30,7 @@ class Informer(val requester: Requester) {
             if (rightColumn != null) {
                 appendStyledInformer(rightColumn, data)
             } else {
+                console.dLog("Studio / Informer: rightColumn is null")
                 if (count <= 3) {
                     delay(500)
                     create(count + 1)
@@ -376,3 +377,43 @@ fun List<Triple<String, Double, Double>>.previousToLastNonZero(): Triple<String,
     val lastNonZeroIndex = this.indexOfLast { it.third != 0.0 }
     return if (lastNonZeroIndex > 0) this[lastNonZeroIndex - 1] else null
 }
+
+class InformerDataWaiter(
+    val strikes: Deferred<Pair<Boolean, Int>?>,
+    val channelLimited: Deferred<Boolean?>,
+    val channelUnIndexed: Deferred<Boolean?>,
+    val scr: Deferred<Double?>,
+    val blockedReaders: Deferred<Int?>,
+    val statsTime: Deferred<String?>,
+    val minuteCourse: Deferred<List<Triple<String, Double, Double>>>,
+    val zenReaderUrl: String,
+    val metrikaId: Deferred<Int?>,
+    val regTime: Deferred<Instant?>
+) {
+    suspend fun await(): InformerData {
+        return InformerData(
+            strikes = strikes.await()?.second,
+            channelLimited = channelLimited.await(),
+            channelUnIndexed = channelUnIndexed.await(),
+            scr = scr.await(),
+            blockedReaders = blockedReaders.await(),
+            statsTime = statsTime.await(),
+            minuteCourse = minuteCourse.await(),
+            zenReaderUrl = zenReaderUrl,
+            metrikaId = metrikaId.await(),
+            regTime = regTime.await()
+        )
+    }
+
+    suspend fun awaitStrikes(): Pair<Boolean, Int>? = strikes.await()
+    suspend fun awaitChannelLimited(): Boolean? = channelLimited.await()
+    suspend fun awaitChannelUnIndexed(): Boolean? = channelUnIndexed.await()
+    suspend fun awaitScr(): Double? = scr.await()
+    suspend fun awaitBlockedReaders(): Int? = blockedReaders.await()
+    suspend fun awaitStatsTime(): String? = statsTime.await()
+    suspend fun awaitMinuteCourse(): List<Triple<String, Double, Double>> = minuteCourse.await()
+    suspend fun awaitMetrikaId(): Int? = metrikaId.await()
+    suspend fun awaitRegTime(): Instant? = regTime.await()
+}
+
+

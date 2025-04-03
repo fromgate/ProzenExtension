@@ -16,7 +16,6 @@ import publication.Brief
 import publication.Shorts
 import publication.Video
 import requester.Requester
-import requester.RequesterCached
 import studio.Menu
 import studio.Studio
 import kotlin.js.json
@@ -66,6 +65,7 @@ val event = e as? MessageEvent ?: return
             Json.decodeFromDynamic<ProzenData>(event.data)
         } else return
     } catch (e: Exception) {
+        console.dLog ("prozen-data = null")
         null
     } ?: return
 
@@ -79,7 +79,7 @@ val event = e as? MessageEvent ?: return
         publisherId = getZenObject()?.first
     }
 
-    request = RequesterCached(publisherId, token)
+    request = Requester(publisherId, token) // RequesterCached(publisherId, token)
 
     val pageType = getPageType()
 

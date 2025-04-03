@@ -30,11 +30,12 @@ class Menu(val requester: Requester) : ContentRunner {
         GlobalScope.launch {
             if (!Option.PROZEN_MENU.value().await()) return@launch
             if (document.documentElement!!.clientHeight < 777) return@launch
-            val nabBar = document.querySelector("div[class^=editor--navbar__content]") as? HTMLElement
-            if (nabBar != null) {
+            val navBar = document.querySelector("div[class^=editor--navbar__content]") as? HTMLElement
+            if (navBar != null) {
                 getData()
-                appendMenu(nabBar)
+                appendMenu(navBar)
             } else {
+                console.dLog("Studio / Menu: navBar is null")
                 delay(500)
                 create(count + 1)
             }

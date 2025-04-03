@@ -292,6 +292,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         return if (response.status == HttpStatusCode.OK) {
             Json.decodeFromString<T>(response.bodyAsText())
         } else {
+            console.dLog("Failed to get json from request: $requestUrl")
             null
         }
     }
