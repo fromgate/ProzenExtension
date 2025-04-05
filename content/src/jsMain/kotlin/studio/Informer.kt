@@ -43,28 +43,28 @@ class Informer(val requester: Requester) {
 
     suspend fun getData(): InformerData = coroutineScope {
         console.dLog("Informer / getData()")
-        val date = Clock.System.now()
-        val todayStr = date.toYYYYMD()
-        val before7 = date.minus(7.days)
-        val before7Str = before7.toYYYYMD()
-        val before30 = date.minus(30.days)
-        val before30Str = before30.toYYYYMD()
+
+        val now = Clock.System.now()
+        val todayStr = now.toYYYYMD()
+        val before7Str = now.minus(7.days).toYYYYMD()
+        val before30Str = now.minus(30.days).toYYYYMD()
+
         val channelUrl = getSignificantUrl(window.location.href).replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
-        val channelDataDeferred = async { requester.getChannelData() }
-        val strikesDeferred = async { requester.getStrikesInfo() }
-        val scrDeferred = async { requester.getScr(before30Str, todayStr) }
-        val blockedReadersDeferred = async { requester.getBannedUsers() }
-        val statsTimeDeferred = async { requester.getStatsActuality() }
-        val minuteCourseDeferred = async { requester.getTimespentRewards(before7Str, todayStr) }
-        val channelUnIndexedDeferred = async { checkNoIndexUrl(channelUrl) }
+        val channelDataDeferred = async { safe("channelData") { requester.getChannelData() } }
+        val strikesDeferred = async { safe("strikes") { requester.getStrikesInfo() } }
+        val scrDeferred = async { safe("scr") { requester.getScr(before30Str, todayStr) } }
+        val blockedReadersDeferred = async { safe("blockedReaders") { requester.getBannedUsers() } }
+        val statsTimeDeferred = async { safe("statsTime") { requester.getStatsActuality() } }
+        val minuteCourseDeferred = async { safe("minuteCourse") { requester.getTimespentRewards(before7Str, todayStr) } }
+        val channelUnIndexedDeferred = async { safe("channelUnIndexed") { checkNoIndexUrl(channelUrl) } }
 
         val strikes = strikesDeferred.await()
         val scr = scrDeferred.await()
         val blockedReaders = blockedReadersDeferred.await()
         val statsTime = statsTimeDeferred.await()
-        val minuteCourse = minuteCourseDeferred.await()
+        val minuteCourse = minuteCourseDeferred.await() ?: emptyList()
         val channelUnIndexed = channelUnIndexedDeferred.await()
         val channelData = channelDataDeferred.await()
 
@@ -80,9 +80,18 @@ class Informer(val requester: Requester) {
             statsTime = statsTime,
             minuteCourse = minuteCourse,
             zenReaderUrl = zenReaderUrl,
-            metrikaId = channelData.first,
-            regTime = channelData.second
+            metrikaId = channelData?.first,
+            regTime = channelData?.second
         )
+    }
+
+    suspend fun <T> safe(label: String, block: suspend () -> T?): T? {
+        return try {
+            block()
+        } catch (e: Throwable) {
+            console.error("❌ Error in [$label]: ${e.message}")
+            null
+        }
     }
 
     fun appendStyledInformer(parent: HTMLElement, data: InformerData) {

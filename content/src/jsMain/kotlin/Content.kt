@@ -16,6 +16,7 @@ import publication.Brief
 import publication.Shorts
 import publication.Video
 import requester.Requester
+import requester.RequesterCached
 import studio.Menu
 import studio.Studio
 import kotlin.js.json
@@ -79,7 +80,7 @@ val event = e as? MessageEvent ?: return
         publisherId = getZenObject()?.first
     }
 
-    request = Requester(publisherId, token) // RequesterCached(publisherId, token)
+    request = RequesterCached(publisherId, token) //Requester(publisherId, token)
 
     val pageType = getPageType()
 

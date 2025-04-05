@@ -20,7 +20,13 @@ class Menu(val requester: Requester) : ContentRunner {
     var metrikaId: Int? = null
 
     suspend fun getData() {
-        metrikaId = requester.getChannelData().first
+        metrikaId = try {
+            requester.getChannelData().first
+        } catch (e: Exception) {
+            console.error("Menu / getData Failed to get channelData", e)
+            console.error(e)
+            null
+        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)

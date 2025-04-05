@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.minutes
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "UNCHECKED_CAST")
 class RequesterCached(publisherId: String?, token: String?) : Requester(publisherId, token) {
 
-    val cache = Cache (publisherId ?: "RequesterCache")
+    val cache = Cache(publisherId ?: "RequesterCache")
 
     override suspend fun getScr(from: String, to: String): Double? {
         return cache.getOrLoadFromCache("getScr", cache.calcExpirationTime(5.hours, true)) {
@@ -52,7 +52,11 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
     override suspend fun getChannelData(): Pair<Int?, Instant?> {
         var channelData: Pair<Int?, Instant?>? = (cache.getFromCache("getChannelData") as? Json)?.run {
             val metrikaCounterId = this["1"] as? Int?
-            val regTime = (this["2"] as? String?)?.parseInstant()
+            val regTime = try {
+                (this["2"] as? String?)?.parseInstant()
+            } catch (e: Exception) {
+                null
+            }
             if (regTime != null) {
                 Pair(metrikaCounterId, regTime)
             } else {
@@ -78,7 +82,8 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
         return (cache.getFromCache("getStrikesInfo") as? Json)?.run {
             Pair(this["1"] as Boolean, this["2"] as Int)
         } ?: super.getStrikesInfo()?.also {
-            cache.saveToCache("getStrikesInfo",
+            cache.saveToCache(
+                "getStrikesInfo",
                 json("1" to it.first, "2" to it.second),
                 cache.calcExpirationTime(5.minutes)
             )
