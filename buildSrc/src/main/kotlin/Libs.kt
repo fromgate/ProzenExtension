@@ -13,8 +13,8 @@ object Libs {
     const val kotlinxHtmlJs = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
 
     const val ktorClientCore = "io.ktor:ktor-client-core:${Versions.ktor}"
-    const val ktorClientJs =  "io.ktor:ktor-client-js:${Versions.ktor}"
+    const val ktorClientJs = "io.ktor:ktor-client-js:${Versions.ktor}"
     const val ktorClientSerialization = "io.ktor:ktor-client-serialization:${Versions.ktor}"
-    const val ktorClientSerializationKotlinxJson =  "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
+    const val ktorClientSerializationKotlinxJson = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
     const val ktorClientContentNegotiation = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
 }
