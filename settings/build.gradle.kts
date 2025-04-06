@@ -25,8 +25,8 @@ kotlin {
             dependencies {
                 implementation(project(":chrome"))
                 implementation(project(":common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.10.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.12.0")
+                implementation(Libs.kotlinxCoroutinesJs)
+                implementation(Libs.kotlinxHtmlJs)
             }
         }
     }
