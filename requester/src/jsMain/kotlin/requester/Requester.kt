@@ -51,7 +51,7 @@ open class Requester(val publisherId: String?, val token: String?) {
     open suspend fun getScr(from: String, to: String): Double? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?allPublications=true&addTimeFrom=$from&addTimeTo=$to&fields=typeSpecificViews&fields=deepViewsRate&fields=ctr&fields=vtr&fields=shares&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=viewMap&fields=subscribers&fields=subscribersDiff&fields=impressions&fields=deepViews&fields=sumInvolvedViewTimeSec&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&totalLimitedByIds=false&isSubscriber=true&pageSize=100&page=0&clid=320"
-        val data = getJson(requestUrl)
+        val data = getJsonSafe("getScr", requestUrl)
         val totalViews = data?.obj("total")?.obj("stats")?.int("impressions")?.toDouble()
         val openingSubscribers = data?.int("openingSubscribers")?.toDouble()
         val count = data?.int("publicationCount")?.toDouble()
@@ -72,7 +72,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         val rewards = mutableListOf<Triple<String, Double, Double>>()
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/income2?from=$from&to=$to&orderBy=totalIncome&ascending=false&page=0&pageSize=50&total=true"
-        val data = getJson(requestUrl)
+        val data = getJsonSafe("getTimespentRewards", requestUrl)
         val intervals = data?.arr("total.intervals")
         intervals?.forEach { interval ->
             val rewardData = interval.jsonObject
@@ -97,7 +97,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      * */
     open suspend fun getStrikesInfo(): Pair<Boolean, Int>? {
         val requestUrl = "https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=$publisherId&language=ru"
-        val data = getJson(requestUrl)
+        val data = getJsonSafe("getStrikesInfo", requestUrl)
         val channelBlock = data?.bool("channelRestricted")
         val limitations = data?.arr("limitations")?.size
         return if (channelBlock != null && limitations != null) {
@@ -112,14 +112,14 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getBannedUsers(): Int? {
         val requestUrl = "https://dzen.ru/api/comments/banned-users"
-        val data = getJson(requestUrl)
+        val data = getJsonSafe("getBannedUsers", requestUrl)
         return data?.arr("bannedUsers")?.size
     }
 
     open suspend fun getStatsActuality(): String? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?fields=views&publicationTypes=article&publisherId=$publisherId&allPublications=true&groupBy=flight&sortBy=addTime&sortOrderDesc=true&pageSize=1&page=0"
-        val jsonResponse = getJson(requestUrl)
+        val jsonResponse = getJsonSafe("getStatsActuality", requestUrl)
         val actuality = jsonResponse?.long("actuality")?.toInstant()
         return actuality?.toDDMMYYYYHHMM(2)
     }
@@ -136,7 +136,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getChannelData(): Pair<Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
-        val jsonResponse = getJson(requestUrl)
+        val jsonResponse = getJsonSafe("getChannelData",requestUrl)
         val publisher = jsonResponse?.obj("publisher")
         val metrikaCounterId = publisher?.int("privateData.metrikaCounterId")
         //val audience = publisher?.int("audience")
@@ -152,7 +152,7 @@ open class Requester(val publisherId: String?, val token: String?) {
     suspend fun getPublishedPublicationsCount(): Map<String, Int>? {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/${publisherId}/publications-count?publisherId=${publisherId}"
-        val data = getJson(requestUrl)
+        val data = getJsonSafe("getPublishedPublicationsCount", requestUrl)
         val items = data?.obj("items")
         return items?.keys?.associateBy({ it }, { items.obj(it)?.int("published") ?: 0 })
     }
@@ -215,7 +215,7 @@ open class Requester(val publisherId: String?, val token: String?) {
             view?.let { append("view", it) }
             publicationIdAfter?.let { append("publicationIdAfter", it) }
         }
-        val jsonObject = getJson(url.href)
+        val jsonObject = getJsonSafe("getPublicationsByView", url.href)
         return jsonObject?.let(::studioRequestDataToCards) ?: emptyList()
     }
 
@@ -234,7 +234,7 @@ open class Requester(val publisherId: String?, val token: String?) {
                 append("from", "2022-01-25")
             }
 
-            val jsonObject = getJson(url.href)
+            val jsonObject = getJsonSafe("getPublicationsStatsSubscribers", url.href)
             val pubData = jsonObject?.arr("publications")
 
             pubData?.forEach {
@@ -281,6 +281,27 @@ open class Requester(val publisherId: String?, val token: String?) {
             response.body()
         } else {
             null
+        }
+    }
+
+
+    suspend fun getJsonSafe(
+        label: String,
+        requestUrl: String,
+        customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
+    ): JsonObject?  {
+        return safe(label) {
+            getJson(requestUrl, customHeaders)
+        }
+    }
+
+    suspend inline fun <reified T> getDataSafe(
+        label: String,
+        requestUrl: String,
+        noinline customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
+    ): T? {
+        return safe(label) {
+            getData(requestUrl, customHeaders)
         }
     }
 

@@ -52,13 +52,13 @@ class Informer(val requester: Requester) {
         val channelUrl = getSignificantUrl(window.location.href).replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
-        val channelDataDeferred = async { safe("channelData") { requester.getChannelData() } }
-        val strikesDeferred = async { safe("strikes") { requester.getStrikesInfo() } }
-        val scrDeferred = async { safe("scr") { requester.getScr(before30Str, todayStr) } }
-        val blockedReadersDeferred = async { safe("blockedReaders") { requester.getBannedUsers() } }
-        val statsTimeDeferred = async { safe("statsTime") { requester.getStatsActuality() } }
-        val minuteCourseDeferred = async { safe("minuteCourse") { requester.getTimespentRewards(before7Str, todayStr) } }
-        val channelUnIndexedDeferred = async { safe("channelUnIndexed") { checkNoIndexUrl(channelUrl) } }
+        val channelDataDeferred = async { requester.getChannelData() }
+        val strikesDeferred = async { requester.getStrikesInfo() }
+        val scrDeferred = async { requester.getScr(before30Str, todayStr) }
+        val blockedReadersDeferred = async { requester.getBannedUsers() }
+        val statsTimeDeferred = async { requester.getStatsActuality() }
+        val minuteCourseDeferred = async {  requester.getTimespentRewards(before7Str, todayStr) }
+        val channelUnIndexedDeferred = async { checkNoIndexUrl(channelUrl) }
 
         val strikes = strikesDeferred.await()
         val scr = scrDeferred.await()
@@ -80,18 +80,9 @@ class Informer(val requester: Requester) {
             statsTime = statsTime,
             minuteCourse = minuteCourse,
             zenReaderUrl = zenReaderUrl,
-            metrikaId = channelData?.first,
-            regTime = channelData?.second
+            metrikaId = channelData.first,
+            regTime = channelData.second
         )
-    }
-
-    suspend fun <T> safe(label: String, block: suspend () -> T?): T? {
-        return try {
-            block()
-        } catch (e: Throwable) {
-            console.error("❌ Error in [$label]: ${e.message}")
-            null
-        }
     }
 
     fun appendStyledInformer(parent: HTMLElement, data: InformerData) {

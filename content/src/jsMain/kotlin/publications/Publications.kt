@@ -29,18 +29,26 @@ class Publications(val requester: Requester) {
      *
      */
     fun processDashboardCards(pageSize: Int) {
+        if (document.querySelector("[data-prozen-updated]") != null) return
         GlobalScope.launch {
-            val cards = requester.getPublicationsByFilterAndSubscribers(pageSize).associateBy { it.id }
-            val studioPublicationsBlock =
-                document.querySelector("div[class^=editor--last-publications__lastPublications-] > div > div")
-            val publicationsBlocks = studioPublicationsBlock
-                ?.querySelectorAll("a")
-                ?.asList()
-                ?.filterIsInstance<HTMLElement>()
-            publicationsBlocks?.forEach { publicationBlock ->
-                val id = getPublicationBlockId(publicationBlock)
-                val card = id?.let { cards[it] }
-                card?.let { updateStudioCardElement(publicationBlock, it) }
+            try {
+                val cards = requester.getPublicationsByFilterAndSubscribers(pageSize).associateBy { it.id }
+                val studioPublicationsBlock =
+                    document.querySelector("div[class^=editor--last-publications__lastPublications-] > div > div")
+                val publicationsBlocks = studioPublicationsBlock
+                    ?.querySelectorAll("a")
+                    ?.asList()
+                    ?.filterIsInstance<HTMLElement>()
+                publicationsBlocks?.forEach { publicationBlock ->
+                    val id = getPublicationBlockId(publicationBlock)
+                    val card = id?.let { cards[it] }
+                    card?.let { updateStudioCardElement(publicationBlock, it) }
+                }
+                if (!publicationsBlocks.isNullOrEmpty()) {
+                    studioPublicationsBlock.setAttribute("data-prozen-updated", "true")
+                }
+            } catch (e: Exception) {
+                console.error("❌ Error in [processDashboardCards]: ${e.message}")
             }
         }
     }

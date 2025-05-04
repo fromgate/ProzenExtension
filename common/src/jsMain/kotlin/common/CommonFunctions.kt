@@ -188,3 +188,12 @@ fun setVisualTheme(defaultTheme: String = "system") {
     }
     root.classList.add(newClass)
 }
+
+suspend fun <T> safe(label: String, block: suspend () -> T?): T? {
+    return try {
+        block()
+    } catch (e: Throwable) {
+        console.error("❌ Error in [$label]: ${e.message}")
+        null
+    }
+}

@@ -5,11 +5,9 @@ import common.Option
 import common.dLog
 import common.isFirefox
 import kotlinx.browser.document
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.w3c.dom.css.CSSStyleSheet
+import publications.Publications
 import requester.Requester
 
 class Studio(val requester: Requester) : ContentRunner {
@@ -20,6 +18,8 @@ class Studio(val requester: Requester) : ContentRunner {
             modifyStudioStyles()
             Menu(requester).create()
             Informer(requester).create()
+            delay (1000)
+            Publications(requester).processDashboardCards(10)
         }
     }
 
