@@ -13,6 +13,7 @@
     --widget-warning: #ff6200;
     --widget-success: #4caf50;
     --widget-error: #f44336;
+    --widget-loading-dot: #555;
 
     /* Настройки */
     --settings-body-bg: #eaeaea;
@@ -173,6 +174,7 @@
     --widget-warning: #ffa726;
     --widget-success: #66bb6a;
     --widget-error: #ef5350; /* */
+    --widget-loading-dot: #b0b0b0;
 
     --settings-body-bg: #18181a;
     --settings-container-bg: #202021;
@@ -1022,6 +1024,44 @@ html body .ui-lib-header__item._type_left {
     font-weight: 500;
     color: var(--widget-title, #555);
 }
+
+/* Widget loading dots */
+.prozen-widget-loading-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.prozen-widget-loading-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--widget-loading-dot, #555);
+    opacity: 0.3;
+    animation: prozen-widget-blink 1.4s infinite ease-in-out;
+}
+
+.prozen-widget-loading-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+.prozen-widget-loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.prozen-widget-loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes prozen-widget-blink {
+    0%, 80%, 100% {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+}
+
+
 
 /* Link style */
 .prozen-widget-link {

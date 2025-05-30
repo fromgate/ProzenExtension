@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
-import org.w3c.dom.HTMLElement
+import org.w3c.dom.*
 import kotlin.math.pow
 import kotlin.math.round
 
@@ -130,4 +130,23 @@ fun Int.secToTimeString(): String {
     val minutesStr = if (minutes > 0) minutes.paucal("минута", "минуты", "минут") else ""
     val secondsStr = (this % 60).paucal("секунда", "секунды", "секунд")
     return "$hoursStr $minutesStr $secondsStr".trim()
+}
+
+
+fun <A, B> Pair<A?, B?>?.toNonNullPairOrNull(): Pair<A, B>? {
+    return if (this?.first != null && this.second != null) {
+        Pair(this.first!!, this.second!!)
+    } else null
+}
+
+fun Document.getSpanById(id: String): HTMLSpanElement? {
+    return this.getElementById(id) as? HTMLSpanElement
+}
+
+fun Document.getDivById(id: String): HTMLDivElement? {
+    return this.getElementById(id) as? HTMLDivElement
+}
+
+fun HTMLElement.getChildSpan(index: Int): HTMLSpanElement? {
+    return this.children[index] as? HTMLSpanElement
 }

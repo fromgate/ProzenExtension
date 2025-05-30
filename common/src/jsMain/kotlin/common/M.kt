@@ -21,4 +21,6 @@ object M {
     val publicationLikes by I18nDelegate()
     val publicationComments by I18nDelegate()
     val publicationOkLink by I18nDelegate()
+    val failedToGetData by I18nDelegate()
+    val widgetStrikeTitle by I18nDelegate()
 }

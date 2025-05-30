@@ -49,6 +49,12 @@
   },
   "publicationOkLink": {
     "message": "Ссылка на публикацию в ОК"
+  },
+  "failedToGetData": {
+    "message": "Не удалось получить данные!"
+  },
+  "widgetStrikeTitle": {
+    "message": "Информация получена на основе данных раздела «Предупреждения»"
   }
 
 }
