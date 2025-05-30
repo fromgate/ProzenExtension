@@ -340,8 +340,8 @@ class Informer(val requester: Requester) {
                                 titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(3)} ₽"
                             }
                             val date = last.first
-                            var course = "${last.third.format(3)}₽"
-                            var colorClass = when {
+                            val course = "${last.third.format(3)}₽"
+                            val colorClass = when {
                                 previous?.third == null -> null
                                 previous.third <= last.third -> "prozen-widget-success"
                                 else -> "prozen-widget-error"
