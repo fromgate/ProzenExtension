@@ -26,14 +26,13 @@ class Informer(val requester: Requester) {
     fun create(count: Int = 0) {
         console.dLog("Informer / create : count: $count")
         GlobalScope.launch {
-            if (!Option.INFORMER.value().await()) return@launch
-            val data = getDeferredData()
+            if (!Option.INFORMER.isSet()) return@launch
             if (document.getElementById("prozen-informer") != null) return@launch
             val rightColumn = document
                 .querySelector("div[class^=editor--author-studio-dashboard__rightContent-]") as? HTMLElement
             if (rightColumn != null) {
+                val data = getDeferredData()
                 appendInformer(rightColumn, data)
-                // appendStyledInformer(rightColumn, data)
             } else {
                 console.dLog("Studio / Informer: rightColumn is null")
                 if (count <= 10) {
@@ -62,7 +61,9 @@ class Informer(val requester: Requester) {
         val channelUrl = getSignificantUrl(window.location.href).replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
-        val channelDataDeferred = async { requester.getChannelData() }
+        //val channelDataDeferred = async { requester.getChannelData() }
+        val metrikaIdDeferred = async { requester.getMetrikaId() }
+        val regTimeDeferred = async { requester.getRegTime() }
         val strikesDeferred = async { requester.getStrikesInfo() }
         val scrDeferred = async { requester.getScr(before30Str, todayStr) }
         val blockedReadersDeferred = async { requester.getBannedUsers() }
@@ -77,7 +78,8 @@ class Informer(val requester: Requester) {
             statsTime = statsTimeDeferred,
             minuteCourse = minuteCourseDeferred,
             zenReaderUrl = zenReaderUrl,
-            metrikaAndRegtime = channelDataDeferred
+            metrikaId = metrikaIdDeferred,
+            regTime = regTimeDeferred,
         )
     }
 
@@ -289,18 +291,17 @@ class Informer(val requester: Requester) {
                         spanDots()
                     }
 
-                    data.withMetrikaAndRegtime {
-                        val metrikaId = it?.first
-                        val regtime = it?.second
-
-                        if (metrikaId != null) {
-                            metrikaUrl = "https://metrika.yandex.ru/dashboard?id=$metrikaId"
+                    data.withMetrikaId {
+                        if (it != null) {
+                            metrikaUrl = "https://metrika.yandex.ru/dashboard?id=$it"
                         }
+                    }
 
+                    data.withRegTime {
                         val regtimeDiv = document.getDivById("prozen-widget-regtime")
-                        if (regtime != null) {
+                        if (it != null) {
                             val regtimeSpan = regtimeDiv?.getChildSpan(1)
-                            regtimeSpan?.innerText = regtime.toDDMMYY()
+                            regtimeSpan?.innerText = it.toDDMMYY()
                         } else {
                             regtimeDiv?.remove()
                         }
@@ -616,7 +617,6 @@ class Informer(val requester: Requester) {
 
     fun closeMenu() {
         val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
-        // val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
         if (menu.classList.contains("prozen-menu-open")) {
             menu.classList.remove("prozen-menu-open")
             document.removeEventListener(
@@ -677,14 +677,13 @@ class InformerDataDeferred(
     val statsTime: Deferred<String?>,
     val minuteCourse: Deferred<List<Triple<String, Double, Double>>>,
     val zenReaderUrl: String,
-    val metrikaAndRegtime: Deferred<Pair<Int?, Instant?>>
+    val metrikaId: Deferred<Int?>,
+    val regTime: Deferred<Instant?>,
 ) {
 
     suspend fun await(): InformerData {
         val limitedAndStrikesValue = this.limitedAndStrikes.await()
-        val metrikaAndRegtimeValue = this.metrikaAndRegtime.await()
         return InformerData(
-
             strikes = limitedAndStrikesValue?.second,
             channelLimited = limitedAndStrikesValue?.first,
             channelUnIndexed = channelUnIndexed.await(),
@@ -693,8 +692,8 @@ class InformerDataDeferred(
             statsTime = statsTime.await(),
             minuteCourse = minuteCourse.await(),
             zenReaderUrl = zenReaderUrl,
-            metrikaId = metrikaAndRegtimeValue.first,
-            regTime = metrikaAndRegtimeValue.second
+            metrikaId = metrikaId.await(),
+            regTime = regTime.await()
         )
     }
 
@@ -722,10 +721,16 @@ class InformerDataDeferred(
         block(blockedReaders.await())
     }
 
-    fun withMetrikaAndRegtime(
-        block: suspend (Pair<Int?,Instant?>?) -> Unit
+    fun withMetrikaId(
+        block: suspend (Int?) -> Unit
     ): Job = GlobalScope.launch {
-        block(metrikaAndRegtime.await())
+        block(metrikaId.await())
+    }
+
+    fun withRegTime(
+        block: suspend (Instant?) -> Unit
+    ): Job = GlobalScope.launch {
+        block(regTime.await())
     }
 
     fun withStatsTime(

@@ -49,6 +49,7 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
         return rewards
     }
 
+    @Deprecated("Changed to getRegTime and getMetrikaId")
     override suspend fun getChannelData(): Pair<Int?, Instant?> {
         var channelData: Pair<Int?, Instant?>? = (cache.getFromCache("getChannelData") as? Json)?.run {
             val metrikaCounterId = this["1"] as? Int?
@@ -76,6 +77,18 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
             }
         }
         return channelData
+    }
+
+    override suspend fun getMetrikaId(): Int? {
+        return cache.getOrLoadFromCache("getMetrikaId", cache.calcExpirationTime(10.minutes)) {
+            super.getMetrikaId()
+        }
+    }
+
+    override suspend fun getRegTime(): Instant? {
+        return cache.getOrLoadFromCache("getRegTime", cache.calcExpirationTime(10.minutes)) {
+            super.getRegTime()
+        }
     }
 
     override suspend fun getStrikesInfo(): Pair<Boolean, Int>? {

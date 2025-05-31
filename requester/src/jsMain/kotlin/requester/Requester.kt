@@ -134,6 +134,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      *
      * @returns Pair<Int?, Long?> — счётчик метрики, время регистрации
      */
+    @Deprecated ("Changed to getRegTime and getMetrikaId")
     open suspend fun getChannelData(): Pair<Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
         val jsonResponse = getJsonSafe("getChannelData",requestUrl)
@@ -142,6 +143,28 @@ open class Requester(val publisherId: String?, val token: String?) {
         //val audience = publisher?.int("audience")
         val regTime = publisher?.long("regTime")?.toInstant()
         return Pair(metrikaCounterId, regTime)
+    }
+
+    /**
+     * Получить дату регистрации канала
+     *
+     * @returns Instant? — дата создания коанала
+     */
+    open suspend fun getRegTime(): Instant? {
+        val requestUrl = "https://dzen.ru/editor-api/v2/id/$publisherId/money"
+        val jsonResponse = getJsonSafe("getChannelData",requestUrl)
+        return  jsonResponse?.long("publisher.regTime")?.toInstant()
+    }
+
+    /**
+     * Получить номер счётчика Яндекс Метрики
+     *
+     * @returns Int? — номер счётчика
+     */
+    open suspend fun getMetrikaId(): Int? {
+        val requestUrl = "https://dzen.ru/editor-api/v3/publishers/$publisherId"
+        val jsonResponse = getJsonSafe("getMetrikaId", requestUrl)
+        return jsonResponse?.int("publisher.metrikaCounterId")
     }
 
     /**
