@@ -5,10 +5,7 @@ import common.components.themeToTristate
 import common.components.toTheme
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.await
-import kotlinx.coroutines.promise
+import kotlinx.coroutines.*
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLMetaElement
 import org.w3c.dom.asList
@@ -195,5 +192,11 @@ suspend fun <T> safe(label: String, block: suspend () -> T?): T? {
     } catch (e: Throwable) {
         console.error("❌ Error in [$label]: ${e.message}")
         null
+    }
+}
+
+suspend fun <T> Deferred<T>.awaitWithTimeout(timeoutMillis: Long): T {
+    return withTimeout(timeoutMillis) {
+        this@awaitWithTimeout.await()
     }
 }
