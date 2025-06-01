@@ -334,29 +334,34 @@ class Informer(val requester: Requester) {
                     }
 
                     data.withMinuteCourse {
-                        it.lastNonZero()?.let { last ->
-                            var titleText = "Стоимость минуты вовлечённого просмотра"
-                            val previous = it.previousToLastNonZero()
-                            if (previous != null) {
-                                titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(3)} ₽"
-                            }
-                            val date = last.first
-                            val course = "${last.third.format(3)}₽"
-                            val colorClass = when {
-                                previous?.third == null -> null
-                                previous.third <= last.third -> "prozen-widget-success"
-                                else -> "prozen-widget-error"
-                            }
-                            val courseDiv = document.getDivById("prozen-widget-minutecourse")
-                            courseDiv?.title = titleText
-                            courseDiv?.getChildSpan(0)?.innerText = "Курс минуты $date: "
-                            val courseSpan = courseDiv?.getChildSpan(1)
-                            courseSpan?.innerText = course
-                            if (colorClass != null) {
-                                courseSpan?.className = colorClass
-                            }
-                        }
+                        val courseDiv = document.getDivById("prozen-widget-minutecourse")
+                        val courseSpan = courseDiv?.getChildSpan(1)
+                        if (!it.isNullOrEmpty()) {
+                            it.lastNonZero()?.let { last ->
+                                var titleText = "Стоимость минуты вовлечённого просмотра"
+                                val previous = it.previousToLastNonZero()
+                                if (previous != null) {
+                                    titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(3)} ₽"
+                                }
+                                val date = last.first
+                                val course = "${last.third.format(3)}₽"
+                                val colorClass = when {
+                                    previous?.third == null -> null
+                                    previous.third <= last.third -> "prozen-widget-success"
+                                    else -> "prozen-widget-error"
+                                }
 
+                                courseDiv?.title = titleText
+                                courseDiv?.getChildSpan(0)?.innerText = "Курс минуты $date: "
+
+                                courseSpan?.innerText = course
+                                if (colorClass != null) {
+                                    courseSpan?.className = colorClass
+                                }
+                            }
+                        } else {
+                            courseSpan?.innerText = "?"
+                        }
                     }
                     data.zenReaderUrl.let {
                         div("prozen-widget-item") {
@@ -699,10 +704,10 @@ class InformerDataDeferred(
 
     fun <T> withDeferred(
         deferred: Deferred<T>,
-        block: suspend (T) -> Unit,
+        block: suspend (T?) -> Unit,
         timeoutMillis: Long = 0L
     ): Job = GlobalScope.launch {
-        if (timeoutMillis > 0) block(deferred.awaitWithTimeout(timeoutMillis)) else block(deferred.await())
+        if (timeoutMillis > 0) block(deferred.awaitWithTimeouOrNull(timeoutMillis)) else block(deferred.await())
     }
 
     fun withStrikes( block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
@@ -726,7 +731,7 @@ class InformerDataDeferred(
     fun withStatsTime(block: suspend (String?) -> Unit) =
         withDeferred(statsTime, block)
 
-    fun withMinuteCourse(block: suspend (List<Triple<String, Double, Double>>) -> Unit) =
+    fun withMinuteCourse(block: suspend (List<Triple<String, Double, Double>>?) -> Unit) =
         withDeferred(minuteCourse, block)
 
 }

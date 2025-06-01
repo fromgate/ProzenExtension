@@ -200,3 +200,9 @@ suspend fun <T> Deferred<T>.awaitWithTimeout(timeoutMillis: Long): T {
         this@awaitWithTimeout.await()
     }
 }
+
+suspend fun <T> Deferred<T>.awaitWithTimeouOrNull(timeoutMillis: Long): T? {
+    return withTimeoutOrNull(timeoutMillis) {
+        this@awaitWithTimeouOrNull.await()
+    }
+}
