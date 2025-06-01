@@ -697,51 +697,36 @@ class InformerDataDeferred(
         )
     }
 
-    fun withStrikes(
-        block: suspend (Pair<Boolean?, Int?>?) -> Unit
+    fun <T> withDeferred(
+        deferred: Deferred<T>,
+        block: suspend (T) -> Unit,
+        timeoutMillis: Long = 0L
     ): Job = GlobalScope.launch {
-        block(limitedAndStrikes.await())
+        if (timeoutMillis > 0) block(deferred.awaitWithTimeout(timeoutMillis)) else block(deferred.await())
     }
 
-    fun withChannelUnIndexed(
-        block: suspend (Boolean?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(channelUnIndexed.await())
-    }
+    fun withStrikes( block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
+        withDeferred(limitedAndStrikes, block)
 
-    fun withScr(
-        block: suspend (Double?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(scr.await())
-    }
+    fun withChannelUnIndexed(block: suspend (Boolean?) -> Unit) =
+        withDeferred(channelUnIndexed, block)
 
-    fun withBlockedReaders(
-        block: suspend (Int?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(blockedReaders.await())
-    }
+    fun withScr(block: suspend (Double?) -> Unit) =
+        withDeferred(scr, block)
 
-    fun withMetrikaId(
-        block: suspend (Int?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(metrikaId.await())
-    }
+    fun withBlockedReaders(block: suspend (Int?) -> Unit) =
+        withDeferred(blockedReaders, block)
 
-    fun withRegTime(
-        block: suspend (Instant?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(regTime.await())
-    }
+    fun withMetrikaId(block: suspend (Int?) -> Unit) =
+        withDeferred(metrikaId, block)
 
-    fun withStatsTime(
-        block: suspend (String?) -> Unit
-    ): Job = GlobalScope.launch {
-        block(statsTime.await())
-    }
+    fun withRegTime(block: suspend (Instant?) -> Unit) =
+        withDeferred(regTime, block, 3000L)
 
-    fun withMinuteCourse(
-        block: suspend (List<Triple<String, Double, Double>>) -> Unit
-    ): Job = GlobalScope.launch {
-        block(minuteCourse.await())
-    }
+    fun withStatsTime(block: suspend (String?) -> Unit) =
+        withDeferred(statsTime, block)
+
+    fun withMinuteCourse(block: suspend (List<Triple<String, Double, Double>>) -> Unit) =
+        withDeferred(minuteCourse, block)
+
 }
