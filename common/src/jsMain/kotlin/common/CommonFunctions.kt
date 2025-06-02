@@ -195,14 +195,8 @@ suspend fun <T> safe(label: String, block: suspend () -> T?): T? {
     }
 }
 
-suspend fun <T> Deferred<T>.awaitWithTimeout(timeoutMillis: Long): T {
-    return withTimeout(timeoutMillis) {
-        this@awaitWithTimeout.await()
-    }
-}
+suspend fun <T> Deferred<T>.awaitWithTimeout(timeoutMillis: Long): T =
+    withTimeout(timeoutMillis) { await() }
 
-suspend fun <T> Deferred<T>.awaitWithTimeoutOrNull(timeoutMillis: Long): T? {
-    return withTimeoutOrNull(timeoutMillis) {
-        this@awaitWithTimeoutOrNull.await()
-    }
-}
+suspend fun <T> Deferred<T>.awaitWithTimeoutOrNull(time: Long): T? =
+    withTimeoutOrNull(time) { await() }
