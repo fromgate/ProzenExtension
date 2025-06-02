@@ -5,6 +5,7 @@ import common.parseInstant
 import kotlinx.datetime.Instant
 import kotlin.js.Json
 import kotlin.js.json
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
@@ -80,13 +81,13 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
     }
 
     override suspend fun getMetrikaId(): Int? {
-        return cache.getOrLoadFromCache("getMetrikaId", cache.calcExpirationTime(10.minutes)) {
+        return cache.getOrLoadFromCache("getMetrikaId", cache.calcExpirationTime(24.hours)) {
             super.getMetrikaId()
         }
     }
 
     override suspend fun getRegTime(): Instant? {
-        return cache.getOrLoadFromCache("getRegTime", cache.calcExpirationTime(10.minutes)) {
+        return cache.getOrLoadFromCache("getRegTime", cache.calcExpirationTime(365.days)) {
             super.getRegTime()
         }
     }
