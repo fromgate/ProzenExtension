@@ -705,9 +705,8 @@ class InformerDataDeferred(
     fun <T> withDeferred(
         deferred: Deferred<T>,
         block: suspend (T?) -> Unit,
-        timeoutMillis: Long = 0L
     ): Job = GlobalScope.launch {
-        if (timeoutMillis > 0) block(deferred.awaitWithTimeouOrNull(timeoutMillis)) else block(deferred.await())
+        block(deferred.await())
     }
 
     fun withStrikes( block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
@@ -726,7 +725,7 @@ class InformerDataDeferred(
         withDeferred(metrikaId, block)
 
     fun withRegTime(block: suspend (Instant?) -> Unit) =
-        withDeferred(regTime, block, 3000L)
+        withDeferred(regTime, block)
 
     fun withStatsTime(block: suspend (String?) -> Unit) =
         withDeferred(statsTime, block)
