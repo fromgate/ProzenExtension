@@ -50,13 +50,12 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
         return rewards
     }
 
-    @Deprecated("Changed to getRegTime and getMetrikaId")
     override suspend fun getChannelData(): Pair<Int?, Instant?> {
         var channelData: Pair<Int?, Instant?>? = (cache.getFromCache("getChannelData") as? Json)?.run {
             val metrikaCounterId = this["1"] as? Int?
             val regTime = try {
                 (this["2"] as? String?)?.parseInstant()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
             if (regTime != null) {
@@ -65,7 +64,8 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                 null
             }
         }
-        if (channelData == null) {
+        // MetrikaId could be null
+        if (channelData == null || channelData.second == null) {
             channelData = super.getChannelData().also {
                 cache.saveToCache(
                     "getChannelData",
@@ -73,7 +73,7 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
                         "1" to it.first,
                         "2" to it.second.toString()
                     ),
-                    cache.calcExpirationTime(5.hours, true)
+                    cache.calcExpirationTime(24.hours, true)
                 )
             }
         }

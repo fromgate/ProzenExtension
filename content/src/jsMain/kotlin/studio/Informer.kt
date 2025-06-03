@@ -61,9 +61,10 @@ class Informer(val requester: Requester) {
         val channelUrl = getSignificantUrl(window.location.href).replace("profile/editor/", "")
         val zenReaderUrl = zenReaderUrl(channelUrl)
 
-        //val channelDataDeferred = async { requester.getChannelData() }
-        val metrikaIdDeferred = async { requester.getMetrikaId() }
-        val regTimeDeferred = async { requester.getRegTime() }
+        /* val metrikaIdDeferred = async { requester.getMetrikaId() }
+        val regTimeDeferred = async { requester.getRegTime() } */
+        val channelDataDeferred = async { requester.getChannelData() }
+
         val strikesDeferred = async { requester.getStrikesInfo() }
         val scrDeferred = async { requester.getScr(before30Str, todayStr) }
         val blockedReadersDeferred = async { requester.getBannedUsers() }
@@ -78,8 +79,7 @@ class Informer(val requester: Requester) {
             statsTime = statsTimeDeferred,
             minuteCourse = minuteCourseDeferred,
             zenReaderUrl = zenReaderUrl,
-            metrikaId = metrikaIdDeferred,
-            regTime = regTimeDeferred,
+            metrikaIdAndRegTime = channelDataDeferred
         )
     }
 
@@ -291,17 +291,16 @@ class Informer(val requester: Requester) {
                         spanDots()
                     }
 
-                    data.withMetrikaId {
-                        if (it != null) {
-                            metrikaUrl = "https://metrika.yandex.ru/dashboard?id=$it"
+                    data.withMetrikaIdAndRegTime {
+                        val metrikaId = it?.first
+                        if (metrikaId != null) {
+                            metrikaUrl = "https://metrika.yandex.ru/dashboard?id=$metrikaId"
                         }
-                    }
-
-                    data.withRegTime {
+                        val regTime = it?.second
                         val regtimeDiv = document.getDivById("prozen-widget-regtime")
-                        if (it != null) {
+                        if (regTime != null) {
                             val regtimeSpan = regtimeDiv?.getChildSpan(1)
-                            regtimeSpan?.innerText = it.toDDMMYY()
+                            regtimeSpan?.innerText = regTime.toDDMMYY()
                         } else {
                             regtimeDiv?.remove()
                         }
@@ -682,12 +681,14 @@ class InformerDataDeferred(
     val statsTime: Deferred<String?>,
     val minuteCourse: Deferred<List<Triple<String, Double, Double>>>,
     val zenReaderUrl: String,
-    val metrikaId: Deferred<Int?>,
-    val regTime: Deferred<Instant?>,
+    val metrikaIdAndRegTime: Deferred<Pair<Int?, Instant?>?>
+    /*val metrikaId: Deferred<Int?>,
+    val regTime: Deferred<Instant?>, */
 ) {
 
     suspend fun await(): InformerData {
         val limitedAndStrikesValue = this.limitedAndStrikes.await()
+        val metrikaIdAndRegTimeValue = this.metrikaIdAndRegTime.await()
         return InformerData(
             strikes = limitedAndStrikesValue?.second,
             channelLimited = limitedAndStrikesValue?.first,
@@ -697,8 +698,8 @@ class InformerDataDeferred(
             statsTime = statsTime.await(),
             minuteCourse = minuteCourse.await(),
             zenReaderUrl = zenReaderUrl,
-            metrikaId = metrikaId.await(),
-            regTime = regTime.await()
+            metrikaId = metrikaIdAndRegTimeValue?.first,
+            regTime = metrikaIdAndRegTimeValue?.second
         )
     }
 
@@ -706,7 +707,7 @@ class InformerDataDeferred(
         deferred: Deferred<T>,
         block: suspend (T?) -> Unit,
     ): Job = GlobalScope.launch {
-        block(deferred.await())
+        block(deferred.awaitWithTimeoutOrNull(3000L))
     }
 
     fun withStrikes( block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
@@ -721,11 +722,16 @@ class InformerDataDeferred(
     fun withBlockedReaders(block: suspend (Int?) -> Unit) =
         withDeferred(blockedReaders, block)
 
+    /*
     fun withMetrikaId(block: suspend (Int?) -> Unit) =
         withDeferred(metrikaId, block)
 
     fun withRegTime(block: suspend (Instant?) -> Unit) =
-        withDeferred(regTime, block)
+        withDeferred(regTime, block)*/
+
+    fun withMetrikaIdAndRegTime(block: suspend (Pair<Int?,Instant?>?) -> Unit) {
+        withDeferred(metrikaIdAndRegTime, block)
+    }
 
     fun withStatsTime(block: suspend (String?) -> Unit) =
         withDeferred(statsTime, block)
