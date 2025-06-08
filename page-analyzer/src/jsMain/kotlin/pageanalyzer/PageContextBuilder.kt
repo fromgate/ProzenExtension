@@ -243,7 +243,7 @@ class PageContextBuilder(private val document: Document) {
 suspend fun createPageContext(
     documentUrl: String,
     checks: List<PageCheck> = listOf(
-        CheckNoIndex, CheckAdv, CheckThematics, CheckCovid, CheckComments, CheckDmca
+        CheckNoIndex, CheckAdv, CheckThematics, CheckCovid, CheckComments, CheckDmca, CheckPremium
     ),
 ): PageContext {
     console.dLog("createPageContext: $documentUrl")
@@ -292,5 +292,3 @@ suspend fun createPageContext(
         }
     }
 }
-
-

@@ -106,3 +106,15 @@ object CheckDmca : PageCheck() {
         }
     }
 }
+
+object CheckPremium : PageCheck() {
+    override fun perform(context: PageContextBuilder) {
+        val visibilityType = context.embeddedJson?.string("ssrData/publishersResponse/data/data/publication/visibilityType")
+        console.log("visibilityType=$visibilityType")
+        if (visibilityType == "premium_subscribers_only") {
+            results[TypeCheck.PREMIUM] = true
+        } else {
+            results[TypeCheck.NOT_PREMIUM] = true
+        }
+    }
+}

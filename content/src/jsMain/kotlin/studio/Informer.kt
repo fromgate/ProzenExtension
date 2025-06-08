@@ -22,6 +22,7 @@ import kotlin.time.Duration.Companion.days
 
 class Informer(val requester: Requester) {
     var metrikaUrl = "https://metrika.yandex.ru/list"
+
     @OptIn(DelicateCoroutinesApi::class)
     fun create(count: Int = 0) {
         console.dLog("Informer / create : count: $count")
@@ -215,9 +216,9 @@ class Informer(val requester: Requester) {
                         val strikesData = it.toNonNullPairOrNull()
 
                         if (strikesData == null) {
-                            spanStrikes?.innerText = "?"
+                            spanStrikes?.innerText = "—"
                             spanStrikes?.title = M.failedToGetData
-                            spanBanned?.innerText = "?"
+                            spanBanned?.innerText = "—"
                             spanBanned?.title = M.failedToGetData
                         } else {
                             spanStrikes?.innerText = strikesData.second.toString()
@@ -239,15 +240,19 @@ class Informer(val requester: Requester) {
                         spanDots()
                     }
                     data.withChannelUnIndexed {
-                        val notIndexed = it == true
                         val indexDiv = document.getDivById("prozen-widget-noindex")
                         val indexSpan = indexDiv?.getChildSpan(1)
                         indexSpan?.clearDots()
-                        indexSpan?.innerText = if (notIndexed) "Нет 🤖" else "Есть"
-                        if (notIndexed) indexDiv?.title =
+                        indexSpan?.innerText = when (it) {
+                            true -> "Нет 🤖"
+                            false -> "Есть"
+                            else -> "—"
+                        }
+                        if (it == true) indexDiv?.title =
                             """Обнаружен мета-тег <meta name="robots" content="noindex" />
                                Главная страница канала не индексируется поисковиками.
                                Это нормальная ситуация для новых каналов.""".trimIndent()
+                        if (it == null) indexDiv?.title = M.failedToGetData
                     }
 
                     //withScr
@@ -262,9 +267,11 @@ class Informer(val requester: Requester) {
                     }
 
                     data.withScr { scr ->
-                        val scrSpan = document.getDivById("prozen-widget-scr")?.getChildSpan(1)
+                        val scrDiv = document.getDivById("prozen-widget-scr")
+                        val scrSpan = scrDiv?.getChildSpan(1)
                         scrSpan?.clearDots()
-                        scrSpan?.innerText = scr?.let { "${it.format(2)}%" } ?: "?"
+                        scrSpan?.innerText = scr?.let { "${it.format(2)}%" } ?: "—"
+                        scrDiv?.title = M.failedToGetData
                     }
 
                     div("prozen-widget-item") {
@@ -279,7 +286,7 @@ class Informer(val requester: Requester) {
                     data.withBlockedReaders {
                         val brSpan = document.getDivById("prozen-widget-blockedreaders")?.getChildSpan(1)
                         brSpan?.clearDots()
-                        brSpan?.innerText = it?.format() ?: "?"
+                        brSpan?.innerText = it?.format() ?: "—"
                     }
 
                     div("prozen-widget-item") {
@@ -316,9 +323,11 @@ class Informer(val requester: Requester) {
                     }
 
                     data.withStatsTime {
-                        val stattimeSpan = document.getDivById("prozen-widget-statstime")?.getChildSpan(1)
-                        stattimeSpan?.clearDots()
-                        stattimeSpan?.innerText = it ?: "?"
+                        val stattimeDiv = document.getDivById("prozen-widget-statstime")
+                        val statstimeSpan = stattimeDiv?.getChildSpan(1)
+                        statstimeSpan?.clearDots()
+                        statstimeSpan?.innerText = it ?: "—"
+                        if (it == null) stattimeDiv?.title = M.failedToGetData
                     }
 
                     //withMinuteCourse
@@ -359,7 +368,8 @@ class Informer(val requester: Requester) {
                                 }
                             }
                         } else {
-                            courseSpan?.innerText = "?"
+                            courseSpan?.innerText = "—"
+                            courseDiv?.remove()
                         }
                     }
                     data.zenReaderUrl.let {
@@ -710,7 +720,7 @@ class InformerDataDeferred(
         block(deferred.awaitWithTimeoutOrNull(3000L))
     }
 
-    fun withStrikes( block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
+    fun withStrikes(block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
         withDeferred(limitedAndStrikes, block)
 
     fun withChannelUnIndexed(block: suspend (Boolean?) -> Unit) =
@@ -729,7 +739,7 @@ class InformerDataDeferred(
     fun withRegTime(block: suspend (Instant?) -> Unit) =
         withDeferred(regTime, block)*/
 
-    fun withMetrikaIdAndRegTime(block: suspend (Pair<Int?,Instant?>?) -> Unit) {
+    fun withMetrikaIdAndRegTime(block: suspend (Pair<Int?, Instant?>?) -> Unit) {
         withDeferred(metrikaIdAndRegTime, block)
     }
 

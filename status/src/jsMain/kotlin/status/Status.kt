@@ -96,26 +96,48 @@ suspend fun createSearchPage(root: HTMLElement) {
                 }
 
                 h2(classes = "prozen-search-header-2") {
+                    +"Доступность публикаций"
+                }
+                val premiumInputs = listOf(TypeCheck.PREMIUM, TypeCheck.NOT_PREMIUM)
+                div("prozen-search-filters") {
+
+                    premiumInputs.forEach { premiumType ->
+                        label {
+                            input(
+                                classes = "prozen-search-filters-checks-input prozen-checkbox",
+                                type = InputType.checkBox
+                            ) {
+                                id = "premium-filter-${premiumType.name}"
+                                checked = premiumType == TypeCheck.NOT_PREMIUM
+                                onChangeFunction = { premiumFilterClick("premium-filter-${premiumType.name}") }
+                            }
+                            +"${premiumType.icon} ${premiumType.title}"
+                        }
+                    }
+                }
+
+                h2(classes = "prozen-search-header-2") {
                     +"Проверяемые признаки"
                 }
 
                 div(classes = "prozen-search-filters") {
-                    TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE }.forEach { typeCheck ->
-                        label {
-                            input(
-                                classes = "prozen-search-type-checks-input prozen-checkbox",
-                                type = InputType.checkBox
-                            ) {
-                                id = typeCheck.name
-                                checked = true
-                                if (typeCheck == TypeCheck.IS_BANNED) {
-                                    disabled = true
+                    TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE && it !in premiumInputs }
+                        .forEach { typeCheck ->
+                            label {
+                                input(
+                                    classes = "prozen-search-type-checks-input prozen-checkbox",
+                                    type = InputType.checkBox
+                                ) {
+                                    id = typeCheck.name
+                                    checked = true
+                                    if (typeCheck == TypeCheck.IS_BANNED) {
+                                        disabled = true
+                                    }
+                                    onChangeFunction = { saveChecks() }
                                 }
-                                onChangeFunction = { saveChecks() }
+                                +"${typeCheck.icon} ${typeCheck.title}"
                             }
-                            +"${typeCheck.icon} ${typeCheck.title}"
                         }
-                    }
                 }
 
 
@@ -152,7 +174,7 @@ suspend fun createSearchPage(root: HTMLElement) {
                         GlobalScope.launch {
                             saveSelectedTime(selected)
                         }
-                        val timePeriod: Pair<Instant, Instant>? = selectedToPeriod (selected)
+                        val timePeriod: Pair<Instant, Instant>? = selectedToPeriod(selected)
                         timePeriod?.let { setDateRange(it) } ?: showNotification("Произошла ошибка.")
                     }
 
@@ -193,15 +215,17 @@ suspend fun createSearchPage(root: HTMLElement) {
                                         progress.close()
                                     }
 
-                                    val toShow = found
-                                        .map { it to checker!!.getPageContext(it) }
-                                        .filter { (card, context) ->
-                                            val isBanned = card.isBanned
-                                            val hasCheck =
-                                                context?.let { !it.isOk() || it.containsAnyChecks(selectedTypeChecks) }
-                                                    ?: false
-                                            isBanned || hasCheck
-                                        }
+                                    val premiumFilter = getPremiumFilter()
+
+                                    val toShow = found.mapNotNull { card ->
+                                        val ctx = checker!!.getPageContext(card)
+                                        if (card.isBanned) return@mapNotNull card to ctx
+                                        ctx?.takeIf {
+                                            !it.isOk() ||
+                                                    (it.containsAnyChecks(selectedTypeChecks)
+                                                            && it.containsAnyChecks(premiumFilter))
+                                        }?.let { card to it }
+                                    }
 
                                     console.dInfo("toShow: ${toShow.size} / found: ${found.size}")
 
@@ -211,7 +235,11 @@ suspend fun createSearchPage(root: HTMLElement) {
                                         }
                                         if (checkIsOk) {
                                             val countStr = toShow.size.paucal("публикация", "публикации", "публикаций")
-                                            showNotification("Поиск завершён.\nНайдено: $countStr из ${checker!!.count().format()}.")
+                                            showNotification(
+                                                "Поиск завершён.\nНайдено: $countStr из ${
+                                                    checker!!.count().format()
+                                                }."
+                                            )
 
                                         } else {
                                             showNotification("Проверка прервана! Дзен включил капчу.\nПовторите проверку позднее.")
@@ -289,7 +317,7 @@ suspend fun saveSelectedTime(select: String) {
     saveToStorage("$publisherId-checker-period", select)
 }
 
-suspend fun loadLastSelectedTime(): Pair<String,String>? {
+suspend fun loadLastSelectedTime(): Pair<String, String>? {
     val selected = getFromStorageStr("$publisherId-checker-period")
     return selected?.let { selectedToPeriod(it)?.toStringPair() }
 }
@@ -317,6 +345,27 @@ fun selectedToPeriod(selected: String): Pair<Instant, Instant>? {
         }
 
         else -> null
+    }
+}
+
+fun premiumFilterClick(clickedId: String) {
+    val ids = listOf(TypeCheck.PREMIUM.name, TypeCheck.NOT_PREMIUM.name)
+    val checkboxes = ids.mapNotNull { document.getElementById( "premium-filter-$it") as? HTMLInputElement }
+    if (checkboxes.size != 2) return
+
+    val clicked = checkboxes.find { it.id == clickedId } ?: return
+    val other = checkboxes.first { it != clicked }
+
+    if (!clicked.checked && !other.checked) {
+        other.checked = true
+    }
+}
+
+fun getPremiumFilter(): List<TypeCheck> {
+    val ids = listOf(TypeCheck.PREMIUM.name, TypeCheck.NOT_PREMIUM.name)
+    return ids.mapNotNull {
+        val isChecked = (document.getElementById("premium-filter-$it") as? HTMLInputElement)?.checked == true
+        if (isChecked) TypeCheck.getByName(it) else null
     }
 }
 
