@@ -29,6 +29,10 @@ class Menu(val requester: Requester) : ContentRunner {
         }
     }
 
+    fun getMetrikaUrl(): String = "https://metrika.yandex.ru/list".takeIf {
+        metrikaId == null
+    } ?: "https://metrika.yandex.ru/dashboard?id=$metrikaId"
+
     @OptIn(DelicateCoroutinesApi::class)
     fun create(count: Int = 0) {
         console.dLog("Menu / create : count: $count")
@@ -97,8 +101,9 @@ class Menu(val requester: Requester) : ContentRunner {
                         style = "cursor: pointer;"
                         a(
                             classes = "editor--navbar__item-17",
-                            href = "https://metrika.yandex.ru/list",
+                            href = getMetrikaUrl(),
                             target = "_blank"
+
                         ) {
                             div(classes = "editor--navbar__icon-1d") {
                                 div(classes = "editor--navbar__svg-2_ prozen_menu_metrika")
@@ -108,11 +113,7 @@ class Menu(val requester: Requester) : ContentRunner {
                             }
                         }
                         onClickFunction = {
-                            window.open(
-                                "https://metrika.yandex.ru/list".takeIf {
-                                    metrikaId == null
-                                } ?: "https://metrika.yandex.ru/dashboard?id=$metrikaId"
-                            )
+                            window.open(getMetrikaUrl())
                         }
                     }
 
