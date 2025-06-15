@@ -97,7 +97,6 @@ class Menu(val requester: Requester) : ContentRunner {
                         style = "cursor: pointer;"
                         a(
                             classes = "editor--navbar__item-17",
-                            href = "https://metrika.yandex.ru/dashboard?id=47122428",
                             target = "_blank"
                         ) {
                             div(classes = "editor--navbar__icon-1d") {
