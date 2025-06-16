@@ -100,10 +100,7 @@ class Menu(val requester: Requester) : ContentRunner {
                         title = "Просмотр статистики в Яндекс.Метрике"
                         style = "cursor: pointer;"
                         a(
-                            classes = "editor--navbar__item-17",
-                            href = getMetrikaUrl(),
-                            target = "_blank"
-
+                            classes = "editor--navbar__item-17"
                         ) {
                             div(classes = "editor--navbar__icon-1d") {
                                 div(classes = "editor--navbar__svg-2_ prozen_menu_metrika")
