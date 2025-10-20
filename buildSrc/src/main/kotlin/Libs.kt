@@ -2,7 +2,7 @@ object Versions {
     const val datetime = "0.6.2"
     const val serialization = "1.8.1"
     const val coroutines = "1.10.2"
-    const val ktor = "3.1.2"
+    const val ktor = "3.2.3"
     const val html = "0.12.0"
 }
 
