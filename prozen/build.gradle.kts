@@ -27,7 +27,7 @@ kotlin {
     }
 }
 
-val version = getVersionFromChangelog()
+val extensionVersion = getVersionFromChangelog()
 
 fun getVersionFromChangelog(): String {
     val changelogFile = file("$rootDir/CHANGELOG.md")
@@ -59,11 +59,11 @@ tasks {
                 val manifestContent = manifestFile.readText()
                 val updatedContent = manifestContent.replace(
                     Regex("\"version\": \"\\d+\\.\\d+\\.\\d+\""),
-                    "\"version\": \"$version\""
+                    "\"version\": \"$extensionVersion\""
                 )
                 manifestFile.writeText(updatedContent)
             }
-            println("Manifests updated to version $version")
+            println("Manifests updated to version $extensionVersion")
         }
     }
 
@@ -72,33 +72,31 @@ tasks {
         description = "Tags the last commit with the version number"
         doLast {
             val existingTags = "git tag".runCommand()
-            if (existingTags.contains(version)) {
-                println("Tag $version already exists, skipping.")
+            if (existingTags.contains(extensionVersion)) {
+                println("Tag $extensionVersion already exists, skipping.")
             } else {
                 println("Tagging commit with version $version")
-                "git tag v$version".runCommand()
-                "git push origin v$version".runCommand()
+                "git tag v$extensionVersion".runCommand()
+                "git push origin v$extensionVersion".runCommand()
             }
         }
     }
 
+    val modules = "page,popup,service-worker,content,search,status,stats,settings,prozen".split(",")
     val copyBundleFile = register<Copy>("copyBundleFile") {
-        dependsOn(
-            ":page:jsBrowserDistribution",
-            ":popup:jsBrowserDistribution",
-            ":service-worker:jsBrowserDistribution",
-            ":content:jsBrowserDistribution",
-            ":search:jsBrowserDistribution",
-            ":status:jsBrowserDistribution",
-            ":stats:jsBrowserDistribution",
-            ":settings:jsBrowserDistribution",
-            ":prozen:jsBrowserDistribution")
-        from("$rootDir/build/distributions/jsKt")
+        into("$rootDir/build/distributions/")
+        dependsOn( modules.map { ":$it:jsBrowserDistribution" })
+        modules.forEach {
+            from (project(":$it").layout.buildDirectory.dir("distributions")) {}
+        }
         into("$extensionFolder/js")
+        exclude("731.js")
+        exclude("731.js.map")
+        exclude("*js.LICENSE.txt")
     }
 
     val copyResources = register<Copy>("copyResources") {
-        dependsOn (updateManifest)
+        dependsOn(updateManifest)
         from("src/jsMain/resources")
         into(extensionFolder)
     }

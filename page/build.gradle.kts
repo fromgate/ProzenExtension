@@ -11,7 +11,7 @@ kotlin {
                     enabled = true
                 }
                 distribution {
-                    outputDirectory = File("$rootDir/build/distributions/jsKt")
+                    outputDirectory = project.layout.buildDirectory.dir("distributions")
                 }
                 sourceMaps = (rootProject.ext["generateSourceMaps"] as Boolean)
             }
