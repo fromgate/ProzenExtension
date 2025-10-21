@@ -82,7 +82,8 @@ tasks {
         }
     }
 
-    val modules = "page,popup,service-worker,content,search,status,stats,settings,prozen".split(",")
+    val modules = rootProject.getJsSourceModules()
+
     val copyBundleFile = register<Copy>("copyBundleFile") {
         into("$rootDir/build/distributions/")
         dependsOn( modules.map { ":$it:jsBrowserDistribution" })
