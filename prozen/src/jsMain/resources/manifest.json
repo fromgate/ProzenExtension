@@ -27,6 +27,7 @@
         "status.html",
         "settings.html",
         "js/*.js",
+        "js/*.js.map",
         "css/prozen.css",
         "img/*.png",
         "icons/*.png"
