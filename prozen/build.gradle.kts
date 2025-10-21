@@ -71,13 +71,13 @@ tasks {
         group = "versioning"
         description = "Tags the last commit with the version number"
         doLast {
-            val existingTags = "git tag".runCommand()
+            val existingTags = runCommand ("git", "tag")
             if (existingTags.contains(extensionVersion)) {
                 println("Tag $extensionVersion already exists, skipping.")
             } else {
                 println("Tagging commit with version $version")
-                "git tag v$extensionVersion".runCommand()
-                "git push origin v$extensionVersion".runCommand()
+                runCommand("git", "tag", "v$extensionVersion")
+                runCommand("git", "push", "origin", "v$extensionVersion")
             }
         }
     }
@@ -112,8 +112,4 @@ tasks {
         from(extensionFolder)
         into("prozen") // для Chrome
     }
-}
-
-fun String.runCommand(): String {
-    return Runtime.getRuntime().exec(this).inputStream.bufferedReader().readText().trim()
 }
