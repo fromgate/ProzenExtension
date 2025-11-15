@@ -35,7 +35,7 @@ class Shorts(requester: Requester, data: JsonObject) : PublicationPage(requester
 
     override fun showStats() {
         val stats = this.stats ?: return
-        val infoBlock = document.querySelector("div.video-site--short-meta__wrapper-1u") as? HTMLDivElement
+        val infoBlock = document.querySelector("div.shorts--short-detail__container-3w") as? HTMLDivElement
 
         infoBlock?.append {
             span {

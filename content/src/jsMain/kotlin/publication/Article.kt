@@ -20,10 +20,17 @@ import kotlin.collections.set
 
 class Article(requester: Requester, data: JsonObject) : PublicationPage(requester, data) {
 
-
     override fun showStats() {
         val stats = this.stats ?: return
-        val infoBlock = document.querySelector(".article__statistics, div[class^='content--article-info-block__articleInfoBlock-'], div[class^=content--article-render__info-]") as? HTMLElement
+
+        val selectors = listOf(
+            ".article__statistics",
+            "div[class^='content--article-info-block__articleInfoBlock-']",
+            "div[class^='content--article-info-block__articleInfoBlockWithIcons-']",
+            "div[class^=content--article-render__info-]"
+        ).joinToString (", ")
+
+        val infoBlock = document.querySelector(selectors) as? HTMLElement
         infoBlock?.clear()
         infoBlock?.append {
             div("prozen-article-stats") {

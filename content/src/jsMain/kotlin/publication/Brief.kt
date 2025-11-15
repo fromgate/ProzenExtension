@@ -16,7 +16,7 @@ class Brief(requester: Requester, data: JsonObject) : PublicationPage(requester,
     override fun showStats() {
         val stats = this.stats ?: return
         val infoBlock =
-            document.querySelector("div.content--article-stats-view__articleStatsView-1z") as? HTMLDivElement
+            document.querySelector("div.brief-viewer--article-stats-view__articleStatsView-1z") as? HTMLDivElement
         infoBlock?.removeChildren()
         infoBlock?.append {
             div("prozen-article-stats") {
