@@ -91,10 +91,11 @@ tasks {
             from (project(":$it").layout.buildDirectory.dir("distributions")) {}
         }
         into("$extensionFolder/js")
-        exclude("236.js")
-        exclude("731.js")
-        exclude("731.js.map")
-        exclude("*js.LICENSE.txt")
+        exclude {
+            it.name.matches(Regex("""\d+\.js(\.map)?"""))
+                    || it.name.endsWith(".LICENSE.txt")
+        }
+
     }
 
     val copyResources = register<Copy>("copyResources") {
