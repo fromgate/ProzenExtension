@@ -91,6 +91,7 @@ tasks {
             from (project(":$it").layout.buildDirectory.dir("distributions")) {}
         }
         into("$extensionFolder/js")
+        exclude("236.js")
         exclude("731.js")
         exclude("731.js.map")
         exclude("*js.LICENSE.txt")
