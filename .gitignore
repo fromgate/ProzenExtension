@@ -6,3 +6,5 @@
 .idea/
 .work/
 .fleet/
+.kotlin/
+kotlin-js-store/
