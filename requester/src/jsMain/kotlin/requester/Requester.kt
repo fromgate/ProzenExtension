@@ -132,12 +132,6 @@ open class Requester(val publisherId: String?, val token: String?) {
         data?.arr("limitations")?.filterIsInstance<JsonObject>()?.forEach { limit ->
             limit.string("url")?.let { url -> limitations.add(url) }
         }
-
-        // https://dzen.ru/a/aXPIcRD7VhuwUqVF
-        //TEST
-        limitations.add("/a/aXPIcRD7VhuwUqVF")
-
-
         return if (channelBlock != null) {
             channelBlock to limitations
         } else null
