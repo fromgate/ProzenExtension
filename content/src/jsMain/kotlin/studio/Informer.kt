@@ -66,7 +66,8 @@ class Informer(val requester: Requester) {
         val regTimeDeferred = async { requester.getRegTime() } */
         val channelDataDeferred = async { requester.getChannelData() }
 
-        val strikesDeferred = async { requester.getStrikesInfo() }
+        val strikesDeferred = async { requester.getStrikes() }
+
         val scrDeferred = async { requester.getScr(before30Str, todayStr) }
         val blockedReadersDeferred = async { requester.getBannedUsers() }
         val statsTimeDeferred = async { requester.getStatsActuality() }
@@ -193,7 +194,7 @@ class Informer(val requester: Requester) {
                 div("prozen-widget-content") {
                     div("prozen-widget-item") {
                         id = "prozen-widget-strikes"
-                        title = "Информация получена на основе данных раздела «Предупреждения»"
+                        title = M.widgetStrikeTitle
                         span("prozen-widget-item-title") {
                             +"Предупреждения: "
                         }
@@ -201,7 +202,7 @@ class Informer(val requester: Requester) {
                     }
                     div("prozen-widget-item") {
                         id = "prozen-widget-banned"
-                        title = "Информация получена на основе данных раздела «Предупреждения»"
+                        title = M.widgetStrikeTitle
                         span("prozen-widget-item-title") {
                             +"Канал ограничен: "
                         }
@@ -221,15 +222,29 @@ class Informer(val requester: Requester) {
                             spanBanned?.innerText = "—"
                             spanBanned?.title = M.failedToGetData
                         } else {
-                            spanStrikes?.innerText = strikesData.second.toString()
-                            if (strikesData.second > 0) spanStrikes?.className = "prozen-widget-warning"
-                            spanStrikes?.title = M.widgetStrikeTitle
+                            val strikesList = strikesData?.second ?: emptyList()
+                            val strikesCount = strikesList.size
+                            spanStrikes?.innerText = "$strikesCount ⎘".takeIf { strikesCount > 0 } ?: "0"
+
+                            if (strikesCount > 0) {
+                                spanStrikes?.className = "prozen-widget-warning"
+                                spanStrikes?.title = M.widgetStrikeCopy
+                                val articleList = strikesList.map { s -> "https://dzen.ru$s" }.joinToString("\n")
+                                spanStrikes?.onclick = {
+                                    copyTextToClipboard(articleList)
+                                    showNotification(M.widgetStrikeCopyNotify)
+                                }
+
+                            } else {
+                                spanStrikes?.title = M.widgetStrikeTitle
+                            }
+
 
                             spanBanned?.innerText = "Да".takeIf { strikesData.first } ?: "Нет"
                             if (strikesData.first) spanBanned?.className = "prozen-widget-warning"
                             spanBanned?.title = M.widgetStrikeTitle
 
-                            Warnings(requester.publisherId!!, strikesData).notify()
+                            Warnings(requester.publisherId!!, strikesData.first to strikesList.size).notify()
                         }
                     }
                     div("prozen-widget-item") {
@@ -385,239 +400,6 @@ class Informer(val requester: Requester) {
         }
     }
 
-    /* fun appendStyledInformer(parent: HTMLElement, data: InformerData) {
-        if (document.getElementById("prozen-widget") != null) return
-        with(data) {
-            parent.append {
-                div("prozen-widget") {
-                    id = "prozen-widget"
-                    div("prozen-header-wrapper") {
-                        style = "position: relative;"
-                        div("prozen-header-content") {
-                            title = "Добавлено расширением „Продзен“"
-                            img {
-                                src = chrome.runtime.getURL("img/toast-logo.png")
-                            }
-                            span {
-                                +"Состояние канала"
-                            }
-                            // Кнопка для меню
-                            button(classes = "prozen-menu-button") {
-                                +"☰"
-                                onClickFunction = {
-                                    val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
-                                    if (menu.classList.contains("prozen-menu-open")) {
-                                        closeMenu()
-                                    } else {
-                                        menu.classList.toggle("prozen-menu-open")
-                                        if (menu.classList.contains("prozen-menu-open")) {
-                                            document.addEventListener(
-                                                "click",
-                                                createDocumentClickListener(),
-                                                true
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        ul("prozen-dropdown-menu") {
-                            id = "prozen-dropdown-menu"
-                            li {
-                                span("prozen-menu-stats")
-                                +"Полная статистика"
-                                onClickFunction = {
-                                    closeMenu()
-                                    chrome.storage.local.set(
-                                        json(
-                                            "prozenToken" to requester.token,
-                                            "prozenPublisherId" to requester.publisherId
-                                        )
-                                    ) {
-                                        window.open(chrome.runtime.getURL("stats.html"))
-                                    }
-                                }
-                            }
-                            li {
-                                span("prozen-menu-metrika")
-                                +"Метрика"
-                                onClickFunction = {
-                                    closeMenu()
-                                    window.open(
-                                        "https://metrika.yandex.ru/list".takeIf {
-                                            metrikaId == null
-                                        } ?: "https://metrika.yandex.ru/dashboard?id=$metrikaId"
-                                    )
-                                }
-                            }
-                            li {
-                                span("prozen-menu-search")
-                                +"Поиск"
-                                onClickFunction = {
-                                    closeMenu()
-                                    chrome.storage.local.set(
-                                        json(
-                                            "prozenSearch" to "", // неактуально
-                                            "prozenToken" to requester.token,
-                                            "prozenPublisherId" to requester.publisherId
-                                        )
-                                    ) {
-                                        window.open(chrome.runtime.getURL("search.html"))
-                                    }
-                                }
-                            }
-                            li {
-                                span("prozen-menu-robot")
-                                +"Проверка публикаций"
-                                onClickFunction = {
-                                    closeMenu()
-                                    chrome.storage.local.set(
-                                        json(
-                                            "prozenId" to requester.publisherId,
-                                            "prozenToken" to requester.token,
-                                            "prozenPublisherId" to requester.publisherId
-                                        )
-                                    ) {
-                                        window.open(chrome.runtime.getURL("status.html"))
-                                    }
-                                }
-                            }
-                            li {
-                                span("prozen-menu-telegram")
-                                +"Продзен в Telegram"
-                                onClickFunction = {
-                                    closeMenu()
-                                    window.open("https://t.me/+jgjgYMVg2gY0ODVi", "_blank")
-                                }
-                            }
-                        }
-                    }
-                    div("prozen-widget-content") {
-                        strikes?.let { strikes ->
-                            div("prozen-widget-item") {
-                                title = "Информация получена на основе данных раздела «Предупреждения»"
-                                span("prozen-widget-item-title") {
-                                    +"Предупреждения: "
-                                }
-                                span("prozen-widget-warning".takeIf { strikes > 0 }) {
-                                    +strikes.toString()
-                                }
-                            }
-                        }
-                        channelLimited?.let { limited ->
-                            div("prozen-widget-item") {
-                                title = "Информация получена на основе данных раздела «Предупреждения»"
-                                span("prozen-widget-item-title") {
-                                    +"Канал ограничен: "
-                                }
-                                span("prozen-widget-warning".takeIf { limited }) {
-                                    +if (limited) "Да" else "Нет"
-                                }
-                            }
-                        }
-                        channelUnIndexed?.let { notIndexed ->
-                            div("prozen-widget-item") {
-                                if (notIndexed) {
-                                    title = "Обнаружен мета-тег <meta name=\"robots\" content=\"noindex\" />\n" +
-                                            "Главная страница канала не индексируется поисковиками.\n" +
-                                            "Это нормальная ситуация для новых каналов."
-                                }
-                                span("prozen-widget-item-title") {
-                                    +"Индексация канала: "
-                                }
-                                span("prozen-widget-warning".takeIf { notIndexed }) {
-                                    +if (notIndexed) "Нет 🤖" else "Есть"
-                                }
-                            }
-                        }
-
-                        scr?.let {
-                            if (!scr.isNaN()) {
-                                div("prozen-widget-item") {
-                                    title = "Коэффициент охвата подписчиков (Subscribers Coverage Rate).\n" +
-                                            "Показывает какая доля подписчиков видит карточки публикаций."
-                                    div("prozen-widget-item") {
-                                        span("prozen-widget-item-title") {
-                                            +"Охват подписчиков (SCR): "
-                                        }
-                                        span {
-                                            +"${it.format(2)}%"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        blockedReaders?.let {
-                            div("prozen-widget-item") {
-                                title = "Количество заблокированных комментаторов"
-                                span("prozen-widget-item-title") {
-                                    +"Заблокировано читателей: "
-                                }
-                                span {
-                                    +it.format()
-                                }
-                            }
-                        }
-                        regTime?.let {
-                            div("prozen-widget-item") {
-                                title = "Дата создания канала"
-                                span("prozen-widget-item-title") {
-                                    +"Канал создан: "
-                                }
-                                span {
-                                    +it.toDDMMYYYYHHMM()
-                                }
-                            }
-                        }
-                        statsTime?.let {
-                            div("prozen-widget-item") {
-                                title = "Время обновления статистики"
-                                span("prozen-widget-item-title") {
-                                    +"Статистика от: "
-                                }
-                                span {
-                                    +it
-                                }
-                            }
-                        }
-                        minuteCourse.lastNonZero()?.let { last ->
-                            var titleText = "Стоимость минуты вовлечённого просмотра"
-                            val previous = minuteCourse.previousToLastNonZero()
-                            if (previous != null) {
-                                titleText += "\nПредыдущий курс (${previous.first}): ${previous.third.format(3)} ₽"
-                            }
-
-                            div("prozen-widget-item") {
-                                title = titleText
-                                span("prozen-widget-item-title") {
-                                    +"Курс минуты ${last.first}: "
-                                }
-                                span(
-                                    when {
-                                        previous?.third == null -> null
-                                        previous.third <= last.third -> "prozen-widget-success"
-                                        else -> "prozen-widget-error"
-                                    }
-                                ) {
-                                    +"${last.third.format(3)}₽"
-                                }
-                            }
-                        }
-                        zenReaderUrl?.let {
-                            div("prozen-widget-item") {
-                                title = "Ссылка для подписки на канал\nв телеграм-боте @ZenReaderBot"
-                                a(href = it, classes = "prozen-widget-link") {
-                                    +"🔗 Подписка в Дзен-ридере"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } */
-
     fun createDocumentClickListener(): EventListener {
         val menu = document.getElementById("prozen-dropdown-menu") as HTMLElement
         val menuButton = document.querySelector(".prozen-menu-button") as HTMLElement
@@ -649,7 +431,7 @@ private fun HTMLSpanElement.clearDots() {
 }
 
 data class InformerData(
-    val strikes: Int?,
+    val strikes: List<String>,
     val channelLimited: Boolean?,
     val channelUnIndexed: Boolean?,
     val scr: Double?,
@@ -684,7 +466,8 @@ fun List<Triple<String, Double, Double>>.previousToLastNonZero(): Triple<String,
 
 @OptIn(DelicateCoroutinesApi::class)
 class InformerDataDeferred(
-    val limitedAndStrikes: Deferred<Pair<Boolean, Int>?>,
+    //val limitedAndStrikes: Deferred<Pair<Boolean, Int>?>,
+    val limitedAndStrikes: Deferred<Pair<Boolean, List<String>>?>,
     val channelUnIndexed: Deferred<Boolean?>,
     val scr: Deferred<Double?>,
     val blockedReaders: Deferred<Int?>,
@@ -700,7 +483,7 @@ class InformerDataDeferred(
         val limitedAndStrikesValue = this.limitedAndStrikes.await()
         val metrikaIdAndRegTimeValue = this.metrikaIdAndRegTime.await()
         return InformerData(
-            strikes = limitedAndStrikesValue?.second,
+            strikes = limitedAndStrikesValue?.second ?: emptyList(),
             channelLimited = limitedAndStrikesValue?.first,
             channelUnIndexed = channelUnIndexed.await(),
             scr = scr.await(),
@@ -720,7 +503,7 @@ class InformerDataDeferred(
         block(deferred.awaitWithTimeoutOrNull(3000L))
     }
 
-    fun withStrikes(block: suspend (Pair<Boolean?, Int?>?) -> Unit) =
+    fun withStrikes(block: suspend (Pair<Boolean?, List<String>>?) -> Unit) =
         withDeferred(limitedAndStrikes, block)
 
     fun withChannelUnIndexed(block: suspend (Boolean?) -> Unit) =

@@ -103,4 +103,26 @@ class RequesterCached(publisherId: String?, token: String?) : Requester(publishe
             )
         }
     }
+
+    override suspend fun getStrikes(): Pair<Boolean, List<String>>? {
+        val cached = runCatching {
+            cache.getFromCache("getStrikes") as? Json
+        }.getOrNull()
+
+        val fromCache = runCatching {
+            cached?.let {
+                val isBanned = it["1"] as Boolean
+                val strikes = (it["2"] as String).split('\n')
+                isBanned to strikes
+            }
+        }.getOrNull()
+
+        return fromCache ?: super.getStrikes()?.also {
+            cache.saveToCache(
+                "getStrikes",
+                json("1" to it.first, "2" to it.second),
+                cache.calcExpirationTime(5.minutes)
+            )
+        }
+    }
 }

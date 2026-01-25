@@ -1,5 +1,6 @@
 package common
 
+import common.I18nDelegate
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -23,4 +24,6 @@ object M {
     val publicationOkLink by I18nDelegate()
     val failedToGetData by I18nDelegate()
     val widgetStrikeTitle by I18nDelegate()
+    val widgetStrikeCopy by I18nDelegate()
+    val widgetStrikeCopyNotify by I18nDelegate()
 }

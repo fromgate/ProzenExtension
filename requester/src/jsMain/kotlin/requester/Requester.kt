@@ -52,12 +52,31 @@ open class Requester(val publisherId: String?, val token: String?) {
         val requestUrl =
             "https://dzen.ru/editor-api/v2/publisher/$publisherId/stats2?allPublications=true&addTimeFrom=$from&addTimeTo=$to&fields=typeSpecificViews&fields=deepViewsRate&fields=ctr&fields=vtr&fields=shares&fields=comments&fields=subscriptions&fields=likes&fields=unsubscriptions&fields=viewMap&fields=subscribers&fields=subscribersDiff&fields=impressions&fields=deepViews&fields=sumInvolvedViewTimeSec&groupBy=flight&sortBy=addTime&sortOrderDesc=true&total=true&totalLimitedByIds=false&isSubscriber=true&pageSize=100&page=0&clid=320"
         val data = getJsonSafe("getScr", requestUrl)
-        val totalViews = data?.obj("total")?.obj("stats")?.int("impressions")?.toDouble()
+        //val totalViews = data?.obj("total")?.obj("stats")?.int("impressions")?.toDouble()
+        val totalViews = data?.int("total.stats.impressions")?.toDouble()
         val openingSubscribers = data?.int("openingSubscribers")?.toDouble()
         val count = data?.int("publicationCount")?.toDouble()
         if (totalViews == null || openingSubscribers == null || count == null) return null
         val scr = ((totalViews / count) / openingSubscribers) * 100
         return scr
+    }
+
+    /**
+     *  CPM — Cost Per Mille, доход на 1000 просмотров
+     */
+    suspend fun getCPM (from: String, to: String): Double? {
+        /* TODO
+           надо получить:
+           map (дата, деньги)
+           map (data, просмотры-дочитки
+         */
+
+        return null
+    }
+
+    suspend fun getViewsPerDate(from: String, to: String):Map<String, Double>? {
+        
+        return null
     }
 
 
@@ -101,6 +120,25 @@ open class Requester(val publisherId: String?, val token: String?) {
         val channelBlock = data?.bool("channelRestricted")
         val limitations = data?.arr("limitations")?.size
         return if (channelBlock != null && limitations != null) {
+            channelBlock to limitations
+        } else null
+    }
+
+    open suspend fun getStrikes(): Pair<Boolean, List<String>>? {
+        val requestUrl = "https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=$publisherId&language=ru"
+        val data = getJsonSafe("getStrikesInfo", requestUrl)
+        val channelBlock = data?.bool("channelRestricted")
+        val limitations = mutableListOf<String>()
+        data?.arr("limitations")?.filterIsInstance<JsonObject>()?.forEach { limit ->
+            limit.string("url")?.let { url -> limitations.add(url) }
+        }
+
+        // https://dzen.ru/a/aXPIcRD7VhuwUqVF
+        //TEST
+        limitations.add("/a/aXPIcRD7VhuwUqVF")
+
+
+        return if (channelBlock != null) {
             channelBlock to limitations
         } else null
     }

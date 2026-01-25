@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'NotoColorEmoji';
+  src: url('../fonts/NotoColorEmoji-Regular.ttf') format('truetype');
+  unicode-range:
+      U+1F300-1F5FF,
+      U+1F600-1F64F,
+      U+1F680-1F6FF,
+      U+1F700-1F77F,
+      U+1F900-1F9FF,
+      U+1FA70-1FAFF,
+      U+2600-26FF,      /* Misc symbols */
+      U+2700-27BF;      /* Dingbats */
+}
+
 /* Светлая тема по умолчанию */
 :root.prozen-light {
     --filter-invert-on-dark: none;
@@ -599,6 +613,9 @@ border-radius: 5px 10px;
     background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCA0OCA0OCI+CjxwYXRoIGQ9Ik0zOS4xNzUsMTAuMDE2YzEuNjg3LDAsMi4xMzEsMS4yNzYsMS42MzIsNC4yNzJjLTAuNTcxLDMuNDI2LTIuMjE2LDE0Ljc2OS0zLjUyOCwyMS44MyBjLTAuNTAyLDIuNzAyLTEuNDA3LDMuODY3LTIuNzI0LDMuODY3Yy0wLjcyNCwwLTEuNTcyLTAuMzUyLTIuNTQ2LTAuOTk1Yy0xLjMyLTAuODcyLTcuOTg0LTUuMjc5LTkuNDMxLTYuMzE0IGMtMS4zMi0wLjk0My0zLjE0MS0yLjA3OC0wLjg1Ny00LjMxMmMwLjgxMy0wLjc5Niw2LjE0LTUuODgzLDEwLjI5LTkuODQyYzAuNDQzLTAuNDIzLDAuMDcyLTEuMDY4LTAuNDItMS4wNjggYy0wLjExMiwwLTAuMjMxLDAuMDM0LTAuMzQ3LDAuMTExYy01LjU5NCwzLjcxLTEzLjM1MSw4Ljg1OS0xNC4zMzgsOS41M2MtMC45ODcsMC42Ny0xLjk0OSwxLjEtMy4yMzEsMS4xIGMtMC42NTUsMC0xLjM5NC0wLjExMi0yLjI2My0wLjM2MmMtMS45NDMtMC41NTgtMy44NC0xLjIyMy00LjU3OS0xLjQ3N2MtMi44NDUtMC45NzYtMi4xNy0yLjI0MSwwLjU5My0zLjQ1NyBjMTEuMDc4LTQuODczLDI1LjQxMy0xMC44MTUsMjcuMzkyLTExLjYzN0MzNi43NDYsMTAuNDYxLDM4LjE3OCwxMC4wMTYsMzkuMTc1LDEwLjAxNiBNMzkuMTc1LDcuMDE2TDM5LjE3NSw3LjAxNiBjLTEuMzY4LDAtMy4wMTUsMC40NDEtNS41MDYsMS40NzRMMzMuMzcsOC42MTRDMjIuNzM1LDEzLjAzLDEzLjA5MiwxNy4xMjgsNi4yMTgsMjAuMTUyYy0xLjA3NCwwLjQ3My00LjM0MSwxLjkxLTQuMjE0LDQuOTE2IGMwLjA1NCwxLjI5NywwLjc2OCwzLjA2NSwzLjg1Niw0LjEyNGwwLjIyOCwwLjA3OGMwLjg2MiwwLjI5NywyLjY1NywwLjkxNiw0LjQ5NywxLjQ0NWMxLjEyLDAuMzIyLDIuMTMyLDAuNDc4LDMuMDkxLDAuNDc4IGMxLjY2NCwwLDIuOTUzLTAuNDc1LDMuOTYxLTEuMDI4Yy0wLjAwNSwwLjE2OC0wLjAwMSwwLjMzNywwLjAxMiwwLjUwN2MwLjE4MiwyLjMxMiwxLjk3LDMuNTgsMy4wMzgsNC4zMzhsMC4xNDksMC4xMDYgYzEuNTc3LDEuMTI4LDguNzE0LDUuODQzLDkuNTIyLDYuMzc2YzEuNTIxLDEuMDA0LDIuODk0LDEuNDkxLDQuMTk5LDEuNDkxYzIuMDUyLDAsNC43MDMtMS4wOTYsNS42NzMtNi4zMTggYzAuOTIxLTQuOTUzLDEuOTg1LTExLjg3MiwyLjc2Mi0xNi45MjRjMC4zMzEtMi4xNTYsMC42MDMtMy45MjQsMC43NzYtNC45NjFjMC4zNDktMi4wOTQsMC41MDktNC40NjYtMC45NDgtNi4xODUgQzQyLjIwOCw3Ljg3NSw0MS4wOCw3LjAxNiwzOS4xNzUsNy4wMTZMMzkuMTc1LDcuMDE2eiI+PC9wYXRoPgo8L3N2Zz4=');
 }
 
+body {
+    font-family: 'NotoColorEmoji', Arial, sans-serif;
+}
 
 html body .ui-lib-header__item._type_left {
     margin-right: 24px;
@@ -1202,7 +1219,7 @@ html body .ui-lib-header__item._type_left {
     padding: 16px;
     margin-bottom: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
-    font-family: 'Arial', sans-serif; /* Шрифт */
+    font-family: 'NotoColorEmoji', 'Arial', sans-serif; /* Шрифт */
     color: #333;
 }
 
@@ -2010,7 +2027,7 @@ html body .ui-lib-header__item._type_left {
     width: 350px;
     padding: 5px;
     box-sizing: border-box;
-    font-family: Roboto, sans-serif;
+    font-family: 'NotoColorEmoji', Roboto, sans-serif;
     background-color: var(--popup-background-color);
     border: 1px solid var(--popup-border-color);
     border-radius: 8px;
@@ -2349,7 +2366,7 @@ html body .ui-lib-header__item._type_left {
     align-items: center;
     margin: 0;
     background-color: var(--stats-body-bg);
-    font-family: Arial, sans-serif;
+    font-family: 'NotoColorEmoji', Arial, sans-serif;
     color: var(--stats-text-color);
 }
 
