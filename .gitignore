@@ -3,6 +3,8 @@
 *.iml
 *.cmd
 *.sh
+.src4gptexclude
+.aiexclude
 .idea/
 .work/
 .fleet/

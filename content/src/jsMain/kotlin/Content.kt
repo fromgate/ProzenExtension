@@ -179,10 +179,21 @@ fun registerObserverWindowsLocation() {
         }
     }
 
-    val config = MutationObserverInit(
+    /* val config = MutationObserverInit(
         childList = true,
-        subtree = true
-    )
+        subtree = true,
+        attributes = false
+    ) */
+
+
+    /*val config = js("{}").unsafeCast<MutationObserverInit>()
+    config.childList = true
+    config.subtree = true */
+
+    val config = object : MutationObserverInit {
+        override var childList: Boolean? = true
+        override var subtree: Boolean? = true
+    }
 
     document.querySelector("body")?.let {
         observerWindowLocationHref?.observe(it, config)
