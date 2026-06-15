@@ -12,12 +12,9 @@ kotlin {
         val jsMain by getting {
             kotlin.srcDir("src/jsMain/kotlin")
             dependencies {
-                implementation(project(":chrome"))
                 implementation(Libs.kotlinxDatetime)
-                implementation(Libs.kotlinxSerializationJson)
+                implementation(Libs.indexDb)
                 implementation(Libs.kotlinxCoroutinesJs)
-                implementation(Libs.kotlinxHtmlJs)
-                // implementation(Libs.indexDb)
             }
         }
     }

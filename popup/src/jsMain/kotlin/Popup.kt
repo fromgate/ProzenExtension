@@ -107,7 +107,7 @@ suspend fun createPopup() {
     }
 }
 
-private fun saveExcerpt(excerpt: Excerpt) {
+private suspend fun saveExcerpt(excerpt: Excerpt) {
     val excerptData = json(
         "title" to excerpt.title,
         "link" to excerpt.link,

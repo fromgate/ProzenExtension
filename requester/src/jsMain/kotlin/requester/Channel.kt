@@ -26,7 +26,7 @@ class Channel(private val id: String, private val useShortname: Boolean = false)
 
     fun getApiUrl(): String {
         val channelId = if (useShortname) "channel_name=$id" else "channel_id=$id"
-        return "https://dzen.ru/api/v3/launcher/more?$channelId&country_code=ru"
+        return "https://dzen.ru/api/v3/launcher/more?$channelId&sort_type=regular&country_code=ru&clid=1400&lang=ru&channel_version=subscriptions"
     }
 
     fun getUrl(): String {

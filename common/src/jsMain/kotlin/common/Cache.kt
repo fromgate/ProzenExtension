@@ -10,7 +10,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 class Cache(private val prefix: String) {
-
     suspend fun <T> getOrLoadFromCache(
         cacheKey: String,
         expirationTime: Instant,

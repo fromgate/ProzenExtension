@@ -150,3 +150,5 @@ fun Document.getDivById(id: String): HTMLDivElement? {
 fun HTMLElement.getChildSpan(index: Int): HTMLSpanElement? {
     return this.children[index] as? HTMLSpanElement
 }
+
+inline fun <T : Any> jso(block: T.() -> Unit): T = (js("{}") as T).apply(block)
