@@ -25,7 +25,8 @@ suspend fun showPublicationInfo() {
             val activeTab = it.firstOrNull()
             if (activeTab != null && activeTab.url?.matches(Regex("https://dzen\\.ru/([ab]|video|shorts)/.+")) == true) {
                 mainScope.launch {
-                    val pageContext = createPageContext(activeTab.url!!, listOf(CheckNoIndex, CheckThematics))
+                    val pageContext =
+                        createPageContext(activeTab.url!!, listOf(CheckNoIndex, CheckThematics, CheckSeoRating))
                     showInfo(pageContext)
                 }
             }
@@ -109,12 +110,22 @@ fun showInfo(info: PageContext) {
                 span { +"🪙" }
                 span { +"📺" }
             } */
+
+            val rating = info.checkResults[TypeCheck.SEO_RATING] as? String
+
             @Suppress("UNCHECKED_CAST") val tags: List<Thematic> =
                 info.checkResults[TypeCheck.THEMATICS] as? List<Thematic> ?: emptyList()
 
-            if (tags.isNotEmpty()) {
+            if (!rating.isNullOrEmpty() || tags.isNotEmpty()) {
 
                 div(classes = "prozen-popup-info-tags") {
+                    if (!rating.isNullOrEmpty()) {
+                        span(classes = "prozen-popup-tag") {
+                            title = "Рейтинг публикации (SEO)"
+                            +"⭐ $rating"
+                        }
+                    }
+
                     tags.take(5).forEach { span(classes = "prozen-popup-tag") { +it.title } }
                     if (tags.size > 5) {
                         span(classes = "prozen-popup-tag") {

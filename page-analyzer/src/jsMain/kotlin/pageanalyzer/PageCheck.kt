@@ -29,6 +29,15 @@ object CheckNoIndex : PageCheck() {
     }
 }
 
+object CheckSeoRating : PageCheck() {
+    override fun perform(context: PageContextBuilder) {
+        val ratingValue: String? = context.metaTags
+            .find { it.getAttribute("itemprop") == "ratingValue" }
+            ?.content
+        if (ratingValue != null) results[TypeCheck.SEO_RATING] = ratingValue
+    }
+}
+
 object CheckThematics : PageCheck() {
     override fun perform(context: PageContextBuilder) {
         if (context.thematics.isNotEmpty()) {

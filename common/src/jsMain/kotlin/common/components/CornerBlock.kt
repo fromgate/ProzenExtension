@@ -12,7 +12,7 @@ fun TagConsumer<HTMLElement>.prozenCornerInfoBlock() {
         a(href = "https://t.me/+jgjgYMVg2gY0ODVi", target = "_blank", classes = "prozen-corner-link") {
             +"Подпишись на @prodzen в телеграме"
         }
-        a(href = "https://donate.stream/prodzen", target = "_blank", classes = "prozen-corner-link") {
+        a(href = "https://dzen.ru/prodzn?donate=true", target = "_blank", classes = "prozen-corner-link") {
             +"Поддержи разработку расширения"
         }
     }

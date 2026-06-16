@@ -121,7 +121,7 @@ suspend fun createSearchPage(root: HTMLElement) {
                 }
 
                 div(classes = "prozen-search-filters") {
-                    TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE && it !in premiumInputs }
+                    TypeCheck.entries.filter { it != TypeCheck.HTTP_STATUS_CODE && it != TypeCheck.SEO_RATING && it !in premiumInputs }
                         .forEach { typeCheck ->
                             label {
                                 input(

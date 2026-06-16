@@ -89,7 +89,7 @@ suspend fun createSettingsPage(root: HTMLElement, currentTheme: TriState) {
             footer(classes = "prozen-footer") {
                 a(href = "https://t.me/+jgjgYMVg2gY0ODVi", target = "_blank") { +"Телеграм-канал @prodzen" }
                 a(href = "https://prozen.ru", target = "_blank") { +"prozen.ru" }
-                a(href = "https://donate.stream/prodzen", target = "_blank") { +"Поддержать разработку" }
+                a(href = "https://dzen.ru/prodzn?donate=true", target = "_blank") { +"Поддержать разработку" }
             }
         }
         prozenCornerInfoBlock()

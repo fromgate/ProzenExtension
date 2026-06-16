@@ -100,7 +100,7 @@ suspend fun createPopup() {
                         target = "_blank"
                     ) { +"Политика безопасности" }
                     span { +" | " }
-                    a(href = "https://donate.stream/prodzen", target = "_blank") { +"Поддержать разработчика" }
+                    a(href = "https://dzen.ru/prodzn?donate=true", target = "_blank") { +"Поддержать разработчика" }
                 }
             }
         }

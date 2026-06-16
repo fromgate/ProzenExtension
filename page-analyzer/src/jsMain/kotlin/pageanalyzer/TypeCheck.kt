@@ -15,6 +15,8 @@ enum class TypeCheck (val icon: String, val title: String, val hint: String, val
     COMMENTS_SUBSCRIBERS ("😬","Комментарии для подписчиков","Комментарии открыты для подписчиков") ,
     COMMENTS_ALL ("😁","Комментарии для всех","Комментарии открыты для всех"),
     NO_ADV ("🪙","Реклама отключена","Рекламные блоки не обнаружены"),
+
+    SEO_RATING ("⭐️","Рейтинг статьи","Рейтинг для поисковиков", true),
     HTTP_STATUS_CODE ("⚠️","HTTP_STATUS_CODE","HTTP_STATUS_CODE", true);
 
     companion object {

@@ -2156,6 +2156,7 @@ html body .ui-lib-header__item._type_left {
     background-color: var(--popup-tag-bg);
     border-radius: 4px;
     padding: 2px 6px;
+    text-shadow: 0 0 3px #cc9900, 0 1px 1px rgba(0,0,0,0.2);
     color: var(--popup-tag-text-color);
 }
 

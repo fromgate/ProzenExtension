@@ -65,8 +65,7 @@ class PageContextBuilder(private val document: Document) {
         return url to type
     }
 
-
-    fun initializeMetaTags(): PageContextBuilder {
+     fun initializeMetaTags(): PageContextBuilder {
         metaTags.addAll(document.getElementsByTagName("meta").asList().filterIsInstance<HTMLMetaElement>())
         return this
     }
