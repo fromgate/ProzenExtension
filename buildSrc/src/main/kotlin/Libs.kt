@@ -1,8 +1,8 @@
 object Versions {
     const val datetime = "0.6.2"
-    const val serialization = "1.10.0"
-    const val coroutines = "1.10.2"
-    const val ktor = "3.4.1"
+    const val serialization = "1.11.0"
+    const val coroutines = "1.11.0"
+    const val ktor = "3.5.2"
     const val html = "0.12.0"
     const val indexDb = "0.12.0"
 
@@ -28,5 +28,7 @@ object Libs {
     const val ktorClientSerialization = "io.ktor:ktor-client-serialization:${Versions.ktor}"
     const val ktorClientSerializationKotlinxJson = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
     const val ktorClientContentNegotiation = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
+
+    // https://github.com/JuulLabs/indexeddb
     const val indexDb = "com.juul.indexeddb:core:${Versions.indexDb}"
 }

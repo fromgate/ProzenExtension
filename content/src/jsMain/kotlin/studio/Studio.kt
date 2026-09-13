@@ -36,10 +36,12 @@ class Studio(val requester: Requester) : ContentRunner {
                 sheetStr += ".editor--realtime-publications__list-3o{display:none;}"
             }
 
+
             if (hidePromoteBanner) {
                 sheetStr += ".editor--author-studio-dashboard__promoBanner-1U{display:none;}"
                 sheetStr += ".editor--youtube-entrency-panel__root-2D{display:none;}"
                 sheetStr += ".editor--promo-entrency-banner__root-Q1{display:none;}"
+                sheetStr += ".editor--studio-promo-banners__root-10{display:none;}"
             }
 
             if (hideCommentsBlock) {
