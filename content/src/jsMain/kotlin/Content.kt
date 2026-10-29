@@ -156,6 +156,7 @@ fun keepServiceWorkerAlive() {
 
 
 fun main() {
+    installFirefoxResponseBodyFix()
     console.dLog("Content.Kt executed")
     Option.PROZEN.value().then { enabled ->
         if (enabled) {
