@@ -26,12 +26,8 @@ suspend fun createSettingsPage(root: HTMLElement, currentTheme: TriState) {
                 h3 { +"Продзен: настройки расширения" }
             }
 
-
-
             // Настройки
             val groups = Option.entries.asSequence().map { it.group }.filter { it != "hidden" }.toSet()
-            val isFirefox = isFirefox()
-            val firefoxRelated = setOf(Option.SHORT_DASHBOARD_REALTIME, Option.COMMENTS_WIDGET, Option.PROMOTE_SHOW)
             div(classes = "prozen-settings-item") {
                 triStateCheckbox(componentId = "prozen-theme", label = currentTheme.toThemeName().second, initialState = currentTheme) {
                     val labelSpan = document.getElementById("prozen-theme-label") as? HTMLSpanElement
@@ -49,21 +45,19 @@ suspend fun createSettingsPage(root: HTMLElement, currentTheme: TriState) {
                     h4 { +group }
                 }
                 Option.entries.filter { it.group == group }.forEach { option ->
-                    if (!isFirefox || option !in firefoxRelated) {
-                        div(classes = "prozen-settings-item") {
-                            label {
-                                input(classes = "prozen-checkbox", type = InputType.checkBox) {
-                                    id = option.id
-                                    checked = option.defaultValue
-                                }
-                                +option.title
+                    div(classes = "prozen-settings-item") {
+                        label {
+                            input(classes = "prozen-checkbox", type = InputType.checkBox) {
+                                id = option.id
+                                checked = option.defaultValue
                             }
-                            option.description?.let {
-                                div(classes = "prozen-info-icon") {
-                                    span { +"ℹ" }
-                                    span(classes = "prozen-tooltip") {
-                                        +it
-                                    }
+                            +option.title
+                        }
+                        option.description?.let {
+                            div(classes = "prozen-info-icon") {
+                                span { +"ℹ" }
+                                span(classes = "prozen-tooltip") {
+                                    +it
                                 }
                             }
                         }
