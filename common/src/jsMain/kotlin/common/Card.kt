@@ -25,7 +25,10 @@ data class Card(
     var likes: Int? = null,
     var comments: Int? = null,
     var shares: Int? = null,
-    var isBanned: Boolean = false
+    var isBanned: Boolean = false,
+    var status: String? = null,
+    var origin: String? = null, // tg-bot, platform, rss
+    var commonUrl: String? = null,
 )
 
 fun Card.smallImage(): String? {
@@ -125,6 +128,12 @@ fun Card.isInPeriod(period: Pair<Instant, Instant>): Boolean {
     return addTimeInstant in period.first..period.second
 }
 
+fun Card.originIcon(): String = when (this.origin) {
+    "rss" -> "prozen_studio_card_icon_rss"
+    "tg-bot" -> "prozen_studio_card_icon_telegram"
+    else -> "prozen_studio_card_icon_telegram"
+}
+
 suspend fun Card.shorUrl(): String {
     return getCachedFinalUrl("https://dzen.ru/media/id/${this.publisherId}/${this.id}")
 }
@@ -186,6 +195,9 @@ fun studioRequestDataToCard(
             snippet = publication.string("content.preview.snippet") ?: "",
             publisherId = publication.string("publisherId")!!,
             isBanned = publication.bool("isBanned")?: false,
+            status = publication.string("status"),
+            origin = publication.string("origin"),
+            commonUrl = publication.string("commonUrl"),
             imageUrl = imageUrl,
             addTime = publication.long("addTime"),
             modTime = publication.long("content.modTime")!!,

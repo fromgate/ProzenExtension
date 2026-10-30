@@ -8,6 +8,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.dom.clear
+import kotlinx.html.Entities
 import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
@@ -40,8 +41,8 @@ class Publications(val requester: Requester) {
                     ?.asList()
                     ?.filterIsInstance<HTMLElement>()
                 publicationsBlocks?.forEach { publicationBlock ->
-                    val id = getPublicationBlockId(publicationBlock)
-                    val card = id?.let { cards[it] }
+                    val id = getPublicationBlockId(publicationBlock) ?: return@forEach
+                    val card = cards[id] ?: cards.values.firstOrNull { it.commonUrl == id }
                     card?.let { updateStudioCardElement(publicationBlock, it) }
                 }
                 if (!publicationsBlocks.isNullOrEmpty()) {
@@ -63,12 +64,10 @@ class Publications(val requester: Requester) {
     fun getPublicationBlockId(publicationBlock: HTMLElement): String? {
         val cover = publicationBlock.querySelector("div.editor--publication-cover__image-gr") as? HTMLElement
         var id: String? = null
-
         cover?.let {
             val url = it.style.backgroundImage.substring(4, it.style.backgroundImage.length - 1).replace("\"", "")
             id = url.split("_").getOrNull(2)
         }
-
         if (id == null && publicationBlock.hasAttribute("href")) {
             val href = publicationBlock.getAttribute("href") ?: return null
             val idArray = href.split("-")
@@ -76,12 +75,6 @@ class Publications(val requester: Requester) {
         }
         return id
     }
-
-    /* <li tabindex="-1" class="Menu-Item Menu-Item_type_menuitem" aria-selected="false" aria-disabled="false">
-    <a tabindex="-1" class="Menu-ItemInteractive"
-    href="/profile/editor/id/5a3def60e86a9e50b401ab4a/publications-stat?statType=publications&amp;publicationsPublicationType=article&amp;publicationId=67a643c26bcf180eb8c05cfd&amp;intervalType=infinite"><div class="Menu-MenuItemContent"><span class="Text Text_color_full Menu-MenuItemIcon"><svg viewBox="0 0 24 24"><use xlink:href="#statistics_78f1--react"></use></svg></span><div class="Menu-MenuItemTextContent">
-    <span class="Text Text_color_full Text_typography_text-16-20 Menu-MenuItemText">Посмотреть статистику</span></div></div></a></li>
-    * */
 
     private fun updateStudioCardElement(cardElement: HTMLElement, card: Card) {
         val statElement =
@@ -197,6 +190,12 @@ class Publications(val requester: Requester) {
                     }
                     div("prozen-card-row") {
                         style = "justify-content: right;"
+                        val originIcon = card.originIcon()
+                        if (originIcon != "publication_icon_platform") {
+                            span("prozen-card-icon $originIcon") {
+                                title = "Публикация импортирована из ${if (card.origin == "rss") "RSS" else "Telegram"}"
+                            }
+                        }
                         span("prozen-card-icon button prozen_studio_card_icon_link") {
                             title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
                             onClickFunction = {
@@ -267,7 +266,7 @@ class Publications(val requester: Requester) {
         }
         cards.forEach { card ->
             if (card.type !in listOf("post", "narrative", "story")) {
-                val cardElement = getTableCellById(card.id)
+                val cardElement = getTableCellById(card.id) ?: card.commonUrl?.let { getTableCellByUrl(it) }
                 if (cardElement == null) {
                     waitList.add(card)
                 } else {
@@ -403,19 +402,14 @@ class Publications(val requester: Requester) {
     }
 
     private fun getTableCellById(publicationId: String): HTMLElement? {
-        val table = document.querySelector("table[class^=editor--publications-list]") as? HTMLElement
-        val a = table?.querySelector("a[class^=editor--publication-preview][href*='$publicationId']") as? HTMLElement
-
-        if (a != null) {
-            return a.parentElement as HTMLElement
-        }
-
-        val div =
-            table?.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId']") as? HTMLElement
-
-        return div?.parentElement?.parentElement?.parentElement?.parentElement as? HTMLElement
+        val inner = document.querySelector(
+            "td > a[href*='$publicationId'], " +
+                    "td [data-testid='publication-cover'] > [style*='$publicationId']"
+        )
+        return inner?.closest("td") as? HTMLElement
     }
-
+    private fun getTableCellByUrl(url: String): HTMLElement? =
+        document.querySelector("td > a[href='$url']")?.parentElement as? HTMLElement
 
 
     /**
@@ -424,16 +418,16 @@ class Publications(val requester: Requester) {
      *  @param cards List<Card> - список с данными карточек с расширенной статистикой
      *
      */
-    fun modifyPublicationGrid (cards: List<Card>) {
+    fun modifyPublicationGrid(cards: List<Card>) {
         if (!isPublicationGrid()) return
         val waitList = mutableListOf<Card>()
         cards.forEach { card ->
             if (!card.isOldFormat()) {
-                val cellElement = getGridCellById(card.id)
+                val cellElement = getGridCellById(card.id) ?: card.commonUrl?.let { getGridCellByUrl(it) }
                 if (cellElement == null) {
                     waitList.add(card)
                 } else {
-                    modifyGridCell (cellElement, card)
+                    modifyGridCell(cellElement, card)
                 }
             }
         }
@@ -445,25 +439,22 @@ class Publications(val requester: Requester) {
     }
 
     fun getGridCellById(publicationId: String): HTMLElement? {
-        val a = document.querySelector("a.editor--publication-card__link-3k[href*='$publicationId'")
-        if (a != null) return a.parentNode as HTMLElement
-        val div = document.querySelector("div.editor--publication-cover__image-gr[style*='$publicationId'")
-        val parentNode = div?.parentNode?.parentNode as? HTMLElement
-        return parentNode?.querySelector("div.editor--publication-card__stats-1k") as? HTMLElement
+        val CARD_SELECTOR = "[data-testid^='publication-card-']"
+        val card = document.querySelector("[data-testid='publication-card-$publicationId']")
+            ?: document.querySelector("a[data-testid='to-publication-link'][href*='$publicationId']")
+                ?.closest(CARD_SELECTOR)
+            ?: document.querySelector("[data-testid='publication-cover'] > [style*='$publicationId']")
+                ?.closest(CARD_SELECTOR)
+        return card as? HTMLElement
     }
 
-    /*
-            val statsLink = document.querySelector("div.editor--publication-card__menu-2h > span > div > ul > li:nth-child(3) > a[href*='publicationId=$publicationId']") as? HTMLLinkElement
-        if (statsLink != null) {
-            val parentStats = statsLink.parentNode?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode as? HTMLElement
-            console.log("parentStats")
-            console.log(parentStats?: "null")
-            if (parentStats != null)  return parentStats
-        }
 
-     */
+    fun getGridCellByUrl(url: String): HTMLElement? {
+        val a = document.querySelector("a[data-testid='to-publication-link'][href='$url']")
+        return a?.parentElement as? HTMLElement
+    }
 
-    fun modifyGridCell (cellElement: HTMLElement, card: Card) {
+    fun modifyGridCell(cellElement: HTMLElement, card: Card) {
         if (cellElement.hasAttribute("data-prozen-publication-id")) return
         cellElement.setAttribute("data-prozen-publication-id", card.id)
 
@@ -544,6 +535,12 @@ class Publications(val requester: Requester) {
                         span("prozen-grid-card-text") { +card.subscribersViewStr() }
                     }
                     div("prozen-grid-card-cell") {
+                        val originIcon = card.originIcon()
+                        if (originIcon != "publication_icon_platform") {
+                            span("prozen-card-icon button $originIcon") {
+                                title = "Публикация импортирована из ${if (card.origin == "rss") "RSS" else "Telegram"}"
+                            }
+                        }
                         span("prozen-grid-card-icon button prozen_studio_card_icon_link") {
                             title = "Ссылка на публикацию\nНажмите, чтобы скопировать в буфер обмена"
                             onClickFunction = {
