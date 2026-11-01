@@ -202,7 +202,7 @@ suspend fun createSearchPage(root: HTMLElement) {
 
                                     val unloaded = checker!!.getUnloadedContextCards(found)
 
-                                    var checkIsOk: Boolean = true
+                                    var checkIsOk = true
                                     console.dInfo("Unloaded / Found: ${unloaded.size} / ${found.size}")
                                     if (unloaded.isNotEmpty()) {
                                         val progress = ProgressBar()

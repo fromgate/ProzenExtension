@@ -5,7 +5,7 @@ plugins {
 val prozenDev = rootProject.ext["prozenDev"] as Boolean
 
 kotlin {
-    js(IR) {
+    js {
         browser {
             commonWebpackConfig {
                 cssSupport {
