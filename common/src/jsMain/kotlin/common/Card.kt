@@ -131,7 +131,7 @@ fun Card.isInPeriod(period: Pair<Instant, Instant>): Boolean {
 fun Card.originIcon(): String = when (this.origin) {
     "rss" -> "prozen_studio_card_icon_rss"
     "tg-bot" -> "prozen_studio_card_icon_telegram"
-    else -> "prozen_studio_card_icon_telegram"
+    else -> "prozen_studio_card_icon_platform"
 }
 
 suspend fun Card.shorUrl(): String {
