@@ -191,7 +191,7 @@ class Publications(val requester: Requester) {
                     div("prozen-card-row") {
                         style = "justify-content: right;"
                         val originIcon = card.originIcon()
-                        if (originIcon != "publication_icon_platform") {
+                        if (originIcon != "prozen_studio_card_icon_platform") {
                             span("prozen-card-icon $originIcon") {
                                 title = "Публикация импортирована из ${if (card.origin == "rss") "RSS" else "Telegram"}"
                             }
@@ -536,7 +536,7 @@ class Publications(val requester: Requester) {
                     }
                     div("prozen-grid-card-cell") {
                         val originIcon = card.originIcon()
-                        if (originIcon != "publication_icon_platform") {
+                        if (originIcon != "prozen_studio_card_icon_platform") {
                             span("prozen-card-icon button $originIcon") {
                                 title = "Публикация импортирована из ${if (card.origin == "rss") "RSS" else "Telegram"}"
                             }
