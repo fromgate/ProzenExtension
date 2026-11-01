@@ -1,0 +1,256 @@
+# Эталон неофициального API Дзена для расширения Prozen.
+#
+# Один раздел = один эндпоинт (метод + путь + значимые параметры), а не одна функция.
+# Файл читается только при сборке (задача buildSrc): в расширение попадает уже
+# скомпилированный JSON. Комментарии при конвертации теряются.
+#
+# Синтаксис путей в used/ignored:
+#   a.b.c        вложенные объекты
+#   name[]       любой элемент массива (items[].id)
+#   []           элемент корня-массива, только в начале пути
+#   *            любой ключ на одном уровне (items.*.published)
+#   **           всё поддерево, только последним сегментом и только в ignored
+#   \.           точка внутри имени ключа
+#
+# Типы в used: string | number | boolean | object | array | null | any
+#   A|B          объединение типов (number|null)
+#   type?        поле может отсутствовать (отсутствие и null — разные вещи)
+#   { type = "..." }   расширенная запись; поле by удалено из формата
+#
+# Значение в ignored — обязательная непустая причина.
+#
+# Правила match:
+#   "METHOD path?param=value&param={var}", порядок параметров не важен
+#   параметры, которых нет в match, не учитываются
+#   {name} в пути — любой сегмент; param={var} — параметр обязан быть, значение любое
+#   повторяющийся параметр (fields): "набор содержит это значение"
+#   в match параметры записаны по алфавиту (каноническая форма)
+
+[meta]
+format     = 1
+zenVersion = "2.189.0"      # Zen-Client-Experiments, с которым сверялись
+updated    = 2026-10-31
+
+# Параметры, которые не меняют форму ответа: генератор заготовок их отбрасывает.
+# types и view сюда сознательно НЕ входят: вопрос, влияют ли они на форму
+# publications-list, пока открыт.
+volatileParams = [
+  "page", "pageSize", "from", "to", "addTimeFrom", "addTimeTo",
+  "publisherId", "publicationIds", "publicationId", "publicationIdAfter",
+  "query", "language", "clid",
+  "sortBy", "sortOrderDesc", "orderBy", "ascending",
+]
+
+
+# ---------------------------------------------------------------------------
+# stats2: один путь, разные формы ответа. Различаем по groupBy и fields.
+# ---------------------------------------------------------------------------
+
+# Requester.getScr()
+# В реальном запросе fields повторяется 16 раз; в match достаточно impressions,
+# потому что для повторяющегося параметра проверяется вхождение значения.
+[endpoints.stats2-flight-scr]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=impressions&groupBy=flight&total=true"
+note  = "агрегаты по периоду для SCR (охват подписчиков)"
+
+[endpoints.stats2-flight-scr.used]
+"total"                   = "object"
+"total.stats"             = "object"
+"total.stats.impressions" = "number"
+"openingSubscribers"      = "number"
+"publicationCount"        = "number"
+"publications"            = "array"
+
+[endpoints.stats2-flight-scr.ignored]
+# Остальные 15 метрик из fields (deepViews, ctr, vtr и т.д.) коду не нужны.
+"total.stats.*"     = "прочие метрики из fields, берём только impressions"
+"publications[].**" = "постраничный список по публикациям, для SCR не используется"
+
+
+# Requester.getStatsActuality()
+# pageSize/from/publisherId — шумовые; в match их нет.
+[endpoints.stats2-flight-views]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=views&groupBy=flight&publicationTypes=article"
+note  = "запрос с pageSize=1, нужен только момент актуальности статистики"
+
+[endpoints.stats2-flight-views.used]
+"actuality" = "number"      # epoch ms
+
+[endpoints.stats2-flight-views.ignored]
+# Путь `publications` без `[]`/`**`: ignored-путь покрывает не только сам узел,
+# но и всё под ним, поэтому весь массив со своей публикацией скрыт целиком.
+"publications" = "одна публикация для запроса, берём только actuality"
+
+
+# Requester.getPublicationsStatsSubscribers()
+# publicationIds и from — шумовые; в match их нет.
+[endpoints.stats2-agegender-subscribers]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true"
+note  = "просмотры подписчиков по списку публикаций"
+
+[endpoints.stats2-agegender-subscribers.used]
+"publications"                             = "array"
+"publications[].publication"               = "object"
+"publications[].publication.publicationId" = "string"
+"publications[].stats"                     = "object"
+"publications[].stats.typeSpecificViews"   = "number"
+
+[endpoints.stats2-agegender-subscribers.ignored]
+# Пока пусто: разбивка по полу и возрасту не используется, но и не описана.
+# Первые отчёты покажут, что ещё приходит в ответе.
+
+
+# ---------------------------------------------------------------------------
+# Доход
+# ---------------------------------------------------------------------------
+
+# Requester.getTimespentRewards()
+[endpoints.income2]
+match = "GET editor-api/v2/publisher/{id}/income2?total=true"
+note  = "доход по дням"
+
+[endpoints.income2.used]
+"total"                                     = "object"
+"total.intervals"                           = "array"
+"total.intervals[].timestamp"               = "number"      # epoch ms
+"total.intervals[].viewTimeSec"             = "number"
+"total.intervals[].income"                  = "object"
+"total.intervals[].income.timespent-reward" = "number"
+
+[endpoints.income2.ignored]
+"total.intervals[].income.*" = "прочие виды дохода, пока не используем"
+
+
+# ---------------------------------------------------------------------------
+# Ограничения и комментарии
+# ---------------------------------------------------------------------------
+
+# Requester.getStrikesInfo(), Requester.getStrikes()
+[endpoints.get-strikes]
+match = "GET editor-api/v2/v2/get-strikes"       # двойной v2 как в коде
+note  = "ограничения канала"
+
+[endpoints.get-strikes.used]
+"channelRestricted" = "boolean"
+"limitations"       = "array"
+"limitations[].url" = "string"
+
+[endpoints.get-strikes.ignored]
+"limitations[].*" = "прочие поля ограничения (причина, даты и т.п.), пока не используем"
+
+
+# Requester.getBannedUsers()
+[endpoints.banned-users]
+match = "GET api/comments/banned-users"
+note  = "заблокированные комментаторы"
+
+[endpoints.banned-users.used]
+"bannedUsers" = "array"
+
+[endpoints.banned-users.ignored]
+"bannedUsers[].**" = "нужно только количество"
+
+
+# ---------------------------------------------------------------------------
+# Канал
+# ---------------------------------------------------------------------------
+
+# Requester.getChannelData(), getRegTime(), getMetrikaId()
+[endpoints.publisher]
+match = "GET editor-api/v3/publishers/{id}"
+note  = "карточка канала"
+
+[endpoints.publisher.used]
+"publisher"                  = "object"
+"publisher.regTime"          = "number"      # epoch ms
+"publisher.metrikaCounterId" = "number?"     # счётчик может быть не подключён
+
+[endpoints.publisher.ignored]
+"publisher.*" = "прочие поля канала, пока не используем"
+
+
+# Requester.getPublishedPublicationsCount()
+[endpoints.publications-count]
+match = "GET editor-api/v2/publisher/{id}/publications-count"
+note  = "счётчики публикаций по типам; ключи под items — типы публикаций"
+
+[endpoints.publications-count.used]
+"items"             = "object"
+"items.*"           = "object"
+"items.*.published" = "number?"      # в коде при отсутствии берётся 0
+
+[endpoints.publications-count.ignored]
+"items.*.*" = "прочие счётчики (черновики и т.п.), пока не используем"
+
+
+# ---------------------------------------------------------------------------
+# Публикации
+#
+# Описано по studioRequestDataToCards() / studioRequestDataToCard() (common/Card.kt).
+# Форма ответа целиком не подтверждена: ignored намеренно пуст, чтобы первые
+# отчёты показали все лишние поля. types/view в match не входят, поэтому
+# возможные различия формы от этих параметров валидатор пока не увидит.
+# ---------------------------------------------------------------------------
+
+# Requester.getPublicationsByView() и вызывающие его методы
+[endpoints.publications-list]
+match = "GET editor-api/v3/publications?state=published"
+note  = "список карточек публикаций. TODO: проверить, меняют ли types/view форму ответа"
+
+[endpoints.publications-list.used]
+"publications"                     = "array"
+"publications[].id"                = "string"          # id!! вне try/catch в studioRequestDataToCards
+"publications[].publisherId"       = "string"
+"publications[].content"           = "object"
+"publications[].content.type"      = "string"
+"publications[].content.modTime"   = "number"          # modTime!! — без него карточка молча пропускается
+"publications[].content.preview"   = "object"
+"publications[].content.preview.title"   = "string"
+"publications[].content.preview.snippet" = "string|null?"
+"publications[].content.preview.imageId" = "string|null?"
+"publications[].content.images"          = "array?"
+"publications[].content.images[].urlTemplate" = "string|null?"
+"publications[].isBanned"          = "boolean?"
+"publications[].status"            = "string|null?"
+"publications[].origin"            = "string|null?"
+"publications[].commonUrl"         = "string|null?"
+"publications[].addTime"           = "number?"         # в Card addTime: Long?
+"publications[].publishTime"       = "number?"         # при отсутствии в коде 0
+
+"publicationCounters"                            = "array"
+"publicationCounters[].publicationId"            = "string"      # ключ сопоставления с публикацией
+"publicationCounters[].impressions"              = "number?"     # при отсутствии 0
+"publicationCounters[].clicks"                   = "number?"
+"publicationCounters[].typeSpecificViews"        = "number?"
+"publicationCounters[].subscriptions"            = "number?"
+"publicationCounters[].sumViewTimeSec"           = "number?"
+"publicationCounters[].ctr"                      = "number?"
+"publicationCounters[].vtr"                      = "number?"
+"publicationCounters[].shares"                   = "number?"
+
+"socialCounters"                     = "array"
+"socialCounters[].publicationId"     = "string"      # ключ сопоставления с публикацией
+"socialCounters[].likeCount"         = "number?"
+"socialCounters[].commentCount"      = "number?"
+
+[endpoints.publications-list.ignored]
+# Пусто намеренно: сначала надо увидеть, что реально приходит.
+
+
+# Requester.getPublicationStat()
+#
+# Модель Stats (requester/Stats.kt) сериализуется строго: до перевода getData
+# на ignoreUnknownKeys любое лишнее поле здесь — исключение, а не «new».
+# TODO: после первых отчётов проверить необязательность timeToRead.
+[endpoints.publication-view-stat]
+match = "GET media-api/publication-view-stat"
+note  = "статистика просмотров одной публикации (модель Stats)"
+
+[endpoints.publication-view-stat.used]
+"publicationId" = "string"
+"views"         = "number"
+"viewsTillEnd"  = "number"
+"timeToRead"    = "number?"      # в Stats есть значение по умолчанию null
+
+[endpoints.publication-view-stat.ignored]
+# Пусто намеренно: сначала надо увидеть, что реально приходит.

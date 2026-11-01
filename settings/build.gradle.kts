@@ -25,6 +25,7 @@ kotlin {
             dependencies {
                 implementation(project(":chrome"))
                 implementation(project(":common"))
+                implementation(project(":devtools"))
                 implementation(Libs.kotlinxCoroutinesJs)
                 implementation(Libs.kotlinxHtmlJs)
             }

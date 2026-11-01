@@ -2,6 +2,8 @@ plugins {
     kotlin("multiplatform")
 }
 
+val prozenDev = rootProject.ext["prozenDev"] as Boolean
+
 kotlin {
     js(IR) {
         browser {
@@ -41,10 +43,15 @@ tasks {
 
     val extensionFolder = "$rootDir/build/extension-firefox"
     val extensionZipFolder = "$rootDir/build/extension-zip"
+    // Firefox dev отличается от release только JS и именем архива: манифест обычный.
+    val prozenExtensionFolder =
+        if (prozenDev) "$rootDir/build/extension-dev" else "$rootDir/build/extension"
 
     val copyProzenFiles = register<Copy>("copyProzenFiles") {
         dependsOn(prozenBuild)
-        from("$rootDir/build/extension") // Используем файлы из prozen
+        // Каталог — выход этой задачи: чистим, чтобы dev-файлы не пережили release (и наоборот).
+        doFirst { delete(extensionFolder) }
+        from(prozenExtensionFolder) // Используем файлы из prozen
         into(extensionFolder)
     }
 
@@ -62,6 +69,7 @@ tasks {
         dependsOn(buildExtension)
         mustRunAfter(":prozen:packageExtension")
         destinationDirectory.set(file(extensionZipFolder))
+        archiveFileName.set(if (prozenDev) "prozen-firefox-dev.zip" else "prozen-firefox.zip")
         from(extensionFolder)
         into("")
     }

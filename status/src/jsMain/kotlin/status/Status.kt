@@ -4,6 +4,7 @@ import common.*
 import common.components.*
 import common.progress.ProgressBar
 import common.progress.Spinner
+import devtools.installDevValidator
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -371,6 +372,7 @@ fun getPremiumFilter(): List<TypeCheck> {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
+    installDevValidator()
     GlobalScope.launch {
         val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()
         setVisualTheme(currentTheme.toTheme())

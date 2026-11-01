@@ -11,8 +11,17 @@ object DebugLogger {
         updateDebugState()
     }
 
+    /** Перечитывает режим отладки из настроек (асинхронно). */
     fun updateDebugState() {
-         Option.DEBUG.value().then { isDebugEnabled = it }
+        Option.DEBUG.value().then { isDebugEnabled = it }
+    }
+
+    /**
+     * Применяет только что записанное значение сразу: после D+Numpad0
+     * не ждём асинхронного `storage.local.get`, иначе `dLog` отстаёт на шаг.
+     */
+    fun updateDebugState(enabled: Boolean) {
+        isDebugEnabled = enabled
     }
 }
 

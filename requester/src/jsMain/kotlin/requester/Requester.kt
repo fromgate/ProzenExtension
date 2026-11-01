@@ -2,7 +2,6 @@ package requester
 
 import common.*
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -10,12 +9,20 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.w3c.dom.url.URL
 
 
-open class Requester(val publisherId: String?, val token: String?) {
+open class Requester(
+    val publisherId: String?,
+    val token: String?,
+    // Значение по умолчанию вычисляется при создании Requester, поэтому dev-регистрация
+    // (ApiObservers.current = ...) должна выполниться раньше, чем создан первый Requester.
+    private val observer: ApiObserver = ApiObservers.current,
+) {
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
@@ -126,7 +133,7 @@ open class Requester(val publisherId: String?, val token: String?) {
 
     open suspend fun getStrikes(): Pair<Boolean, List<String>>? {
         val requestUrl = "https://dzen.ru/editor-api/v2/v2/get-strikes?publisherId=$publisherId&language=ru"
-        val data = getJsonSafe("getStrikesInfo", requestUrl)
+        val data = getJsonSafe("getStrikes", requestUrl)
         val channelBlock = data?.bool("channelRestricted")
         val limitations = mutableListOf<String>()
         data?.arr("limitations")?.filterIsInstance<JsonObject>()?.forEach { limit ->
@@ -158,7 +165,7 @@ open class Requester(val publisherId: String?, val token: String?) {
 
     suspend fun getPublicationStat(publicationId: String): Stats? {
         val requestUrl = "https://dzen.ru/media-api/publication-view-stat?publicationId=$publicationId"
-        return getData(requestUrl)
+        return getDataSafe("getPublicationStat", requestUrl)
     }
 
     /**
@@ -168,7 +175,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getChannelData(): Pair<Int?, Instant?> {
         val requestUrl = "https://dzen.ru/editor-api/v3/publishers/$publisherId"
-        val jsonResponse = getJsonSafe("getChannelData2",requestUrl)
+        val jsonResponse = getJsonSafe("getChannelData", requestUrl)
         val publisher = jsonResponse?.obj("publisher")
 
         val metrikaCounterId = publisher?.int("metrikaCounterId")
@@ -184,7 +191,7 @@ open class Requester(val publisherId: String?, val token: String?) {
      */
     open suspend fun getRegTime(): Instant? {
         val requestUrl = "https://dzen.ru/editor-api/v3/publishers/$publisherId"
-        val jsonResponse = getJsonSafe("getChannelData",requestUrl)
+        val jsonResponse = getJsonSafe("getRegTime", requestUrl)
         return  jsonResponse?.long("publisher.regTime")?.toInstant()
     }
 
@@ -327,18 +334,52 @@ open class Requester(val publisherId: String?, val token: String?) {
      * @param customHeaders: HeadersBuilder —
      * @return JsonObject —
      */
+    /**
+     * Единая воронка: запрос → текст один раз → JSON один раз → наблюдатель → результат.
+     * `@PublishedApi internal`, потому что её вызывает публичная inline-функция `getData<T>`.
+     */
+    @PublishedApi
+    internal suspend fun fetch(
+        requestUrl: String,
+        customHeaders: HeadersBuilder.() -> Unit,
+        caller: String?,
+    ): FetchedResponse {
+        val response = getHttpResponse(requestUrl, customHeaders)
+        val text = response.bodyAsText()
+        val json: JsonElement? = if (text.isBlank()) {
+            null
+        } else {
+            try {
+                Json.parseToJsonElement(text)
+            } catch (error: Exception) {
+                null // тело не JSON: наблюдатель увидит body = null
+            }
+        }
+
+        try {
+            observer.onResponse(ApiCall("GET", requestUrl, response.status.value, json, caller))
+        } catch (error: Throwable) {
+            // Наблюдатель не должен ломать запрос
+            console.dLog("ApiObserver failed: ${error.message}")
+        }
+
+        return FetchedResponse(response.status, text, json)
+    }
+
     suspend fun getJson(
         requestUrl: String,
         customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
-    ): JsonObject? {
-        val response = getHttpResponse(requestUrl, customHeaders)
-        return if (response.status == HttpStatusCode.OK) {
-            response.body()
-        } else {
-            null
-        }
-    }
+    ): JsonObject? = getJsonFor(null, requestUrl, customHeaders)
 
+    @PublishedApi
+    internal suspend fun getJsonFor(
+        caller: String?,
+        requestUrl: String,
+        customHeaders: HeadersBuilder.() -> Unit,
+    ): JsonObject? {
+        val fetched = fetch(requestUrl, customHeaders, caller)
+        return if (fetched.status == HttpStatusCode.OK) fetched.json as? JsonObject else null
+    }
 
     suspend fun getJsonSafe(
         label: String,
@@ -346,7 +387,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): JsonObject?  {
         return safe(label) {
-            getJson(requestUrl, customHeaders)
+            getJsonFor(label, requestUrl, customHeaders)
         }
     }
 
@@ -356,7 +397,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         noinline customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): T? {
         return safe(label) {
-            getData(requestUrl, customHeaders)
+            fetch(requestUrl, customHeaders, label).decodeData(requestUrl)
         }
     }
 
@@ -364,13 +405,7 @@ open class Requester(val publisherId: String?, val token: String?) {
         requestUrl: String,
         noinline customHeaders: HeadersBuilder.() -> Unit = defaultHeaders,
     ): T? {
-        val response = getHttpResponse(requestUrl, customHeaders)
-        return if (response.status == HttpStatusCode.OK) {
-            Json.decodeFromString<T>(response.bodyAsText())
-        } else {
-            console.dLog("Failed to get json from request: $requestUrl")
-            null
-        }
+        return fetch(requestUrl, customHeaders, null).decodeData(requestUrl)
     }
 
     suspend fun getHttpResponse(
@@ -382,5 +417,30 @@ open class Requester(val publisherId: String?, val token: String?) {
                 customHeaders()
             }
         }
+    }
+}
+
+/** Результат единой воронки: статус, текст и однократно разобранный JSON. */
+@PublishedApi
+internal class FetchedResponse(
+    val status: HttpStatusCode,
+    val text: String,
+    val json: JsonElement?,
+)
+
+/**
+ * Json для `getData<T>`: лишние поля игнорируются, чтобы новое поле в ответе
+ * не превращалось в исключение. Поведение отличается от прежнего `Json` по умолчанию.
+ */
+@PublishedApi
+internal val requesterJson: Json = Json { ignoreUnknownKeys = true }
+
+@PublishedApi
+internal inline fun <reified T> FetchedResponse.decodeData(requestUrl: String): T? {
+    return if (status == HttpStatusCode.OK && json != null) {
+        requesterJson.decodeFromJsonElement<T>(json)
+    } else {
+        console.dLog("Failed to get json from request: $requestUrl")
+        null
     }
 }

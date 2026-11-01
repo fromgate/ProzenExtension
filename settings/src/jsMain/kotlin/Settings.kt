@@ -1,6 +1,8 @@
 
 import common.*
 import common.components.*
+import devtools.devSettingsSection
+import devtools.refreshDevSettingsIndicator
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -77,6 +79,7 @@ suspend fun createSettingsPage(root: HTMLElement, currentTheme: TriState) {
                         showNotification("Настройки сохранены")
                     }
                 }
+                devSettingsSection(this)
             }
 
             // Футер с ссылками
@@ -94,6 +97,10 @@ fun toggleDebug() {
     Option.DEBUG.value().then { option ->
         val debug = !option
         Option.DEBUG.set(debug)
+        // Применяем сразу: storage.local запишется асинхронно, а dLog должен
+        // переключиться в тот же момент, что и кнопка расхождений.
+        DebugLogger.updateDebugState(debug)
+        refreshDevSettingsIndicator(debug)
         showNotification("Режим отладки ${if (debug) "включён" else "отключён"}")
     }
 }

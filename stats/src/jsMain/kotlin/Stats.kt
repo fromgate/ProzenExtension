@@ -1,6 +1,7 @@
 import common.*
 import common.components.*
 import common.progress.Spinner
+import devtools.installDevValidator
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -170,6 +171,7 @@ fun calculateStats() {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
+    installDevValidator()
     GlobalScope.launch {
         getChannelId()
         val currentTheme: TriState = getFromStorageStr("prozen-theme").themeToTristate()

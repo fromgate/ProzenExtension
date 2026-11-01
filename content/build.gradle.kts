@@ -27,6 +27,7 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
                 implementation(project(":chrome"))
                 implementation(project(":common"))
+                implementation(project(":devtools"))
                 implementation(project(":requester"))
                 implementation(Libs.kotlinxDatetime)
                 implementation(Libs.kotlinxSerializationJson)

@@ -28,6 +28,7 @@ kotlin {
 }
 
 val extensionVersion = getVersionFromChangelog()
+val prozenDev = rootProject.ext["prozenDev"] as Boolean
 
 fun getVersionFromChangelog(): String {
     val changelogFile = file("$rootDir/CHANGELOG.md")
@@ -46,7 +47,7 @@ tasks.named("jsProcessResources", Copy::class) {
 }
 
 tasks {
-    val extensionFolder = "$rootDir/build/extension"
+    val extensionFolder = if (prozenDev) "$rootDir/build/extension-dev" else "$rootDir/build/extension"
     val extensionZipFolder = "$rootDir/build/extension-zip"
 
     val updateManifest = register("updateManifest") {
@@ -70,6 +71,8 @@ tasks {
     register("tagVersion") {
         group = "versioning"
         description = "Tags the last commit with the version number"
+        // Проверка release-бандла должна пройти до создания и отправки тега.
+        dependsOn(rootProject.tasks.named("checkReleaseBundle"))
         doLast {
             val existingTags = runCommand ("git", "tag")
             if (existingTags.contains(extensionVersion)) {
@@ -82,10 +85,17 @@ tasks {
         }
     }
 
-    val modules = rootProject.getJsSourceModules()
+    val modules = rootProject.getJsSourceModules(prozenDev)
+
+    // Каталог расширения — выход сборки: чистим целиком, иначе в release могут
+    // пережить dev-артефакты (например, старые source maps).
+    val cleanExtension = register<Delete>("cleanExtension") {
+        delete(extensionFolder)
+    }
 
     val copyBundleFile = register<Copy>("copyBundleFile") {
         into("$rootDir/build/distributions/")
+        dependsOn(cleanExtension)
         dependsOn( modules.map { ":$it:jsBrowserDistribution" })
         modules.forEach {
             from (project(":$it").layout.buildDirectory.dir("distributions")) {}
@@ -95,13 +105,27 @@ tasks {
             it.name.matches(Regex("""\d+\.js(\.map)?"""))
                     || it.name.endsWith(".LICENSE.txt")
         }
+        // В release source maps не создаются, но в каталогах модулей могли остаться
+        // от предыдущих сборок.
+        if (!prozenDev) {
+            exclude("**/*.map")
+        }
 
     }
 
     val copyResources = register<Copy>("copyResources") {
-        dependsOn(updateManifest)
+        dependsOn(cleanExtension, updateManifest)
         from("src/jsMain/resources")
         into(extensionFolder)
+        if (prozenDev) {
+            // Исходный манифест остаётся release-версией; dev-правки — только в копии.
+            doLast {
+                writeDevManifest(
+                    source = file("src/jsMain/resources/manifest.json"),
+                    target = file("$extensionFolder/manifest.json"),
+                )
+            }
+        }
     }
 
     val buildExtension = register("buildExtension") {
@@ -111,6 +135,7 @@ tasks {
     val packageExtension = register<Zip>("packageExtension") {
         dependsOn(buildExtension)
         destinationDirectory.set(file(extensionZipFolder))
+        archiveFileName.set(if (prozenDev) "prozen-dev.zip" else "prozen.zip")
         from(extensionFolder)
         into("prozen") // для Chrome
     }

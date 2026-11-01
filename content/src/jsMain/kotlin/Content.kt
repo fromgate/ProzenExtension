@@ -3,6 +3,7 @@ import PageType.*
 import common.*
 import common.Option
 import dataclasses.ProzenData
+import devtools.installDevValidator
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -156,6 +157,7 @@ fun keepServiceWorkerAlive() {
 
 
 fun main() {
+    installDevValidator()
     installFirefoxResponseBodyFix()
     console.dLog("Content.Kt executed")
     Option.PROZEN.value().then { enabled ->
