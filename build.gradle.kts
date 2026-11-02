@@ -82,6 +82,7 @@ tasks.register<CheckReleaseBundleTask>("checkReleaseBundle") {
             "new-endpoint",
             "new-variant",
             "unverified",
+            "непустой array",
             "diff:",
             "Prozen dev",
         )

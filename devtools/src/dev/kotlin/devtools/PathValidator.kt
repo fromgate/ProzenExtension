@@ -10,21 +10,28 @@ import kotlinx.serialization.json.booleanOrNull
 /** Результат обхода одного ответа по эталону эндпоинта. */
 internal class ValidationOutcome(
     val endpoint: Endpoint,
-    /** Отчёты проверки формы: `new`, `missing`, `type`, `unverified`. */
+    /** Отчёты проверки формы: `new`, `missing`, `type`, `empty`, `unverified`. */
     val pending: List<PendingDiff>,
     /** Что увидели в ответе: реальный путь -> множество типов (для снятия прошлых отчётов). */
     val observedTypes: Map<List<PathStep>, Set<String>>,
+    /** Непустые массивы: по ним снимается `empty`. */
+    val nonEmptyArrays: Set<List<PathStep>>,
+    /** Массивы, содержимое которых проверено или пустота которых допустима: снимают `unverified` под собой. */
+    val resolvedArrays: Set<List<PathStep>>,
     /** Вызвал запрос. */
     val caller: String?,
 )
 
 /**
  * Что увидели в ответе. Нужен, чтобы снимать отработавшие записи: `missing`
- * и `unverified`, чей путь появился, `type`, чей тип теперь допустим.
+ * и `unverified`, чей путь появился, `type`, чей тип теперь допустим,
+ * `empty`, если массив стал непустым или исчез.
  */
 internal class ResponseSnapshot(
     private val endpoint: Endpoint,
     private val types: Map<List<PathStep>, Set<String>>,
+    private val nonEmptyArrays: Set<List<PathStep>> = emptySet(),
+    private val resolvedArrays: Set<List<PathStep>> = emptySet(),
 ) {
     fun typeOf(pathText: String): Set<String>? =
         types[parsePath(pathText)]
@@ -44,17 +51,48 @@ internal class ResponseSnapshot(
         return types[steps]!!.all { it in rule.types }
     }
 
+    /** Путь больше не под массивом, чьё содержимое осталось непроверенным. */
+    private fun underResolvedArray(pathText: String): Boolean {
+        val steps = parsePath(pathText)
+        return resolvedArrays.any { arrayPath -> isUnderArray(arrayPath, steps) }
+    }
+
+    /** Массив стал непустым, исчез или перестал быть массивом. */
+    private fun emptyResolved(pathText: String): Boolean {
+        val steps = parsePath(pathText)
+        val observed = types[steps] ?: return true
+        if ("array" !in observed) return true
+        return steps in nonEmptyArrays
+    }
+
     /** Запись снята этим ответом: её больше не нужно показывать. */
     fun resolved(record: DiffRecord): Boolean = when (record.kind) {
-        DiffKind.MISSING, DiffKind.UNVERIFIED -> containsPath(record.path)
-        DiffKind.TYPE -> typeAllowed(record.path)
+        DiffKind.MISSING -> containsPath(record.path) || underResolvedArray(record.path)
+        DiffKind.UNVERIFIED -> containsPath(record.path) || underResolvedArray(record.path)
+        DiffKind.TYPE -> typeAllowed(record.path) ||
+            (!containsPath(record.path) && underResolvedArray(record.path))
+        DiffKind.EMPTY -> emptyResolved(record.path)
         else -> false
     }
 }
 
 
-/** Лимит фрагмента значения, который хранится в расхождении. */
+/** Лимит фрагмента значения, который хранится в расхождении типа/статуса. */
 internal const val diffSampleLimit: Int = 200
+
+/** Лимит образца нового узла: 16 КБ, чтобы в него поместился целый элемент массива. */
+internal const val newSampleLimit: Int = 16 * 1024
+
+/** Обрезает образец и оставляет явный след обрезки. */
+internal fun limitSample(value: String, limit: Int): String =
+    if (value.length <= limit) value else value.take(limit) + "…[обрезано ${value.length - limit} симв.]"
+
+/** Путь правила лежит под массивом `arrayPath` (следующий сегмент — `[]`). */
+internal fun isUnderArray(arrayPath: List<PathStep>, rulePath: List<PathStep>): Boolean {
+    if (rulePath.size <= arrayPath.size) return false
+    if (rulePath[arrayPath.size] !== PathStep.ArrayItem) return false
+    return arrayPath.indices.all { actualStepMatches(arrayPath[it], rulePath[it]) }
+}
 
 internal class PathValidator(private val endpoint: Endpoint) {
 
@@ -64,10 +102,21 @@ internal class PathValidator(private val endpoint: Endpoint) {
     private val samples = mutableMapOf<List<PathStep>, JsonElement>()
     private val newNodes = mutableMapOf<List<PathStep>, JsonElement>()
     private val blockedArrays = mutableListOf<Pair<List<PathStep>, String>>()
+    private val emptyArrays = mutableSetOf<List<PathStep>>()
+    private val settledEmptyArrays = mutableSetOf<List<PathStep>>()
+    private val nonEmptyArrays = mutableSetOf<List<PathStep>>()
+    private val resolvedArrays = mutableSetOf<List<PathStep>>()
 
     fun validate(root: JsonElement, caller: String?): ValidationOutcome {
         walk(root, emptyList())
-        return ValidationOutcome(endpoint, collectDiffs(), observedSnapshot(), caller)
+        return ValidationOutcome(
+            endpoint = endpoint,
+            pending = collectDiffs(),
+            observedTypes = observedSnapshot(),
+            nonEmptyArrays = nonEmptyArrays.toSet(),
+            resolvedArrays = resolvedArrays.toSet(),
+            caller = caller,
+        )
     }
 
     private fun observedSnapshot(): Map<List<PathStep>, Set<String>> =
@@ -104,14 +153,28 @@ internal class PathValidator(private val endpoint: Endpoint) {
             is JsonObject -> node.forEach { (key, value) -> walk(value, path + PathStep.Key(key)) }
             is JsonArray -> {
                 if (node.isEmpty()) {
-                    blockedArrays.add(path to "пустой массив: содержимое не проверено")
+                    if (usedExact != null) {
+                        // На пути массива есть правило: пустота — это либо допустимый
+                        // вариант (`array?`), либо отдельное расхождение (`empty`).
+                        resolvedArrays += path
+                        settledEmptyArrays += path
+                        if ("array" in usedExact.types && !usedExact.optional) {
+                            emptyArrays += path
+                        }
+                    } else {
+                        blockedArrays.add(path to "пустой массив: содержимое не проверено")
+                    }
                     return
                 }
+                nonEmptyArrays += path
                 sampleIndices(node.size).forEach { index -> walk(node[index], path + PathStep.ArrayItem) }
                 if (node.size > ARRAY_SAMPLE_SIZE) {
                     blockedArrays.add(
                         path to "массив обрезан (${node.size} элементов, проверено $ARRAY_SAMPLE_SIZE)"
                     )
+                } else {
+                    // Содержимое проверено целиком: прошлые `unverified` под массивом больше не актуальны.
+                    resolvedArrays += path
                 }
             }
 
@@ -137,7 +200,18 @@ internal class PathValidator(private val endpoint: Endpoint) {
                 kind = DiffKind.NEW,
                 path = formatPath(path),
                 observed = jsonTypeOf(node),
-                sample = sampleValue(node),
+                sample = newSampleValue(node),
+                note = newSampleNote(node),
+            )
+        }
+
+        emptyArrays.filter { it !in nonEmptyArrays }.forEach { path ->
+            diffs += PendingDiff(
+                endpoint = endpoint.name,
+                kind = DiffKind.EMPTY,
+                path = formatPath(path),
+                expected = "непустой array",
+                observed = "пустой массив",
             )
         }
 
@@ -174,9 +248,19 @@ internal class PathValidator(private val endpoint: Endpoint) {
 
                 endpoint.hasMatchingIgnored(rule) -> Unit
 
+                // Массив, на пути которого есть правило, пуст: содержимое не проверяется.
+                suppressedByEmptyArray(rule.path) -> Unit
+
+                // Необязательный массив отсутствует: это допустимо, содержимое не проверяем.
+                hasAbsentOptionalArrayAncestor(rule, unmatched) -> Unit
+
                 // Необязательный родитель отсутствует: содержимое проверить нельзя.
-                unmatched.firstOrNull { isAncestorPattern(it.path, rule.path) && it.optional } != null -> {
-                    val parent = unmatched.first { isAncestorPattern(it.path, rule.path) && it.optional }
+                unmatched.firstOrNull {
+                    isAncestorPattern(it.path, rule.path) && it.optional && "array" !in it.types
+                } != null -> {
+                    val parent = unmatched.first {
+                        isAncestorPattern(it.path, rule.path) && it.optional && "array" !in it.types
+                    }
                     reports += Report(rule, DiffKind.UNVERIFIED, "необязательный родитель ${parent.canonical} отсутствует")
                 }
 
@@ -201,19 +285,39 @@ internal class PathValidator(private val endpoint: Endpoint) {
         }
     }
 
-    /** Массив на этом пути опустошён или обрезан, поэтому правило под ним проверить нельзя. */
-    private fun blockedBy(arrayPath: List<PathStep>, rulePath: List<PathStep>): Boolean {
-        if (rulePath.size <= arrayPath.size) return false
-        if (rulePath[arrayPath.size] !== PathStep.ArrayItem) return false
-        return arrayPath.indices.all { actualStepMatches(arrayPath[it], rulePath[it]) }
+    private fun blockedReason(rulePath: List<PathStep>): String? =
+        blockedArrays.firstOrNull { (arrayPath, reason) -> isUnderArray(arrayPath, rulePath) }?.second
+
+    /** Правило лежит под массивом, который пуст, хотя на его пути есть правило. */
+    private fun suppressedByEmptyArray(rulePath: List<PathStep>): Boolean =
+        settledEmptyArrays.any { arrayPath -> isUnderArray(arrayPath, rulePath) }
+
+    /** Отсутствующий необязательный массив (`array?`) закрывает вопросы к его содержимому. */
+    private fun hasAbsentOptionalArrayAncestor(rule: Endpoint.UsedRule, unmatched: List<Endpoint.UsedRule>): Boolean =
+        unmatched.any { ancestor ->
+            isAncestorPattern(ancestor.path, rule.path) &&
+                ancestor.optional &&
+                "array" in ancestor.types
+        }
+
+    /** Пример для `type`: короткий, чтобы записи не разрастались. */
+    private fun sampleValue(node: JsonElement): String = limitSample(node.toString(), diffSampleLimit)
+
+    /**
+     * Образец нового узла: для массива — один элемент целиком (последний просмотренный),
+     * для объекта — весь объект. В 16 КБ обычно помещается целый элемент.
+     */
+    private fun newSampleValue(node: JsonElement): String? = when {
+        node is JsonArray -> if (node.isEmpty()) null else limitSample(node.last().toString(), newSampleLimit)
+        node is JsonObject -> limitSample(node.toString(), newSampleLimit)
+        else -> sampleValue(node)
     }
 
-    private fun blockedReason(rulePath: List<PathStep>): String? =
-        blockedArrays.firstOrNull { (arrayPath, reason) -> blockedBy(arrayPath, rulePath) }?.second
-
-    private fun sampleValue(node: JsonElement): String {
-        val text = node.toString()
-        return if (text.length <= diffSampleLimit) text else text.take(diffSampleLimit) + "…"
+    /** Позиция элемента в новом массиве, чтобы образец можно было сопоставить с ответом. */
+    private fun newSampleNote(node: JsonElement): String? = when {
+        node !is JsonArray -> null
+        node.isEmpty() -> "массив пуст"
+        else -> "элемент ${node.size} из ${node.size}"
     }
 }
 

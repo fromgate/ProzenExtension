@@ -3,9 +3,6 @@ package devtools
 /** Сколько схлопнутых путей показывать в комментарии к одному блоку `new`. */
 private const val NEW_DETAIL_LIMIT = 12
 
-/** Сколько символов примера значения оставлять в комментарии. */
-private const val NEW_SAMPLE_LIMIT = 120
-
 private val HEADER_RULE = "═".repeat(72)
 
 /**
@@ -212,9 +209,18 @@ private fun isPrefixPath(prefix: List<PathStep>, path: List<PathStep>): Boolean 
 private fun appendNewDetails(builder: StringBuilder, records: List<DiffRecord>) {
     records.take(NEW_DETAIL_LIMIT).forEach { record ->
         val path = record.path.ifEmpty { "(корень ответа)" }
-        builder.appendLine("#   $path — ${record.observed ?: "?"}${stackSuffix(record)}")
+        val observed = buildString {
+            append(record.observed ?: "?")
+            record.note?.takeIf { it.isNotBlank() }?.let {
+                append(", ")
+                append(it)
+            }
+        }
+        builder.appendLine("#   $path — $observed${stackSuffix(record)}")
+        // Образец уже ограничен при сохранении (16 КБ для новых узлов), в комментарии
+        // не режем повторно, чтобы не потерять элемент массива.
         record.sample?.takeIf { it.isNotBlank() }?.let { sample ->
-            builder.appendLine("#     пример: ${limitText(sample, NEW_SAMPLE_LIMIT)}")
+            builder.appendLine("#     пример: $sample")
         }
     }
     if (records.size > NEW_DETAIL_LIMIT) {
@@ -275,6 +281,9 @@ private fun diffComment(record: DiffRecord): String {
         DiffKind.UNVERIFIED ->
             "# ${prefix}unverified: ${record.path} — ожидалось ${record.expected ?: "?"}, получено не проверено$suffix"
 
+        DiffKind.EMPTY ->
+            "# ${prefix}empty: ${record.path} — ожидалось ${record.expected ?: "непустой array"}, получено ${record.observed ?: "пустой массив"}$suffix"
+
         // В комментарии попадают только осиротевшие записи: раздел писать некуда.
         DiffKind.NEW_ENDPOINT ->
             "# ${prefix}new-endpoint: ${record.request ?: "?"}$suffix"
@@ -296,6 +305,3 @@ private fun stackSuffix(record: DiffRecord): String {
 
 private fun tomlEscape(value: String): String =
     value.replace("\\", "\\\\").replace("\"", "\\\"")
-
-private fun limitText(value: String, limit: Int): String =
-    if (value.length <= limit) value else value.take(limit) + "…"

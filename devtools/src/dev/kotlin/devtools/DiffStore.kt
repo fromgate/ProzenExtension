@@ -17,7 +17,7 @@ private const val REFERENCE_HASH_KEY = "prozen-api-reference-hash"
 /** Префикс ключей расхождений. */
 private const val DIFF_PREFIX = "diff:"
 
-/** Три вида расхождений по пути и два вида по запросу — то же, что в copy-тексте. */
+/** Виды расхождений по пути и по запросу — то же, что в copy-тексте. */
 @Serializable
 internal enum class DiffKind(val wire: String) {
     NEW("new"),
@@ -25,6 +25,7 @@ internal enum class DiffKind(val wire: String) {
     TYPE("type"),
     STATUS("status"),
     UNVERIFIED("unverified"),
+    EMPTY("empty"),
     NEW_ENDPOINT("new-endpoint"),
     NEW_VARIANT("new-variant"),
 }
@@ -103,8 +104,9 @@ internal object DiffStore {
 
     /**
      * Накапливает расхождения, собранные по одному ответу, и снимает
-     * разрешившиеся: `missing` и `unverified`, чей путь появился в ответе,
-     * `type`, чей тип теперь допустим, и `status` на запросе с успехом.
+     * разрешившиеся: `missing` и `unverified`, чей путь появился в ответе
+     * или чей массив проверен/пуст по правилу, `type`, чей тип теперь допустим,
+     * `empty`, если массив стал непустым, и `status` на запросе с успехом.
      */
     internal suspend fun applyResponse(
         endpointName: String,
@@ -202,9 +204,11 @@ internal object DiffStore {
                 DiffKind.NEW -> endpoint.isCovered(parsePath(record.path))
                 DiffKind.TYPE -> typeIsSettled(endpoint, record)
                 DiffKind.MISSING -> missingIsSettled(endpoint, record)
+                DiffKind.EMPTY -> emptyIsSettled(endpoint, record)
+                DiffKind.UNVERIFIED -> unverifiedIsSettled(endpoint, record)
                 DiffKind.NEW_ENDPOINT, DiffKind.NEW_VARIANT ->
                     record.request != null && reference.match(ActualRequest.parseCanonical(record.request)) != null
-                DiffKind.STATUS, DiffKind.UNVERIFIED -> false
+                DiffKind.STATUS -> false
             }
             if (remove) {
                 records.remove(key)
@@ -226,6 +230,28 @@ internal object DiffStore {
         val steps = parsePath(record.path)
         val rule = endpoint.used.firstOrNull { usedMatches(it.path, steps) } ?: return true
         return rule.optional || endpoint.hasMatchingIgnored(rule)
+    }
+
+    /** `empty`: правило стало необязательным (`array?`), исчезло или массив больше не требуется. */
+    private fun emptyIsSettled(endpoint: Endpoint, record: DiffRecord): Boolean {
+        val steps = parsePath(record.path)
+        val rule = endpoint.bestUsedExact(steps) ?: return true
+        if (rule.optional) return true
+        if (endpoint.hasMatchingIgnored(rule)) return true
+        return "array" !in rule.types
+    }
+
+    /**
+     * Одноразовая миграция: старые `unverified` из-за пустого массива больше не
+     * воспроизводятся, если на пути массива появилось правило (`empty` или `array?`).
+     * Без правила поведение прежнее, такую запись оставляем.
+     */
+    private fun unverifiedIsSettled(endpoint: Endpoint, record: DiffRecord): Boolean {
+        if (!record.note.orEmpty().startsWith("пустой массив")) return false
+        val steps = parsePath(record.path)
+        return steps.indices.any { index ->
+            steps[index] === PathStep.ArrayItem && endpoint.bestUsedExact(steps.take(index)) != null
+        }
     }
 
     // ------------------------------------------------------------------ storage

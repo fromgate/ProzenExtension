@@ -91,7 +91,12 @@ internal object ApiValidator : ApiObserver {
         DiffStore.applyResponse(
             endpointName = match.endpoint.name,
             pending = outcome.pending,
-            snapshot = ResponseSnapshot(match.endpoint, outcome.observedTypes),
+            snapshot = ResponseSnapshot(
+                endpoint = match.endpoint,
+                types = outcome.observedTypes,
+                nonEmptyArrays = outcome.nonEmptyArrays,
+                resolvedArrays = outcome.resolvedArrays,
+            ),
             requestSucceeded = true,
             caller = outcome.caller,
         )
