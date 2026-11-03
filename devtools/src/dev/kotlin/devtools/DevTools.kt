@@ -2,7 +2,6 @@ package devtools
 
 import common.ApiObservers
 import common.Option
-import common.copyTextToClipboard
 import common.showNotification
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -15,18 +14,29 @@ import kotlinx.html.button
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.style
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLTextAreaElement
 import kotlin.js.Date
 
 /** Идентификатор кнопки: по нему находим элемент, созданный через DSL. */
-private const val DIFF_BUTTON_ID = "prozen-dev-diffs-button"
-
 private const val SCHEMA_BUTTON_ID = "prozen-dev-schema-button"
-
-/** Кнопка «Скопировать расхождения» на странице настроек. */
-private var diffButton: HTMLButtonElement? = null
 
 /** Кнопка «Скопировать схему API»: полный эталон с дописанными `unknown`. */
 private var schemaButton: HTMLButtonElement? = null
+
+/**
+ * Текст, готовый к копированию, и число новых полей в нём.
+ *
+ * Собирается заранее, при открытии настроек и возврате фокуса: буфер обмена
+ * вызывается синхронно из обработчика клика, пока браузер считает действие
+ * пользовательским. Если собирать текст после `await` на storage, пользовательский
+ * жест теряется, и Clipboard API может отказать.
+ */
+private class PreparedSchema(val text: String, val additions: Int)
+
+private var preparedSchema: PreparedSchema? = null
+
+/** Причина, по которой схему не удалось подготовить: показывается при клике. */
+private var prepareError: String? = null
 
 /**
  * Ставит валидатор наблюдателем `Requester`.
@@ -50,21 +60,14 @@ fun installDevValidator() {
 }
 
 /**
- * Dev-интерфейс в настройках: кнопки «Скопировать расхождения (N)» и
- * «Скопировать схему API (Новое: X)».
+ * Dev-интерфейс в настройках: кнопка «Скопировать схему API (Новое: X)».
  *
- * Контейнер `DIV` — контейнер кнопки «Сохранить»: кнопки встают рядом.
- * При каждом открытии настроек эталон переоценивается по хешу.
+ * Контейнер `DIV` — контейнер кнопки «Сохранить»: кнопка встаёт рядом.
+ * При каждом открытии настроек эталон переоценивается по хешу, а текст
+ * для копирования собирается заранее.
  */
 @OptIn(DelicateCoroutinesApi::class)
 fun devSettingsSection(container: DIV) {
-    container.button(classes = "prozen-save-button") {
-        attributes["id"] = DIFF_BUTTON_ID
-        style = "display: none; margin-left: 10px;"
-        onClickFunction = { copyDiffs() }
-        +"Скопировать расхождения"
-    }
-
     container.button(classes = "prozen-save-button") {
         attributes["id"] = SCHEMA_BUTTON_ID
         style = "display: none; margin-left: 10px;"
@@ -75,44 +78,86 @@ fun devSettingsSection(container: DIV) {
     // Счётчик мог измениться в другой вкладке: обновляем при возврате на страницу.
     window.addEventListener("focus", { refreshDevSettingsIndicator() })
 
-    GlobalScope.launch {
-        try {
-            DiffStore.ensureReferenceCurrent()
-        } catch (error: Throwable) {
-            logValidatorFailure(error)
-        }
-        updateButton()
-    }
+    prepareSchemaCopy()
 }
 
 /**
- * Обновляет кнопку после смены режима отладки (D+Numpad0):
- * видимость зависит от `Option.DEBUG`, счётчик — от накопленных записей.
+ * Обновляет кнопку после смены режима отладки (D+Numpad0): видимость зависит
+ * от `Option.DEBUG`, счётчик и текст — от накопленных записей.
  *
  * `debugEnabled` передаётся сразу после переключения: storage.local пишется
  * асинхронно, и чтение настройки успело бы вернуть старое значение.
  */
 @OptIn(DelicateCoroutinesApi::class)
 fun refreshDevSettingsIndicator(debugEnabled: Boolean? = null) {
-    GlobalScope.launch { updateButton(debugEnabled) }
+    prepareSchemaCopy(debugEnabled)
 }
 
+/**
+ * Пересобирает текст для буфера обмена и обновляет кнопку.
+ *
+ * Подготовка не трогает буфер обмена, поэтому может выполняться в фоне:
+ * при клике достаточно взять готовый текст.
+ */
 @OptIn(DelicateCoroutinesApi::class)
-private fun copyDiffs() {
+private fun prepareSchemaCopy(knownEnabled: Boolean? = null) {
     GlobalScope.launch {
-        try {
-            DiffStore.ensureReferenceCurrent()
-            val records = DiffStore.snapshot()
-            copyTextToClipboard(buildCopyText(records, ReferenceHolder.document))
-            showNotification(
-                if (records.isEmpty()) "Расхождений с эталоном нет" else "Скопировано расхождений: ${records.size}"
-            )
-            updateButtonFrom(records.size, schemaCount(records))
+        // Кнопка могла ещё не попасть в документ: тогда готовим текст при следующем
+        // обновлении интерфейса (фокус окна, переключение отладки).
+        val button = schemaButtonElement() ?: return@launch
+
+        val enabled = knownEnabled ?: try {
+            Option.DEBUG.value().await()
         } catch (error: Throwable) {
             logValidatorFailure(error)
-            showNotification("Не удалось скопировать расхождения")
+            false
         }
+        if (!enabled) {
+            button.style.display = "none"
+            preparedSchema = null
+            prepareError = null
+            return@launch
+        }
+
+        button.style.display = ""
+        if (preparedSchema == null) {
+            button.textContent = "Скопировать схему API (готовится…)"
+        }
+
+        try {
+            val prepared = loadPreparedSchema()
+            preparedSchema = prepared
+            prepareError = null
+            button.textContent = "Скопировать схему API (Новое: ${prepared.additions})"
+        } catch (error: Throwable) {
+            // Копировать нечем, но причину не скрываем: она попадёт в уведомление
+            // при клике и в консоль при открытии настроек.
+            preparedSchema = null
+            prepareError = error.message ?: error.toString()
+            logValidatorFailure(error)
+            button.textContent = "Скопировать схему API (ошибка подготовки)"
+        }
+
+        button.disabled = false
+        button.style.opacity = ""
     }
+}
+
+/** Читает записи, переоценивает их по эталону и собирает полный текст схемы. */
+private suspend fun loadPreparedSchema(): PreparedSchema {
+    try {
+        DiffStore.ensureReferenceCurrent()
+    } catch (error: Throwable) {
+        // Переоценка по хешу не должна мешать копированию: берём то, что уже накоплено.
+        logValidatorFailure(error)
+    }
+
+    val records = DiffStore.snapshot()
+    val reference = ReferenceHolder.document
+    return PreparedSchema(
+        text = buildSchemaCopy(records, reference, ReferenceHolder.sourceText, Date()),
+        additions = newSchemaRecords(records, reference).size,
+    )
 }
 
 /**
@@ -121,89 +166,96 @@ private fun copyDiffs() {
  * Кнопка активна и без новых полей: тогда в буфер попадает текущий файл
  * байт-в-байт — это удобно для проверки round-trip после сохранения.
  */
-@OptIn(DelicateCoroutinesApi::class)
 private fun copySchema() {
-    GlobalScope.launch {
-        try {
-            DiffStore.ensureReferenceCurrent()
-            val records = DiffStore.snapshot()
-            val reference = ReferenceHolder.document
-            val additions = newSchemaRecords(records, reference).size
-            copyTextToClipboard(buildSchemaCopy(records, reference, ReferenceHolder.sourceText, Date()))
-            showNotification(
-                if (additions == 0) {
-                    "Схема API скопирована: новых полей нет."
-                } else {
-                    "Схема API скопирована. Новых полей: $additions. " +
-                        "После сохранения пересоберите расширение."
-                }
-            )
-            updateButtonFrom(records.size, additions)
-        } catch (error: Throwable) {
-            logValidatorFailure(error)
-            showNotification("Не удалось скопировать схему API")
-        }
-    }
-}
-
-/** Сколько `new` попадёт в `unknown` при копировании схемы. */
-private fun schemaCount(records: List<DiffRecord>): Int =
-    newSchemaRecords(records, ReferenceHolder.document).size
-
-@OptIn(DelicateCoroutinesApi::class)
-private suspend fun updateButton(knownEnabled: Boolean? = null) {
-    val diff = diffButtonElement()
-    val schema = schemaButtonElement()
-    if (diff == null && schema == null) return
-
-    val enabled = knownEnabled ?: try {
-        Option.DEBUG.value().await()
-    } catch (error: Throwable) {
-        logValidatorFailure(error)
-        false
-    }
-    if (!enabled) {
-        diff?.style?.display = "none"
-        schema?.style?.display = "none"
+    val prepared = preparedSchema
+    if (prepared == null) {
+        val reason = prepareError
+        showNotification(
+            if (reason == null) {
+                "Схема API готовится: нажмите кнопку ещё раз через секунду."
+            } else {
+                "Схема API не подготовлена: $reason"
+            }
+        )
+        prepareSchemaCopy()
         return
     }
-
-    val records = try {
-        DiffStore.snapshot()
-    } catch (error: Throwable) {
-        logValidatorFailure(error)
-        return
-    }
-    diff?.style?.display = ""
-    schema?.style?.display = ""
-    updateButtonFrom(records.size, schemaCount(records))
-}
-
-private fun updateButtonFrom(count: Int, schemaAdded: Int) {
-    diffButtonElement()?.let { button ->
-        button.textContent = "Скопировать расхождения ($count)"
-        button.disabled = count == 0
-        button.style.opacity = if (count == 0) "0.6" else ""
-    }
-    schemaButtonElement()?.let { button ->
-        button.textContent = "Скопировать схему API (Новое: $schemaAdded)"
-        // Копирование схемы полезно и без новых полей: в буфер идёт текущий эталон.
-        button.disabled = false
-        button.style.opacity = ""
-    }
+    copyPrepared(prepared)
 }
 
 /**
- * Элементы кнопок ищутся лениво: страница настроек достраивается после вызова
- * `devSettingsSection`, поэтому сразу `getElementById` может ничего не найти.
+ * Пишет готовый текст в буфер обмена, не разрывая пользовательский жест.
+ *
+ * `writeText` вызывается синхронно из обработчика клика; промис ожидается
+ * через `then`. Если Clipboard API недоступен или отказал, используется
+ * скрытая textarea и `document.execCommand('copy')`.
  */
-private fun diffButtonElement(): HTMLButtonElement? {
-    diffButton?.let { return it }
-    val element = document.getElementById(DIFF_BUTTON_ID) as? HTMLButtonElement
-    if (element != null) diffButton = element
-    return element
+private fun copyPrepared(prepared: PreparedSchema) {
+    val promise = try {
+        window.navigator.clipboard.writeText(prepared.text)
+    } catch (error: Throwable) {
+        // В части браузеров Clipboard API на странице расширения недоступен вовсе.
+        logValidatorFailure(error)
+        finishCopy(prepared, legacyCopy(prepared.text), error.message)
+        return
+    }
+
+    promise.then(
+        { finishCopy(prepared, true, null) },
+        { error ->
+            val reason = errorMessage(error)
+            console.error("Prozen API validator: Clipboard API отказал: $reason")
+            finishCopy(prepared, legacyCopy(prepared.text), reason)
+        },
+    )
 }
 
+/** Резервное копирование: скрытая textarea и синхронный `execCommand`. */
+private fun legacyCopy(text: String): Boolean {
+    val area = document.createElement("textarea") as? HTMLTextAreaElement ?: return false
+    area.value = text
+    area.setAttribute("readonly", "")
+    area.setAttribute("style", "position: fixed; top: 0; left: -9999px; opacity: 0;")
+    document.body?.appendChild(area)
+    return try {
+        area.select()
+        js("document.execCommand('copy')") as Boolean
+    } catch (error: Throwable) {
+        logValidatorFailure(error)
+        false
+    } finally {
+        area.remove()
+    }
+}
+
+private fun finishCopy(prepared: PreparedSchema, copied: Boolean, failure: String?) {
+    if (!copied) {
+        val reason = failure?.takeIf { it.isNotBlank() } ?: "буфер обмена недоступен"
+        showNotification("Не удалось скопировать схему API: $reason")
+        return
+    }
+
+    showNotification(
+        if (prepared.additions == 0) {
+            "Схема API скопирована: новых полей нет."
+        } else {
+            "Схема API скопирована. Новых полей: ${prepared.additions}. " +
+                "После сохранения пересоберите расширение."
+        }
+    )
+
+    // Записи могли измениться в другой вкладке: счётчик и текст обновляем в фоне.
+    prepareSchemaCopy()
+}
+
+private fun errorMessage(error: dynamic): String {
+    // Явный тип String? обязателен: у dynamic-выражения Kotlin/JS ищет
+    // расширение isNotBlank как метод объекта и падает с TypeError.
+    val message: String? = error?.message
+    return if (message != null && message.isNotEmpty()) message else "причина неизвестна"
+}
+
+/** Элемент кнопки ищется лениво: страница настроек достраивается после вызова `devSettingsSection`. */
 private fun schemaButtonElement(): HTMLButtonElement? {
     schemaButton?.let { return it }
     val element = document.getElementById(SCHEMA_BUTTON_ID) as? HTMLButtonElement
@@ -212,5 +264,5 @@ private fun schemaButtonElement(): HTMLButtonElement? {
 }
 
 private fun logValidatorFailure(error: Throwable) {
-    console.error("Prozen API validator: ${error.message}")
+    console.error("Prozen API validator: ${error.message}", error)
 }

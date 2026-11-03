@@ -222,6 +222,10 @@ private fun renderAddition(addition: SchemaAddition, eol: String): String = buil
     addition.sample?.let { append(eol).append("#   пример: ").append(it) }
 }
 
+/** Экранирование строки TOML: обратная косая черта и кавычка. */
+private fun tomlEscape(value: String): String =
+    value.replace("\\", "\\\\").replace("\"", "\\\"")
+
 // ---------------------------------------------------------------------- сканер
 
 private fun splitLines(source: String): List<SchemaLine> {
