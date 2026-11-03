@@ -177,8 +177,13 @@ abstract class CheckReleaseBundleTask : DefaultTask() {
                 }
             }
             // Сборка release из исходников обязана работать (проверяется распаковкой),
-            // поэтому каркас проекта и release-заглушки devtools должны присутствовать.
-            listOf("settings.gradle.kts", "devtools/src/release/").forEach { required ->
+            // поэтому каркас проекта и release-заглушки devtools должны присутствовать;
+            // HOW-TO-BUILD.md — единственный файл у корня архива.
+            listOf(
+                "prozen-src/settings.gradle.kts",
+                "prozen-src/devtools/src/release/",
+                "HOW-TO-BUILD.md",
+            ).forEach { required ->
                 if (entries.none { it.startsWith(required) }) {
                     problems += "$label: нет вхождения \"$required\""
                 }

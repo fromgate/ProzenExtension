@@ -16,7 +16,7 @@ plugins {
 //
 // Dev и release нельзя собрать в одном Gradle-процессе (различаются source set
 // и список модулей), поэтому команда, собирающая релиз, запускает dev-вариант
-// отдельным вложенным процессом (см. assembleReleaseWithDev/buildVersion ниже).
+// отдельным вложенным процессом (см. buildRelease/buildVersion ниже).
 // ---------------------------------------------------------------------------
 
 private val prozenDevProperty = providers.gradleProperty("prozen.dev").orNull
@@ -30,18 +30,18 @@ private val prozenDevRequested: Boolean? = when (prozenDevProperty) {
     )
 }
 
-private val isBuildVersion = gradle.startParameter.taskNames.any {
-    it.substringAfterLast(':') == "buildVersion"
-}
+private val releaseInvocation = gradle.startParameter.taskNames
+    .map { it.substringAfterLast(':') }
+    .firstOrNull { it == "buildVersion" || it == "buildRelease" }
 
-if (isBuildVersion && prozenDevRequested == true) {
+if (releaseInvocation != null && prozenDevRequested == true) {
     throw GradleException(
-        "buildVersion собирает release-версию и несовместим с -Pprozen.dev=true. " +
+        "$releaseInvocation собирает release-версию и несовместим с -Pprozen.dev=true. " +
             "Для dev-сборки используйте ./gradlew build."
     )
 }
 
-private val prozenDev: Boolean = prozenDevRequested ?: !isBuildVersion
+private val prozenDev: Boolean = prozenDevRequested ?: (releaseInvocation == null)
 
 ext["prozenDev"] = prozenDev
 // Раньше это выставлялось в конфигурации buildVersion, то есть уже после того,
@@ -94,8 +94,8 @@ tasks.register<CheckReleaseBundleTask>("checkReleaseBundle") {
         )
     )
     forbiddenPermissions.set(listOf("unlimitedStorage"))
-    sourcesZip.set(layout.buildDirectory.file("extension-zip/prozen-sources.zip"))
-    forbiddenZipEntries.set(listOf("reference", "devtools/src/dev"))
+    sourcesZip.set(layout.buildDirectory.file("extension-zip/prozen-src.zip"))
+    forbiddenZipEntries.set(listOf("prozen-src/reference", "prozen-src/devtools/src/dev"))
     if (!prozenDev) {
         dependsOn(":prozen:packageReleaseExtensions", ":prozen:packageSourcesZip")
     }
@@ -117,18 +117,31 @@ tasks.named("build") {
     } else {
         // Релиз подразумевает и dev-варианты: dev собирается первым (и заодно
         // чистит протухший release), затем release пересоздаётся и проверяется.
-        dependsOn("assembleReleaseWithDev")
+        dependsOn("buildRelease")
     }
 }
 
-if (!prozenDev) {
-    tasks.register("assembleReleaseWithDev") {
-        group = "build"
-        description = "Собирает dev-варианты вложенным запуском, затем release"
-        doLast {
-            runGradle("-Pprozen.dev=true", "build")
-            runGradle("-Pprozen.dev=false", ":prozen:packageReleaseExtensions", "checkReleaseBundle")
+tasks.register("buildRelease") {
+    group = "build"
+    description = "Собирает dev-варианты вложенным запуском, затем release (без тега)"
+    doFirst {
+        if (prozenDev) {
+            throw GradleException(
+                "buildRelease собирает release-версию. " +
+                    "Запустите без -Pprozen.dev=true (для dev-сборки используйте ./gradlew build)."
+            )
         }
+    }
+    doLast {
+        // Dev-варианты собираются только в полном дереве исходников: для dev-сборки
+        // нужен эталон API. Урезанный архив исходников (для Firefox AMO) его не
+        // содержит — там собирается только release.
+        if (File(rootDir, "reference/zen-api.toml").isFile) {
+            runGradle("-Pprozen.dev=true", "build")
+        } else {
+            println("reference/zen-api.toml не найден: dev-варианты пропускаются, собирается только release")
+        }
+        runGradle("-Pprozen.dev=false", ":prozen:packageReleaseExtensions", "checkReleaseBundle")
     }
 }
 

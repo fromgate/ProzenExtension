@@ -13,7 +13,7 @@
 - Флаг `prozenDev` считается в корневом `build.gradle.kts` при конфигурации: `-Pprozen.dev=true|false` важнее, иначе имя задачи `buildVersion` значит release, иначе dev.
 - `buildVersion` вместе с `-Pprozen.dev=true` падает на конфигурации: release нельзя случайно собрать с dev-кодом.
 - `./gradlew build` → dev: `build/extension/prozen-{chrome,edge,firefox}-dev/`, `build/extension-zip/prozen-{browser}-dev.zip`, source maps включены; протухшие release-артефакты удаляются.
-- `./gradlew buildVersion` → release + dev (вложенные запуски: dev и release несовместимы в одной конфигурации): `build/extension/prozen-{browser}/`, `build/extension-zip/prozen-{browser}.zip` и `prozen-sources.zip` (исходники для AMO без dev-кода и эталона), без source maps и без devtools; перед тегом выполняется `checkReleaseBundle`.
+- `./gradlew buildVersion` → release + dev (вложенные запуски: dev и release несовместимы в одной конфигурации): `build/extension/prozen-{browser}/`, `build/extension-zip/prozen-{browser}.zip` и `prozen-src.zip` (исходники для AMO без dev-кода и эталона), без source maps и без devtools; перед тегом выполняется `checkReleaseBundle`.
 - `:devtools` — отдельный библиотечный модуль (своего бандла нет, код входит в бандлы потребителей): реальный код в `src/dev/kotlin`, заглушки в `src/release/kotlin`, каталог выбирается флагом `prozenDev`. Модуль исключён из списка исполняемых бандлов; `getJsSourceModules(dev)` дополнительно отфильтровывает dev-only модули, если они появятся.
 - `:devtools:generateApiReference` существует только в dev и компилирует `reference/zen-api.toml` в `devtools/build/generated/reference/ZenApiReference.kt`.
 - Потребители: `content`, `search`, `stats`, `status` — `installDevValidator()` первой строкой `main()`; `settings` — `devSettingsSection(this)` в контейнере кнопки «Сохранить».
@@ -87,7 +87,7 @@
 - `./gradlew -p buildSrc test` — тесты конвертера и синтаксиса.
 - `./gradlew verifyApiReference` — проверить `reference/zen-api.toml` без записи артефактов.
 - `./gradlew build` — dev-сборка в `build/extension/prozen-{browser}-dev/` и dev-архивы.
-- `./gradlew -Pprozen.dev=false build` — release+dev без тега (dev собирается вложенным запуском); `./gradlew buildVersion` делает то же и ставит тег.
+- `./gradlew buildRelease` — release+dev без тега (dev собирается вложенным запуском); `./gradlew buildVersion` делает то же и ставит тег. Эквивалентная форма: `./gradlew -Pprozen.dev=false build`.
 - `./gradlew -Pprozen.dev=false checkReleaseBundle` — отдельно проверить release-бандл.
 - `./gradlew -Pprozen.dev=false :devtools:generateApiReference` — ошибка: задачи нет в release.
 

@@ -134,22 +134,31 @@ tasks {
                 delete(rootProject.layout.buildDirectory.dir("extension/prozen-${target.id}"))
                 delete(rootProject.layout.buildDirectory.file("extension-zip/prozen-${target.id}.zip"))
             }
-            delete(rootProject.layout.buildDirectory.file("extension-zip/prozen-sources.zip"))
+            delete(rootProject.layout.buildDirectory.file("extension-zip/prozen-src.zip"))
         }
     } else {
-        // Исходники для Firefox AMO. Без dev-кода (devtools/src/dev) и эталона API
-        // (reference/zen-api.toml): из этого архива dev-сборку не собрать, release — можно.
+        // Исходники для Firefox AMO: всё содержимое — в папку prozen-src
+        // (включая HOW-TO-BUILD.md: тогда сборка из распакованного архива
+        // воспроизводит его же структуру), отдельная копия HOW-TO-BUILD.md — рядом
+        // с папкой. Без dev-кода (devtools/src/dev) и эталона API (reference/zen-api.toml):
+        // из этого архива dev-сборку не собрать, release — можно.
         register<Zip>("packageSourcesZip") {
             group = "build"
             description = "Архив исходников для загрузки на addons.mozilla.org"
             destinationDirectory.set(extensionZipFolder)
-            archiveFileName.set("prozen-sources.zip")
+            archiveFileName.set("prozen-src.zip")
             from(rootProject.layout.projectDirectory) {
+                into("prozen-src")
                 exclude("**/.git/**", "**/.gradle/**", ".idea/**", ".kotlin/**", ".work/**", ".env*")
                 exclude("build/**", "*/build/**")
+                exclude("AGENTS.md", "README.md")
+                exclude("docs/**")
                 exclude("reference/**")
                 exclude("devtools/src/dev/**")
                 exclude("*.zip")
+            }
+            from(rootProject.layout.projectDirectory.file("HOW-TO-BUILD.md")) {
+                into("")
             }
         }
     }
