@@ -29,6 +29,7 @@ internal object ReferenceHolder {
         val match: MatchJson,
         val used: List<UsedJson> = emptyList(),
         val ignored: List<IgnoredJson> = emptyList(),
+        val unknown: List<UnknownJson> = emptyList(),
     )
 
     @Serializable
@@ -58,9 +59,19 @@ internal object ReferenceHolder {
     private data class IgnoredJson(val path: List<PathStepJson> = emptyList(), val reason: String = "")
 
     @Serializable
+    private data class UnknownJson(
+        val path: List<PathStepJson> = emptyList(),
+        val types: List<String> = emptyList(),
+        val specificity: List<Int> = emptyList(),
+    )
+
+    @Serializable
     private data class PathStepJson(val k: String, val n: String = "")
 
     val document: ReferenceDocument by lazy { parse(ZEN_API_REFERENCE_JSON) }
+
+    /** Исходный текст `reference/zen-api.toml`: его патчит копирование схемы. */
+    val sourceText: String get() = ZEN_API_REFERENCE_TOML
 
     private fun parse(text: String): ReferenceDocument {
         val dto = json.decodeFromString(ReferenceJson.serializer(), text)
@@ -81,6 +92,7 @@ internal object ReferenceHolder {
         match = match.toMatch(),
         used = used.mapIndexed { index, used -> used.toUsed(index) },
         ignored = ignored.map { it.toIgnored() },
+        unknown = unknown.map { it.toUnknown() },
     )
 
     private fun MatchJson.toMatch(): EndpointMatch {
@@ -132,6 +144,8 @@ internal object ReferenceHolder {
     )
 
     private fun IgnoredJson.toIgnored() = Endpoint.IgnoredRule(path = path.toSteps(), reason = reason)
+
+    private fun UnknownJson.toUnknown() = Endpoint.UnknownRule(path = path.toSteps(), types = types.toSet())
 }
 
 /** Результат сопоставления запроса с эндпоинтом. */
@@ -153,6 +167,7 @@ internal class Endpoint(
     val match: EndpointMatch,
     val used: List<UsedRule>,
     val ignored: List<IgnoredRule>,
+    val unknown: List<UnknownRule>,
 ) {
     /** Тип поля, который проверяет правило. */
     internal class UsedRule(
@@ -172,6 +187,12 @@ internal class Endpoint(
         val rank: PathRank = path.pathRank
     }
 
+    /** Путь, отложенный в `unknown` до ручного разбора. Тип не проверяется. */
+    internal class UnknownRule(val path: List<PathStep>, val types: Set<String>) {
+        val canonical: String = formatPath(path)
+        val rank: PathRank = path.pathRank
+    }
+
     fun bestUsedExact(actual: List<PathStep>): UsedRule? =
         used.filter { it.matchesAt(actual) }.maxByOrNull { it.rank }
 
@@ -186,9 +207,21 @@ internal class Endpoint(
     fun bestIgnored(actual: List<PathStep>): IgnoredRule? =
         ignored.filter { ignoredCovers(it.path, actual) }.maxByOrNull { it.rank }
 
-    /** Путь больше не «новый»: он либо в `used`, либо целиком под `ignored`. */
+    /** Точное правило `unknown` для реального пути. */
+    fun bestUnknownExact(actual: List<PathStep>): UnknownRule? =
+        unknown.filter { usedMatches(it.path, actual) }.maxByOrNull { it.rank }
+
+    /**
+     * Правило `unknown`, покрывающее реальный путь: сам путь или его предок.
+     * Как и `ignored`, `unknown` скрывает всё поддерево, пока разработчик не
+     * заменит его более точным правилом `used`.
+     */
+    fun bestUnknownCovering(actual: List<PathStep>): UnknownRule? =
+        unknown.filter { ignoredCovers(it.path, actual) }.maxByOrNull { it.rank }
+
+    /** Путь больше не «новый»: он в `used`, под `ignored` или в `unknown`. */
     fun isCovered(actual: List<PathStep>): Boolean =
-        bestUsedExact(actual) != null || bestIgnored(actual) != null
+        bestUsedExact(actual) != null || bestIgnored(actual) != null || bestUnknownCovering(actual) != null
 
     /** Правило `used` перекрыто правилом `ignored` с не меньшей специфичностью. */
     fun hasMatchingIgnored(rule: UsedRule): Boolean =

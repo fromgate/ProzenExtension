@@ -150,12 +150,16 @@ data class UsedPath(val path: ReferencePath, val type: TypeSpec)
 
 data class IgnoredPath(val path: ReferencePath, val reason: String)
 
+/** Наблюдённый, но ещё не разобранный путь: временный склад для ручного разбора. */
+data class UnknownPath(val path: ReferencePath, val type: TypeSpec)
+
 data class EndpointDefinition(
     val name: String,
     val note: String?,
     val match: EndpointMatch,
     val used: List<UsedPath>,
     val ignored: List<IgnoredPath>,
+    val unknown: List<UnknownPath>,
 )
 
 data class ReferenceDocument(

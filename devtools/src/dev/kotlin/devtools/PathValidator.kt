@@ -127,11 +127,13 @@ internal class PathValidator(private val endpoint: Endpoint) {
     private fun walk(node: JsonElement, path: List<PathStep>) {
         val usedExact = endpoint.bestUsedExact(path)
         val ignored = endpoint.bestIgnored(path)
+        val unknown = endpoint.bestUnknownCovering(path)
         val below = endpoint.bestUsedAtOrBelow(path)
 
-        // `ignored` перекрывает узел целиком. Исключение — если под узлом есть
-        // правило `used` более специфичное (тогда спускаемся дальше).
-        if (ignored != null && (below == null || ignored.rank >= below.rank)) {
+        // `ignored` и `unknown` перекрывают узел целиком. Исключение — если под
+        // узлом есть более специфичное правило `used`: тогда спускаемся дальше.
+        val blocker = listOfNotNull(ignored?.rank, unknown?.rank).maxOrNull()
+        if (blocker != null && (below == null || blocker >= below.rank)) {
             return
         }
 

@@ -12,6 +12,8 @@ class Compilation(
     /** `sha256:...` от JSON с пустым полем `hash`. */
     val hash: String,
     val warnings: List<String>,
+    /** Исходный текст эталона: dev-сборка копирует его в буфер с дописанными `unknown`. */
+    val source: String,
 )
 
 /**
@@ -23,7 +25,7 @@ object ReferenceCompiler {
 
     private val ENDPOINT_NAME = Regex("[A-Za-z0-9_-]+")
     private val META_KEYS = setOf("format", "zenVersion", "updated", "volatileParams")
-    private val ENDPOINT_KEYS = setOf("match", "note", "used", "ignored")
+    private val ENDPOINT_KEYS = setOf("match", "note", "used", "ignored", "unknown")
 
     fun compile(toml: String): Compilation {
         val root = Toml.parse(toml)
@@ -50,7 +52,7 @@ object ReferenceCompiler {
         val hash = "sha256:" + sha256(jsonWithoutHash)
         val json = ReferenceJson.write(document, hash = hash)
 
-        return Compilation(document, json, hash, collector.warnings)
+        return Compilation(document, json, hash, collector.warnings, toml)
     }
 
     private fun readMeta(root: TomlParseResult, collector: Collector): Meta? {
@@ -141,8 +143,8 @@ object ReferenceCompiler {
             return null
         }
 
-        val unknown = table.keySet() - ENDPOINT_KEYS
-        unknown.forEach { collector.error(context, "неизвестный ключ \"$it\"") }
+        val unknownKeys = table.keySet() - ENDPOINT_KEYS
+        unknownKeys.forEach { collector.error(context, "неизвестный ключ \"$it\"") }
 
         val matchRaw = table.getString("match")
         val match = if (matchRaw == null) {
@@ -168,9 +170,10 @@ object ReferenceCompiler {
 
         val used = readUsed(name, table.getTable("used"), collector)
         val ignored = readIgnored(name, table.getTable("ignored"), collector)
+        val unknown = readUnknown(name, table.getTable("unknown"), collector)
 
         if (match == null) return null
-        return EndpointDefinition(name, note, match, used, ignored)
+        return EndpointDefinition(name, note, match, used, ignored, unknown)
     }
 
     private fun readUsed(
@@ -195,42 +198,49 @@ object ReferenceCompiler {
                 return@mapNotNull null
             }
 
-            val type = when (val value = entry.value) {
-                is String -> try {
-                    TypeSyntax.parse(value)
-                } catch (error: SyntaxException) {
-                    collector.error(context, error.message ?: "неверный тип")
-                    return@mapNotNull null
-                }
+            val type = readTypeSpec(context, entry.value, collector) ?: return@mapNotNull null
+            UsedPath(path, type)
+        }
+    }
 
-                is TomlTable -> {
-                    val unknown = value.keySet() - setOf("type")
-                    if ("by" in value.keySet()) {
-                        collector.error(context, "поле \"by\" больше не поддерживается: кто вызывает эндпоинт, видно по caller")
-                    }
-                    unknown.filter { it != "by" }.forEach {
-                        collector.error(context, "неизвестный ключ \"$it\" в расширенной записи")
-                    }
-                    val typeString = value.getString("type")
-                    if (typeString == null) {
-                        collector.error(context, "в расширенной записи обязателен \"type\"")
-                        return@mapNotNull null
-                    }
+    /**
+     * Общий разбор значения `used`/`unknown`: строка с типом или расширенная
+     * запись `{ type = "..." }`. Ошибки добавляются в коллектор, при ошибке — null.
+     */
+    private fun readTypeSpec(context: String, value: Any?, collector: Collector): TypeSpec? {
+        return when (value) {
+            is String -> try {
+                TypeSyntax.parse(value)
+            } catch (error: SyntaxException) {
+                collector.error(context, error.message ?: "неверный тип")
+                null
+            }
+
+            is TomlTable -> {
+                if ("by" in value.keySet()) {
+                    collector.error(context, "поле \"by\" больше не поддерживается: кто вызывает эндпоинт, видно по caller")
+                }
+                (value.keySet() - setOf("type")).filter { it != "by" }.forEach {
+                    collector.error(context, "неизвестный ключ \"$it\" в расширенной записи")
+                }
+                val typeString = value.getString("type")
+                if (typeString == null) {
+                    collector.error(context, "в расширенной записи обязателен \"type\"")
+                    null
+                } else {
                     try {
                         TypeSyntax.parse(typeString)
                     } catch (error: SyntaxException) {
                         collector.error(context, error.message ?: "неверный тип")
-                        return@mapNotNull null
+                        null
                     }
-                }
-
-                else -> {
-                    collector.error(context, "ожидается тип строкой или таблицей { type = \"...\" }")
-                    return@mapNotNull null
                 }
             }
 
-            UsedPath(path, type)
+            else -> {
+                collector.error(context, "ожидается тип строкой или таблицей { type = \"...\" }")
+                null
+            }
         }
     }
 
@@ -264,6 +274,37 @@ object ReferenceCompiler {
             }
 
             IgnoredPath(path, reason)
+        }
+    }
+
+    /**
+     * `unknown` — склад наблюдённых, но ещё не разобранных путей. Пути только
+     * точные: `*` и `**` здесь недопустимы, иначе запись неоднозначна.
+     */
+    private fun readUnknown(
+        endpoint: String,
+        table: TomlTable?,
+        collector: Collector,
+    ): List<UnknownPath> {
+        if (table == null) return emptyList()
+
+        return table.entrySet().mapNotNull { entry ->
+            val rawPath = entry.key
+            val context = "endpoints.$endpoint.unknown[\"$rawPath\"]"
+            val path = try {
+                PathSyntax.parse(rawPath)
+            } catch (error: SyntaxException) {
+                collector.error(context, error.message ?: "неверный путь")
+                return@mapNotNull null
+            }
+
+            if (path.segments.any { it == PathSegment.AnyKey || it == PathSegment.Deep }) {
+                collector.error(context, "\"*\" и \"**\" недопустимы в unknown: путь должен быть точным")
+                return@mapNotNull null
+            }
+
+            val type = readTypeSpec(context, entry.value, collector) ?: return@mapNotNull null
+            UnknownPath(path, type)
         }
     }
 
@@ -304,7 +345,48 @@ object ReferenceCompiler {
                     )
                 }
             }
+
+            val ignoredByPath = endpoint.ignored.associateBy { it.path.canonical }
+            endpoint.unknown.forEach { unknown ->
+                if (used.containsKey(unknown.path.canonical)) {
+                    collector.error(
+                        "endpoints.${endpoint.name}",
+                        "путь \"${unknown.path.canonical}\" одновременно в used и unknown",
+                    )
+                }
+                if (ignoredByPath.containsKey(unknown.path.canonical)) {
+                    collector.error(
+                        "endpoints.${endpoint.name}",
+                        "путь \"${unknown.path.canonical}\" одновременно в ignored и unknown",
+                    )
+                }
+                endpoint.ignored
+                    .firstOrNull {
+                        it.path.canonical != unknown.path.canonical && ignoredCovers(it.path, unknown.path)
+                    }
+                    ?.let { covering ->
+                        collector.warnings +=
+                            "endpoints.${endpoint.name}.unknown: путь \"${unknown.path.canonical}\" " +
+                            "уже покрыт ignored \"${covering.path.canonical}\""
+                    }
+            }
         }
+    }
+
+    /** `ignored`-правило покрывает точный путь `unknown` (возможно, через wildcard). */
+    private fun ignoredCovers(pattern: ReferencePath, actual: ReferencePath): Boolean {
+        val segments = pattern.segments
+        if (segments.isEmpty()) return false
+        val length = if (segments.last() == PathSegment.Deep) segments.size - 1 else segments.size
+        if (actual.segments.size < length) return false
+        return (0 until length).all { index -> segmentMatches(segments[index], actual.segments[index]) }
+    }
+
+    private fun segmentMatches(pattern: PathSegment, actual: PathSegment): Boolean = when (pattern) {
+        is PathSegment.Key -> actual is PathSegment.Key && actual.name == pattern.name
+        PathSegment.AnyKey -> actual is PathSegment.Key
+        PathSegment.ArrayItem -> actual === PathSegment.ArrayItem
+        PathSegment.Deep -> true
     }
 
     private fun checkVolatileParams(

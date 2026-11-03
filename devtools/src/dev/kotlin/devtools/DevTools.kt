@@ -15,12 +15,18 @@ import kotlinx.html.button
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.style
 import org.w3c.dom.HTMLButtonElement
+import kotlin.js.Date
 
 /** Идентификатор кнопки: по нему находим элемент, созданный через DSL. */
 private const val DIFF_BUTTON_ID = "prozen-dev-diffs-button"
 
+private const val SCHEMA_BUTTON_ID = "prozen-dev-schema-button"
+
 /** Кнопка «Скопировать расхождения» на странице настроек. */
 private var diffButton: HTMLButtonElement? = null
+
+/** Кнопка «Скопировать схему API»: полный эталон с дописанными `unknown`. */
+private var schemaButton: HTMLButtonElement? = null
 
 /**
  * Ставит валидатор наблюдателем `Requester`.
@@ -44,9 +50,10 @@ fun installDevValidator() {
 }
 
 /**
- * Dev-интерфейс в настройках: кнопка «Скопировать расхождения (N)».
+ * Dev-интерфейс в настройках: кнопки «Скопировать расхождения (N)» и
+ * «Скопировать схему API (Новое: X)».
  *
- * Контейнер `DIV` — контейнер кнопки «Сохранить»: кнопка встаёт рядом.
+ * Контейнер `DIV` — контейнер кнопки «Сохранить»: кнопки встают рядом.
  * При каждом открытии настроек эталон переоценивается по хешу.
  */
 @OptIn(DelicateCoroutinesApi::class)
@@ -56,6 +63,13 @@ fun devSettingsSection(container: DIV) {
         style = "display: none; margin-left: 10px;"
         onClickFunction = { copyDiffs() }
         +"Скопировать расхождения"
+    }
+
+    container.button(classes = "prozen-save-button") {
+        attributes["id"] = SCHEMA_BUTTON_ID
+        style = "display: none; margin-left: 10px;"
+        onClickFunction = { copySchema() }
+        +"Скопировать схему API"
     }
 
     // Счётчик мог измениться в другой вкладке: обновляем при возврате на страницу.
@@ -93,7 +107,7 @@ private fun copyDiffs() {
             showNotification(
                 if (records.isEmpty()) "Расхождений с эталоном нет" else "Скопировано расхождений: ${records.size}"
             )
-            updateButtonFrom(records.size)
+            updateButtonFrom(records.size, schemaCount(records))
         } catch (error: Throwable) {
             logValidatorFailure(error)
             showNotification("Не удалось скопировать расхождения")
@@ -101,9 +115,46 @@ private fun copyDiffs() {
     }
 }
 
+/**
+ * Копирует весь эталон, дописав новые поля в `[endpoints.<имя>.unknown]`.
+ *
+ * Кнопка активна и без новых полей: тогда в буфер попадает текущий файл
+ * байт-в-байт — это удобно для проверки round-trip после сохранения.
+ */
+@OptIn(DelicateCoroutinesApi::class)
+private fun copySchema() {
+    GlobalScope.launch {
+        try {
+            DiffStore.ensureReferenceCurrent()
+            val records = DiffStore.snapshot()
+            val reference = ReferenceHolder.document
+            val additions = newSchemaRecords(records, reference).size
+            copyTextToClipboard(buildSchemaCopy(records, reference, ReferenceHolder.sourceText, Date()))
+            showNotification(
+                if (additions == 0) {
+                    "Схема API скопирована: новых полей нет."
+                } else {
+                    "Схема API скопирована. Новых полей: $additions. " +
+                        "После сохранения пересоберите расширение."
+                }
+            )
+            updateButtonFrom(records.size, additions)
+        } catch (error: Throwable) {
+            logValidatorFailure(error)
+            showNotification("Не удалось скопировать схему API")
+        }
+    }
+}
+
+/** Сколько `new` попадёт в `unknown` при копировании схемы. */
+private fun schemaCount(records: List<DiffRecord>): Int =
+    newSchemaRecords(records, ReferenceHolder.document).size
+
 @OptIn(DelicateCoroutinesApi::class)
 private suspend fun updateButton(knownEnabled: Boolean? = null) {
-    val button = diffButtonElement() ?: return
+    val diff = diffButtonElement()
+    val schema = schemaButtonElement()
+    if (diff == null && schema == null) return
 
     val enabled = knownEnabled ?: try {
         Option.DEBUG.value().await()
@@ -112,35 +163,51 @@ private suspend fun updateButton(knownEnabled: Boolean? = null) {
         false
     }
     if (!enabled) {
-        button.style.display = "none"
+        diff?.style?.display = "none"
+        schema?.style?.display = "none"
         return
     }
 
-    val count = try {
-        DiffStore.snapshot().size
+    val records = try {
+        DiffStore.snapshot()
     } catch (error: Throwable) {
         logValidatorFailure(error)
         return
     }
-    button.style.display = ""
-    updateButtonFrom(count)
+    diff?.style?.display = ""
+    schema?.style?.display = ""
+    updateButtonFrom(records.size, schemaCount(records))
 }
 
-private fun updateButtonFrom(count: Int) {
-    val button = diffButtonElement() ?: return
-    button.textContent = "Скопировать расхождения ($count)"
-    button.disabled = count == 0
-    button.style.opacity = if (count == 0) "0.6" else ""
+private fun updateButtonFrom(count: Int, schemaAdded: Int) {
+    diffButtonElement()?.let { button ->
+        button.textContent = "Скопировать расхождения ($count)"
+        button.disabled = count == 0
+        button.style.opacity = if (count == 0) "0.6" else ""
+    }
+    schemaButtonElement()?.let { button ->
+        button.textContent = "Скопировать схему API (Новое: $schemaAdded)"
+        // Копирование схемы полезно и без новых полей: в буфер идёт текущий эталон.
+        button.disabled = false
+        button.style.opacity = ""
+    }
 }
 
 /**
- * Элемент кнопки ищется лениво: страница настроек достраивается после вызова
+ * Элементы кнопок ищутся лениво: страница настроек достраивается после вызова
  * `devSettingsSection`, поэтому сразу `getElementById` может ничего не найти.
  */
 private fun diffButtonElement(): HTMLButtonElement? {
     diffButton?.let { return it }
     val element = document.getElementById(DIFF_BUTTON_ID) as? HTMLButtonElement
     if (element != null) diffButton = element
+    return element
+}
+
+private fun schemaButtonElement(): HTMLButtonElement? {
+    schemaButton?.let { return it }
+    val element = document.getElementById(SCHEMA_BUTTON_ID) as? HTMLButtonElement
+    if (element != null) schemaButton = element
     return element
 }
 

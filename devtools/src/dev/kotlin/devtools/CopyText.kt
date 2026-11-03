@@ -303,5 +303,5 @@ private fun stackSuffix(record: DiffRecord): String {
 
 // -------------------------------------------------------------------- утилиты
 
-private fun tomlEscape(value: String): String =
+internal fun tomlEscape(value: String): String =
     value.replace("\\", "\\\\").replace("\"", "\\\"")

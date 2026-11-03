@@ -29,7 +29,7 @@
 [meta]
 format     = 1
 zenVersion = "2.189.0"      # Zen-Client-Experiments, с которым сверялись
-updated    = 2026-10-31
+updated    = 2026-11-02
 
 # Параметры, которые не меняют форму ответа: генератор заготовок их отбрасывает.
 # types и view сюда сознательно НЕ входят: вопрос, влияют ли они на форму
@@ -63,8 +63,14 @@ note  = "агрегаты по периоду для SCR (охват подпи�
 
 [endpoints.stats2-flight-scr.ignored]
 # Остальные 15 метрик из fields (deepViews, ctr, vtr и т.д.) коду не нужны.
-"total.stats.*"     = "прочие метрики из fields, берём только impressions"
-"publications[].**" = "постраничный список по публикациям, для SCR не используется"
+"actuality"                 = "момент актуальности, не используем"
+"allowedIntegrationTypes"   = "типы разрешённых интеграций, не используем"
+"from"                      = "начало периода, задаётся запросом"
+"involvedViewTimeActuality" = "актуальность вовлечённого времени, не используем"
+"total.groups"              = "группы метрик, берём только impressions"
+"total.intervals"           = "дневные интервалы, для SCR не используем"
+"total.stats.*"             = "прочие метрики из fields, берём только impressions"
+"publications[].**"         = "постраничный список по публикациям, для SCR не используется"
 
 
 # Requester.getStatsActuality()
@@ -79,7 +85,11 @@ note  = "запрос с pageSize=1, нужен только момент акт
 [endpoints.stats2-flight-views.ignored]
 # Путь `publications` без `[]`/`**`: ignored-путь покрывает не только сам узел,
 # но и всё под ним, поэтому весь массив со своей публикацией скрыт целиком.
-"publications" = "одна публикация для запроса, берём только actuality"
+"allowedIntegrationTypes"   = "типы разрешённых интеграций, не используем"
+"from"                      = "начало периода, задаётся запросом"
+"involvedViewTimeActuality" = "актуальность вовлечённого времени, не используем"
+"publicationCount"          = "число публикаций, нужен только actuality"
+"publications"              = "одна публикация для запроса, берём только actuality"
 
 
 # Requester.getPublicationsStatsSubscribers()
@@ -96,8 +106,24 @@ note  = "просмотры подписчиков по списку публи�
 "publications[].stats.typeSpecificViews"   = "number"
 
 [endpoints.stats2-agegender-subscribers.ignored]
-# Пока пусто: разбивка по полу и возрасту не используется, но и не описана.
-# Первые отчёты покажут, что ещё приходит в ответе.
+"actuality"                  = "момент актуальности статистики, не показываем"
+"allowedIntegrationTypes"    = "типы разрешённых интеграций, не используем"
+"from"                       = "начало периода, задаётся запросом"
+"involvedViewTimeActuality"  = "актуальность вовлечённого времени, не используем"
+"publications[].groups"      = "разбивка по полу и возрасту, берём только stats.typeSpecificViews"
+
+"publications[].publication.addTime"                 = "дата публикации, не показываем"
+"publications[].publication.commonUrl"               = "короткая ссылка, не используем"
+"publications[].publication.deleted"                 = "признак удаления, не используем"
+"publications[].publication.galleryImageUrls"        = "картинки галереи, не используем"
+"publications[].publication.hasCampaign"             = "признак кампании, не используем"
+"publications[].publication.hasRelatedNewsItem"      = "наличие связанной новости, не используем"
+"publications[].publication.isPremium"               = "признак премиум-публикации, не используем"
+"publications[].publication.isPromotionAvailable"    = "доступность продвижения, не используем"
+"publications[].publication.previewImage"            = "картинка предпросмотра, не используем"
+"publications[].publication.publicationType"         = "тип публикации, не используем"
+"publications[].publication.title"                   = "заголовок публикации, не показываем"
+"publications[].publication.totalSlidesCount"        = "число слайдов, не используем"
 
 
 # ---------------------------------------------------------------------------
@@ -118,7 +144,23 @@ note  = "доход по дням"
 "total.intervals[].income.timespent-reward" = "number"
 
 [endpoints.income2.ignored]
-"total.intervals[].income.*" = "прочие виды дохода, пока не используем"
+"incomeByPublicationType" = "доход по типам публикаций, не используем"
+"lastIncome"              = "дата последнего начисления, не показываем"
+"publicationCount"        = "число публикаций в отчёте, не используем"
+"publications"            = "список публикаций отчёта, не используем"
+"total.income"            = "агрегат дохода по видам, берём только дневные интервалы"
+"total.incomeByGroup"     = "агрегат дохода по группам, не используем"
+"total.okViewTimeSec"     = "время OK-просмотров за период, не используем"
+"total.stats"             = "прочая статистика периода, не используем"
+"total.superLikeCount"    = "суперлайки за период, не используем"
+"total.viewTimeSec"       = "время просмотра за период, не используем"
+"total.vkViewTimeSec"     = "время VK-просмотров за период, не используем"
+
+"total.intervals[].income.*"          = "прочие виды дохода, пока не используем"
+"total.intervals[].incomeByGroup"     = "доход по группам внутри дня, не используем"
+"total.intervals[].okViewTimeSec"     = "OK-просмотры внутри дня, не используем"
+"total.intervals[].superLikeCount"    = "суперлайки внутри дня, не используем"
+"total.intervals[].vkViewTimeSec"     = "VK-просмотры внутри дня, не используем"
 
 
 # ---------------------------------------------------------------------------
@@ -136,6 +178,7 @@ note  = "ограничения канала"
 "limitations[].url" = "string"
 
 [endpoints.get-strikes.ignored]
+"images"          = "картинки ограничений, для счётчика и ссылок не нужны"
 "limitations[].*" = "прочие поля ограничения (причина, даты и т.п.), пока не используем"
 
 
@@ -168,6 +211,14 @@ note  = "карточка канала"
 [endpoints.publisher.ignored]
 "publisher.*" = "прочие поля канала, пока не используем"
 
+"accessData"                     = "права доступа к каналу, не используем"
+"hasDzenArticlesPermission"      = "признак доступа к статьям Дзена, не используем"
+"hasMediaAgency"                 = "признак медиаагентства, не используем"
+"newChannelDesignFeatureEnabled" = "флаг нового дизайна, не используем"
+"rid"                            = "технический id запроса, не используем"
+"subscribersCount"               = "число подписчиков, не используем"
+"useNewChannelDesign"            = "признак нового дизайна канала, не используем"
+
 
 # Requester.getPublishedPublicationsCount()
 [endpoints.publications-count]
@@ -187,8 +238,9 @@ note  = "счётчики публикаций по типам; ключи по�
 # Публикации
 #
 # Описано по studioRequestDataToCards() / studioRequestDataToCard() (common/Card.kt).
-# Форма ответа целиком не подтверждена: ignored намеренно пуст, чтобы первые
-# отчёты показали все лишние поля. types/view в match не входят, поэтому
+# `ignored` перечисляет лишние поля из первого реального ответа. Список не
+# закрывает `publications[]` и `publicationCounters[]` целиком, поэтому новые
+# поля в них по-прежнему видны как `new`. types/view в match не входят,
 # возможные различия формы от этих параметров валидатор пока не увидит.
 # ---------------------------------------------------------------------------
 
@@ -234,7 +286,50 @@ note  = "список карточек публикаций. TODO: провер�
 "socialCounters[].commentCount"      = "number?"
 
 [endpoints.publications-list.ignored]
-# Пусто намеренно: сначала надо увидеть, что реально приходит.
+# Поля, которые приходят, но карточка их не читает. Список составлен по первому
+# реальному ответу; пути, которых здесь нет, по-прежнему показываются как `new`.
+"allowedIntegrationTypes"  = "типы интеграций публикации, карточка их не использует"
+"drafts"                   = "черновики канала, в списке публикаций не нужны"
+"flightInfo"               = "служебные данные ленты, не используем"
+"maxPinPublications"       = "лимит закреплённых публикаций, не показываем"
+"pinPromoPublications"     = "закреплённые промо-публикации, не используем"
+"pinedPublications"        = "список закреплённых id, не используем"
+"pixels"                   = "пиксели публикаций, не используем"
+"publicationSuiteSets"     = "связь публикаций с наборами, не используем"
+"suites"                   = "наборы публикаций, не используем"
+
+"publicationCounters[].deepViews"                  = "глубокие просмотры, карточка берёт typeSpecificViews"
+"publicationCounters[].deepViewsByIntegration"     = "глубокие просмотры по интеграциям, не используем"
+"publicationCounters[].impressionsByIntegration"   = "показы по интеграциям, не используем"
+"publicationCounters[].pageViews"                  = "просмотры страницы, карточка берёт typeSpecificViews"
+"publicationCounters[].pageViewsByIntegration"     = "просмотры страницы по интеграциям, не используем"
+"publicationCounters[].typeSpecificViewsByIntegration" = "просмотры по типам и интеграциям, не используем"
+"publicationCounters[].views"                      = "суммарные просмотры, карточка берёт typeSpecificViews"
+"publicationCounters[].viewsByIntegration"         = "просмотры по интеграциям, не используем"
+
+"publications[].adNative"             = "признак нативной рекламы, не используем"
+"publications[].customCommentsTitle"  = "заголовок комментариев, не используем"
+"publications[].darkPost"             = "тёмная тема публикации, не используем"
+"publications[].hasRelatedNewsItem"   = "наличие связанной новости, не используем"
+"publications[].isActiveRk"           = "признак активной рекламной кампании, не используем"
+"publications[].isPublished"          = "статус публикации, карточка берёт status"
+"publications[].itemId"               = "внутренний id элемента, не используем"
+"publications[].mediaAgencyAuthors"   = "авторы медиаагентства, не используем"
+"publications[].publisherItemId"      = "внутренний id канала, не используем"
+"publications[].rssItemTags"          = "теги RSS, не используем"
+"publications[].titleForUrl"          = "слаг для URL, карточка собирает URL из id"
+"publications[].version"              = "версия публикации, не используем"
+
+"publications[].content.articleContent"                = "тело статьи, карточке нужен только предпросмотр"
+"publications[].content.briefContent"                  = "тело брифа, карточке нужен только предпросмотр"
+"publications[].content.preview.blurredPreview"        = "размытый предпросмотр, не используем"
+"publications[].content.preview.galleryPreviewImageIds" = "id картинок галереи, не используем"
+"publications[].content.preview.image"                 = "объект картинки, карточка берёт imageId"
+"publications[].content.preview.totalSlidesCount"      = "число слайдов, не используем"
+"publications[].content.images[].id"                   = "id картинки, карточка ищет по urlTemplate"
+"publications[].content.images[].meta"                 = "метаданные картинки, не используем"
+"publications[].content.images[].namespace"            = "namespace картинки, не используем"
+"publications[].content.images[].size"                 = "размеры картинки, не используем"
 
 
 # Requester.getPublicationStat()
@@ -254,280 +349,3 @@ note  = "статистика просмотров одной публикаци
 
 [endpoints.publication-view-stat.ignored]
 # Пусто намеренно: сначала надо увидеть, что реально приходит.
-
-
-
-# Prozen: расхождения API Дзена с эталоном
-# Записей: 90; эталон: sha256:3002cf48039b28455868b647faac216a88e5845dc62f9b7bab5bfa338b8a2ca7
-# «Почти TOML»: разделы [endpoints.*] переносятся в reference/zen-api.toml,
-# строки с # — пояснения, переносить их не обязательно.
-
-# ════════════════════════════════════════════════════════════════════════
-# get-strikes
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.get-strikes.ignored]
-# (объединить с существующим разделом), причину заполнить.
-
-# ════════════════════════════════════════════════════════════════════════
-# income2
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.income2.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.income2.ignored]
-#   incomeByPublicationType — array, элемент 2 из 2 (getTimespentRewards)
-#     пример: {"publicationType":"brief","income":0.08,"incomeByGroup":{"timespent-reward":0.08},"viewTimeSec":108,"okViewTimeSec":0,"superLikeCount":0,"vkViewTimeSec":0,"percent":1.2446714863872395}
-"incomeByPublicationType" = ""
-#   lastIncome — number (getTimespentRewards)
-#     пример: 1793394000000
-"lastIncome" = ""
-#   publicationCount — number (getTimespentRewards)
-#     пример: 13
-"publicationCount" = ""
-#   publications — array, массив пуст (getTimespentRewards)
-"publications" = ""
-#   total.income — object (getTimespentRewards)
-#     пример: {"stella-reward-rub":5.0,"ok-timespent-reward":0.03,"timespent-reward":2.12}
-#   total.incomeByGroup — object (getTimespentRewards)
-#     пример: {"stella-reward-rub":5.0,"ok-timespent-reward":0.03,"timespent-reward":2.12}
-#   total.okViewTimeSec — number (getTimespentRewards)
-#     пример: 38
-#   total.stats — object (getTimespentRewards)
-#     пример: {}
-#   total.superLikeCount — number (getTimespentRewards)
-#     пример: 1
-#   total.viewTimeSec — number (getTimespentRewards)
-#     пример: 2601
-#   total.vkViewTimeSec — number (getTimespentRewards)
-#     пример: 0
-"total.**" = ""
-#   total.intervals[].incomeByGroup — object (getTimespentRewards)
-#     пример: {"timespent-reward":0.28}
-#   total.intervals[].okViewTimeSec — number (getTimespentRewards)
-#     пример: 0
-#   total.intervals[].superLikeCount — number (getTimespentRewards)
-#     пример: 0
-#   total.intervals[].vkViewTimeSec — number (getTimespentRewards)
-#     пример: 0
-
-# ════════════════════════════════════════════════════════════════════════
-# publications-list
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.publications-list.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.publications-list.ignored]
-#   allowedIntegrationTypes — array, элемент 3 из 3 (getPublicationsByView, ×8)
-#     пример: "mailru"
-"allowedIntegrationTypes" = ""
-#   drafts — array, элемент 30 из 30 (getPublicationsByView, ×8)
-#     пример: {"id":"692364424c3b7f3475b9eb15","version":5,"publisherId":"5a3def60e86a9e50b401ab4a","addTime":1763926587000,"modTime":1764145044701,"hasChanges":false,"content":{"type":"article","articleContent":{},"preview":{"image":{"id":"69236446bc4df71e2352e9e9","namespace":"zen_doc","groupId":271828,"imageName":"pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e9","meta":{"mainColor":"#C8D0E0","origFormat":"JPEG"},"sizes":{"scale_2400":{"width":1280,"height":720},"scale_1200":{"width":1200,"height":675},"scale_600":{"width":600,"height":338},"orig":{"width":1280,"height":720}},"avatarsNamespace":"zen_doc","imageId":{"id":"69236446bc4df71e2352e9e9"}},"imageId":"69236446bc4df71e2352e9e9","title":"Не стой под стеллой — что мы узнали о стеллах из опроса Дзена","snippet":"В Дзене проводят опрос о стеллах. Если вы не в курсе — это что-то вроде платных лайков, над которыми работают в Дзене. Судя по этому опросу, планируется, что стеллы будут играть более важную роль на платформе, чем просто мотивация авторов. Хочу подчеркнуть, что речь идёт о функции, которая ещё не реализована в Дзене. Вся информация и все выводы, которые приводятся в статье, получены из опроса. В справочной системе Дзена информации о стеллах пока нет. Когда (и если) стеллы появятся в Дзене, всё может быть организовано как-то иначе. О самом главном в опросе говорится сразу. Стелла — это не просто платный лайк, а внутренняя валюта Дзена. Пользователи могут купить стеллы и потратить их на бонусы для себя или подарить автору. Автор, в свою очередь, полученные стеллы может потратить на бонусы для своего канала. Таким образом, стеллы — это полный аналог звёзд из Телеграма, где их можно не только подарить в виде лайка, но и потратить на цифровые подарки или оплатить услуги в телеграм-ботах. «К","galleryPreviewImageIds":[]},"modTime":1764144872759,"images":[{"id":"69236446bc4df71e2352e9e5","namespace":"zen_doc","size":{"width":700,"height":500},"meta":{"mainColor":"#202020","origFormat":"JPEG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e5/{size}"},{"id":"69236446bc4df71e2352e9e6","namespace":"zen_doc","size":{"width":850,"height":850},"meta":{"mainColor":"#F8F8F8","origFormat":"JPEG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e6/{size}"},{"id":"69236446bc4df71e2352e9e7","namespace":"zen_doc","size":{"width":781,"height":339},"meta":{"mainColor":"#F8F8F8","origFormat":"PNG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e7/{size}"},{"id":"69236446bc4df71e2352e9e8","namespace":"zen_doc","size":{"width":766,"height":461},"meta":{"mainColor":"#F8F8F8","origFormat":"JPEG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e8/{size}"},{"id":"69236446bc4df71e2352e9e9","namespace":"zen_doc","size":{"width":1280,"height":720},"meta":{"mainColor":"#C8D0E0","origFormat":"JPEG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e9/{size}"}]},"snippetFrozen":false,"rawTags":{"tags":[],"embeddedTags":[],"tagsWithInterests":[],"allTags":[]},"darkPost":false,"draftStatus":"no-changes","mediaAgencyAuthors":[],"origin":"rss"}
-"drafts" = ""
-#   flightInfo — array, массив пуст (getPublicationsByView, ×8)
-"flightInfo" = ""
-#   maxPinPublications — number (getPublicationsByView, ×8)
-#     пример: 3
-"maxPinPublications" = ""
-#   pinPromoPublications — array, массив пуст (getPublicationsByView, ×8)
-"pinPromoPublications" = ""
-#   pinedPublications — array, элемент 3 из 3 (getPublicationsByView, ×8)
-#     пример: "7669022962705408123"
-"pinedPublications" = ""
-#   pixels — array, массив пуст (getPublicationsByView, ×8)
-"pixels" = ""
-#   publicationSuiteSets — array, массив пуст (getPublicationsByView, ×8)
-#     пример: {"publicationId":"6a32590c3398946531bc1f2e","suiteIds":["8fd378db-ae1c-45a0-9ed9-1a02c8ac7286"]}
-"publicationSuiteSets" = ""
-#   suites — array, массив пуст (getPublicationsByView, ×8)
-#     пример: {"suiteId":"8fd378db-ae1c-45a0-9ed9-1a02c8ac7286","suiteItemId":708487472542471,"publisherId":"5a3def60e86a9e50b401ab4a","name":"Расширение «Продзен»","description":"Расширение «Продзен» для блогеров Дзена","image":{"id":"62a041fe07bb300ec7bdb25d","namespace":"zen-logos","size":{"width":1500,"height":1500},"meta":{"mainColor":"#C8D0E0","origFormat":"JPEG"},"urlTemplate":"https://avatars.dzeninfra.ru/get-zen-logos/212539/pubsuite_91d2994f-e077-42bf-b122-b70f6d3ea8b2_62a041fe07bb300ec7bdb25d/{size}","groupId":212539,"imageName":"pubsuite_91d2994f-e077-42bf-b122-b70f6d3ea8b2_62a041fe07bb300ec7bdb25d","sizes":{"328x425":{"width":328,"height":425},"224x176_2x":{"width":448,"height":352},"scale_2400":{"width":1500,"height":1500},"smart_crop_580x260":{"width":580,"height":260},"min_xh":{"width":120,"height":120},"framed_212x280_3x":{"width":636,"height":840},"framed_3x":{"width":396,"height":528},"framed_212x280_1x":{"width":212,"height":280},"min_h":{"width":80,"height":80},"smart_crop_320x180":{"width":320,"height":180},"434x425":{"width":434,"height":425},"328x425_3x":{"width":984,"height":1275},"224x176":{"width":224,"height":176},"logo_framed_2x":{"width":264,"height":352},"min_xxh":{"width":160,"height":160},"framed_100x128_1x":{"width":100,"height":128},"framed":{"width":132,"height":176},"smart_crop_32x18":{"width":32,"height":18},"framed_100x128_3x":{"width":300,"height":384},"36x36_2x":{"width":72,"height":72},"framed_202x260_1x":{"width":202,"height":259},"logo_framed":{"width":132,"height":176},"framed_202x260_3x":{"width":606,"height":779},"434x425_2x":{"width":867,"height":850},"scale_1200":{"width":1200,"height":1200},"224x176_3x":{"width":672,"height":528},"h":{"width":156,"height":156},"framed_212x280_2x":{"width":424,"height":560},"xxh":{"width":312,"height":312},"framed_2x":{"width":264,"height":352},"smart_crop_160":{"width":160,"height":160},"m":{"width":104,"height":104},"328x425_2x":{"width":656,"height":850},"xh":{"width":208,"height":208},"logo_framed_3x":{"width":396,"height":528},"36x36":{"width":36,"height":36},"min_m":{"width":60,"height":60},"orig":{"width":1500,"height":1500},"framed_100x128_2x":{"width":200,"height":256},"smart_crop_1160x520":{"width":1160,"height":520},"framed_202x260_2x":{"width":404,"height":519},"434x425_3x":{"width":1300,"height":1275}}},"createdDate":1654669823207,"updatedDate":1793467124472,"publicationCount":0}
-"suites" = ""
-#   publicationCounters[].deepViews — number (getPublicationsByView, ×8)
-#     пример: 317
-#   publicationCounters[].deepViewsByIntegration — object (getPublicationsByView, ×8)
-#     пример: {"dzen":315,"odnoklassniki":2}
-#   publicationCounters[].impressionsByIntegration — object (getPublicationsByView, ×8)
-#     пример: {"dzen":4235}
-#   publicationCounters[].pageViews — number (getPublicationsByView, ×8)
-#     пример: 590
-#   publicationCounters[].pageViewsByIntegration — object (getPublicationsByView, ×8)
-#     пример: {"dzen":590}
-#   publicationCounters[].typeSpecificViewsByIntegration — object (getPublicationsByView, ×8)
-#     пример: {"dzen":315,"odnoklassniki":2}
-#   publicationCounters[].views — number (getPublicationsByView, ×8)
-#     пример: 569
-#   publicationCounters[].viewsByIntegration — object (getPublicationsByView, ×8)
-#     пример: {"dzen":565,"odnoklassniki":4}
-"publicationCounters[].**" = ""
-#   publications[].adNative — boolean (getPublicationsByView, ×8)
-#     пример: false
-#   publications[].customCommentsTitle — string (getPublicationsByView, ×8)
-#     пример: "Подпишитесь на @prodzen в Телеграме"
-#   publications[].darkPost — boolean (getPublicationsByView, ×8)
-#     пример: false
-#   publications[].hasRelatedNewsItem — boolean (getPublicationsByView, ×8)
-#     пример: false
-#   publications[].isActiveRk — boolean (getPublicationsByView, ×8)
-#     пример: false
-#   publications[].isPublished — boolean (getPublicationsByView, ×8)
-#     пример: true
-#   publications[].itemId — string (getPublicationsByView, ×8)
-#     пример: "4158924890803740330"
-#   publications[].mediaAgencyAuthors — array, массив пуст (getPublicationsByView, ×8)
-#   publications[].publisherItemId — number (getPublicationsByView, ×8)
-#     пример: -8442370707896417184
-#   publications[].rssItemTags — object (getPublicationsByView, ×8)
-#     пример: {"type":"BLOGS_ONLY"}
-#   publications[].titleForUrl — string (getPublicationsByView, ×8)
-#     пример: "ne-stoi-pod-stelloi--chto-my-uznali-o-stellah-iz-oprosa-dzena"
-#   publications[].version — number (getPublicationsByView, ×8)
-#     пример: 14
-#   … ещё 1
-"publications[].**" = ""
-#   publications[].content.articleContent — object (getPublicationsByView, ×8)
-#     пример: {}
-#   publications[].content.briefContent — object (getPublicationsByView)
-#     пример: {"isPromoGallery":false,"slideCount":0}
-#   publications[].content.preview.blurredPreview — string (getPublicationsByView, ×8)
-#     пример: "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQEBAQIBAQECAgICAgQDAgICAgUEBAMEBgUGBgYFBgYGBwkIBgcJBwYGCAsICQoKCgoKBggLDAsKDAkKCgr/2wBDAQICAgICAgUDAwUKBwYHCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo…[обрезано 578 симв.]
-#   publications[].content.preview.galleryPreviewImageIds — array, массив пуст (getPublicationsByView, ×8)
-#   publications[].content.preview.image — object (getPublicationsByView, ×8)
-#     пример: {"id":"69236446bc4df71e2352e9e9","namespace":"zen_doc","groupId":271828,"imageName":"pub_692364424c3b7f3475b9eb15_69236446bc4df71e2352e9e9","meta":{"mainColor":"#C8D0E0","origFormat":"JPEG"},"sizes":{"scale_2400":{"width":1280,"height":720},"scale_1200":{"width":1200,"height":675},"scale_600":{"width":600,"height":338},"orig":{"width":1280,"height":720}},"avatarsNamespace":"zen_doc","imageId":{"id":"69236446bc4df71e2352e9e9"}}
-#   publications[].content.preview.totalSlidesCount — number (getPublicationsByView)
-#     пример: 0
-#   publications[].content.images[].id — string (getPublicationsByView, ×8)
-#     пример: "69236446bc4df71e2352e9e9"
-#   publications[].content.images[].meta — object (getPublicationsByView, ×8)
-#     пример: {"mainColor":"#C8D0E0","origFormat":"JPEG"}
-#   publications[].content.images[].namespace — string (getPublicationsByView, ×8)
-#     пример: "zen_doc"
-#   publications[].content.images[].size — object (getPublicationsByView, ×8)
-#     пример: {"width":1280,"height":720}
-
-# ════════════════════════════════════════════════════════════════════════
-# publisher
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.publisher.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.publisher.ignored]
-#   accessData — object (getChannelData, ×2)
-#     пример: {"hasConfidentialAccess":true,"canRead":true,"canWrite":true,"canGrantAccess":true}
-"accessData" = ""
-#   hasDzenArticlesPermission — boolean (getChannelData, ×2)
-#     пример: false
-"hasDzenArticlesPermission" = ""
-#   hasMediaAgency — boolean (getChannelData, ×2)
-#     пример: false
-"hasMediaAgency" = ""
-#   newChannelDesignFeatureEnabled — boolean (getChannelData, ×2)
-#     пример: false
-"newChannelDesignFeatureEnabled" = ""
-#   rid — string (getChannelData, ×2)
-#     пример: "3522559936.1620.1793649598365.51326"
-"rid" = ""
-#   subscribersCount — number (getChannelData, ×2)
-#     пример: 11083
-"subscribersCount" = ""
-#   useNewChannelDesign — boolean (getChannelData, ×2)
-#     пример: false
-"useNewChannelDesign" = ""
-
-# ════════════════════════════════════════════════════════════════════════
-# stats2-agegender-subscribers
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.stats2-agegender-subscribers.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.stats2-agegender-subscribers.ignored]
-#   actuality — number (getPublicationsStatsSubscribers, ×8)
-#     пример: 1793566800000
-"actuality" = ""
-#   allowedIntegrationTypes — array, элемент 3 из 3 (getPublicationsStatsSubscribers, ×8)
-#     пример: "mailru"
-"allowedIntegrationTypes" = ""
-#   from — number (getPublicationsStatsSubscribers, ×8)
-#     пример: 1643058000000
-"from" = ""
-#   involvedViewTimeActuality — number (getPublicationsStatsSubscribers, ×8)
-#     пример: 1793394000000
-"involvedViewTimeActuality" = ""
-#   publications[].groups — array, элемент 13 из 13 (getPublicationsStatsSubscribers, ×8)
-#     пример: {"type":"ageGenderStats","stats":{"typeSpecificViews":2},"ageSegment":"age-35-44","gender":"female"}
-"publications[].groups" = ""
-#   publications[].publication.addTime — number (getPublicationsStatsSubscribers, ×8)
-#     пример: 1766679252000
-#   publications[].publication.commonUrl — string (getPublicationsStatsSubscribers, ×8)
-#     пример: "/a/aU1i-xD7VhuwI1Pu"
-#   publications[].publication.deleted — boolean (getPublicationsStatsSubscribers, ×8)
-#     пример: false
-#   publications[].publication.galleryImageUrls — array, массив пуст (getPublicationsStatsSubscribers, ×8)
-#   publications[].publication.hasCampaign — boolean (getPublicationsStatsSubscribers, ×8)
-#     пример: false
-#   publications[].publication.hasRelatedNewsItem — boolean (getPublicationsStatsSubscribers, ×8)
-#     пример: false
-#   publications[].publication.isPremium — boolean (getPublicationsStatsSubscribers, ×8)
-#     пример: false
-#   publications[].publication.isPromotionAvailable — boolean (getPublicationsStatsSubscribers, ×8)
-#     пример: false
-#   publications[].publication.previewImage — object (getPublicationsStatsSubscribers, ×8)
-#     пример: {"id":"694d62fc53f3f05c999c846e","namespace":"zen_doc","groupId":271828,"imageName":"pub_694d62fb10fb561bb02353ee_694d62fc53f3f05c999c846e","meta":{"mainColor":"#F8F8F8","origFormat":"JPEG"},"sizes":{"scale_2400":{"width":1280,"height":720},"scale_1200":{"width":1200,"height":675},"scale_600":{"width":600,"height":338},"orig":{"width":1280,"height":720}}}
-#   publications[].publication.publicationType — string (getPublicationsStatsSubscribers, ×8)
-#     пример: "article"
-#   publications[].publication.title — string (getPublicationsStatsSubscribers, ×8)
-#     пример: "Блогеры снова авторы — Изменения правил Дзена"
-#   publications[].publication.totalSlidesCount — number (getPublicationsStatsSubscribers)
-#     пример: 0
-"publications[].publication.**" = ""
-
-# ════════════════════════════════════════════════════════════════════════
-# stats2-flight-scr
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.stats2-flight-scr.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.stats2-flight-scr.ignored]
-#   actuality — number (getScr)
-#     пример: 1793566800000
-"actuality" = ""
-#   allowedIntegrationTypes — array, элемент 3 из 3 (getScr)
-#     пример: "mailru"
-"allowedIntegrationTypes" = ""
-#   from — number (getScr)
-#     пример: 1790974800000
-"from" = ""
-#   involvedViewTimeActuality — number (getScr)
-#     пример: 1793394000000
-"involvedViewTimeActuality" = ""
-#   total.groups — array, элемент 1 из 1 (getScr)
-#     пример: {"type":"flightStats","stats":{"impressions":4635,"comments":112,"likes":183,"shares":2,"deepViews":598,"typeSpecificViews":598,"subscriptions":0,"unsubscriptions":7,"sumInvolvedViewTimeSec":24820,"ctr":0.24163969795037757,"deepViewsRate":1.2304526748971194,"vtr":0.1290183387270766}}
-#   total.intervals — array, элемент 31 из 31 (getScr)
-#     пример: {"timestamp":1793566800000,"subscribers":11079,"subscribersDiff":0.0}
-"total.**" = ""
-
-# ════════════════════════════════════════════════════════════════════════
-# stats2-flight-views
-# ════════════════════════════════════════════════════════════════════════
-
-# Новые пути (new) — поля, которых нет в эталоне.
-# Строку с пустой причиной перенести в [endpoints.stats2-flight-views.ignored]
-# (объединить с существующим разделом), причину заполнить.
-[endpoints.stats2-flight-views.ignored]
-#   allowedIntegrationTypes — array, элемент 3 из 3 (getStatsActuality)
-#     пример: "mailru"
-"allowedIntegrationTypes" = ""
-#   from — number (getStatsActuality)
-#     пример: 0
-"from" = ""
-#   involvedViewTimeActuality — number (getStatsActuality)
-#     пример: 1793394000000
-"involvedViewTimeActuality" = ""
-#   publicationCount — number (getStatsActuality)
-#     пример: 753
-"publicationCount" = ""

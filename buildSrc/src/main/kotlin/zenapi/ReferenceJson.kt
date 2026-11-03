@@ -24,7 +24,8 @@ package zenapi
  *         "specificity": [2, 3]
  *       },
  *       "used": [ { "path": [...], "types": ["object"], "optional": false, "specificity": [1, 0] } ],
- *       "ignored": [ { "path": [...], "reason": "...", "specificity": [2, 0] } ]
+ *       "ignored": [ { "path": [...], "reason": "...", "specificity": [2, 0] } ],
+ *       "unknown": [ { "path": [...], "types": ["number"], "specificity": [1, 0] } ]
  *     }
  *   ]
  * }
@@ -60,6 +61,7 @@ internal object ReferenceJson {
         "\"match\"" to match(endpoint.match),
         "\"used\"" to array(endpoint.used.map(::usedPath)),
         "\"ignored\"" to array(endpoint.ignored.map(::ignoredPath)),
+        "\"unknown\"" to array(endpoint.unknown.map(::unknownPath)),
     )
 
     private fun match(match: EndpointMatch): String = obj(
@@ -105,6 +107,14 @@ internal object ReferenceJson {
         "\"reason\"" to quote(ignored.reason),
         "\"specificity\"" to array(
             listOf(ignored.path.specificity.literals.toString(), ignored.path.specificity.wildcards.toString())
+        ),
+    )
+
+    private fun unknownPath(unknown: UnknownPath): String = obj(
+        "\"path\"" to path(unknown.path),
+        "\"types\"" to array(unknown.type.wireTypes().map(::quote)),
+        "\"specificity\"" to array(
+            listOf(unknown.path.specificity.literals.toString(), unknown.path.specificity.wildcards.toString())
         ),
     )
 

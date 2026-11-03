@@ -13,7 +13,23 @@ fun Compilation.toKotlinSource(packageName: String = "devtools"): String = build
     appendLine("internal const val ZEN_API_REFERENCE_JSON: String = \"\"\"")
     appendLine(escapeRawString(json))
     appendLine("\"\"\"")
+    appendLine()
+    append("internal const val ZEN_API_REFERENCE_TOML: String = \"\"\"")
+    append(escapeRawSource(source))
+    append("\"\"\"")
+    appendLine()
 }
 
 /** В raw-строке Kotlin интерполируется только `$`; кавычки и переводы строк уже экранированы JSON-ом. */
 private fun escapeRawString(value: String): String = value.replace("$", "\${'$'}")
+
+/**
+ * Исходный TOML вставляется в raw-строку байт-в-байт. `"""` внутри текста
+ * закрыло бы строку раньше времени, поэтому генератор падает явно.
+ */
+private fun escapeRawSource(value: String): String {
+    require(!value.contains("\"\"\"")) {
+        "reference/zen-api.toml содержит \"\"\" и не может быть вставлен в Kotlin raw-string без потери текста"
+    }
+    return value.replace("$", "\${'$'}")
+}

@@ -1,0 +1,199 @@
+# Эталон API Дзена для расширения.
+# Один раздел = один эндпоинт (путь + значимые параметры), а не одна функция.
+#
+# Синтаксис путей в used/ignored:
+#   a.b.c        вложенные объекты
+#   name[]       любой элемент массива (items[].id)
+#   *            любой ключ на одном уровне (items.*.published)
+#   **           всё поддерево, только последним сегментом и только в ignored
+#   \.           точка внутри имени ключа
+# Типы в used: string | number | boolean | object | array | null | any
+#   A|B          объединение типов
+#   type?        поле может отсутствовать
+#   { type = "...", by = ["func"] }   расширенная запись; by — только документация
+# Значение в ignored — обязательная непустая причина.
+#
+# Правила match:
+#   "METHOD path?param=value&param={var}", порядок параметров не важен
+#   параметры, которых нет в match, не учитываются
+#   {name} в пути — любой сегмент; param={var} — параметр обязан быть, значение любое
+#   повторяющийся параметр (fields): "набор содержит это значение"
+#   в match параметры записаны по алфавиту (каноническая форма)
+
+[meta]
+format     = 1
+zenVersion = "2.189.0"      # Zen-Client-Experiments, с которым сверялись
+updated    = 2026-10-30
+
+# Параметры, которые не меняют форму ответа: генератор заготовок их отбрасывает
+volatileParams = [
+  "page", "pageSize", "from", "to", "addTimeFrom", "addTimeTo",
+  "publisherId", "publicationIds", "publicationId", "publicationIdAfter",
+  "query", "language", "clid",
+]
+
+
+# ---------------------------------------------------------------------------
+# stats2: один путь, разные формы ответа. Различаем по groupBy и fields.
+# ---------------------------------------------------------------------------
+
+# Requester.getScr()
+[endpoints.stats2-flight-scr]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=impressions&groupBy=flight&total=true"
+note  = "агрегаты по периоду для SCR (охват подписчиков)"
+
+[endpoints.stats2-flight-scr.used]
+"total"                   = "object"
+"total.stats"             = "object"
+"total.stats.impressions" = { type = "number", by = ["getScr"] }
+"openingSubscribers"      = { type = "number", by = ["getScr"] }
+"publicationCount"        = { type = "number", by = ["getScr"] }
+"publications"            = "array"
+
+[endpoints.stats2-flight-scr.ignored]
+# Остальное содержимое пока неизвестно: заполнится по первым отчётам.
+"total.stats.*"     = "прочие метрики из fields, пока не используем"
+"publications[].**" = "постраничный список по публикациям, берём только total"
+
+
+# Requester.getStatsActuality()
+[endpoints.stats2-flight-views]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=views&groupBy=flight&publicationTypes=article"
+note  = "запрос с pageSize=1, нужен только момент актуальности статистики"
+
+[endpoints.stats2-flight-views.used]
+"actuality" = { type = "number", by = ["getStatsActuality"] }   # epoch ms
+
+[endpoints.stats2-flight-views.ignored]
+"publications[].**" = "одна публикация для запроса, берём только actuality"
+
+
+# Requester.getPublicationsStatsSubscribers()
+[endpoints.stats2-agegender-subscribers]
+match = "GET editor-api/v2/publisher/{id}/stats2?fields=typeSpecificViews&groupBy=ageGender&isSubscriber=true"
+note  = "просмотры подписчиков по списку публикаций"
+
+[endpoints.stats2-agegender-subscribers.used]
+"publications"                                = "array"
+"publications[].publication"                  = "object"
+"publications[].publication.publicationId"    = { type = "string", by = ["getPublicationsStatsSubscribers"] }
+"publications[].stats"                        = "object"
+"publications[].stats.typeSpecificViews"      = { type = "number", by = ["getPublicationsStatsSubscribers"] }
+
+[endpoints.stats2-agegender-subscribers.ignored]
+# Разбивка по полу и возрасту пока не используется. Заполнится по отчётам.
+
+
+# ---------------------------------------------------------------------------
+# Доход
+# ---------------------------------------------------------------------------
+
+# Requester.getTimespentRewards()
+[endpoints.income2]
+match = "GET editor-api/v2/publisher/{id}/income2?total=true"
+note  = "доход по дням"
+
+[endpoints.income2.used]
+"total"                                       = "object"
+"total.intervals"                             = "array"
+"total.intervals[].timestamp"                 = { type = "number", by = ["getTimespentRewards"] }   # epoch ms
+"total.intervals[].viewTimeSec"               = { type = "number", by = ["getTimespentRewards"] }
+"total.intervals[].income"                    = "object"
+"total.intervals[].income.timespent-reward"   = { type = "number", by = ["getTimespentRewards"] }
+# Если появятся ложные тревоги на днях без дохода, добавить ? к viewTimeSec / income.timespent-reward.
+
+[endpoints.income2.ignored]
+"total.intervals[].income.*" = "прочие виды дохода, пока не используем"
+
+
+# ---------------------------------------------------------------------------
+# Ограничения и комментарии
+# ---------------------------------------------------------------------------
+
+# Requester.getStrikesInfo(), Requester.getStrikes()
+[endpoints.get-strikes]
+match = "GET editor-api/v2/v2/get-strikes"       # двойной v2 как в коде
+note  = "ограничения канала"
+
+[endpoints.get-strikes.used]
+"channelRestricted"   = { type = "boolean", by = ["getStrikesInfo", "getStrikes"] }
+"limitations"         = { type = "array",   by = ["getStrikesInfo", "getStrikes"] }
+"limitations[].url"   = { type = "string",  by = ["getStrikes"] }
+
+[endpoints.get-strikes.ignored]
+"limitations[].*" = "прочие поля ограничения (причина, даты и т.п.), пока не используем"
+
+
+# Requester.getBannedUsers()
+[endpoints.banned-users]
+match = "GET api/comments/banned-users"
+note  = "заблокированные комментаторы"
+
+[endpoints.banned-users.used]
+"bannedUsers" = { type = "array", by = ["getBannedUsers"] }
+
+[endpoints.banned-users.ignored]
+"bannedUsers[].**" = "нужно только количество"
+
+
+# ---------------------------------------------------------------------------
+# Канал
+# ---------------------------------------------------------------------------
+
+# Requester.getChannelData(), getRegTime(), getMetrikaId()
+[endpoints.publisher]
+match = "GET editor-api/v3/publishers/{id}"
+note  = "карточка канала"
+
+[endpoints.publisher.used]
+"publisher"                  = "object"
+"publisher.regTime"          = { type = "number",  by = ["getChannelData", "getRegTime"] }      # epoch ms
+"publisher.metrikaCounterId" = { type = "number?", by = ["getChannelData", "getMetrikaId"] }    # счётчик может быть не подключён
+
+[endpoints.publisher.ignored]
+"publisher.*" = "прочие поля канала, пока не используем"
+
+
+# Requester.getPublishedPublicationsCount()
+[endpoints.publications-count]
+match = "GET editor-api/v2/publisher/{id}/publications-count"
+note  = "счётчики публикаций по типам; ключи под items — типы публикаций"
+
+[endpoints.publications-count.used]
+"items"             = { type = "object",  by = ["getPublishedPublicationsCount"] }
+"items.*"           = { type = "object",  by = ["getPublishedPublicationsCount"] }
+"items.*.published" = { type = "number?", by = ["getPublishedPublicationsCount"] }   # в коде при отсутствии берётся 0
+
+[endpoints.publications-count.ignored]
+"items.*.*" = "прочие счётчики (черновики и т.п.), пока не используем"
+
+
+# ---------------------------------------------------------------------------
+# Публикации. Структуру ответа определяют studioRequestDataToCards() и модели
+# Card / Stats, которых нет в присланном коде. Поэтому used оставлен пустым:
+# первые отчёты покажут все поля как new, а группировку по родителю можно
+# превратить в used/ignored.
+# ---------------------------------------------------------------------------
+
+# Requester.getPublicationsByView() и вызывающие его методы
+[endpoints.publications-list]
+match = "GET editor-api/v3/publications?state=published"
+note  = "список карточек публикаций. TODO: проверить, меняют ли types/view форму ответа"
+
+[endpoints.publications-list.used]
+# TODO: поля, которые читает studioRequestDataToCards (id, addTime и др.)
+
+[endpoints.publications-list.ignored]
+# TODO
+
+
+# Requester.getPublicationStat()
+[endpoints.publication-view-stat]
+match = "GET media-api/publication-view-stat"
+note  = "статистика просмотров одной публикации (модель Stats)"
+
+[endpoints.publication-view-stat.used]
+# TODO: поля модели Stats
+
+[endpoints.publication-view-stat.ignored]
+# TODO
