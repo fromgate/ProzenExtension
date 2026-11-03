@@ -11,8 +11,12 @@ plugins {
 // 1. Явный -Pprozen.dev=true|false важнее всего.
 // 2. Иначе задача buildVersion означает release, а любая другая сборка — dev.
 //
-// Значение нужно подпроектам при конфигурации (source maps, набор модулей),
-// поэтому оно вычисляется здесь, до их настройки.
+// Значение нужно подпроектам при конфигурации (source maps, набор модулей,
+// source set devtools), поэтому оно вычисляется здесь, до их настройки.
+//
+// Dev и release нельзя собрать в одном Gradle-процессе (различаются source set
+// и список модулей), поэтому команда, собирающая релиз, запускает dev-вариант
+// отдельным вложенным процессом (см. assembleReleaseWithDev/buildVersion ниже).
 // ---------------------------------------------------------------------------
 
 private val prozenDevProperty = providers.gradleProperty("prozen.dev").orNull
@@ -68,12 +72,14 @@ tasks.register<VerifyApiReferenceTask>("verifyApiReference") {
 /**
  * Защита release: в собранном расширении не должно быть ни devtools-кода,
  * ни эталона, ни dev-разрешений. Запускается только в release-сборке.
+ * Также проверяет архив исходников для Firefox AMO: в нём не должно быть
+ * dev-кода и эталона API, иначе из исходников можно было бы собрать dev-вариант.
  */
 tasks.register<CheckReleaseBundleTask>("checkReleaseBundle") {
     group = "verification"
     description = "Проверяет, что в release-бандле нет dev-кода и dev-разрешений"
     dev.set(prozenDev)
-    extensionDir.set(layout.projectDirectory.dir("build/extension"))
+    extensionDir.set(layout.buildDirectory.dir("extension"))
     forbiddenFiles.set(listOf("js/devtoolsKt.js"))
     forbiddenMarkers.set(
         listOf(
@@ -88,19 +94,51 @@ tasks.register<CheckReleaseBundleTask>("checkReleaseBundle") {
         )
     )
     forbiddenPermissions.set(listOf("unlimitedStorage"))
-    dependsOn(":prozen:packageExtension")
+    sourcesZip.set(layout.buildDirectory.file("extension-zip/prozen-sources.zip"))
+    forbiddenZipEntries.set(listOf("reference", "devtools/src/dev"))
+    if (!prozenDev) {
+        dependsOn(":prozen:packageReleaseExtensions", ":prozen:packageSourcesZip")
+    }
+}
+
+/** Вложенный запуск gradlew: dev и release собираются разными процессами. */
+fun runGradle(vararg args: String) {
+    val command = mutableListOf(File(rootDir, "gradlew").absolutePath)
+    if (gradle.startParameter.isOffline) {
+        command += "--offline"
+    }
+    command += args
+    runCommandChecked(*command.toTypedArray())
 }
 
 tasks.named("build") {
-    dependsOn(":prozen-firefox:packageExtension")
-    // В release обычный build тоже не должен выпускать бандл с dev-кодом.
-    if (!prozenDev) {
-        dependsOn("checkReleaseBundle")
+    if (prozenDev) {
+        dependsOn(":prozen:packageDevExtensions", ":prozen:cleanReleaseArtifacts")
+    } else {
+        // Релиз подразумевает и dev-варианты: dev собирается первым (и заодно
+        // чистит протухший release), затем release пересоздаётся и проверяется.
+        dependsOn("assembleReleaseWithDev")
+    }
+}
+
+if (!prozenDev) {
+    tasks.register("assembleReleaseWithDev") {
+        group = "build"
+        description = "Собирает dev-варианты вложенным запуском, затем release"
+        doLast {
+            runGradle("-Pprozen.dev=true", "build")
+            runGradle("-Pprozen.dev=false", ":prozen:packageReleaseExtensions", "checkReleaseBundle")
+        }
     }
 }
 
 tasks.register("buildVersion") {
     group = "build"
-    description = "Build the release variant and tag the current version"
-    dependsOn("build", ":prozen:tagVersion")
+    description = "Build the release and dev variants and tag the current version"
+    // Тонкий оркестратор: оба варианта собираются вложенными запусками
+    // (см. комментарий про режим сборки выше), затем ставится тег.
+    doLast {
+        runGradle("-Pprozen.dev=true", "build")
+        runGradle("-Pprozen.dev=false", ":prozen:tagVersion")
+    }
 }

@@ -11,28 +11,27 @@ The build has two modes, chosen at configuration time in the root `build.gradle.
 - `-Pprozen.dev=true|false` wins.
 - Otherwise the `buildVersion` task means **release**, any other invocation means **dev**.
 
-- `./gradlew build` — dev: unpacked extension in `build/extension-dev`, zips `build/extension-zip/prozen-dev.zip` and `prozen-firefox-dev.zip`, source maps on, `:devtools` source set `src/dev`.
-- `./gradlew buildVersion` — **release**: `build/extension`, `prozen.zip`, `prozen-firefox.zip`, no source maps, `:devtools` uses `src/release` stubs, and `checkReleaseBundle` runs before tagging. With `-Pprozen.dev=true` it fails at configuration.
-- `./gradlew -Pprozen.dev=false build` — release artifacts without creating/pushing a tag (useful for local checks).
-- `./gradlew :prozen:buildExtension` / `:prozen:packageExtension` — honor the current mode; use them with the flag when checking a specific variant.
+- `./gradlew build` — dev: unpacked variants in `build/extension/prozen-{chrome,edge,firefox}-dev/`, zips `build/extension-zip/prozen-{browser}-dev.zip`, source maps on, `:devtools` source set `src/dev`. Stale release artifacts are removed (`build/extension/prozen-{browser}/`, release zips, `prozen-sources.zip`).
+- `./gradlew -Pprozen.dev=false build` — **release**: `build/extension/prozen-{browser}/`, `prozen-{browser}.zip` for all three browsers plus `prozen-sources.zip` (AMO source archive without dev code and the API reference). Dev and release cannot share one Gradle configuration (devtools source set, module list), so the dev variants are built by a nested `gradlew -Pprozen.dev=true build` first; `checkReleaseBundle` runs after packaging. No source maps, `:devtools` uses `src/release` stubs.
+- `./gradlew buildVersion` — same as the release build, then creates and pushes a `vX.Y.Z` git tag (`:prozen:tagVersion` runs `checkReleaseBundle` before tagging). With `-Pprozen.dev=true` it fails at configuration.
+- `./gradlew :prozen:packageDevExtensions` / `:prozen:packageReleaseExtensions` — zips of the current mode's three browser variants; use them with the flag when checking a specific variant.
 - `./gradlew :<module>:compileKotlinJs` — fastest compile check, e.g. `./gradlew :content:compileKotlinJs`. It also compiles project dependencies.
-- `./gradlew -p buildSrc test` — JUnit tests for the `buildSrc` API-reference compiler. There is no test suite for extension code, no lint/format config, and no CI workflow. Verify by compiling and loading `build/extension-dev` (dev, Chrome/Edge) or `build/extension` (release), and `build/extension-firefox` (Firefox) manually.
+- `./gradlew -p buildSrc test` — JUnit tests for the `buildSrc` API-reference compiler and manifest builder. There is no test suite for extension code, no lint/format config, and no CI workflow. Verify by compiling and loading `build/extension/prozen-chrome-dev` (dev, Chrome/Edge), `build/extension/prozen-chrome` (release), or `build/extension/prozen-firefox[-dev]` (Firefox) manually.
 - Do not run `./gradlew buildVersion` unless releasing: it packages both variants, then `:prozen:tagVersion` creates and pushes a `vX.Y.Z` git tag.
 
 ## Versioning and manifests
 
-- The extension version is the first `### X.Y.Z` line in `CHANGELOG.md` (parsed by `getVersionFromChangelog()` in `prozen/build.gradle.kts`). Add the new changelog entry at the top before building a release.
-- `:prozen:updateManifest` runs for both `buildExtension` and packaging and rewrites `"version"` in `prozen/src/jsMain/resources/manifest.json` and `prozen-firefox/src/jsMain/resources/manifest.json`. Do not bump manifest versions by hand; build tasks may modify these tracked files.
-- The Chrome dev manifest is produced at build time from the release manifest (name `Prozen dev`, `unlimitedStorage`); the tracked manifest stays release-shaped. Firefox dev uses the normal manifest and only differs in JS and zip name.
-- The Chrome and Firefox manifests are separate and checked in. When adding permissions, resources, or content-script matches, update both. Chrome uses an MV3 `service_worker`; Firefox uses `background.scripts` plus a gecko id.
+- The extension version is the first `### X.Y.Z` line in `CHANGELOG.md` (parsed by `getVersionFromChangelog()` in `buildSrc/src/main/kotlin/Functions.kt`). Add the new changelog entry at the top before building a release.
+- `manifest.json` is a build artifact: `:prozen:generate{Chrome,Edge,Firefox}Manifest` generates it per variant (browser × dev/release) from `buildSrc/src/main/kotlin/ManifestBuilder.kt`. There are no tracked manifest files; never bump manifest versions by hand.
+- Chrome/Edge dev manifests get the name `Prozen dev` (so the dev extension cannot be confused with the normal one) and `unlimitedStorage` (Chrome `storage.local` quota is 10 MB without it, and dev diffs can be large). Firefox dev uses the normal manifest and only differs in JS and zip name.
+- Chrome/Edge and Firefox manifests are separate generated variants. When adding permissions, resources, or content-script matches, update both branches in `ManifestBuilder.kt`. Chrome/Edge use an MV3 `service_worker`; Firefox uses `background.scripts` plus a gecko id.
 - Firefox detection is `isFirefox()`: it checks whether the manifest description contains `"Firefox"` (from `extDescriptionFirefox`). Do not change that wording without updating the check.
 
 ## Module map
 
 - Shared/library modules: `chrome/` (hand-maintained `chrome.*` externs, patches in `fix.*.kt`; no regeneration script), `common/` (storage, options, cache, date/i18n, logging, UI components), `requester/` (Dzen `editor-api` client; `RequesterCached` adds `chrome.storage.local` caching), `page-analyzer/`, `page/`, `database/` (IndexedDB scaffold, not imported by other modules yet), `devtools/` (dev-only API validator; real code in `src/dev/kotlin`, no-op stubs in `src/release/kotlin`, selected by `prozenDev`; library, no bundle of its own).
 - Executable bundles: `content/`, `popup/`, `search/`, `status/`, `stats/`, `settings/`, `service-worker/`, each with `fun main()`.
-- `prozen/` — Chrome/Edge packaging plus all static resources (manifests, HTML, CSS, icons, locales, XLSX library). It has no Kotlin sources.
-- `prozen-firefox/` — Firefox manifest overlay only; its build reuses the `prozen` output.
+- `prozen/` — packaging for all browsers (chrome/edge/firefox variant dirs and zips in `build/extension[-zip]/`, `prozen-sources.zip` for Firefox AMO) plus all static resources (HTML, CSS, icons, locales, fonts, XLSX library). It has no Kotlin sources; `manifest.json` is not a resource anymore.
 - `page-analyzer/` — publication checks. Add a `PageCheck` object plus a `TypeCheck` enum entry, then register it in the default list in `createPageContext()` (`PageContextBuilder.kt`).
 
 ## Runtime wiring

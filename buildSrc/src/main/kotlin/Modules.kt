@@ -5,7 +5,6 @@ val DISALLOWED_MODULES = setOf(
     "requester",
     "page-analyzer",
     "chrome",
-    "prozen-firefox",
     // Библиотечный модуль без своего бандла: код попадает в бандлы потребителей.
     "devtools"
 )
