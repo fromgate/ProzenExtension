@@ -44,6 +44,14 @@ The build has two modes, chosen at configuration time in the root `build.gradle.
 - Add settings as `Option` entries in `common/src/jsMain/kotlin/common/Options.kt`. `Settings.kt` renders every option automatically except `group = "hidden"`; it also hardcodes a `firefoxRelated` set that is hidden on Firefox.
 - UI strings go through `common/M.kt` (locale key = property name) or `data-i18n`; add keys to `_locales/ru/messages.json` (default locale) and `_locales/en/messages.json`.
 
+## API validator (dev only)
+
+- The reference is `reference/zen-api.toml`: one section per endpoint (`match`, `used`, `ignored`, `unknown`). Path syntax: `a.b.c`, `name[]`, `*`, `**` (last segment, `ignored` only), `\.` for a dot in a key name. Types in `used`: `string|number|boolean|object|array|null|any`, unions `A|B`, `?` marks optional; for arrays `?` means "absent or empty". Empty array under a strict `array` rule is an `empty` diff, under `array?` it is silent.
+- Diff categories: `new`, `missing`, `type`, `status`, `unverified`, `empty`, `new-endpoint`, `new-variant`. Entries self-clear when actual responses match again; when the embedded reference hash changes, stored diffs are re-evaluated; diffs of endpoints removed from the reference are marked orphaned, not deleted. See the runtime wiring bullet above for storage keys.
+- Engine: `devtools/src/dev/kotlin/devtools/` — `PathSyntax`/`ActualRequest`/`Reference` (matching, compiled rules), `PathValidator` (JSON walk, categories), `DiffStore` (`chrome.storage.local`), `ApiValidator` (Requester observer), `SchemaCopy` (byte-preserving TOML patcher), `DevTools` (wiring, schema button). The TOML compiler/validator is `buildSrc/src/main/kotlin/zenapi/`.
+- `./gradlew verifyApiReference` validates `reference/zen-api.toml` without producing artifacts. The schema-copy patcher preserves the file byte layout (comments, section order, CRLF); round-trip must be stable: copy → save → rebuild → copy again yields the saved file. The generator fails on `"""` in the TOML (the text is embedded as `ZEN_API_REFERENCE_TOML`).
+- Testing: JVM tests only (`buildSrc`); a JS test runner is intentionally not configured — verify JS changes by compiling and manual runs.
+
 ## Conventions and gotchas
 
 - Dependency versions live in `buildSrc/src/main/kotlin/Libs.kt`; the Kotlin plugin version is pinned in the root `build.gradle.kts`.
