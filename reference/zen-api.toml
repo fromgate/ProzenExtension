@@ -272,11 +272,11 @@ note  = "список карточек публикаций. TODO: провер�
 "publications[].content.images"          = "array?"
 "publications[].content.images[].urlTemplate" = "string|null?"
 "publications[].isBanned"          = "boolean?"        # заблокирована публикация или нет
-"publications[].status"            = "string|null?"    #
+"publications[].status"            = "string|null?"    # странный статус — "published" или "banned".
 "publications[].origin"            = "string|null?"    # источник — tg-bot, rss, platform
 "publications[].commonUrl"         = "string|null?"    # короткий URL вида /a/xxxxx
-"publications[].addTime"           = "number?"         #
-"publications[].publishTime"       = "number?"         # время публикации
+"publications[].addTime"           = "number?"
+"publications[].publishTime"       = "number?"
 
 "publicationCounters"                            = "array"
 "publicationCounters[].publicationId"            = "string"      # ключ сопоставления с публикацией
@@ -346,7 +346,11 @@ note  = "список карточек публикаций. TODO: провер�
 [endpoints.publications-list.monitor]
 # Значения этих полей валидатор собирает в runtime; кнопка «Скопировать схему API»
 # дописывает найденное в [endpoints.publications-list.monitor.values].
-"publications[].status" = "string|null?"
+"publications[].status"            = "string|null?"
+"publications[].visibilityType"    = "string"
+
+[endpoints.publications-list.monitor.values]
+"publications[].status" = ["banned", "published"]
 
 # Requester.getPublicationStat()
 #
