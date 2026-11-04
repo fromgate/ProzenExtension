@@ -24,14 +24,14 @@ private const val SCHEMA_BUTTON_ID = "prozen-dev-schema-button"
 private var schemaButton: HTMLButtonElement? = null
 
 /**
- * Текст, готовый к копированию, и число новых полей в нём.
+ * Текст, готовый к копированию, число новых полей и число новых значений monitor.
  *
  * Собирается заранее, при открытии настроек и возврате фокуса: буфер обмена
  * вызывается синхронно из обработчика клика, пока браузер считает действие
  * пользовательским. Если собирать текст после `await` на storage, пользовательский
  * жест теряется, и Clipboard API может отказать.
  */
-private class PreparedSchema(val text: String, val additions: Int)
+private class PreparedSchema(val text: String, val additions: Int, val newMonitorValues: Int)
 
 private var preparedSchema: PreparedSchema? = null
 
@@ -153,10 +153,13 @@ private suspend fun loadPreparedSchema(): PreparedSchema {
     }
 
     val records = DiffStore.snapshot()
+    val monitorRecords = MonitorStore.snapshot()
     val reference = ReferenceHolder.document
+    val copied = buildSchemaCopy(records, monitorRecords, reference, ReferenceHolder.sourceText, Date())
     return PreparedSchema(
-        text = buildSchemaCopy(records, reference, ReferenceHolder.sourceText, Date()),
-        additions = newSchemaRecords(records, reference).size,
+        text = copied.text,
+        additions = copied.newRecords + copied.newMonitorValues,
+        newMonitorValues = copied.newMonitorValues,
     )
 }
 
@@ -236,11 +239,14 @@ private fun finishCopy(prepared: PreparedSchema, copied: Boolean, failure: Strin
     }
 
     showNotification(
-        if (prepared.additions == 0) {
-            "Схема API скопирована: новых полей нет."
-        } else {
-            "Схема API скопирована. Новых полей: ${prepared.additions}. " +
-                "После сохранения пересоберите расширение."
+        when {
+            prepared.additions == 0 -> "Схема API скопирована: новых полей нет."
+            prepared.newMonitorValues > 0 ->
+                "Схема API скопирована. Новых полей и значений: ${prepared.additions} " +
+                    "(значений: ${prepared.newMonitorValues}). После сохранения пересоберите расширение."
+            else ->
+                "Схема API скопирована. Новых полей: ${prepared.additions}. " +
+                    "После сохранения пересоберите расширение."
         }
     )
 

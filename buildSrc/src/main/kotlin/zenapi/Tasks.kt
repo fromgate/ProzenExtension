@@ -23,9 +23,11 @@ abstract class VerifyApiReferenceTask : DefaultTask() {
         val used = document.endpoints.sumOf { it.used.size }
         val ignored = document.endpoints.sumOf { it.ignored.size }
         val unknown = document.endpoints.sumOf { it.unknown.size }
+        val monitor = document.endpoints.sumOf { it.monitor.size }
+        val monitorValues = document.endpoints.sumOf { it.monitorValues.size }
         logger.lifecycle(
             "Эталон API: эндпоинтов ${document.endpoints.size}, used $used, ignored $ignored, " +
-                "unknown $unknown, ${compilation.hash}"
+                "unknown $unknown, monitor $monitor ($monitorValues с наборами значений), ${compilation.hash}"
         )
     }
 

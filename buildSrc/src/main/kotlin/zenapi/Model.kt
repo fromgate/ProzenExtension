@@ -153,6 +153,12 @@ data class IgnoredPath(val path: ReferencePath, val reason: String)
 /** Наблюдённый, но ещё не разобранный путь: временный склад для ручного разбора. */
 data class UnknownPath(val path: ReferencePath, val type: TypeSpec)
 
+/** Путь в `monitor`: валидатор собирает значения, которые встречаются в ответе. */
+data class MonitorPath(val path: ReferencePath, val type: TypeSpec)
+
+/** Найденные значения пути `monitor`: секция пополняется копированием схемы. */
+data class MonitorValues(val path: ReferencePath, val values: List<String>)
+
 data class EndpointDefinition(
     val name: String,
     val note: String?,
@@ -160,6 +166,8 @@ data class EndpointDefinition(
     val used: List<UsedPath>,
     val ignored: List<IgnoredPath>,
     val unknown: List<UnknownPath>,
+    val monitor: List<MonitorPath> = emptyList(),
+    val monitorValues: List<MonitorValues> = emptyList(),
 )
 
 data class ReferenceDocument(

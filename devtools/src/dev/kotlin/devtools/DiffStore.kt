@@ -28,6 +28,7 @@ internal enum class DiffKind(val wire: String) {
     EMPTY("empty"),
     NEW_ENDPOINT("new-endpoint"),
     NEW_VARIANT("new-variant"),
+    VALUE("value"),
 }
 
 /** Кандидат в расхождения, пока без счётчика и времени: результат одного ответа. */
@@ -206,6 +207,7 @@ internal object DiffStore {
                 DiffKind.MISSING -> missingIsSettled(endpoint, record)
                 DiffKind.EMPTY -> emptyIsSettled(endpoint, record)
                 DiffKind.UNVERIFIED -> unverifiedIsSettled(endpoint, record)
+                DiffKind.VALUE -> valueIsSettled(endpoint, record)
                 DiffKind.NEW_ENDPOINT, DiffKind.NEW_VARIANT ->
                     record.request != null && reference.match(ActualRequest.parseCanonical(record.request)) != null
                 DiffKind.STATUS -> false
@@ -252,6 +254,14 @@ internal object DiffStore {
         return steps.indices.any { index ->
             steps[index] === PathStep.ArrayItem && endpoint.bestUsedExact(steps.take(index)) != null
         }
+    }
+
+    /** `value`: значение попало в эталонные `monitor.values` или правило убрали. */
+    private fun valueIsSettled(endpoint: Endpoint, record: DiffRecord): Boolean {
+        val steps = parsePath(record.path)
+        val rule = endpoint.bestMonitorExact(steps) ?: return true
+        val observed = record.observed ?: return false
+        return observed in (endpoint.recordedValues[rule.canonical] ?: emptySet())
     }
 
     // ------------------------------------------------------------------ storage

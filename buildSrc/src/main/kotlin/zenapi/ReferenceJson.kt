@@ -25,7 +25,9 @@ package zenapi
  *       },
  *       "used": [ { "path": [...], "types": ["object"], "optional": false, "specificity": [1, 0] } ],
  *       "ignored": [ { "path": [...], "reason": "...", "specificity": [2, 0] } ],
- *       "unknown": [ { "path": [...], "types": ["number"], "specificity": [1, 0] } ]
+ *       "unknown": [ { "path": [...], "types": ["number"], "specificity": [1, 0] } ],
+ *       "monitor": [ { "path": [...], "types": ["string"], "optional": true, "specificity": [2, 0] } ],
+ *       "monitorValues": { "publications[].status": ["banned", "published"] }
  *     }
  *   ]
  * }
@@ -62,6 +64,8 @@ internal object ReferenceJson {
         "\"used\"" to array(endpoint.used.map(::usedPath)),
         "\"ignored\"" to array(endpoint.ignored.map(::ignoredPath)),
         "\"unknown\"" to array(endpoint.unknown.map(::unknownPath)),
+        "\"monitor\"" to array(endpoint.monitor.map(::monitorPath)),
+        "\"monitorValues\"" to monitorValues(endpoint.monitorValues),
     )
 
     private fun match(match: EndpointMatch): String = obj(
@@ -116,6 +120,20 @@ internal object ReferenceJson {
         "\"specificity\"" to array(
             listOf(unknown.path.specificity.literals.toString(), unknown.path.specificity.wildcards.toString())
         ),
+    )
+
+    private fun monitorPath(monitor: MonitorPath): String = obj(
+        "\"path\"" to path(monitor.path),
+        "\"types\"" to array(monitor.type.wireTypes().map(::quote)),
+        "\"optional\"" to monitor.type.optional.toString(),
+        "\"specificity\"" to array(
+            listOf(monitor.path.specificity.literals.toString(), monitor.path.specificity.wildcards.toString())
+        ),
+    )
+
+    /** Ключ — канонический путь; значения — как в файле, порядок сохраняется. */
+    private fun monitorValues(monitorValues: List<MonitorValues>): String = obj(
+        monitorValues.map { quote(it.path.canonical) to array(it.values.map(::quote)) }
     )
 
     private fun path(path: ReferencePath): String = array(

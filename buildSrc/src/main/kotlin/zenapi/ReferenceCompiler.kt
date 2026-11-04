@@ -25,7 +25,11 @@ object ReferenceCompiler {
 
     private val ENDPOINT_NAME = Regex("[A-Za-z0-9_-]+")
     private val META_KEYS = setOf("format", "zenVersion", "updated", "volatileParams")
-    private val ENDPOINT_KEYS = setOf("match", "note", "used", "ignored", "unknown")
+    private val ENDPOINT_KEYS = setOf("match", "note", "used", "ignored", "unknown", "monitor")
+
+    /** Лимиты совпадают с константами в devtools (PathValidator/MonitorStore): модули компилируются независимо. */
+    private const val MONITOR_VALUE_COUNT_LIMIT = 64
+    private const val MONITOR_VALUE_LENGTH_LIMIT = 100
 
     fun compile(toml: String): Compilation {
         val root = Toml.parse(toml)
@@ -171,9 +175,11 @@ object ReferenceCompiler {
         val used = readUsed(name, table.getTable("used"), collector)
         val ignored = readIgnored(name, table.getTable("ignored"), collector)
         val unknown = readUnknown(name, table.getTable("unknown"), collector)
+        val monitor = readMonitor(name, table.getTable("monitor"), collector)
+        val monitorValues = readMonitorValues(name, table.getTable("monitor"), monitor, collector)
 
         if (match == null) return null
-        return EndpointDefinition(name, note, match, used, ignored, unknown)
+        return EndpointDefinition(name, note, match, used, ignored, unknown, monitor, monitorValues)
     }
 
     private fun readUsed(
@@ -305,6 +311,110 @@ object ReferenceCompiler {
 
             val type = readTypeSpec(context, entry.value, collector) ?: return@mapNotNull null
             UnknownPath(path, type)
+        }
+    }
+
+    /**
+     * `monitor` — пути, чьи значения валидатор собирает в runtime. Тип не
+     * ограничиваем скалярами: объекты и массивы объектов не падают здесь, а
+     * получают служебный маркер в результаты мониторинга (см. PathValidator).
+     */
+    private fun readMonitor(
+        endpoint: String,
+        table: TomlTable?,
+        collector: Collector,
+    ): List<MonitorPath> {
+        if (table == null) return emptyList()
+
+        return table.entrySet().mapNotNull { entry ->
+            // Вложенная таблица `[...monitor.values]` — не путь, а склад найденных значений.
+            if (entry.key == "values") return@mapNotNull null
+            val rawPath = entry.key
+            val context = "endpoints.$endpoint.monitor[\"$rawPath\"]"
+            val path = try {
+                PathSyntax.parse(rawPath)
+            } catch (error: SyntaxException) {
+                collector.error(context, error.message ?: "неверный путь")
+                return@mapNotNull null
+            }
+
+            if (PathSyntax.deepSegments(path).isNotEmpty()) {
+                collector.error(context, "\"**\" допустим только в ignored")
+                return@mapNotNull null
+            }
+
+            val type = readTypeSpec(context, entry.value, collector) ?: return@mapNotNull null
+            MonitorPath(path, type)
+        }
+    }
+
+    /**
+     * `monitor.values` — найденные значения: пополняется копированием схемы,
+     * можно править руками. Пути конкретные (как в `unknown`: без `*`/`**`),
+     * каждый путь обязан быть объявлен в `monitor`.
+     */
+    private fun readMonitorValues(
+        endpoint: String,
+        monitorTable: TomlTable?,
+        monitor: List<MonitorPath>,
+        collector: Collector,
+    ): List<MonitorValues> {
+        val table = monitorTable?.getTable("values") ?: return emptyList()
+        val monitorPaths = monitor.map { it.path.canonical }.toSet()
+
+        return table.entrySet().mapNotNull { entry ->
+            val rawPath = entry.key
+            val context = "endpoints.$endpoint.monitor.values[\"$rawPath\"]"
+            val path = try {
+                PathSyntax.parse(rawPath)
+            } catch (error: SyntaxException) {
+                collector.error(context, error.message ?: "неверный путь")
+                return@mapNotNull null
+            }
+
+            if (path.segments.any { it == PathSegment.AnyKey || it == PathSegment.Deep }) {
+                collector.error(context, "\"*\" и \"**\" недопустимы: путь должен быть точным")
+                return@mapNotNull null
+            }
+
+            if (path.canonical !in monitorPaths) {
+                collector.error(context, "путь \"$rawPath\" не объявлен в monitor")
+                return@mapNotNull null
+            }
+
+            val array = entry.value as? org.tomlj.TomlArray
+            if (array == null) {
+                collector.error(context, "ожидается массив строк")
+                return@mapNotNull null
+            }
+
+            val values = mutableListOf<String>()
+            for (index in 0 until array.size()) {
+                val value = array.get(index)
+                if (value !is String) {
+                    collector.error(context, "значение [$index] должно быть строкой")
+                    continue
+                }
+                if (value.isEmpty()) {
+                    collector.error(context, "пустое значение [$index]")
+                    continue
+                }
+                if (value in values) {
+                    collector.error(context, "значение \"$value\" повторяется")
+                    continue
+                }
+                values += value
+            }
+
+            if (values.size > MONITOR_VALUE_COUNT_LIMIT) {
+                collector.warnings +=
+                    "$context: значений ${values.size}, больше лимита runtime-накопления ($MONITOR_VALUE_COUNT_LIMIT)"
+            }
+            values.firstOrNull { it.length > MONITOR_VALUE_LENGTH_LIMIT }?.let { long ->
+                collector.warnings += "$context: значение длиннее $MONITOR_VALUE_LENGTH_LIMIT символов: \"${long.take(40)}…\""
+            }
+
+            MonitorValues(path, values)
         }
     }
 

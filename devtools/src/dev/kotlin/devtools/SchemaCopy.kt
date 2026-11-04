@@ -14,6 +14,22 @@ internal data class SchemaAddition(
     val sample: String?,
 )
 
+/** Результат копирования схемы: текст и число дописанного (для кнопки и уведомления). */
+internal data class SchemaCopyResult(
+    val text: String,
+    val newRecords: Int,
+    val newMonitorValues: Int,
+)
+
+/** Одно обновление `[endpoints.<имя>.monitor.values]`: полный новый набор значений пути. */
+internal data class MonitorAddition(
+    val endpoint: String,
+    val path: String,
+    val values: List<String>,
+    /** Сколько значений добавилось к файловому набору: для счётчика кнопки. */
+    val added: Int,
+)
+
 /**
  * `new`, которые ещё не покрыты эталоном и попадут в `unknown` при копировании.
  *
@@ -34,13 +50,14 @@ internal fun newSchemaRecords(
     .sortedWith(compareBy({ it.endpoint }, { it.path }))
     .toList()
 
-/** Полный текст эталона с дописанными `new` в `unknown`. */
+/** Полный текст эталона с дописанными `new` в `unknown` и значениями в `monitor.values`. */
 internal fun buildSchemaCopy(
     records: List<DiffRecord>,
+    monitorRecords: List<MonitorStore.MonitorRecord>,
     reference: ReferenceDocument,
     source: String,
     today: Date,
-): String {
+): SchemaCopyResult {
     val additions = newSchemaRecords(records, reference).map { record ->
         SchemaAddition(
             endpoint = record.endpoint,
@@ -55,8 +72,42 @@ internal fun buildSchemaCopy(
                 ?.let { limitSample(it, unknownSampleLimit) },
         )
     }
-    return patchSchema(source, additions)
+    val monitorAdditions = buildMonitorAdditions(monitorRecords, reference)
+    val text = patchSchema(source, additions).let { patchMonitorValues(it, monitorAdditions) }
+    return SchemaCopyResult(
+        text = text,
+        newRecords = additions.size,
+        newMonitorValues = monitorAdditions.sumOf { it.added },
+    )
 }
+
+/**
+ * Что добавить в `monitor.values`: пути, у которых в storage есть значения вне
+ * файлового набора. Полный набор (`values`) — для перезаписи строки целиком;
+ * после сохранения файла и пересборки наборы совпадут и патч станет пустым
+ * (round-trip стабилен).
+ */
+internal fun buildMonitorAdditions(
+    monitorRecords: List<MonitorStore.MonitorRecord>,
+    reference: ReferenceDocument,
+): List<MonitorAddition> = monitorRecords
+    .groupBy { it.endpoint to it.path }
+    .mapNotNull { (key, group) ->
+        val (endpointName, path) = key
+        val endpoint = reference.endpoint(endpointName) ?: return@mapNotNull null
+        endpoint.bestMonitorExact(parsePath(path)) ?: return@mapNotNull null
+        val recorded = endpoint.recordedValues[path] ?: emptySet()
+        val observed = group.flatMap { it.values.keys }.toSet()
+        val fresh = observed.count { it !in recorded }
+        if (fresh == 0) return@mapNotNull null
+        MonitorAddition(
+            endpoint = endpointName,
+            path = path,
+            values = (recorded + observed).sorted(),
+            added = fresh,
+        )
+    }
+    .sortedWith(compareBy({ it.endpoint }, { it.path }))
 
 /** `DD.MM.YYYY`; при отсутствии даты записи берётся текущая. */
 internal fun formatUnknownDate(millis: Long, today: Date): String {
@@ -108,6 +159,88 @@ internal fun patchSchema(source: String, additions: List<SchemaAddition>): Strin
         result = result.removeSuffix(eol)
     }
     return result
+}
+
+// ------------------------------------------------------------- monitor.values
+
+private data class Patch(val offset: Int, val remove: Int, val text: String)
+
+/**
+ * Дописывает или переписывает значения в `[endpoints.<имя>.monitor.values]`,
+ * не трогая остальной текст. Отсутствующую таблицу создаёт сразу после
+ * `[endpoints.<имя>.monitor]` (иначе после самого эндпоинта). Существующую
+ * строку ключа перезаписывает целиком: таблица принадлежит патчеру.
+ */
+internal fun patchMonitorValues(source: String, additions: List<MonitorAddition>): String {
+    if (additions.isEmpty()) return source
+
+    val lines = splitLines(source)
+    val eol = detectEol(source)
+    val patches = additions
+        .groupBy { it.endpoint }
+        .entries
+        .sortedBy { it.key }
+        .flatMap { (endpoint, group) -> planMonitorPatches(lines, endpoint, group, eol) }
+
+    if (patches.isEmpty()) return source
+
+    var result = source
+    patches
+        .sortedWith(compareByDescending<Patch> { it.offset }.thenByDescending { it.remove })
+        .forEach { patch ->
+            result = result.substring(0, patch.offset) + patch.text + result.substring(patch.offset + patch.remove)
+        }
+    return result
+}
+
+private fun planMonitorPatches(
+    lines: List<SchemaLine>,
+    endpoint: String,
+    additions: List<MonitorAddition>,
+    eol: String,
+): List<Patch> {
+    val valuesHeader = findHeader(lines, "endpoints.$endpoint.monitor.values")
+    if (valuesHeader != null) {
+        val body = tableBody(lines, valuesHeader)
+        val patches = mutableListOf<Patch>()
+        val appended = mutableListOf<String>()
+        additions.sortedBy { it.path }.forEach { addition ->
+            val lineIndex = body.indexOfFirst { parseTomlKey(it.text) == addition.path }
+            if (lineIndex >= 0) {
+                val line = body[lineIndex]
+                patches += Patch(
+                    offset = line.start,
+                    remove = line.end - line.start,
+                    text = renderMonitorEntry(addition) + if (line.hasEol) eol else "",
+                )
+            } else {
+                appended += renderMonitorEntry(addition)
+            }
+        }
+        if (appended.isNotEmpty()) {
+            val insertion = appendEntries(lines, bodyAnchor(lines, valuesHeader), appended, eol)
+            patches += Patch(insertion.offset, 0, insertion.text)
+        }
+        return patches
+    }
+
+    val anchorHeader = findHeader(lines, "endpoints.$endpoint.monitor")
+        ?: findHeader(lines, "endpoints.$endpoint")
+        ?: return emptyList()
+    val insertion = insertSection(
+        lines = lines,
+        anchor = bodyAnchor(lines, anchorHeader),
+        header = "[endpoints.$endpoint.monitor.values]",
+        entries = additions.sortedBy { it.path }.map(::renderMonitorEntry),
+        eol = eol,
+    )
+    return listOf(Patch(insertion.offset, 0, insertion.text))
+}
+
+private fun renderMonitorEntry(addition: MonitorAddition): String = buildString {
+    append('"').append(tomlEscape(addition.path)).append("\" = [")
+    addition.values.joinTo(this) { "\"${tomlEscape(it)}\"" }
+    append(']')
 }
 
 // ------------------------------------------------------------------- планирование

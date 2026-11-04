@@ -30,6 +30,8 @@ internal object ReferenceHolder {
         val used: List<UsedJson> = emptyList(),
         val ignored: List<IgnoredJson> = emptyList(),
         val unknown: List<UnknownJson> = emptyList(),
+        val monitor: List<MonitorJson> = emptyList(),
+        val monitorValues: Map<String, List<String>> = emptyMap(),
     )
 
     @Serializable
@@ -66,6 +68,14 @@ internal object ReferenceHolder {
     )
 
     @Serializable
+    private data class MonitorJson(
+        val path: List<PathStepJson> = emptyList(),
+        val types: List<String> = emptyList(),
+        val optional: Boolean = false,
+        val specificity: List<Int> = emptyList(),
+    )
+
+    @Serializable
     private data class PathStepJson(val k: String, val n: String = "")
 
     val document: ReferenceDocument by lazy { parse(ZEN_API_REFERENCE_JSON) }
@@ -93,6 +103,8 @@ internal object ReferenceHolder {
         used = used.mapIndexed { index, used -> used.toUsed(index) },
         ignored = ignored.map { it.toIgnored() },
         unknown = unknown.map { it.toUnknown() },
+        monitor = monitor.map { it.toMonitor() },
+        recordedValues = monitorValues.mapValues { (_, values) -> values.toSet() },
     )
 
     private fun MatchJson.toMatch(): EndpointMatch {
@@ -146,6 +158,8 @@ internal object ReferenceHolder {
     private fun IgnoredJson.toIgnored() = Endpoint.IgnoredRule(path = path.toSteps(), reason = reason)
 
     private fun UnknownJson.toUnknown() = Endpoint.UnknownRule(path = path.toSteps(), types = types.toSet())
+
+    private fun MonitorJson.toMonitor() = Endpoint.MonitorRule(path = path.toSteps(), types = types.toSet())
 }
 
 /** Результат сопоставления запроса с эндпоинтом. */
@@ -168,6 +182,9 @@ internal class Endpoint(
     val used: List<UsedRule>,
     val ignored: List<IgnoredRule>,
     val unknown: List<UnknownRule>,
+    val monitor: List<MonitorRule> = emptyList(),
+    /** Известные эталону значения путей `monitor` (canonical path -> набор). */
+    val recordedValues: Map<String, Set<String>> = emptyMap(),
 ) {
     /** Тип поля, который проверяет правило. */
     internal class UsedRule(
@@ -193,6 +210,14 @@ internal class Endpoint(
         val rank: PathRank = path.pathRank
     }
 
+    /** Путь в `monitor`: тип документирует ожидание, сбор идёт по факту узла. */
+    internal class MonitorRule(val path: List<PathStep>, val types: Set<String>) {
+        val canonical: String = formatPath(path)
+        val rank: PathRank = path.pathRank
+
+        fun matchesAt(actual: List<PathStep>): Boolean = usedMatches(path, actual)
+    }
+
     fun bestUsedExact(actual: List<PathStep>): UsedRule? =
         used.filter { it.matchesAt(actual) }.maxByOrNull { it.rank }
 
@@ -210,6 +235,10 @@ internal class Endpoint(
     /** Точное правило `unknown` для реального пути. */
     fun bestUnknownExact(actual: List<PathStep>): UnknownRule? =
         unknown.filter { usedMatches(it.path, actual) }.maxByOrNull { it.rank }
+
+    /** Самое специфичное правило `monitor`, точно совпадающее с реальным путём. */
+    fun bestMonitorExact(actual: List<PathStep>): MonitorRule? =
+        monitor.filter { it.matchesAt(actual) }.maxByOrNull { it.rank }
 
     /**
      * Правило `unknown`, покрывающее реальный путь: сам путь или его предок.

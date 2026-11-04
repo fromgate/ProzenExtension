@@ -88,6 +88,7 @@ internal object ApiValidator : ApiObserver {
         }
 
         val outcome = PathValidator(match.endpoint).validate(call.body!!, call.caller)
+        MonitorStore.addObserved(match.endpoint.name, outcome.monitorValues)
         DiffStore.applyResponse(
             endpointName = match.endpoint.name,
             pending = outcome.pending,

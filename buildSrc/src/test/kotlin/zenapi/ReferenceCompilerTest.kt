@@ -44,6 +44,8 @@ class ReferenceCompilerTest {
         used: Map<String, String> = mapOf("id" to "string"),
         ignored: Map<String, String> = emptyMap(),
         unknown: Map<String, String> = emptyMap(),
+        monitor: Map<String, String> = emptyMap(),
+        monitorValues: Map<String, List<String>> = emptyMap(),
     ): String = buildString {
         appendLine("[endpoints.$name]")
         appendLine("match = \"$match\"")
@@ -58,6 +60,16 @@ class ReferenceCompilerTest {
         if (unknown.isNotEmpty()) {
             appendLine("[endpoints.$name.unknown]")
             unknown.forEach { (path, type) -> appendLine("\"$path\" = \"$type\"") }
+        }
+        if (monitor.isNotEmpty()) {
+            appendLine("[endpoints.$name.monitor]")
+            monitor.forEach { (path, type) -> appendLine("\"$path\" = \"$type\"") }
+        }
+        if (monitorValues.isNotEmpty()) {
+            appendLine("[endpoints.$name.monitor.values]")
+            monitorValues.forEach { (path, values) ->
+                appendLine("\"$path\" = [${values.joinToString(", ") { "\"$it\"" }}]")
+            }
         }
     }
 
@@ -426,6 +438,133 @@ class ReferenceCompilerTest {
     fun `empty unknown is present in json`() {
         val compilation = ReferenceCompiler.compile(reference(endpoint()))
         assertTrue(compilation.json.contains("\"unknown\":[]"), compilation.json)
+    }
+
+    // ----------------------------------------------------------------- monitor
+
+    @Test
+    fun `monitor paths and types are parsed`() {
+        val compilation = ReferenceCompiler.compile(
+            reference(
+                endpoint(
+                    monitor = mapOf(
+                        "publications[].status" to "string|null?",
+                        "items[].tags" to "array",
+                        "payload" to "object",
+                        "counters.*.kind" to "any",
+                    )
+                )
+            )
+        )
+        val monitor = compilation.document.endpoints.single().monitor
+        assertEquals(
+            listOf("publications[].status", "items[].tags", "payload", "counters.*.kind"),
+            monitor.map { it.path.canonical },
+        )
+        assertEquals(setOf(JsonType.STRING, JsonType.NULL), monitor.first().type.types)
+        assertTrue(monitor.first().type.optional)
+    }
+
+    @Test
+    fun `deep wildcard is forbidden in monitor`() {
+        assertError("только в ignored") {
+            ReferenceCompiler.compile(reference(endpoint(monitor = mapOf("a.**" to "object"))))
+        }
+    }
+
+    @Test
+    fun `monitor values are parsed`() {
+        val compilation = ReferenceCompiler.compile(
+            reference(
+                endpoint(
+                    monitor = mapOf("publications[].status" to "string|null?"),
+                    monitorValues = mapOf("publications[].status" to listOf("banned", "published")),
+                )
+            )
+        )
+        val values = compilation.document.endpoints.single().monitorValues.single()
+        assertEquals("publications[].status", values.path.canonical)
+        assertEquals(listOf("banned", "published"), values.values)
+    }
+
+    @Test
+    fun `monitor values require declared monitor path`() {
+        assertError("не объявлен в monitor") {
+            ReferenceCompiler.compile(
+                reference(endpoint(monitorValues = mapOf("extra" to listOf("a"))))
+            )
+        }
+    }
+
+    @Test
+    fun `wildcards are forbidden in monitor values`() {
+        assertError("путь должен быть точным") {
+            ReferenceCompiler.compile(
+                reference(
+                    endpoint(
+                        monitor = mapOf("items[].*" to "string"),
+                        monitorValues = mapOf("items[].*" to listOf("a")),
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `duplicate monitor value is an error`() {
+        assertError("повторяется") {
+            ReferenceCompiler.compile(
+                reference(
+                    endpoint(
+                        monitor = mapOf("status" to "string"),
+                        monitorValues = mapOf("status" to listOf("a", "a")),
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `empty monitor values table is allowed`() {
+        val body = """
+            [endpoints.sample]
+            match = "GET editor-api/v2/sample/{id}"
+            [endpoints.sample.monitor]
+            "id" = "string"
+            [endpoints.sample.monitor.values]
+        """.trimIndent()
+        val compilation = ReferenceCompiler.compile(reference(body))
+        assertEquals(1, compilation.document.endpoints.single().monitor.size)
+        assertEquals(0, compilation.document.endpoints.single().monitorValues.size)
+    }
+
+    @Test
+    fun `emitted json contains monitor and monitor values`() {
+        val compilation = ReferenceCompiler.compile(
+            reference(
+                endpoint(
+                    monitor = mapOf("publications[].status" to "string|null?"),
+                    monitorValues = mapOf("publications[].status" to listOf("banned", "published")),
+                )
+            )
+        )
+        val endpoint = Json.parseToJsonElement(compilation.json).jsonObject["endpoints"]!!.jsonArray
+            .single().jsonObject
+        val monitor = endpoint["monitor"]!!.jsonArray.single().jsonObject
+        assertEquals(listOf("null", "string"), monitor["types"]!!.jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(true, monitor["optional"]!!.jsonPrimitive.boolean)
+        val values = endpoint["monitorValues"]!!.jsonObject
+        assertEquals(
+            listOf("banned", "published"),
+            values["publications[].status"]!!.jsonArray.map { it.jsonPrimitive.content },
+        )
+    }
+
+    @Test
+    fun `empty monitor is present in json`() {
+        val compilation = ReferenceCompiler.compile(reference(endpoint()))
+        assertTrue(compilation.json.contains("\"monitor\":[]"), compilation.json)
+        assertTrue(compilation.json.contains("\"monitorValues\":{}"), compilation.json)
     }
 
     // -------------------------------------------------------------------- hash

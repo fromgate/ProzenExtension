@@ -19,6 +19,14 @@
 #
 # Значение в ignored — обязательная непустая причина.
 #
+# Секция [endpoints.<имя>.monitor] — пути, чьи значения валидатор собирает
+# в runtime (только dev). Тип — как в used, любой. Скаляр пишется как есть,
+# массив скаляров — элементы по одному, объект или массив с не-скалярными
+# элементами — маркер "<object>"/"<array>": правило ошибочно, такой узел
+# мониторят в разрезе конкретных полей. Найденные значения кнопка
+# «Скопировать схему API» сливает в [endpoints.<имя>.monitor.values]
+# (путь = массив строк, каждый путь обязан быть объявлен в monitor).
+#
 # Правила match:
 #   "METHOD path?param=value&param={var}", порядок параметров не важен
 #   параметры, которых нет в match, не учитываются
@@ -334,6 +342,11 @@ note  = "список карточек публикаций. TODO: провер�
 "publications[].content.gifContent"                    = "object" # обнаружено 03.11.2026 # пример: {"videoId":"f9d76ca5-3994-4dc5-a498-103450f9cba0","status":{"isUploaded":true,"isConverted":true,"isFailed":false,"ready":true},"autoPublish":false,"duration":5000,"hasSound":false,"uuid":"olEZ7RScJAAA","size":{"width":852,"height":478},"uploadOnVideoHosting":false,"streams":[],"thumbnails":[{"id":"68467be3ffdbf2240b3fb70d"},{"id":"68467be3ffdbf2240b3fb70e"},{"id":"68467be3ffdbf2240b3fb70f"}],"isHighRes":true,"videoMetaId":"10064274081428","videoFileId":"10064274081428","migratedFromEfir":false,"uploadFromYoutube":false,"uploadFromCms":false,"uploadUrl":"https://vu.okcdn.ru/dzenMultipartTus.do?sig=1148129386019c4d63c720b383347ff7e7874107&expires=1749593694524&clientType=33&saveOriginal=1&appId=api&id=10064274081428&userId=910020390548&cid=8610799815316&totalFileSize=861171&totalFileFragmentSize=861171&fileFragmentOffset=0","parallelsUploadUrls":[],"isInvisible":false,"mentions":[],"episodes":[],"originalGif":{"url":"","format":"mp4"},"externalVideoDuplicates":[],"externalVideoDuplicatesV2":[],"oneVideoId":"10064274081428","oneVideoInfo":{"oneVideoVersion":10,"oneVideoStatus":{"isUploaded":true,"isConverted":true,"isFailed":false,"isHighRes":true},"oneVideoStreams":[],"oneVideoFirstFrameUrl":"http://avatars.idzn.ru/get-zen_doc/271828/pub_68467bde584b802297fd9c76_68467be2ffdbf2240b3fb6fc/smart_crop_516x290","isOneVideoUpload":true},"failed":false,"invisible":false,"uploaded":true,"converted":true,"highRes":true,"converting":false,"readyForPublish":false,"ready":true}
 "publications[].videoStatus"                           = "string" # обнаружено 03.11.2026
 "publications[].visibilityType"                        = "string" # обнаружено 03.11.2026 # пример: "all"
+
+[endpoints.publications-list.monitor]
+# Значения этих полей валидатор собирает в runtime; кнопка «Скопировать схему API»
+# дописывает найденное в [endpoints.publications-list.monitor.values].
+"publications[].status" = "string|null?"
 
 # Requester.getPublicationStat()
 #

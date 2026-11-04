@@ -10,7 +10,7 @@ import kotlinx.serialization.json.booleanOrNull
 /** Результат обхода одного ответа по эталону эндпоинта. */
 internal class ValidationOutcome(
     val endpoint: Endpoint,
-    /** Отчёты проверки формы: `new`, `missing`, `type`, `empty`, `unverified`. */
+    /** Отчёты проверки формы: `new`, `missing`, `type`, `empty`, `unverified`, `value`. */
     val pending: List<PendingDiff>,
     /** Что увидели в ответе: реальный путь -> множество типов (для снятия прошлых отчётов). */
     val observedTypes: Map<List<PathStep>, Set<String>>,
@@ -18,6 +18,8 @@ internal class ValidationOutcome(
     val nonEmptyArrays: Set<List<PathStep>>,
     /** Массивы, содержимое которых проверено или пустота которых допустима: снимают `unverified` под собой. */
     val resolvedArrays: Set<List<PathStep>>,
+    /** Наблюдённые значения путей `monitor`: canonical path -> значения из этого ответа. */
+    val monitorValues: Map<String, Set<String>>,
     /** Вызвал запрос. */
     val caller: String?,
 )
@@ -80,6 +82,14 @@ internal class ResponseSnapshot(
 /** Лимит фрагмента значения, который хранится в расхождении типа/статуса. */
 internal const val diffSampleLimit: Int = 200
 
+/** Лимиты мониторинга значений; синхронизированы с константами в buildSrc (ReferenceCompiler). */
+internal const val monitorValueCountLimit: Int = 64
+internal const val monitorValueLengthLimit: Int = 100
+
+/** Маркеры вместо значений, когда правило `monitor` настроено на не-скаляр. */
+internal const val monitorMarkerObject: String = "<object>"
+internal const val monitorMarkerArray: String = "<array>"
+
 /** Лимит образца нового узла: 16 КБ, чтобы в него поместился целый элемент массива. */
 internal const val newSampleLimit: Int = 16 * 1024
 
@@ -106,6 +116,7 @@ internal class PathValidator(private val endpoint: Endpoint) {
     private val settledEmptyArrays = mutableSetOf<List<PathStep>>()
     private val nonEmptyArrays = mutableSetOf<List<PathStep>>()
     private val resolvedArrays = mutableSetOf<List<PathStep>>()
+    private val monitorValues = mutableMapOf<String, MutableSet<String>>()
 
     fun validate(root: JsonElement, caller: String?): ValidationOutcome {
         walk(root, emptyList())
@@ -115,6 +126,7 @@ internal class PathValidator(private val endpoint: Endpoint) {
             observedTypes = observedSnapshot(),
             nonEmptyArrays = nonEmptyArrays.toSet(),
             resolvedArrays = resolvedArrays.toSet(),
+            monitorValues = monitorValues.mapValues { (_, values) -> values.toSet() },
             caller = caller,
         )
     }
@@ -150,6 +162,8 @@ internal class PathValidator(private val endpoint: Endpoint) {
 
         observed.getOrPut(path) { mutableSetOf() }.add(jsonTypeOf(node))
         if (!samples.containsKey(path)) samples[path] = node
+
+        endpoint.bestMonitorExact(path)?.let { rule -> collectMonitorValue(rule, node) }
 
         when (node) {
             is JsonObject -> node.forEach { (key, value) -> walk(value, path + PathStep.Key(key)) }
@@ -189,6 +203,42 @@ internal class PathValidator(private val endpoint: Endpoint) {
         val head = ARRAY_SAMPLE_SIZE / 2
         val tail = ARRAY_SAMPLE_SIZE - head
         return (0 until head).toList() + (size - tail until size).toList()
+    }
+
+    // ------------------------------------------------------- мониторинг значений
+
+    /**
+     * Значение пути `monitor` из этого ответа. Скаляр пишется как есть, массив
+     * скаляров — элементы по одному, объект или массив с не-скалярными элементами
+     * — маркер: правило ошибочно, поля такого узла мониторят по отдельности.
+     */
+    private fun collectMonitorValue(rule: Endpoint.MonitorRule, node: JsonElement) {
+        when (node) {
+            is JsonObject -> addMonitorMarker(rule.canonical, monitorMarkerObject)
+            is JsonArray -> {
+                if (node.isEmpty()) return
+                if (node.all { it is JsonPrimitive || it is JsonNull }) {
+                    sampleIndices(node.size).forEach { index -> addMonitorScalar(rule.canonical, node[index]) }
+                } else {
+                    addMonitorMarker(rule.canonical, monitorMarkerArray)
+                }
+            }
+
+            else -> addMonitorScalar(rule.canonical, node)
+        }
+    }
+
+    private fun addMonitorMarker(canonical: String, marker: String) {
+        // Маркер — диагностика: лимиты на него не действуют.
+        monitorValues.getOrPut(canonical) { mutableSetOf() }.add(marker)
+    }
+
+    private fun addMonitorScalar(canonical: String, node: JsonElement) {
+        val value = if (node is JsonNull) "null" else (node as JsonPrimitive).content
+        if (value.length > monitorValueLengthLimit) return
+        val values = monitorValues.getOrPut(canonical) { mutableSetOf() }
+        if (values.size >= monitorValueCountLimit && value !in values) return
+        values.add(value)
     }
 
     // ---------------------------------------------------------------- отчёты
@@ -234,7 +284,28 @@ internal class PathValidator(private val endpoint: Endpoint) {
         }
 
         collectMissingAndUnverified(diffs)
+        collectMonitorDiffs(diffs)
         return diffs
+    }
+
+    /**
+     * `value`: наблюдённое значение пути `monitor`, которого нет в эталонных
+     * `monitor.values`. Как и `new`, снимется только переоценкой по обновлённому
+     * эталону: ответы с этим значением будут приходить и дальше.
+     */
+    private fun collectMonitorDiffs(diffs: MutableList<PendingDiff>) {
+        monitorValues.forEach { (canonical, values) ->
+            val recorded = endpoint.recordedValues[canonical] ?: emptySet()
+            values.filter { it !in recorded }.forEach { value ->
+                diffs += PendingDiff(
+                    endpoint = endpoint.name,
+                    kind = DiffKind.VALUE,
+                    path = canonical,
+                    observed = value,
+                    note = "новое значение пути monitor",
+                )
+            }
+        }
     }
 
     private data class Report(val rule: Endpoint.UsedRule, val kind: DiffKind, val note: String?)
