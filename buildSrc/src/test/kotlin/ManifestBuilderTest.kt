@@ -62,7 +62,12 @@ class ManifestBuilderTest {
         assertEquals("__MSG_extDescriptionFirefox__", manifest["description"]!!.jsonPrimitive.content)
         val gecko = manifest["browser_specific_settings"]!!.jsonObject["gecko"]!!.jsonObject
         assertEquals("{62e2b893-cd14-4019-8749-9ca43a1c66ac}", gecko["id"]!!.jsonPrimitive.content)
-        assertEquals("115.0", gecko["strict_min_version"]!!.jsonPrimitive.content)
+        assertEquals("126.0", gecko["strict_min_version"]!!.jsonPrimitive.content)
+        val dataCollection = gecko["data_collection_permissions"]!!.jsonObject
+        assertEquals(
+            listOf("none"),
+            dataCollection["required"]!!.jsonArray.map { it.jsonPrimitive.content },
+        )
         assertEquals(
             listOf("js/serviceWorkerKt.js"),
             manifest["background"]!!.jsonObject["scripts"]!!.jsonArray.map { it.jsonPrimitive.content },

@@ -38,7 +38,10 @@ fun buildManifest(browser: Browser, dev: Boolean, version: String): JsonObject =
         put("browser_specific_settings", buildJsonObject {
             put("gecko", buildJsonObject {
                 put("id", "{62e2b893-cd14-4019-8749-9ca43a1c66ac}")
-                put("strict_min_version", "115.0")
+                put("strict_min_version", "126.0")
+                put("data_collection_permissions", buildJsonObject {
+                    put("required", JsonArray(listOf(JsonPrimitive("none"))))
+                })
             })
         })
     }
