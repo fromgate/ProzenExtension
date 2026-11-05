@@ -1,12 +1,31 @@
+# Gradle / Kotlin
+build/
+.gradle/
+.kotlin/
+kotlin-js-store/
+out/
+
+# Node (Kotlin/JS)
+node_modules/
+*.log
+
+# IDE
+.idea/
+.fleet/
+*.iml
+*.ipr
+*.iws
+
+local.properties
+.DS_Store
+Thumbs.db
+*.hprof
+hs_err_pid*
+
 *.zip
 *.txt
-*.iml
 *.cmd
 *.sh
 .src4gptexclude
 .aiexclude
-.idea/
 .work/
-.fleet/
-.kotlin/
-kotlin-js-store/
