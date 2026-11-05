@@ -2,8 +2,9 @@
 build/
 .gradle/
 .kotlin/
-kotlin-js-store/
 out/
+kotlin-js-store/*
+!kotlin-js-store/yarn.lock
 
 # Node (Kotlin/JS)
 node_modules/
