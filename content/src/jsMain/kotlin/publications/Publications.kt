@@ -433,7 +433,7 @@ class Publications(val requester: Requester) {
         }
         if (waitList.isNotEmpty()) {
             window.setTimeout({
-                modifyPublicationTable(waitList)
+                modifyPublicationGrid(waitList)
             }, 300)
         }
     }
