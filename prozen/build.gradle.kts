@@ -149,7 +149,7 @@ tasks {
             archiveFileName.set("prozen-src.zip")
             from(rootProject.layout.projectDirectory) {
                 into("prozen-src")
-                exclude("**/.git/**", "**/.gradle/**", ".idea/**", ".kotlin/**", ".work/**", ".env*")
+                exclude("**/.git/**", "**/.gradle/**", ".idea/**", "**/.kotlin/**", ".work/**", ".env*")
                 exclude("build/**", "*/build/**")
                 exclude("AGENTS.md", "README.md")
                 exclude("docs/**")

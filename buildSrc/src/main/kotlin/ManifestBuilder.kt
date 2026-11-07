@@ -96,15 +96,9 @@ private fun webAccessibleResources(browser: Browser): List<String> {
         "status.html",
         "settings.html",
         "js/*.js",
+        "js/*.js.map"
     )
-    if (browser != Browser.FIREFOX) {
-        // В firefox-манифесте этих записей исторически нет — не добавляем без необходимости.
-        resources += "js/*.js.map"
-    }
-    resources += listOf("css/prozen.css", "img/*.png", "icons/*.png")
-    if (browser != Browser.FIREFOX) {
-        resources += "fonts/*.ttf"
-    }
+    resources += listOf("css/prozen.css", "img/*.png", "icons/*.png", "fonts/*.ttf")
     return resources
 }
 
