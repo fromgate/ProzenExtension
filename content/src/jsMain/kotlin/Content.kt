@@ -16,6 +16,7 @@ import publication.Article
 import publication.Brief
 import publication.Shorts
 import publication.Video
+import publications.cards.CardFields
 import requester.Requester
 import requester.RequesterCached
 import studio.Menu
@@ -158,6 +159,7 @@ fun keepServiceWorkerAlive() {
 
 fun main() {
     installDevValidator()
+    CardFields.init()
     installFirefoxResponseBodyFix()
     console.dLog("Content.Kt executed")
     Option.PROZEN.value().then { enabled ->
