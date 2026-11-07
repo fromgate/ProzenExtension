@@ -29,7 +29,7 @@ The build has two modes, chosen at configuration time in the root `build.gradle.
 
 ## Module map
 
-- Shared/library modules: `chrome/` (hand-maintained `chrome.*` externs, patches in `fix.*.kt`; no regeneration script), `common/` (storage, options, cache, date/i18n, logging, UI components), `requester/` (Dzen `editor-api` client; `RequesterCached` adds `chrome.storage.local` caching), `page-analyzer/`, `page/`, `database/` (IndexedDB scaffold, not imported by other modules yet), `devtools/` (dev-only API validator; real code in `src/dev/kotlin`, no-op stubs in `src/release/kotlin`, selected by `prozenDev`; library, no bundle of its own).
+- Shared/library modules: `chrome/` (hand-maintained `chrome.*` externs, patches in `fix.*.kt`; no regeneration script), `common/` (storage, options, cache, date/i18n, logging, UI components, card extension data contract), `requester/` (Dzen `editor-api` client; `RequesterCached` adds `chrome.storage.local` caching), `page-analyzer/`, `page/`, `database/` (IndexedDB scaffold, not imported by other modules yet), `devtools/` (dev-only API validator and dev card fields; real code in `src/dev/kotlin`, no-op stubs in `src/release/kotlin`, selected by `prozenDev`; library, no bundle of its own).
 - Executable bundles: `content/`, `popup/`, `search/`, `status/`, `stats/`, `settings/`, `service-worker/`, each with `fun main()`.
 - `prozen/` — packaging for all browsers (chrome/edge/firefox variant dirs and zips in `build/extension[-zip]/`, `prozen-sources.zip` for Firefox AMO) plus all static resources (HTML, CSS, icons, locales, fonts, XLSX library). It has no Kotlin sources; `manifest.json` is not a resource anymore.
 - `page-analyzer/` — publication checks. Add a `PageCheck` object plus a `TypeCheck` enum entry, then register it in the default list in `createPageContext()` (`PageContextBuilder.kt`).
@@ -43,6 +43,17 @@ The build has two modes, chosen at configuration time in the root `build.gradle.
 - `Requester` calls Dzen APIs with a mobile UA, Zen headers, and `X-Csrf-Token`. Content pages cache `prozenToken` and `prozenPublisherId` in `chrome.storage.local` for popup/search/stats/status.
 - Add settings as `Option` entries in `common/src/jsMain/kotlin/common/Options.kt`. `Settings.kt` renders every option automatically except `group = "hidden"`; it also hardcodes a `firefoxRelated` set that is hidden on Firefox.
 - UI strings go through `common/M.kt` (locale key = property name) or `data-i18n`; add keys to `_locales/ru/messages.json` (default locale) and `_locales/en/messages.json`.
+
+## Publication cards
+
+- Current state: the prep refactor is implemented; base fields and compositions are in `content/src/jsMain/kotlin/publications/cards/`, extension zones exist but are empty, and the external contract is still the callback-based `CardField`. The next stage is data-only external fields; the authoritative plan is `docs/card-fields-extension.md`.
+- Cards are existing Dzen DOM, not built from scratch. `content/src/jsMain/kotlin/publications/Publications.kt` rewrites stats blocks in three layouts: dashboard (`processDashboardCards`), publications table (`modifyPublicationTable`/`modifyTableRow`), publications grid (`modifyPublicationGrid`/`modifyGridCell`). Native page edits (table headers, time cell, snippet, grid date) stay in `Publications.kt`.
+- Base card fields are internal to `content`: `CardField`, `CardFieldRegistry`, `CardFields`, `CardVisibility`, `BaseCardFields` and the three compositions live in `content/src/jsMain/kotlin/publications/cards/`. `CardField` has a synchronous `render(Card, HTMLElement)` callback; do not expose it to other modules.
+- Target external contract: `CardExtra` and `CardExtraProvider` in `common` (`common.cards`); a provider receives a batch of `Card` and returns `Map<publicationId, List<CardExtra>>`. `content` batches providers before rendering, merges/sorts by `CardExtra.order`, and renders text/icon/title. Not implemented yet. Do not add a separate `cards-api` module for now; do not move DOM rendering into `common`.
+- `CardExtra` is data-only: `id`, `text`, `iconCssClass`, `title`, `order`. If a future module needs links or custom DOM, extend the contract deliberately (hybrid) instead of adding arbitrary render callbacks to `common`.
+- Next step: dev status provider from `devtools/src/dev` as `dev.status` (never add it to `CardFieldId`; it must stay in the extension zone). Once implemented, it is visible only with `Option.DEBUG`; `devtools/src/release` has a no-op stub. Toggling `DEBUG` requires a page reload; there is no live re-render.
+- Target placement: dashboard is a full-width row under the four columns; table is under ER in `cells[6]`; grid is a new row. External fields never shift base columns. A new table row is a possible future change, not current.
+- Premium is not designed yet and is not part of current work. It will use the same `CardExtraProvider` contract; batch loading already leaves room for remote data.
 
 ## API validator (dev only)
 
