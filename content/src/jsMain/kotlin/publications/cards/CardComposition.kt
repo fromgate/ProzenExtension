@@ -1,9 +1,12 @@
 package publications.cards
 
 import common.Card
+import common.cards.CardExtra
 import kotlinx.browser.document
 import kotlinx.html.div
+import kotlinx.html.dom.append
 import kotlinx.html.dom.create
+import kotlinx.html.span
 import kotlinx.html.style
 import org.w3c.dom.HTMLElement
 
@@ -52,7 +55,7 @@ class CardContainer(
 
 /**
  * Зона расширения: сюда попадают видимые поля внешних модулей, которых нет
- * в базовом наборе раскладки.
+ * в базовом наборе раскладки. Внешние поля приходят как data-only [CardExtra].
  */
 class CardExtensionZone(
     val containerClass: String,
@@ -91,7 +94,7 @@ class CardComposition(
         card: Card,
         parent: HTMLElement,
         visibleIds: Set<String>,
-        extensionFields: List<CardField>,
+        extras: List<CardExtra>,
     ) {
         val root: HTMLElement? = rootClass?.let { cssClass ->
             document.create.div(cssClass) {
@@ -142,7 +145,7 @@ class CardComposition(
             target.appendChild(containerElement)
         }
 
-        renderExtension(card, target, lastContainer, extensionFields)
+        renderExtension(target, lastContainer, extras)
 
         if (root != null) {
             parent.appendChild(root)
@@ -160,38 +163,40 @@ class CardComposition(
         }
 
     private fun renderExtension(
-        card: Card,
         target: HTMLElement,
         lastContainer: HTMLElement?,
-        extensionFields: List<CardField>,
+        extras: List<CardExtra>,
     ) {
         val zone = extension ?: return
-        if (extensionFields.isEmpty()) return
+        if (extras.isEmpty()) return
 
         val containerElement = document.create.div(zone.containerClass) {
             zone.containerStyle?.let { style = it }
         }
 
-        extensionFields.forEach { field ->
+        extras.forEach { extra ->
+            val iconCssClass = extra.iconCssClass
+            val text = extra.text
+            // Поле без текста и иконки пропускается: пустых строк не остаётся.
+            if (iconCssClass == null && text == null) return@forEach
+
             val slotElement = document.create.div(zone.slotClass) {
                 zone.slotStyle?.let { style = it }
             }
-            CardRenderState.withOptions(
-                CardRenderOptions(
-                    iconClass = layout.iconClass,
-                    textClass = layout.textClass,
-                    showIcon = true,
-                    iconTitle = false,
-                    textTitle = false,
-                    iconStyle = null,
-                    useShortUrl = layout.useShortUrl,
-                    originButton = layout.originButton,
-                )
-            ) {
-                field.render(card, slotElement)
+            extra.title?.let { slotElement.title = it }
+
+            slotElement.append {
+                if (iconCssClass != null) {
+                    span("${layout.iconClass} $iconCssClass")
+                }
+                if (text != null) {
+                    span(layout.textClass) { +text }
+                }
             }
             containerElement.appendChild(slotElement)
         }
+
+        if (containerElement.childElementCount == 0) return
 
         val extensionTarget = if (extensionInLastContainer) lastContainer else target
         extensionTarget?.appendChild(containerElement)

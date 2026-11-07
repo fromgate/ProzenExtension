@@ -121,8 +121,11 @@ object TableComposition {
             ),
         ),
         extension = CardExtensionZone(
-            containerClass = "prozen-card-row",
+            // Колонка, а не строка: несколько внешних полей должны идти
+            // отдельными строками под ER.
+            containerClass = "prozen-card-column",
             slotClass = "prozen-card-row",
+            containerStyle = "padding: 0px;",
         ),
         extensionInLastContainer = true,
     )

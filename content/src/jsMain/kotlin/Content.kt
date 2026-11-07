@@ -3,6 +3,7 @@ import PageType.*
 import common.*
 import common.Option
 import dataclasses.ProzenData
+import devtools.devCardExtraProviders
 import devtools.installDevValidator
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -16,6 +17,7 @@ import publication.Article
 import publication.Brief
 import publication.Shorts
 import publication.Video
+import publications.cards.CardExtras
 import publications.cards.CardFields
 import requester.Requester
 import requester.RequesterCached
@@ -160,6 +162,7 @@ fun keepServiceWorkerAlive() {
 fun main() {
     installDevValidator()
     CardFields.init()
+    CardExtras.init(devCardExtraProviders())
     installFirefoxResponseBodyFix()
     console.dLog("Content.Kt executed")
     Option.PROZEN.value().then { enabled ->

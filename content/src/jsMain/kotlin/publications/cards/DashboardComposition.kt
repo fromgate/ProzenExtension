@@ -100,6 +100,9 @@ object DashboardComposition {
         extension = CardExtensionZone(
             containerClass = "prozen-card-column",
             slotClass = "prozen-card-row",
+            // Полноширинная строка под четырьмя колонками: flex-basis заставляет
+            // контейнер перенестись на новую строку flex-ряда.
+            containerStyle = "flex-basis: 100%;",
         ),
     )
 }

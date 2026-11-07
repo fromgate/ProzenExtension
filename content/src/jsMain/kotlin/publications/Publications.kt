@@ -1,6 +1,7 @@
 package publications
 
 import common.Card
+import common.cards.CardExtra
 import common.isOldFormat
 import common.timeStr
 import dataclasses.ServiceWorkerMessage
@@ -12,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.dom.clear
 import org.w3c.dom.*
 import org.w3c.dom.asList
-import publications.cards.CardFields
+import publications.cards.CardExtras
 import publications.cards.CardVisibility
 import publications.cards.DashboardComposition
 import publications.cards.GridComposition
@@ -36,6 +37,7 @@ class Publications(val requester: Requester) {
             try {
                 val visibleIds = CardVisibility.visibleIds()
                 val cards = requester.getPublicationsByFilterAndSubscribers(pageSize).associateBy { it.id }
+                val extras = CardExtras.load(cards.values.toList())
                 val studioPublicationsBlock =
                     document.querySelector("div[class^=editor--last-publications__lastPublications-] > div > div")
                 val publicationsBlocks = studioPublicationsBlock
@@ -45,7 +47,9 @@ class Publications(val requester: Requester) {
                 publicationsBlocks?.forEach { publicationBlock ->
                     val id = getPublicationBlockId(publicationBlock) ?: return@forEach
                     val card = cards[id] ?: cards.values.firstOrNull { it.commonUrl == id }
-                    card?.let { updateStudioCardElement(publicationBlock, it, visibleIds) }
+                    card?.let {
+                        updateStudioCardElement(publicationBlock, it, visibleIds, extras[it.id].orEmpty())
+                    }
                 }
                 if (!publicationsBlocks.isNullOrEmpty()) {
                     studioPublicationsBlock.setAttribute("data-prozen-updated", "true")
@@ -78,7 +82,12 @@ class Publications(val requester: Requester) {
         return id
     }
 
-    private fun updateStudioCardElement(cardElement: HTMLElement, card: Card, visibleIds: Set<String>) {
+    private fun updateStudioCardElement(
+        cardElement: HTMLElement,
+        card: Card,
+        visibleIds: Set<String>,
+        extras: List<CardExtra>,
+    ) {
         val statElement =
             cardElement.querySelector(".editor--dashboard-publication-item__publicationStat-1u") as? HTMLElement
                 ?: return
@@ -88,7 +97,7 @@ class Publications(val requester: Requester) {
             card = card,
             parent = statElement,
             visibleIds = visibleIds,
-            extensionFields = CardFields.extensionFields(visibleIds),
+            extras = extras,
         )
     }
 
@@ -124,8 +133,17 @@ class Publications(val requester: Requester) {
      *  @param cards List<Card> - список с данными карточек с расширенной статистикой
      *
      */
-    private fun modifyPublicationTable(cards: List<Card>, visibleIds: Set<String>) {
+    private suspend fun modifyPublicationTable(cards: List<Card>, visibleIds: Set<String>) {
         if (isPublicationGrid()) return
+        val extras = CardExtras.load(cards)
+        modifyPublicationTable(cards, visibleIds, extras)
+    }
+
+    private fun modifyPublicationTable(
+        cards: List<Card>,
+        visibleIds: Set<String>,
+        extras: Map<String, List<CardExtra>>,
+    ) {
         val waitList = mutableListOf<Card>()
         val tHead = document.querySelector("thead > tr") as HTMLTableRowElement
         val titles = listOf(
@@ -144,18 +162,23 @@ class Publications(val requester: Requester) {
                 if (cardElement == null) {
                     waitList.add(card)
                 } else {
-                    modifyTableRow(cardElement, card, visibleIds)
+                    modifyTableRow(cardElement, card, visibleIds, extras[card.id].orEmpty())
                 }
             }
         }
         if (waitList.isNotEmpty()) {
             window.setTimeout({
-                modifyPublicationTable(waitList, visibleIds)
+                modifyPublicationTable(waitList, visibleIds, extras)
             }, 300)
         }
     }
 
-    private fun modifyTableRow(cell: HTMLElement, card: Card, visibleIds: Set<String>) {
+    private fun modifyTableRow(
+        cell: HTMLElement,
+        card: Card,
+        visibleIds: Set<String>,
+        extras: List<CardExtra>,
+    ) {
         if (cell.hasAttribute("data-prozen-publication-id")) return
         cell.setAttribute("data-prozen-publication-id", card.id)
 
@@ -171,7 +194,6 @@ class Publications(val requester: Requester) {
             it.textContent = card.timeStr()
         }
 
-        val extensionFields = CardFields.extensionFields(visibleIds)
         TableComposition.cells.forEachIndexed { index, composition ->
             rowCells.cells[index + TableComposition.FIRST_CELL_INDEX]?.let { tableCell ->
                 val cellElement = tableCell as? HTMLElement ?: return@let
@@ -180,7 +202,7 @@ class Publications(val requester: Requester) {
                     card = card,
                     parent = cellElement,
                     visibleIds = visibleIds,
-                    extensionFields = extensionFields,
+                    extras = extras,
                 )
             }
         }
@@ -203,8 +225,17 @@ class Publications(val requester: Requester) {
      *  @param cards List<Card> - список с данными карточек с расширенной статистикой
      *
      */
-    fun modifyPublicationGrid(cards: List<Card>, visibleIds: Set<String>) {
+    private suspend fun modifyPublicationGrid(cards: List<Card>, visibleIds: Set<String>) {
         if (!isPublicationGrid()) return
+        val extras = CardExtras.load(cards)
+        modifyPublicationGrid(cards, visibleIds, extras)
+    }
+
+    private fun modifyPublicationGrid(
+        cards: List<Card>,
+        visibleIds: Set<String>,
+        extras: Map<String, List<CardExtra>>,
+    ) {
         val waitList = mutableListOf<Card>()
         cards.forEach { card ->
             if (!card.isOldFormat()) {
@@ -212,13 +243,13 @@ class Publications(val requester: Requester) {
                 if (cellElement == null) {
                     waitList.add(card)
                 } else {
-                    modifyGridCell(cellElement, card, visibleIds)
+                    modifyGridCell(cellElement, card, visibleIds, extras[card.id].orEmpty())
                 }
             }
         }
         if (waitList.isNotEmpty()) {
             window.setTimeout({
-                modifyPublicationGrid(waitList, visibleIds)
+                modifyPublicationGrid(waitList, visibleIds, extras)
             }, 300)
         }
     }
@@ -239,7 +270,12 @@ class Publications(val requester: Requester) {
         return a?.parentElement as? HTMLElement
     }
 
-    fun modifyGridCell(cellElement: HTMLElement, card: Card, visibleIds: Set<String>) {
+    private fun modifyGridCell(
+        cellElement: HTMLElement,
+        card: Card,
+        visibleIds: Set<String>,
+        extras: List<CardExtra>,
+    ) {
         if (cellElement.hasAttribute("data-prozen-publication-id")) return
         cellElement.setAttribute("data-prozen-publication-id", card.id)
 
@@ -253,7 +289,7 @@ class Publications(val requester: Requester) {
                 card = card,
                 parent = it,
                 visibleIds = visibleIds,
-                extensionFields = CardFields.extensionFields(visibleIds),
+                extras = extras,
             )
         }
     }

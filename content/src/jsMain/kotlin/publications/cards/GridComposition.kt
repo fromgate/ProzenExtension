@@ -95,8 +95,11 @@ object GridComposition {
             ),
         ),
         extension = CardExtensionZone(
-            containerClass = "prozen-grid-card-row",
+            // Вертикальный контейнер: несколько внешних полей должны идти
+            // отдельными строками внизу карточки.
+            containerClass = "prozen-grid-card-stats",
             slotClass = "prozen-grid-card-cell",
+            slotStyle = "justify-content: left;",
         ),
     )
 }
